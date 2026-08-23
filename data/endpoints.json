@@ -1,0 +1,38 @@
+{
+  "note": "Public, unauthenticated Soulframe endpoints. 'confirmed' is empty on purpose: nothing has been verified to exist yet, and the publicWeb provider stays unavailable until an entry lands here. Populate it from `npm run probe`, which only issues plain GETs to the candidates below. Candidates mirror Warframe's public surface, where content.warframe.com/dynamic/getProfileViewingData.php serves the same profile the in-game viewer shows, with no login.",
+  "userAgent": "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper) contact: <your email>",
+  "minIntervalMs": 2000,
+  "confirmed": [],
+  "candidates": [
+    {
+      "id": "public-export-index",
+      "url": "https://origin.soulframe.com/PublicExport/index_en.txt.lzma",
+      "kind": "static-content",
+      "expects": "lzma"
+    },
+    {
+      "id": "content-public-export-index",
+      "url": "https://content.soulframe.com/PublicExport/index_en.txt.lzma",
+      "kind": "static-content",
+      "expects": "lzma"
+    },
+    {
+      "id": "world-state",
+      "url": "https://content.soulframe.com/dynamic/worldState.php",
+      "kind": "world-state",
+      "expects": "json"
+    },
+    {
+      "id": "profile-by-name",
+      "url": "https://content.soulframe.com/dynamic/getProfileViewingData.php?n={displayName}",
+      "kind": "account",
+      "expects": "json"
+    },
+    {
+      "id": "profile-by-id",
+      "url": "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId={accountId}",
+      "kind": "account",
+      "expects": "json"
+    }
+  ]
+}

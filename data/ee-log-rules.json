@@ -1,0 +1,30 @@
+{
+  "note": "Soulframe runs DE's Evolution engine, so EE.log looks like Warframe's: '<seconds> <Category> [<Level>]: <message>'. The patterns below follow that convention but NONE are verified against a real Soulframe log yet - every rule carries a confidence field, and unverified rules are skipped unless the caller opts in. Update these from a real log (launcher gear-wheel -> Get Logs) rather than changing parser code.",
+  "line": "^\\s*[\\d.]+\\s+(?<category>\\w+)\\s+\\[(?<level>\\w+)\\]:\\s*(?<message>.*)$",
+  "rules": [
+    {
+      "id": "build-label",
+      "kind": "build",
+      "confidence": "likely",
+      "pattern": "^Build Label:\\s*(?<build>.+)$"
+    },
+    {
+      "id": "login",
+      "kind": "session",
+      "confidence": "unverified",
+      "pattern": "^Logged in(?:\\s+as\\s+(?<displayName>.+))?$"
+    },
+    {
+      "id": "mission-end",
+      "kind": "session",
+      "confidence": "unverified",
+      "pattern": "^Mission (?:complete|ended)\\b.*$"
+    },
+    {
+      "id": "item-acquired",
+      "kind": "item",
+      "confidence": "unverified",
+      "pattern": "^(?:Acquired|Picked up|Received)\\s+(?<count>\\d+)?\\s*(?<name>[^,]+?)\\s*$"
+    }
+  ]
+}

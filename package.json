@@ -1,0 +1,20 @@
+{
+  "name": "sfhelper",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Desktop Soulframe companion - account snapshots, progression tracking and world data",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "probe": "node scripts/probe-endpoints.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
