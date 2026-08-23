@@ -4,11 +4,11 @@
   "minIntervalMs": 2000,
   "confirmed": [
     {
-      "id": "profile-by-name",
-      "url": "https://api.soulframe.com/cdn/getProfileViewingData.php?n={displayName}",
+      "id": "profile-by-id",
+      "url": "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId={accountId}",
       "kind": "account",
       "expects": "json",
-      "verified": "200 for a nonexistent name with an empty body, while unknown paths on this host 404 - the endpoint exists. Payload for a real account not yet confirmed."
+      "verified": "200 with 45KB of real profile JSON for a live account. Unauthenticated. Returns Results[0] (DisplayName, PlayerLevel, Affiliations, ChallengeProgress, LoadOutInventory incl. XPInfo) plus top-level Stats. accountId is a 24-hex Mongo ObjectId."
     },
     {
       "id": "client-ip",
@@ -32,16 +32,12 @@
       "verified": "200, 15321 bytes. Confirms the /Lotus/ content layout."
     }
   ],
-  "candidates": [
-    {
-      "id": "profile-by-id",
-      "url": "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId={accountId}",
-      "kind": "account",
-      "expects": "json",
-      "seenIn": "Warframe supports a playerId form; untested here"
-    }
-  ],
+  "candidates": [],
   "rejected": [
+    {
+      "url": "https://api.soulframe.com/cdn/getProfileViewingData.php?n={displayName}",
+      "result": "200 but always empty, even for a real display name in exact case - the name lookup is not wired up on Soulframe, unlike Warframe. Use playerId."
+    },
     {
       "url": "https://api.soulframe.com/api/worldState.php",
       "result": "404"

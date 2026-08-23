@@ -29,7 +29,8 @@ transcripts and `EE.log` error lines, then probed directly:
 
 | Endpoint | Result |
 |---|---|
-| `api.soulframe.com/cdn/getProfileViewingData.php?n=` | **200** - exists (empty body for an unknown name; unknown paths on this host 404) |
+| `api.soulframe.com/cdn/getProfileViewingData.php?playerId=` | **200 - 45KB of real profile JSON, unauthenticated** |
+| same endpoint, `?n=<displayName>` | 200 but always empty - the name lookup is not wired up here, unlike Warframe |
 | `api.soulframe.com/api/clientIP.php` | 200 - diagnostic; returns the caller's IP and city, never log it |
 | `origin.soulframe.com/origin/<hash>/index.txt.lzma` | 200 - client download manifest, 250 entries |
 | `content.soulframe.com/Lotus/...` | 200 - static content, `/Lotus/` namespace as in Warframe |
@@ -120,6 +121,56 @@ accrete rather than to sync.
   than a retry loop. Players have had IPs firewalled by DE for hammering
   these hosts.
 
+## What the profile endpoint gives you
+
+Confirmed against a live account. No login, no token - just an account id.
+
+```
+Results[0]
+  DisplayName, PlayerLevel, Created, MigratedToConsole
+  Affiliations        4 syndicates with Standing and Title
+  ChallengeProgress   1
+  LoadOutInventory    Suits / LongGuns / Melee / WeaponSkins (equipped only)
+                      XPInfo: 55 items with earned XP  <- mastery-style progression
+  LoadOutPreset, OperatorLoadOuts, DailyAffiliation, DailyAffiliationOde
+Stats                 16 keys: Weapons[85], Enemies[128], TimePlayedSec,
+                      MeleeKills, Deaths, PickupCount, Income, HealCount, ...
+TechProjects, XpComponents   (empty on this account)
+```
+
+That is enough to build a real companion: a progression tracker off `XPInfo`,
+per-weapon and per-enemy stats, syndicate standing, playtime. What it does
+**not** contain is the owned-item inventory - no resources, no currencies, no
+unequipped gear. Those live behind `inventory.php`, which needs a session, so
+they stay out of reach by design. Scope the app accordingly.
+
+## The account id problem
+
+The endpoint keys on a 24-hex Mongo ObjectId, and **nothing on disk hands the
+player their own id**. It is in no Soulframe log and not in `EE.cfg`. The only
+local copy found was `Avakot.org/littleGenius/metadata.json`
+(`last_active_account`), which exists only if the player uses Little Genius.
+
+So the app needs a one-time "paste your account id" step. Worth checking
+whether a signed-in session on soulframe.com exposes it somewhere the user can
+copy - that keeps the credential entirely inside their browser, which is the
+line we care about.
+
+## EE.log leaks other players' identities
+
+Squad lines pair account ids with IP addresses:
+
+```
+SquadOverlay.lua: Accepting invitation to join <name> in <sessionId>
+  hosted by 66d62da2aaa56f7bce0e5983 (StrictNAT: <ip>)
+Net [Info]: Phase 0 - requesting introduction ... from <accountId> (<ip>:4960)
+```
+
+Those ids are other people's, and they resolve against the same public profile
+endpoint. Two consequences: never upload or share raw EE.log content, and
+never persist ids parsed out of it. `Launcher.log` separately contains the
+local player's own public IP and city.
+
 ## What EE.log actually contains
 
 Verified against build `2026.08.20.11.07`. The line grammar in
@@ -158,9 +209,8 @@ inspect or export their own data.
 
 ## Open questions
 
-1. Does the profile endpoint return real data for a real display name, and
-   how much of the account does it cover?
-2. Does it accept the `playerId=` form as Warframe does?
+1. Where can a player read their own account id without a third-party app?
+2. How often does the profile endpoint update - live, or on some cache delay?
 3. Where does `worldState.php` actually live, if anywhere public?
 4. Static item names and icons: community dataset, or `Cache.Windows`
    extraction with its copyright caveats?
