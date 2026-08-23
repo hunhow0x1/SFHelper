@@ -1,37 +1,41 @@
-/** Fetch a public, unauthenticated endpoint.
+/** Fetch the public profile endpoint.
  *
- *  This is the ideal source if it exists: Warframe serves the in-game
- *  profile viewer's data from content.warframe.com with no login at all, so
- *  a companion app can read a player's public profile without ever holding
- *  a credential. Whether Soulframe exposes the same surface is unknown -
- *  data/endpoints.json ships with an empty `confirmed` list, and this
- *  provider reports itself unavailable until something is verified there.
+ *  Confirmed: GET api.soulframe.com/cdn/getProfileViewingData.php?playerId=<oid>
+ *  returns the player's public profile as JSON with no login, no token - the
+ *  same data the in-game profile viewer shows. The ?n=<displayName> form that
+ *  Warframe supports returns empty here, so this provider keys on the account
+ *  id (a 24-hex Mongo ObjectId) alone.
  *
- *  Etiquette is enforced here rather than left to callers: one request at a
- *  time, a floor on request spacing, an identifying User-Agent, Cache-Control
- *  respected, and a hard stop on 403/429 - DE has firewalled people for
- *  hammering these hosts.
+ *  Nothing on disk hands a player their own id, so the caller supplies it once
+ *  (see docs/account-data.md). It is a public identifier - other players' ids
+ *  appear in EE.log - but we still hash it before it lands in a snapshot.
+ *
+ *  Etiquette is enforced here, not left to callers: one request at a time, a
+ *  floor on spacing, an identifying User-Agent, and a hard stop on 403/429
+ *  rather than a retry loop - DE has firewalled people for hammering these hosts.
  */
 
 import type { AccountDataProvider, Availability, CaptureContext, ProviderMeta } from "../provider";
-import { emptySnapshot, type AccountSnapshot, type SourceRef } from "../snapshot";
-import { hashAccountId } from "../identity";
-import { snapshotFromExport } from "./jsonImport";
+import { type AccountSnapshot } from "../snapshot";
+import { snapshotFromProfile, type ProfileSnapshot } from "./profilePayload";
 
 const PROVIDER_ID = "public-web";
+const DEFAULT_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId={accountId}";
+/** A 24-hex Mongo ObjectId. Reject anything else before it reaches the wire. */
+const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
 
 export interface EndpointConfig {
   id: string;
   url: string;
-  kind: "static-content" | "world-state" | "account";
-  expects: "json" | "lzma" | "text";
+  kind: string;
+  expects: string;
 }
 
 export interface EndpointsFile {
   userAgent: string;
   minIntervalMs: number;
   confirmed: EndpointConfig[];
-  candidates: EndpointConfig[];
+  candidates?: EndpointConfig[];
 }
 
 export class RateLimiter {
@@ -59,7 +63,7 @@ export class EndpointRefusedError extends Error {
 }
 
 export function fillTemplate(url: string, vars: Record<string, string>): string {
-  return url.replace(/\{(\w+)\}/g, (match, key: string) => {
+  return url.replace(/\{(\w+)\}/g, (_match, key: string) => {
     const value = vars[key];
     if (value === undefined) throw new Error(`Endpoint template needs "${key}"`);
     return encodeURIComponent(value);
@@ -75,7 +79,8 @@ export interface PublicWebDeps {
 export function createPublicWebProvider(deps: PublicWebDeps): AccountDataProvider {
   const doFetch = deps.fetchImpl ?? fetch;
   const limiter = deps.limiter ?? new RateLimiter(deps.endpoints.minIntervalMs);
-  const accountEndpoint = deps.endpoints.confirmed.find((e) => e.kind === "account");
+  const endpoint =
+    deps.endpoints.confirmed.find((e) => e.kind === "account")?.url ?? DEFAULT_ENDPOINT;
 
   const meta: ProviderMeta = {
     id: PROVIDER_ID,
@@ -84,29 +89,24 @@ export function createPublicWebProvider(deps: PublicWebDeps): AccountDataProvide
     requiresCredentials: false,
     touchesGameProcess: false,
     description:
-      "Read a public profile endpoint by display name. No login, no token, nothing the game does not already publish.",
+      "Read a public profile by account id - equipped arsenal, mastery XP, lifetime and per-weapon/enemy stats, standing. No login, nothing the game does not already publish.",
   };
 
   return {
     meta,
     async isAvailable(ctx: CaptureContext): Promise<Availability> {
-      if (!accountEndpoint) {
-        return {
-          available: false,
-          reason: "no public Soulframe profile endpoint has been confirmed yet",
-        };
-      }
-      return ctx.paths?.displayName
-        ? { available: true }
-        : { available: false, reason: "no display name entered" };
+      const id = ctx.paths?.accountId;
+      if (!id) return { available: false, reason: "no account id entered" };
+      if (!ACCOUNT_ID_RE.test(id)) return { available: false, reason: "account id is not a 24-hex id" };
+      return { available: true };
     },
     async capture(ctx: CaptureContext): Promise<AccountSnapshot> {
-      if (!accountEndpoint) throw new Error("no confirmed public profile endpoint");
-      const displayName = ctx.paths?.displayName;
-      if (!displayName) throw new Error("public-web requires paths.displayName");
+      const accountId = ctx.paths?.accountId;
+      if (!accountId) throw new Error("public-web requires paths.accountId");
+      if (!ACCOUNT_ID_RE.test(accountId)) throw new Error("account id must be 24 hex characters");
 
       await limiter.wait();
-      const url = fillTemplate(accountEndpoint.url, { displayName });
+      const url = fillTemplate(endpoint, { accountId });
       const init: RequestInit = { headers: { "user-agent": deps.endpoints.userAgent } };
       if (ctx.signal) init.signal = ctx.signal;
       const response = await doFetch(url, init);
@@ -116,22 +116,13 @@ export function createPublicWebProvider(deps: PublicWebDeps): AccountDataProvide
       }
       if (!response.ok) throw new Error(`Profile lookup failed (${response.status})`);
 
-      const payload: unknown = await response.json();
-      const observedAt = new Date().toISOString();
-      const snapshot = snapshotFromExport(payload, observedAt);
-      // A public profile is a curated view, never the whole account.
-      const source: SourceRef = { providerId: PROVIDER_ID, fidelity: "partial", observedAt };
-      snapshot.sources = [source];
-      for (const item of snapshot.items) item.source = source;
-      for (const entry of snapshot.progression) entry.source = source;
-      snapshot.account.displayName ??= displayName;
-      snapshot.account.accountIdHash ??= hashAccountId(displayName);
-      return snapshot;
+      const text = await response.text();
+      // An unknown id answers 200 with an empty body.
+      if (text.trim() === "") throw new Error(`No profile for account id ${accountId}`);
+      return snapshotFromProfile(JSON.parse(text) as unknown, new Date().toISOString());
     },
   };
 }
 
-/** Placeholder used by the UI when no source has ever run. */
-export function noDataSnapshot(): AccountSnapshot {
-  return emptySnapshot();
-}
+export type { ProfileSnapshot };
+export { snapshotFromProfile } from "./profilePayload";

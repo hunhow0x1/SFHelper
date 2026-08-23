@@ -1,0 +1,848 @@
+{
+  "Results": [
+    {
+      "AccountId": {
+        "$oid": "000000000000000000000000"
+      },
+      "DisplayName": "ExampleEnvoy",
+      "PlayerLevel": 17,
+      "LoadOutPreset": {
+        "PresetIcon": "",
+        "Favorite": false,
+        "n": "Sirin",
+        "s": {
+          "ItemId": {
+            "$oid": "692614eee1096159e40bdbca"
+          },
+          "mod": 0,
+          "cus": 3
+        },
+        "l": {
+          "ItemId": {
+            "$oid": "6904d6fbcdbcda011a076716"
+          },
+          "mod": 0,
+          "cus": 0
+        },
+        "m": {
+          "ItemId": {
+            "$oid": "69238725a4afdcbece0fec0d"
+          },
+          "mod": 0,
+          "cus": 0
+        },
+        "v": "/SF/Types/Items/AttributeItems/DynamicVirtues",
+        "vu": 0.16862746,
+        "vv": 0.66666669
+      },
+      "LoadOutInventory": {
+        "WeaponSkins": [
+          {
+            "ItemType": "/SF/Upgrades/Skins/Helmets/BromiusClosedHelmet"
+          },
+          {
+            "ItemType": "/SF/Upgrades/Skins/Body/BromiusBody"
+          },
+          {
+            "ItemType": "/SF/Upgrades/Skins/Legs/BromiusLegs"
+          },
+          {
+            "ItemType": "/SF/Upgrades/Skins/Hair/FemaleShortHairA",
+            "IgnoreBinCount": true
+          },
+          {
+            "ItemType": "/SF/Upgrades/Skins/Totem/PrimordialTotem",
+            "IgnoreBinCount": true
+          },
+          {
+            "ItemType": "/SF/Upgrades/Skins/Helmets/OrengalClosedHelmet",
+            "Features": 1
+          },
+          {
+            "ItemType": "/SF/Upgrades/Skins/Body/OrengalBody"
+          },
+          {
+            "ItemType": "/SF/Upgrades/Skins/Legs/OrengalLegs"
+          }
+        ],
+        "Suits": [
+          {
+            "ItemType": "/SF/Souls/Default/JolsafarSoul",
+            "Configs": [
+              {
+                "Skins": [
+                  "/SF/Upgrades/Skins/Helmets/BromiusClosedHelmet",
+                  "/SF/Upgrades/Skins/Sleeve/WyldJosalfarSleeve",
+                  "/SF/Upgrades/Skins/Body/BromiusBody",
+                  "/SF/Upgrades/Skins/Legs/BromiusLegs",
+                  "/SF/Upgrades/Skins/Hair/FemaleShortHairA",
+                  "/SF/Upgrades/Skins/Totem/PrimordialTotem",
+                  "/SF/Upgrades/Skins/Head/MaleHeadE"
+                ],
+                "Transmog": [
+                  "699e60126ec82f19390aff80",
+                  "",
+                  "699e5d7af6085cc6800a84ab",
+                  "699e5d7af6085cc6800a84ac"
+                ],
+                "chscol": {
+                  "t0": -7177042,
+                  "t1": -16777216,
+                  "t2": -11325866,
+                  "t3": -2773396
+                },
+                "eyecol": {
+                  "t0": -2139062144
+                },
+                "hlmcol": {
+                  "t0": -16777216,
+                  "t1": -8494178,
+                  "t2": -11325866,
+                  "t3": -2904464
+                },
+                "legcol": {
+                  "t0": -16777216,
+                  "t1": -11325866,
+                  "t2": -8494178,
+                  "t3": -3035530
+                },
+                "armcol": {
+                  "t0": -8494178,
+                  "t1": -8494178,
+                  "t2": -7177042,
+                  "t3": -2971292
+                },
+                "pricol": {
+                  "t0": -4539718,
+                  "t1": -15263977,
+                  "t2": -9222366,
+                  "t3": -9813472
+                }
+              },
+              {
+                "Skins": [
+                  "",
+                  "/SF/Upgrades/Skins/Sleeve/WyldJosalfarSleeve"
+                ]
+              },
+              {
+                "Skins": [
+                  "",
+                  "/SF/Upgrades/Skins/Sleeve/WyldJosalfarSleeve"
+                ]
+              },
+              {
+                "Skins": [
+                  "/SF/Upgrades/Skins/Helmets/OrengalClosedHelmet",
+                  "",
+                  "/SF/Upgrades/Skins/Body/OrengalBody",
+                  "/SF/Upgrades/Skins/Legs/OrengalLegs",
+                  "/SF/Upgrades/Skins/Hair/FemaleShortHairA",
+                  "/SF/Upgrades/Skins/Totem/PrimordialTotem",
+                  "/SF/Upgrades/Skins/Head/MaleHeadE"
+                ],
+                "Transmog": [
+                  "",
+                  "",
+                  "699e5d7af6085cc6800a84ab",
+                  "699e5d7af6085cc6800a84ac"
+                ],
+                "armcol": {
+                  "t0": -12360034,
+                  "t1": -16768434,
+                  "t2": -16768434,
+                  "t3": -6508882
+                },
+                "chscol": {
+                  "t0": -15576685,
+                  "t1": -16768434,
+                  "t2": -16777216,
+                  "t3": -7955557
+                },
+                "hlmcol": {
+                  "t0": -16766631,
+                  "t1": -12360034,
+                  "t2": -16777216,
+                  "t3": -7955557
+                },
+                "legcol": {
+                  "t0": -15576685,
+                  "t1": -16777216,
+                  "t2": -16777216,
+                  "t3": -7955557
+                },
+                "pricol": {
+                  "t0": -593174,
+                  "t1": -15263977,
+                  "t2": -9222366,
+                  "t3": -9813472
+                },
+                "eyecol": {
+                  "t0": -2139062144
+                }
+              }
+            ],
+            "Features": 2,
+            "XP": 1639771,
+            "ItemId": {
+              "$oid": "692614eee1096159e40bdbca"
+            }
+          }
+        ],
+        "LongGuns": [
+          {
+            "ItemType": "/SF/Weapons/Melee/OneHand/SecondaryFeyDagger/SecondaryFeyDaggerMeleeWeapon",
+            "Configs": [
+              [],
+              {},
+              {}
+            ],
+            "XP": 94488,
+            "UpgradeType": "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRG",
+            "AspectFingerprint": "",
+            "AspectType": "/SF/Types/Items/Aspects/FeySecondaryLightMeleeAspectManifest",
+            "Quality": "IQ_WORN",
+            "ItemId": {
+              "$oid": "6904d6fbcdbcda011a076716"
+            }
+          }
+        ],
+        "Melee": [
+          {
+            "ItemType": "/SF/Weapons/Melee/OneHand/FeySword/FeySwordMeleeWeapon",
+            "Configs": [
+              [],
+              {},
+              {}
+            ],
+            "XP": 159232,
+            "UpgradeType": "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRG",
+            "AspectFingerprint": "",
+            "AspectType": "/SF/Types/Items/Aspects/FeyLightMeleeAspectManifest",
+            "Quality": "IQ_WORN",
+            "ItemId": {
+              "$oid": "69238725a4afdcbece0fec0d"
+            }
+          }
+        ],
+        "XPInfo": [
+          {
+            "ItemType": "/SF/Souls/Ode/OdeSoul",
+            "XP": 1440099
+          },
+          {
+            "ItemType": "/SF/Weapons/Melee/TwoHand/SpherePolearm/SpherePolearmMeleeWeapon",
+            "XP": 235174
+          },
+          {
+            "ItemType": "/SF/Weapons/Melee/OneHand/FennJotarSword/FennJotarSwordMeleeWeapon",
+            "XP": 420247
+          }
+        ]
+      },
+      "ChallengeProgress": [
+        {
+          "Name": "SHOOT_PROJECTILE",
+          "Progress": 14
+        }
+      ],
+      "Created": {
+        "$date": {
+          "$numberLong": "1658018850947"
+        }
+      },
+      "MigratedToConsole": false,
+      "Affiliations": [
+        {
+          "Tag": "ChampionSyndicate",
+          "Standing": 102190,
+          "Title": 5
+        },
+        {
+          "Tag": "FeySyndicate",
+          "Standing": 83500,
+          "Title": 5
+        },
+        {
+          "Tag": "OdeSyndicate",
+          "Standing": 8136,
+          "Title": 1
+        },
+        {
+          "Tag": "SilentRoseSyndicate",
+          "Standing": 89925,
+          "Title": 5
+        }
+      ],
+      "DailyAffiliation": 22890,
+      "DailyAffiliationOde": 24500,
+      "OperatorLoadOuts": []
+    }
+  ],
+  "TechProjects": [],
+  "XpComponents": [],
+  "Stats": {
+    "Deaths": 287,
+    "Rating": 0,
+    "Weapons": [
+      {
+        "equipTime": 182.262696,
+        "type": "/SF/Souls/Default/BaseSoul"
+      },
+      {
+        "equipTime": 278233.9212454999,
+        "headshots": 9,
+        "kills": 966,
+        "xp": 1440099,
+        "assists": 138,
+        "type": "/SF/Souls/Ode/OdeSoul"
+      },
+      {
+        "equipTime": 18290.178590000003,
+        "type": "/SF/Weapons/Guns/Default/ShoulderGun"
+      }
+    ],
+    "Enemies": [
+      {
+        "executions": 19,
+        "headshots": 178,
+        "kills": 815,
+        "assists": 40,
+        "type": "/SF/Types/Enemies/Melee/DualMeleeGruntAvatar"
+      },
+      {
+        "executions": 122,
+        "headshots": 512,
+        "kills": 3192,
+        "assists": 188,
+        "deaths": 1,
+        "type": "/SF/Types/Enemies/Melee/MeleeGruntAvatar"
+      },
+      {
+        "executions": 34,
+        "headshots": 170,
+        "kills": 981,
+        "assists": 35,
+        "type": "/SF/Types/Enemies/Ranged/RangedHunterAvatar"
+      }
+    ],
+    "HealCount": 80093,
+    "Income": 1907385,
+    "MeleeKills": 23201,
+    "MissionsQuit": 800,
+    "MissionsInterrupted": 18,
+    "TimePlayedSec": 1605154.4256579936,
+    "PickupCount": 38699,
+    "PlayerLevel": 17,
+    "Rank": 0,
+    "Abilities": [
+      {
+        "used": 482,
+        "type": "/SF/Souls/Ode/OdeShockAbility"
+      },
+      {
+        "used": 846,
+        "type": "/SF/Souls/Ode/OdeWaveAbility"
+      },
+      {
+        "used": 12543,
+        "type": "/SF/Souls/Powers/SoulStealAbility"
+      },
+      {
+        "used": 549,
+        "type": "/SF/Souls/Ode/OdeShieldAbility"
+      },
+      {
+        "used": 4965,
+        "type": "/SF/Souls/Ode/OdeCannonAbility"
+      },
+      {
+        "used": 16,
+        "type": "/SF/Souls/Powers/FireBladeAbility"
+      },
+      {
+        "used": 192,
+        "type": "/SF/Souls/Stag/GarrenLightAbility"
+      },
+      {
+        "used": 199,
+        "type": "/SF/Souls/Stag/GarrenSapAbility"
+      },
+      {
+        "used": 7,
+        "type": "/SF/Souls/Stag/GarrenSummonAbility"
+      },
+      {
+        "used": 111,
+        "type": "/SF/Souls/Stag/StagStampedeAbility"
+      },
+      {
+        "used": 342,
+        "type": "/SF/Souls/Default/FeyBloodLustAbility"
+      },
+      {
+        "used": 223,
+        "type": "/SF/Souls/Default/FeyRageAbility"
+      },
+      {
+        "used": 160,
+        "type": "/SF/Souls/Default/FeyStompAbility"
+      },
+      {
+        "used": 32,
+        "type": "/SF/Souls/Wolf/WolfAbility"
+      },
+      {
+        "used": 295,
+        "type": "/SF/Souls/Wolf/WolfPackAbility"
+      },
+      {
+        "used": 268,
+        "type": "/SF/Souls/Wolf/WolfHowlAbility"
+      },
+      {
+        "used": 1,
+        "type": "/SF/Souls/Wolf/WolfPlayerAbility"
+      },
+      {
+        "used": 696,
+        "type": "/SF/Upgrades/Runes/Weapon/Melee/StarterMeleeRuneAbility"
+      },
+      {
+        "used": 72,
+        "type": "/SF/Upgrades/Runes/Weapon/Caster/StarterCasterRuneAbility"
+      },
+      {
+        "used": 713,
+        "type": "/SF/Souls/Bromius/BromiusSlamAbility"
+      },
+      {
+        "used": 274,
+        "type": "/SF/Souls/Bromius/BromiusRootAbility"
+      },
+      {
+        "used": 609,
+        "type": "/SF/Souls/Bromius/BromiusArmourAbility"
+      },
+      {
+        "used": 114,
+        "type": "/SF/Upgrades/Runes/Weapon/Bow/StarterBowRuneAbility"
+      },
+      {
+        "used": 100,
+        "type": "/SF/Souls/Fenn/FireRainAbility"
+      },
+      {
+        "used": 91,
+        "type": "/SF/Souls/Fenn/BlazeArmourAbility"
+      },
+      {
+        "used": 69,
+        "type": "/SF/Souls/Fenn/FirePushAbility"
+      },
+      {
+        "used": 634,
+        "type": "/SF/Souls/Default/FeyBloodLustAbilityPrime"
+      },
+      {
+        "used": 612,
+        "type": "/SF/Upgrades/Runes/Weapon/Magiks/StarterCasterRuneAbility"
+      },
+      {
+        "used": 997,
+        "type": "/SF/Souls/Default/FeyRageAbilityPrime"
+      },
+      {
+        "used": 577,
+        "type": "/SF/Souls/Default/FeyStompAbilityPrime"
+      },
+      {
+        "used": 220,
+        "type": "/SF/Souls/Default/FeyDecoyAbilityPrime"
+      },
+      {
+        "used": 81,
+        "type": "/SF/Souls/Default/FeyInvisibleAbilityPrime"
+      },
+      {
+        "used": 804,
+        "type": "/SF/Upgrades/Runes/Weapon/LongBlade/StarterMeleeRuneAbility"
+      },
+      {
+        "used": 258,
+        "type": "/SF/Souls/Default/FeyBlindAbilityPrime"
+      },
+      {
+        "used": 635,
+        "type": "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeProjectileRuneAbility"
+      },
+      {
+        "used": 40,
+        "type": "/SF/Souls/Default/FeyHealthTotemAbility"
+      },
+      {
+        "used": 13,
+        "type": "/SF/Souls/Default/FeyWardFlockAbility"
+      },
+      {
+        "used": 7,
+        "type": "/SF/Souls/Default/FeyWardStoneAbility"
+      },
+      {
+        "used": 285,
+        "type": "/SF/Souls/Default/FeyHealthTotemAbilityPrime"
+      },
+      {
+        "used": 170,
+        "type": "/SF/Souls/Default/FeyWardFlockAbilityPrime"
+      },
+      {
+        "used": 185,
+        "type": "/SF/Souls/Default/FeyWardStoneAbilityPrime"
+      },
+      {
+        "used": 1006,
+        "type": "/SF/Upgrades/Runes/Weapon/Magiks/ExplosiveBuildUpRuneAbility"
+      },
+      {
+        "used": 455,
+        "type": "/SF/Upgrades/Runes/Weapon/Bow/BowRainRuneAbility"
+      },
+      {
+        "used": 3,
+        "type": "/SF/Upgrades/Runes/Weapon/Shield/SBLaserRuneAbility"
+      },
+      {
+        "used": 14,
+        "type": "/SF/Souls/Default/FeyInvisibleAbility"
+      },
+      {
+        "used": 209,
+        "type": "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeInvisRuneAbility"
+      },
+      {
+        "used": 23,
+        "type": "/SF/Souls/Default/FeyDecoyAbility"
+      },
+      {
+        "used": 5,
+        "type": "/SF/Souls/Default/FeyBlindAbility"
+      },
+      {
+        "used": 337,
+        "type": "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeSeekingRuneAbility"
+      },
+      {
+        "used": 85,
+        "type": "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordRangeRuneAbility"
+      },
+      {
+        "used": 70,
+        "type": "/SF/Upgrades/Runes/Weapon/Polearm/PolearmMultiThrowAbility"
+      },
+      {
+        "used": 306,
+        "type": "/SF/Souls/Fencer/CrossBoltAbility"
+      },
+      {
+        "used": 156,
+        "type": "/SF/Souls/Fencer/BravadoAbility"
+      },
+      {
+        "used": 117,
+        "type": "/SF/Souls/Fencer/GuidingHandAbility"
+      }
+    ],
+    "ReviveCount": 30,
+    "Scans": [
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntEliteAvatar"
+      },
+      {
+        "scans": 1,
+        "type": "/SF/Types/Enemies/Sinecure/Caster/OdeOrganistAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/NeutralCreatures/Fawn/FawnAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/NeutralCreatures/Rabbit/RabbitAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/NeutralCreatures/Rats/RatBaseAvatar"
+      },
+      {
+        "scans": 2,
+        "type": "/SF/Types/NeutralCreatures/Duck/DuckAvatarRare"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Wildlife/BaliqShrimpAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Melee/MendicantWazzardKnight/MendicantWazzardKnightAvatar"
+      },
+      {
+        "scans": 3,
+        "type": "/SF/Types/Enemies/Melee/MendicantThrall/MendicantThrallAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Corrupted/Decapede/CorruptedDecapedeAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/NeutralCreatures/Squirrel/SquirrelAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntDualAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Knight/MeleeDaggerAndShieldAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Melee/MendicantKnight/MendicantKnightAvatar"
+      },
+      {
+        "scans": 4,
+        "type": "/SF/Types/Enemies/Corrupted/Decapede/CorruptedDecapedeGruntAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntNightAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Knight/MeleeMaceAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntMessengerAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Hunter/RangedHunterSubBossAvatar"
+      },
+      {
+        "scans": 2,
+        "type": "/SF/Types/Enemies/Ranged/Mendicant/Wazzard/MendicantWazzardSubBossAvatar"
+      },
+      {
+        "scans": 3,
+        "type": "/SF/Types/Enemies/Wildlife/Spider/SpiderSubBossAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Wildlife/Spider/SpiderEliteSwampAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntDualEliteAvatar"
+      },
+      {
+        "scans": 3,
+        "type": "/SF/Types/NeutralCreatures/Rabbit/RabbitAvatarRare"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/NeutralCreatures/Squirrel/SquirrelAvatarRare"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/NeutralCreatures/Fawn/FawnAvatarRare"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/NeutralCreatures/Duck/DuckAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Knight/MeleeSwordOfficerAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/OdeAttackDog/OdeAttackDogAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Hunter/RangedHunterAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Corrupted/CorruptedSlug/CorruptedSlugAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/CorruptedSproutFolk/CorruptedSproutFolkGrunt/CorruptedSproutFolkGruntSwampAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Hunter/RangedHunterEliteAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Knight/MeleeMaceOrganSubBossAvatar"
+      },
+      {
+        "scans": 4,
+        "type": "/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntShieldEliteAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Knight/MeleeSwordAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Knight/MeleeMaceOfficerAvatar"
+      },
+      {
+        "scans": 2,
+        "type": "/SF/Types/Enemies/Corrupted/Decapede/CorruptedDecapedeGruntSummonAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/OdeAttackDog/CorruptedOdeAttackDog/CorruptedOdeAttackDogAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Knight/MeleeAxeAvatar"
+      },
+      {
+        "scans": 3,
+        "type": "/SF/Types/Enemies/Bosses/CorruptedBromius/VadgarBear/VadagarBearAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Wildlife/Mockeries/MockeryArmoredManAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Wildlife/Mockeries/MockeryManAvatar"
+      },
+      {
+        "scans": 2,
+        "type": "/SF/Types/Enemies/Wildlife/Spider/WazzardSpiderAvatar"
+      },
+      {
+        "scans": 2,
+        "type": "/SF/Types/Enemies/Sinecure/Nimrod/NimrodSubBossAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntShieldAvatar"
+      },
+      {
+        "scans": 3,
+        "type": "/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntSpikedMaceEliteAvatar"
+      },
+      {
+        "scans": 4,
+        "type": "/SF/Types/Enemies/Wildlife/Mockeries/MockeryArmoredManSubBossAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Wildlife/Mockeries/MockeriesSpirits/MockerySpiritManAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Wildlife/Spider/SpiderAvatar"
+      },
+      {
+        "scans": 3,
+        "type": "/SF/Types/Enemies/CorruptedSproutFolk/CorruptedSproutFolkGrunt/CorruptedSproutFolkGruntAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Sinecure/Caster/OdeCasterAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Ranged/OdeCasterSubBoss/OdeCasterGraceSubbossAvatar"
+      },
+      {
+        "scans": 4,
+        "type": "/SF/Types/Enemies/Ranged/OdeCasterSubBoss/OdeCasterSpiritSubbossAvatar"
+      },
+      {
+        "scans": 5,
+        "type": "/SF/Types/Enemies/Ranged/OdeCasterSubBoss/OdeCasterCourageSubbossAvatar"
+      },
+      {
+        "scans": 3,
+        "type": "/SF/Types/Enemies/Sinecure/Knight/MeleeMaceOfficerSubBossAvatar"
+      },
+      {
+        "scans": 4,
+        "type": "/SF/Types/Enemies/CorruptedSproutFolk/CorruptedSproutFolkSubBossAvatar"
+      },
+      {
+        "scans": 2,
+        "type": "/SF/Types/Enemies/Melee/WanderingGhostKnight/WanderingGhostSoldierAvatar"
+      },
+      {
+        "scans": 4,
+        "type": "/SF/Types/Enemies/Sinecure/Knight/MeleeHeavyNightAvatar"
+      },
+      {
+        "scans": 2,
+        "type": "/SF/Types/Enemies/Melee/MendicantKnight/MendicantKnightBellCleaverSubBossAvatar"
+      },
+      {
+        "scans": 2,
+        "type": "/SF/Types/Enemies/Wildlife/Spider/SpiderEliteSummonAvatar"
+      },
+      {
+        "scans": 4,
+        "type": "/SF/Types/Enemies/Sinecure/Hunter/MeleeHunterDaggerEliteAvatar"
+      },
+      {
+        "scans": 1,
+        "type": "/SF/Types/Enemies/CorruptedSproutFolk/CorruptedSproutFolkGrunt/CorruptedSproutFolkSpearGruntAvatar"
+      },
+      {
+        "scans": 1,
+        "type": "/SF/Types/NeutralCreatures/Rats/RatBaseAvatarRare"
+      },
+      {
+        "scans": 4,
+        "type": "/SF/Types/Enemies/Sinecure/Caster/OdeCasterEliteAvatar"
+      },
+      {
+        "scans": 1,
+        "type": "/SF/Types/Enemies/Wildlife/Spirits/CryptSpiritBaseAvatar"
+      },
+      {
+        "scans": 1,
+        "type": "/SF/Types/Enemies/Melee/MendicantKing/MendicantKingAvatar"
+      },
+      {
+        "scans": 1,
+        "type": "/SF/Types/NeutralCreatures/Beaver/BeaverAvatar"
+      },
+      {
+        "scans": 1,
+        "type": "/SF/Types/Enemies/Melee/MendicantWazzardKnight/MendicantWazzardKnightSubBossAvatar"
+      },
+      {
+        "scans": 1,
+        "type": "/SF/Types/Enemies/Melee/Fencer/GhostPirateAvatar"
+      },
+      {
+        "scans": 1,
+        "type": "/SF/Types/Enemies/CorruptedSproutFolk/CorruptedSproutFolkSubBossProcAvatar"
+      }
+    ]
+  }
+}

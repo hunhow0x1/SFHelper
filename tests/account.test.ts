@@ -126,3 +126,88 @@ describe("public web etiquette", () => {
     expect(fillTemplate("https://x/?n={displayName}", { displayName: "A B" })).toBe("https://x/?n=A%20B");
   });
 });
+
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { snapshotFromProfile } from "../src/account/providers/profilePayload";
+import { createPublicWebProvider, type EndpointsFile } from "../src/account/providers/publicWeb";
+
+const fixture = JSON.parse(
+  readFileSync(fileURLToPath(new URL("./fixtures/profile.sample.json", import.meta.url)), "utf8"),
+) as unknown;
+
+const endpoints: EndpointsFile = {
+  userAgent: "test",
+  minIntervalMs: 0,
+  confirmed: [
+    {
+      id: "profile-by-id",
+      url: "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId={accountId}",
+      kind: "account",
+      expects: "json",
+    },
+  ],
+};
+
+describe("profile payload parsing (real shape)", () => {
+  const snap = snapshotFromProfile(fixture, "2026-08-23T00:00:00Z");
+
+  it("reads identity and hashes the account id", () => {
+    expect(snap.account.displayName).toBe("ExampleEnvoy");
+    expect(snap.account.accountIdHash).toMatch(/^[0-9a-f]{32}$/);
+    expect(snap.currencies.PlayerLevel).toBe(17);
+  });
+
+  it("folds equipped loadout and XPInfo into one item list", () => {
+    const soul = snap.items.find((i) => i.category === "soul");
+    expect(soul?.key).toContain("/SF/Souls/");
+    expect(snap.items.every((i) => i.source.fidelity === "partial")).toBe(true);
+    // A partial view is never allowed to claim it saw the whole account.
+    expect(snap.sources.some((s) => s.fidelity === "full")).toBe(false);
+  });
+
+  it("maps affiliations and challenges to progression", () => {
+    const aff = snap.progression.find((p) => p.kind === "affiliation");
+    expect(aff?.key).toMatch(/^affiliation:/);
+    expect(typeof aff?.xp).toBe("number");
+    expect(snap.progression.some((p) => p.kind === "challenge")).toBe(true);
+  });
+
+  it("surfaces per-weapon and per-enemy stats", () => {
+    expect(snap.stats.weapons.length).toBeGreaterThan(0);
+    expect(snap.stats.enemies.length).toBeGreaterThan(0);
+    expect(typeof snap.stats.scalars.TimePlayedSec).toBe("number");
+  });
+});
+
+describe("public web provider (playerId)", () => {
+  it("refuses an account id that is not 24 hex", async () => {
+    const provider = createPublicWebProvider({ endpoints });
+    const availability = await provider.isAvailable({ paths: { accountId: "nope" } });
+    expect(availability.available).toBe(false);
+  });
+
+  it("fetches and parses when given a valid id", async () => {
+    let requested = "";
+    const provider = createPublicWebProvider({
+      endpoints,
+      fetchImpl: (async (url: string) => {
+        requested = url;
+        return new Response(JSON.stringify(fixture), { status: 200 });
+      }) as typeof fetch,
+    });
+    const snap = await provider.capture({ paths: { accountId: "5f0c0ffee0ddba11c0de0001" } });
+    expect(requested).toContain("playerId=5f0c0ffee0ddba11c0de0001");
+    expect(snap.account.displayName).toBe("ExampleEnvoy");
+  });
+
+  it("treats a 200-with-empty-body as no such account", async () => {
+    const provider = createPublicWebProvider({
+      endpoints,
+      fetchImpl: (async () => new Response("", { status: 200 })) as typeof fetch,
+    });
+    await expect(
+      provider.capture({ paths: { accountId: "5f0c0ffee0ddba11c0de0001" } }),
+    ).rejects.toThrow(/No profile/);
+  });
+});
