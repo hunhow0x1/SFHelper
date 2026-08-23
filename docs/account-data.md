@@ -24,12 +24,23 @@ no token, per-platform mirrors under `api*.warframe.com/cdn/`. Community tools
 have read profiles this way for years. It is the only technique where a
 mistake in your code cannot cost someone their account.
 
-Whether Soulframe exposes the same surface is **unverified**. What is known:
-`content.soulframe.com` (Akamai, same edge pattern as `content.warframe.com`),
-`origin.soulframe.com` and `api.soulframe.com` all resolve, which is the same
-host layout Warframe uses - but resolving is not the same as serving, and the
-paths have not been confirmed. `npm run probe` checks the candidates in
-`data/endpoints.json` from your machine and writes what it finds.
+Soulframe exposes the same surface. Read out of `Launcher.log`'s own HTTP
+transcripts and `EE.log` error lines, then probed directly:
+
+| Endpoint | Result |
+|---|---|
+| `api.soulframe.com/cdn/getProfileViewingData.php?n=` | **200** - exists (empty body for an unknown name; unknown paths on this host 404) |
+| `api.soulframe.com/api/clientIP.php` | 200 - diagnostic; returns the caller's IP and city, never log it |
+| `origin.soulframe.com/origin/<hash>/index.txt.lzma` | 200 - client download manifest, 250 entries |
+| `content.soulframe.com/Lotus/...` | 200 - static content, `/Lotus/` namespace as in Warframe |
+| `worldState.php` (both hosts, both paths) | 404 |
+| `inventory.php`, `getShip.php` | session-authenticated - **not probed, out of policy** |
+
+Two things that shape the app. There is **no PublicExport equivalent**: the
+origin index lists binaries, language RTFs and `Cache.Windows/*.toc` files,
+with no item exports - so static item data has to come from the community or
+from the asset caches, not from a clean DE feed. And `worldState.php`, which
+is public in Warframe, is not reachable at either obvious path.
 
 If a profile endpoint turns up, it is still a *curated* view - the profile
 viewer shows far less than the account holds - so treat it as `partial`.
@@ -109,13 +120,50 @@ accrete rather than to sync.
   than a retry loop. Players have had IPs firewalled by DE for hammering
   these hosts.
 
+## What EE.log actually contains
+
+Verified against build `2026.08.20.11.07`. The line grammar in
+`data/ee-log-rules.json` matched every line, and login events are detectable
+(`Background::OnLoginDone()`, `MainMenu.lua: DispatchLogin()`).
+
+It contains **no inventory, no account id and no display name**. The only
+inventory trace is `Bad data from inventory.php:` followed by
+`Unknown property: <Field>` lines - the client naming fields it failed to
+parse. That leaks the schema for free:
+
+```
+Suits  LongGuns  Melee  WeaponSkins  Quests  Conquests  Descents
+Mailbox  LoadOutInventory  CalendarProgress  ChallengeProgress  WebFlags
+```
+
+Warframe-shaped, which is why the `json-import` parser already handles most
+of it. But schema is not data: treat EE.log as a session and run tracker,
+never as an inventory source.
+
+## Prior art: Little Genius
+
+The shipping Soulframe companion ([Avakot](https://lg.avakot.org/)) is a
+Tauri app that arrives at the same architecture independently:
+
+- Its only hook into the game is `ee_log_path.cache`, pointing straight at
+  `EE.log`. No memory scanning, no credential store.
+- Its webview talks to `wiki.avakot.org`, `soulmap.avakot.org` and
+  `avakot.market` - its own services for static data. It contacts no
+  `soulframe.com` origin at all.
+- Its local store is encrypted at rest and keyed by DE account id.
+
+Worth knowing that the encrypted-at-rest choice is theirs to make and not
+obviously right for us: an unreadable local store also means the user cannot
+inspect or export their own data.
+
 ## Open questions
 
-1. Does any `content.soulframe.com/dynamic/*` path serve JSON? Run the probe.
-2. Does Soulframe ship a `PublicExport` manifest? That would give item names
-   and icons without touching account data at all.
-3. What do real Soulframe `EE.log` lines look like? Every rule in
-   `data/ee-log-rules.json` needs verifying against one.
+1. Does the profile endpoint return real data for a real display name, and
+   how much of the account does it cover?
+2. Does it accept the `playerId=` form as Warframe does?
+3. Where does `worldState.php` actually live, if anywhere public?
+4. Static item names and icons: community dataset, or `Cache.Windows`
+   extraction with its copyright caveats?
 
 ## Sources
 

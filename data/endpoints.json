@@ -1,38 +1,58 @@
 {
-  "note": "Public, unauthenticated Soulframe endpoints. 'confirmed' is empty on purpose: nothing has been verified to exist yet, and the publicWeb provider stays unavailable until an entry lands here. Populate it from `npm run probe`, which only issues plain GETs to the candidates below. Candidates mirror Warframe's public surface, where content.warframe.com/dynamic/getProfileViewingData.php serves the same profile the in-game viewer shows, with no login.",
-  "userAgent": "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper) contact: <your email>",
+  "note": "Public, unauthenticated Soulframe endpoints. Paths came from Launcher.log's own HTTP transcripts and EE.log error lines, then were probed. inventory.php and getShip.php are deliberately absent: both are session-authenticated, the app forbids credentials, so there is nothing to probe. Soulframe has NO PublicExport equivalent - the origin index is a client download manifest (binaries, language RTFs, Cache.Windows/*.toc) with no item exports.",
+  "userAgent": "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)",
   "minIntervalMs": 2000,
-  "confirmed": [],
-  "candidates": [
-    {
-      "id": "public-export-index",
-      "url": "https://origin.soulframe.com/PublicExport/index_en.txt.lzma",
-      "kind": "static-content",
-      "expects": "lzma"
-    },
-    {
-      "id": "content-public-export-index",
-      "url": "https://content.soulframe.com/PublicExport/index_en.txt.lzma",
-      "kind": "static-content",
-      "expects": "lzma"
-    },
-    {
-      "id": "world-state",
-      "url": "https://content.soulframe.com/dynamic/worldState.php",
-      "kind": "world-state",
-      "expects": "json"
-    },
+  "confirmed": [
     {
       "id": "profile-by-name",
-      "url": "https://content.soulframe.com/dynamic/getProfileViewingData.php?n={displayName}",
+      "url": "https://api.soulframe.com/cdn/getProfileViewingData.php?n={displayName}",
       "kind": "account",
-      "expects": "json"
+      "expects": "json",
+      "verified": "200 for a nonexistent name with an empty body, while unknown paths on this host 404 - the endpoint exists. Payload for a real account not yet confirmed."
     },
+    {
+      "id": "client-ip",
+      "url": "https://api.soulframe.com/api/clientIP.php",
+      "kind": "world-state",
+      "expects": "text",
+      "verified": "200, 42 bytes. Returns the caller's own public IP and city - diagnostic only, never log its response."
+    },
+    {
+      "id": "origin-index",
+      "url": "https://origin.soulframe.com/origin/6AF16C5A/index.txt.lzma",
+      "kind": "static-content",
+      "expects": "lzma",
+      "verified": "200, 6503 bytes, decompresses to 250 manifest entries. The hash segment is build-specific."
+    },
+    {
+      "id": "content-motd",
+      "url": "https://content.soulframe.com/Lotus/Language/MOTD_en.rtf.lzma",
+      "kind": "static-content",
+      "expects": "lzma",
+      "verified": "200, 15321 bytes. Confirms the /Lotus/ content layout."
+    }
+  ],
+  "candidates": [
     {
       "id": "profile-by-id",
       "url": "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId={accountId}",
       "kind": "account",
-      "expects": "json"
+      "expects": "json",
+      "seenIn": "Warframe supports a playerId form; untested here"
+    }
+  ],
+  "rejected": [
+    {
+      "url": "https://api.soulframe.com/api/worldState.php",
+      "result": "404"
+    },
+    {
+      "url": "https://content.soulframe.com/dynamic/worldState.php",
+      "result": "404"
+    },
+    {
+      "url": "https://content.soulframe.com/dynamic/getProfileViewingData.php",
+      "result": "404 - this host serves static content only"
     }
   ]
 }

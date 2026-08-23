@@ -1,30 +1,27 @@
 {
-  "note": "Soulframe runs DE's Evolution engine, so EE.log looks like Warframe's: '<seconds> <Category> [<Level>]: <message>'. The patterns below follow that convention but NONE are verified against a real Soulframe log yet - every rule carries a confidence field, and unverified rules are skipped unless the caller opts in. Update these from a real log (launcher gear-wheel -> Get Logs) rather than changing parser code.",
+  "note": "Verified against a real Soulframe EE.log (build 2026.08.20.11.07). The line grammar below matched every log line. EE.log carries NO item or inventory data - the only inventory trace is 'Bad data from inventory.php:' followed by 'Unknown property: <Field>' lines, which leak schema field names (Suits, LongGuns, Melee, WeaponSkins, Quests, Conquests, Descents, Mailbox, LoadOutInventory, CalendarProgress, ChallengeProgress, WebFlags) but never values. It also carries no account id and no display name. Treat this file as a session/run tracker, not an inventory source. Verified but unused until run tracking exists: 'LoginScripts.lua: STATS ENTER_LEVEL (?<level>\\S+)' marks level entry.",
   "line": "^\\s*[\\d.]+\\s+(?<category>\\w+)\\s+\\[(?<level>\\w+)\\]:\\s*(?<message>.*)$",
   "rules": [
     {
       "id": "build-label",
       "kind": "build",
-      "confidence": "likely",
-      "pattern": "^Build Label:\\s*(?<build>.+)$"
+      "confidence": "verified",
+      "pattern": "^Build Label:\\s*(?<build>.+)$",
+      "sample": "0.035 Sys [Diag]: Build Label: 2026.08.20.11.07 Retail Windows x64 [Stripped]"
     },
     {
-      "id": "login",
+      "id": "login-done",
       "kind": "session",
-      "confidence": "unverified",
-      "pattern": "^Logged in(?:\\s+as\\s+(?<displayName>.+))?$"
+      "confidence": "verified",
+      "pattern": "^Background\\.lua: Background::OnLoginDone\\(\\)$",
+      "sample": "Script [Info]: Background.lua: Background::OnLoginDone()"
     },
     {
-      "id": "mission-end",
+      "id": "login-dispatch",
       "kind": "session",
-      "confidence": "unverified",
-      "pattern": "^Mission (?:complete|ended)\\b.*$"
-    },
-    {
-      "id": "item-acquired",
-      "kind": "item",
-      "confidence": "unverified",
-      "pattern": "^(?:Acquired|Picked up|Received)\\s+(?<count>\\d+)?\\s*(?<name>[^,]+?)\\s*$"
+      "confidence": "verified",
+      "pattern": "^MainMenu\\.lua: DispatchLogin\\(\\)$",
+      "sample": "Script [Info]: MainMenu.lua: DispatchLogin()"
     }
   ]
 }
