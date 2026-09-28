@@ -3543,7 +3543,9 @@
     "StarterSplitSwordsMeleeWeapon": "Clivers",
     "StarterStaffCasterRangedMeleeWeapon": "Gwylen",
     "StarterSwordsMeleeWeapon": "Wulder",
-    "FennJotarSwordMeleeWeapon": "Igne Mora"
+    "FennJotarSwordMeleeWeapon": "Igne Mora",
+    "WolfSoul": "Orengall",
+    "StagSoul": "Garren Rood"
   },
   "factions": {
     "ChampionSyndicate": "The Kith of Kings",

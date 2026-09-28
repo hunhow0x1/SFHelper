@@ -36,6 +36,9 @@ for (const tag of FACTION_TAGS) {
 // List only ones confirmed against the dict; everything else is automatic.
 const MANUAL_OVERRIDES = {
   FennJotarSwordMeleeWeapon: dict["/SF/Language/Weapons/FennJotarMeleeWeaponName"],
+  // Some souls' internal family differs from their pact's character name.
+  WolfSoul: dict["/SF/Language/Pacts/OrengalName"], // -> Orengall
+  StagSoul: dict["/SF/Language/Pacts/GarrenName"], // -> Garren Rood
 };
 
 const items = {};
