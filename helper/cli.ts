@@ -34,10 +34,10 @@ function parseArgs(argv: string[]): Args {
   for (let i = 0; i < argv.length; i += 2) {
     const flag = argv[i];
     const value = argv[i + 1];
-    if (flag === "--account") defaults.account = value;
+    if (flag === "--account" && value) defaults.account = value;
     else if (flag === "--out" && value) defaults.out = value;
     else if (flag === "--consent" && value) defaults.consent = value;
-    else if (flag === "--ack") defaults.ack = value;
+    else if (flag === "--ack" && value !== undefined) defaults.ack = value;
   }
   return defaults;
 }
