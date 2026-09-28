@@ -23,7 +23,27 @@ import { hashAccountId } from "../identity";
 const PROVIDER_ID = "json-import";
 const MAX_UNWRAP_DEPTH = 6;
 const ENVELOPE_KEYS = ["data", "payload", "inventory", "Inventory", "InventoryJson", "account"];
-const ITEM_ARRAY_KEYS = ["items", "Items", "inventory", "MiscItems", "Suits", "Upgrades"];
+// Generic import keys plus the arrays a DE inventory.php dump carries. The
+// Soulframe-specific ones (LongGuns, Melee, WeaponSkins) are the field names we
+// saw the client name in EE.log; the others match DE's shared engine schema.
+const ITEM_ARRAY_KEYS = [
+  "items",
+  "Items",
+  "inventory",
+  "MiscItems",
+  "Suits",
+  "Upgrades",
+  "LongGuns",
+  "Melee",
+  "Pistols",
+  "WeaponSkins",
+  "RawUpgrades",
+  "Recipes",
+  "Consumables",
+];
+
+// DE stores currencies as top-level scalars, not inside a "currencies" object.
+const DE_CURRENCY_KEYS = ["RegularCredits", "PremiumCredits", "PremiumCreditsFree", "FusionPoints"];
 
 /** Exports arrive double-encoded surprisingly often - a JSON string inside a
  *  JSON field inside the response envelope. Peel until we see item arrays. */
@@ -133,6 +153,10 @@ export function snapshotFromExport(payload: unknown, observedAt: string): Accoun
     for (const [name, amount] of Object.entries(currencies as Record<string, unknown>)) {
       snapshot.currencies[name] = asNumber(amount);
     }
+  }
+  // DE dumps put currencies at the top level as scalars.
+  for (const key of DE_CURRENCY_KEYS) {
+    if (record[key] !== undefined) snapshot.currencies[key] = asNumber(record[key]);
   }
 
   const progression = record.progression;
