@@ -2,11 +2,15 @@
  *
  *  The game does not write the 24-hex account id to disk - EE.cfg holds only
  *  the login email, and it is not in EE.log - so there is no game-native file
- *  to read. These are the safe sources that do have it:
+ *  to read. Sources, in priority order:
  *
- *    1. Our own saved config, written after the id is known once. This makes
- *       every launch after the first automatic.
- *    2. Little Genius's metadata.json ("last_active_account"), if installed.
+ *    1. Our own saved config. The memory helper writes it after recovering the
+ *       id (see helper/accountIdLocator.ts), and it is also written the first
+ *       time the id is entered by hand. This is the intended path and makes
+ *       every later launch automatic.
+ *    2. Little Genius's metadata.json - a LEGACY fallback only, so someone
+ *       migrating from LG works on day one. Not a dependency: absent LG, the
+ *       helper populates (1) instead.
  *
  *  The account id is a public identifier (it resolves through the public
  *  profile endpoint and appears in other players' squad data), not a secret.
