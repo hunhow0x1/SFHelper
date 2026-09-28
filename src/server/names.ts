@@ -26,6 +26,7 @@ export interface NameDict {
   items: Record<string, string>;
   factions: Record<string, string>;
   factionTokens: Record<string, string>;
+  currencies: Record<string, string>;
 }
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -38,14 +39,14 @@ const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 let memo: { at: number; dict: NameDict } | null = null;
 
 function emptyDict(): NameDict {
-  return { items: {}, factions: {}, factionTokens: {} };
+  return { items: {}, factions: {}, factionTokens: {}, currencies: {} };
 }
 
 /** Accept only the expected shape; ignore stray keys and non-string values. */
 function coerce(raw: unknown): NameDict {
   const dict = emptyDict();
   if (!raw || typeof raw !== "object") return dict;
-  for (const group of ["items", "factions", "factionTokens"] as const) {
+  for (const group of ["items", "factions", "factionTokens", "currencies"] as const) {
     const src = (raw as Record<string, unknown>)[group];
     if (src && typeof src === "object") {
       for (const [k, v] of Object.entries(src as Record<string, unknown>)) {
@@ -61,6 +62,7 @@ function merge(base: NameDict, over: NameDict): NameDict {
     items: { ...base.items, ...over.items },
     factions: { ...base.factions, ...over.factions },
     factionTokens: { ...base.factionTokens, ...over.factionTokens },
+    currencies: { ...base.currencies, ...over.currencies },
   };
 }
 

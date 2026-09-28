@@ -102,6 +102,11 @@
       </section>
 
       <section>
+        <h2>Faction Tokens</h2>
+        <div class="grid" id="factionTokens"></div>
+      </section>
+
+      <section>
         <h2>Currencies</h2>
         <div class="grid" id="currencies"></div>
         <div class="daily" id="invStatus"></div>
@@ -125,7 +130,7 @@
 
       // In-game display names, loaded from /names.json. Until an entry exists
       // for an item, we fall back to a cleaned-up path segment.
-      let DICT = { items: {}, factions: {}, factionTokens: {} };
+      let DICT = { items: {}, factions: {}, factionTokens: {}, currencies: {} };
 
       // Daily standing resets at 00:00 UTC (DE's daily reset). Pure client clock.
       function msToDailyReset() {
@@ -143,10 +148,10 @@
       setInterval(tickReset, 1000);
       tickReset();
 
-      // Internal currency ids -> in-game names (extend as real inventory reveals ids).
-      const CURRENCY_NAMES = { RegularCredits: "Dracs", MoteDust: "Harmonies" };
+      // Internal currency ids -> in-game names: dict first, then a small fallback.
+      const CURRENCY_NAMES = { RegularCredits: "Dracs", PremiumCredits: "Arcs", MoteDust: "Harmonies" };
       function currencyName(id) {
-        return CURRENCY_NAMES[id] || String(id).replace(/([a-z])([A-Z])/g, "$1 $2");
+        return DICT.currencies[id] || CURRENCY_NAMES[id] || String(id).replace(/([a-z])([A-Z])/g, "$1 $2");
       }
 
       // Best guess at a readable name from the internal path, when the dict has
@@ -169,10 +174,10 @@
       // pacts, so they head this "Weapon & Pact XP" section.
       function bucket(itemType) {
         const p = String(itemType);
-        if (p.includes("/Souls/")) return "Souls & Pacts";
+        if (p.includes("/Souls/")) return "Pacts";
         if (p.includes("/Melee/")) return "Melee Weapons";
         if (p.includes("/Guns/") || p.includes("/Ranged/")) return "Ranged Weapons";
-        if (p.includes("/Pact") || p.includes("/Abilities/")) return "Souls & Pacts";
+        if (p.includes("/Pact") || p.includes("/Abilities/")) return "Pacts";
         return "Other";
       }
       // A muted secondary tag from the path: the soul's family, or the weapon class.
@@ -212,33 +217,39 @@
         // Daily standing (resets at 00:00 UTC - see the header timer).
         const d = data.daily || {};
         $("dailyStanding").innerHTML =
-          d.affiliation != null || d.affiliationOde != null
-            ? `Daily standing earned: <b>${fmt(d.affiliation)}</b>` +
-              (d.affiliationOde != null ? ` &nbsp;·&nbsp; Ode <b>${fmt(d.affiliationOde)}</b>` : "") +
-              ` — resets in <b>${fmtDur(msToDailyReset())}</b>`
+          d.affiliation != null
+            ? `Daily standing earned: <b>${fmt(d.affiliation)}</b> — resets in <b>${fmtDur(msToDailyReset())}</b>`
             : "";
 
-        // Faction standing (with each faction's token name).
+        // Faction standing.
         const factions = data.progression.filter((p) => p.kind === "affiliation");
         const maxStanding = Math.max(1, ...factions.map((f) => f.xp || 0));
         $("factions").innerHTML =
           factions
             .map((f) => {
               const tag = factionTag(f);
-              const token = DICT.factionTokens[tag];
-              const tokenTag = token ? ` <span class="sub">${token}</span>` : "";
               return `
           <div class="row">
-            <span class="label">${factionName(tag)}${tokenTag}</span>
+            <span class="label">${factionName(tag)}</span>
             <span class="val">${fmt(f.xp)} &nbsp;·&nbsp; Rank ${f.rank ?? 0}</span>
             <span class="bar"><i style="width:${Math.round(((f.xp || 0) / maxStanding) * 100)}%"></i></span>
           </div>`;
             })
             .join("") || '<span class="muted">No standing data.</span>';
 
+        // Faction Tokens - owned counts of each faction's rep-token item.
+        const owned = data.owned || {};
+        const tokenCards = Object.entries(DICT.factionTokens).map(([tag, name]) => {
+          const count = owned[`/SF/Types/Items/FactionItems/${tag}RepToken`] ?? 0;
+          return `<div class="stat"><div class="n">${fmt(count)}</div><div class="l">${name}</div></div>`;
+        });
+        $("factionTokens").innerHTML = tokenCards.length
+          ? tokenCards.join("")
+          : '<span class="muted">Import your inventory to show faction token counts.</span>';
+
         // Currencies (owned amounts come from inventory, not the public profile).
         const cur = data.currencies || {};
-        const curEntries = Object.entries(cur);
+        const curEntries = Object.entries(cur).filter(([, v]) => v); // hide zero balances
         $("currencies").innerHTML = curEntries.length
           ? curEntries
               .map(
@@ -258,7 +269,7 @@
           const b = bucket(it.key);
           (groups[b] ||= []).push(it);
         }
-        const order = ["Souls & Pacts", "Melee Weapons", "Ranged Weapons", "Other"];
+        const order = ["Pacts", "Melee Weapons", "Ranged Weapons", "Other"];
         $("xp").innerHTML =
           order
             .filter((g) => groups[g]?.length)
@@ -267,7 +278,7 @@
                 .sort((a, b) => (b.rank || 0) - (a.rank || 0))
                 .map((it) => {
                   // Class chips only on weapons; pacts/souls show just the name.
-                  const sub = g === "Souls & Pacts" ? "" : subLabel(it.key);
+                  const sub = g === "Pacts" ? "" : subLabel(it.key);
                   const tag = sub ? ` <span class="sub">${sub}</span>` : "";
                   return `<div class="row"><span class="label">${shortName(it.key)}${tag}</span><span class="val">${fmt(it.rank)} XP</span></div>`;
                 })
@@ -285,7 +296,6 @@
           ["Heals", s.HealCount],
           ["Pickups", s.PickupCount],
           ["Income", s.Income],
-          ["Missions quit", s.MissionsQuit],
         ].filter(([, v]) => typeof v === "number");
         $("scalars").innerHTML = cards
           .map(([l, v]) => `<div class="stat"><div class="n">${fmt(v)}</div><div class="l">${l}</div></div>`)

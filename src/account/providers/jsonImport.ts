@@ -43,7 +43,13 @@ const ITEM_ARRAY_KEYS = [
 ];
 
 // DE stores currencies as top-level scalars, not inside a "currencies" object.
-const DE_CURRENCY_KEYS = ["RegularCredits", "PremiumCredits", "PremiumCreditsFree", "FusionPoints"];
+const DE_CURRENCY_KEYS = [
+  "RegularCredits",
+  "PremiumCredits",
+  "PremiumCreditsFree",
+  "FusionPoints",
+  "PrimeTokens",
+];
 
 /** Exports arrive double-encoded surprisingly often - a JSON string inside a
  *  JSON field inside the response envelope. Peel until we see item arrays. */

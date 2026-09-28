@@ -2,3 +2,5 @@ node_modules/
 dist/
 *.log
 data/endpoints.discovered.json
+inventory.json
+dict.en.json

@@ -137,6 +137,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         stats: snap.stats,
         daily: snap.daily,
         currencies: inventory ? inventory.currencies : profileCurrencies,
+        owned: Object.fromEntries(ownedCounts), // ItemType -> owned count (for tokens, etc.)
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,
       });

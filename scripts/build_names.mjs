@@ -34,6 +34,18 @@ for (const tag of FACTION_TAGS) {
   if (token) factionTokens[tag] = token;
 }
 
+// Internal currency field (as seen in inventory.php) -> its dict display name.
+const CURRENCY_FIELDS = {
+  RegularCredits: "/SF/Language/Currency/CurrencyName", // Dracs
+  PremiumCredits: "/SF/Language/Currency/PremiumCurrencyName", // Arcs
+  PremiumCreditsFree: "/SF/Language/Currency/PremiumCurrencyName",
+  FusionPoints: "/SF/Language/Currency/CurrencyMoteDustName", // Harmonies
+};
+const currencies = {};
+for (const [field, key] of Object.entries(CURRENCY_FIELDS)) {
+  if (dict[key]) currencies[field] = dict[key];
+}
+
 // A few items have dict keys the heuristics cannot derive (the dict drops or
 // reshapes part of the name, e.g. "FennJotar" vs the ItemType's "FennJotarSword").
 // List only ones confirmed against the dict; everything else is automatic.
@@ -89,8 +101,8 @@ for (const [key, value] of Object.entries(MANUAL_OVERRIDES)) {
   if (value) items[key] = value;
 }
 
-const out = { items, factions, factionTokens };
+const out = { items, factions, factionTokens, currencies };
 await writeFile(outPath, JSON.stringify(out, null, 2));
 console.error(
-  `Wrote ${outPath}: ${Object.keys(items).length} item names, ${Object.keys(factions).length} factions, ${Object.keys(factionTokens).length} tokens.`,
+  `Wrote ${outPath}: ${Object.keys(items).length} item names, ${Object.keys(factions).length} factions, ${Object.keys(factionTokens).length} tokens, ${Object.keys(currencies).length} currencies.`,
 );

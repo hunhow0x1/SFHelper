@@ -3557,5 +3557,11 @@
     "ChampionSyndicate": "Sineculum",
     "FeySyndicate": "Baskbulb",
     "SilentRoseSyndicate": "Sinners' Stratagem"
+  },
+  "currencies": {
+    "RegularCredits": "Dracs",
+    "PremiumCredits": "Arcs",
+    "PremiumCreditsFree": "Arcs",
+    "FusionPoints": "Harmonies"
   }
 }
