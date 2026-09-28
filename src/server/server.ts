@@ -12,6 +12,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join, normalize } from "node:path";
 import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/profilePayload";
+import { discoverAccountId, rememberAccountId } from "./accountId";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -79,6 +80,31 @@ async function serveStatic(res: ServerResponse, urlPath: string): Promise<void> 
 
 async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const url = new URL(req.url ?? "/", "http://localhost");
+
+  // Report the auto-discovered account id (saved config, or Little Genius).
+  if (url.pathname === "/api/account" && req.method === "GET") {
+    const found = await discoverAccountId();
+    sendJson(res, 200, found ?? { accountId: null, source: null });
+    return;
+  }
+
+  // Remember an id the user entered, so future launches resolve it for them.
+  if (url.pathname === "/api/account" && req.method === "POST") {
+    let body = "";
+    for await (const chunk of req) body += chunk;
+    try {
+      const { accountId } = JSON.parse(body || "{}") as { accountId?: string };
+      if (!accountId || !ACCOUNT_ID_RE.test(accountId)) {
+        sendJson(res, 400, { error: "Enter your 24-character account id." });
+        return;
+      }
+      await rememberAccountId(accountId);
+      sendJson(res, 200, { accountId, source: "config" });
+    } catch {
+      sendJson(res, 400, { error: "Invalid request." });
+    }
+    return;
+  }
 
   if (url.pathname === "/api/profile") {
     const accountId = url.searchParams.get("accountId") ?? "";

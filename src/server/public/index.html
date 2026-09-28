@@ -231,6 +231,14 @@
       function start() {
         const id = ($("accountId").value || "").trim();
         try { localStorage.setItem("sfhelper.accountId", id); } catch {}
+        // Remember it server-side so future launches resolve it automatically.
+        if (/^[0-9a-f]{24}$/i.test(id)) {
+          fetch("/api/account", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ accountId: id }),
+          }).catch(() => {});
+        }
         if (timer) clearInterval(timer);
         refresh();
         timer = setInterval(refresh, 60000);
@@ -238,10 +246,27 @@
 
       $("save").addEventListener("click", start);
       $("accountId").addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
-      try {
-        const saved = localStorage.getItem("sfhelper.accountId");
-        if (saved) { $("accountId").value = saved; start(); }
-      } catch {}
+
+      // On load, try to discover the id automatically before asking for it.
+      async function autoStart() {
+        try {
+          const res = await fetch("/api/account");
+          const data = await res.json();
+          if (data.accountId) {
+            $("accountId").value = data.accountId;
+            const via = data.source === "little-genius" ? "found via Little Genius" : "remembered";
+            setStatus("Account id " + via + " — tracking…");
+            start();
+            return;
+          }
+        } catch {}
+        // Fall back to a value this browser saved earlier.
+        try {
+          const saved = localStorage.getItem("sfhelper.accountId");
+          if (saved) { $("accountId").value = saved; start(); }
+        } catch {}
+      }
+      autoStart();
     </script>
   </body>
 </html>
