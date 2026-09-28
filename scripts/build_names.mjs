@@ -26,9 +26,12 @@ const dict = JSON.parse(await readFile(dictPath, "utf8"));
 const FACTION_TAGS = ["ChampionSyndicate", "FeySyndicate", "OdeSyndicate", "SilentRoseSyndicate"];
 
 const factions = {};
+const factionTokens = {};
 for (const tag of FACTION_TAGS) {
   const name = dict[`/SF/Language/Syndicates/${tag.replace(/Syndicate$/, "")}Name`];
   if (name) factions[tag] = name;
+  const token = dict[`/SF/Language/Syndicates/${tag}RepTokenName`];
+  if (token) factionTokens[tag] = token;
 }
 
 // A few items have dict keys the heuristics cannot derive (the dict drops or
@@ -86,8 +89,8 @@ for (const [key, value] of Object.entries(MANUAL_OVERRIDES)) {
   if (value) items[key] = value;
 }
 
-const out = { items, factions };
+const out = { items, factions, factionTokens };
 await writeFile(outPath, JSON.stringify(out, null, 2));
 console.error(
-  `Wrote ${outPath}: ${Object.keys(items).length} item names, ${Object.keys(factions).length} factions.`,
+  `Wrote ${outPath}: ${Object.keys(items).length} item names, ${Object.keys(factions).length} factions, ${Object.keys(factionTokens).length} tokens.`,
 );

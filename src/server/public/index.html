@@ -68,6 +68,8 @@
         border-radius: 4px; padding: 0 5px; margin-left: 6px; white-space: nowrap;
       }
       .muted { color: var(--muted); }
+      .daily { color: var(--muted); font-size: 13px; margin: -4px 0 14px; }
+      .daily b { color: var(--text); font-variant-numeric: tabular-nums; }
       table { width: 100%; border-collapse: collapse; }
       td, th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
       th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
@@ -80,6 +82,7 @@
       <span class="name" id="displayName">—</span>
       <span class="kpi">Level <b id="level">—</b></span>
       <span class="kpi">Played <b id="playtime">—</b></span>
+      <span class="kpi">Daily reset <b id="dailyReset">—</b></span>
       <span class="kpi" id="updated"></span>
     </header>
     <main>
@@ -94,7 +97,13 @@
 
       <section>
         <h2>Faction Standing</h2>
+        <div class="daily" id="dailyStanding"></div>
         <div class="rows" id="factions"><span class="muted">—</span></div>
+      </section>
+
+      <section>
+        <h2>Currencies</h2>
+        <div class="grid" id="currencies"></div>
       </section>
 
       <section>
@@ -115,7 +124,29 @@
 
       // In-game display names, loaded from /names.json. Until an entry exists
       // for an item, we fall back to a cleaned-up path segment.
-      let DICT = { items: {}, factions: {} };
+      let DICT = { items: {}, factions: {}, factionTokens: {} };
+
+      // Daily standing resets at 00:00 UTC (DE's daily reset). Pure client clock.
+      function msToDailyReset() {
+        const now = new Date();
+        return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1) - now.getTime();
+      }
+      function fmtDur(ms) {
+        const s = Math.max(0, Math.floor(ms / 1000));
+        const p = (n) => String(n).padStart(2, "0");
+        return `${p(Math.floor(s / 3600))}:${p(Math.floor((s % 3600) / 60))}:${p(s % 60)}`;
+      }
+      function tickReset() {
+        $("dailyReset").textContent = fmtDur(msToDailyReset());
+      }
+      setInterval(tickReset, 1000);
+      tickReset();
+
+      // Internal currency ids -> in-game names (extend as real inventory reveals ids).
+      const CURRENCY_NAMES = { RegularCredits: "Dracs", MoteDust: "Harmonies" };
+      function currencyName(id) {
+        return CURRENCY_NAMES[id] || String(id).replace(/([a-z])([A-Z])/g, "$1 $2");
+      }
 
       // Best guess at a readable name from the internal path, when the dict has
       // no entry: take the leaf, strip engine suffixes, avoid the folder token.
@@ -177,20 +208,44 @@
         $("playtime").textContent = hours(data.stats?.scalars?.TimePlayedSec);
         $("updated").textContent = "updated " + new Date(data.capturedAt).toLocaleTimeString();
 
-        // Faction standing
+        // Daily standing (resets at 00:00 UTC - see the header timer).
+        const d = data.daily || {};
+        $("dailyStanding").innerHTML =
+          d.affiliation != null || d.affiliationOde != null
+            ? `Daily standing earned: <b>${fmt(d.affiliation)}</b>` +
+              (d.affiliationOde != null ? ` &nbsp;·&nbsp; Ode <b>${fmt(d.affiliationOde)}</b>` : "") +
+              ` — resets in <b>${fmtDur(msToDailyReset())}</b>`
+            : "";
+
+        // Faction standing (with each faction's token name).
         const factions = data.progression.filter((p) => p.kind === "affiliation");
         const maxStanding = Math.max(1, ...factions.map((f) => f.xp || 0));
         $("factions").innerHTML =
           factions
-            .map(
-              (f) => `
+            .map((f) => {
+              const tag = factionTag(f);
+              const token = DICT.factionTokens[tag];
+              const tokenTag = token ? ` <span class="sub">${token}</span>` : "";
+              return `
           <div class="row">
-            <span class="label">${factionName(factionTag(f))}</span>
+            <span class="label">${factionName(tag)}${tokenTag}</span>
             <span class="val">${fmt(f.xp)} &nbsp;·&nbsp; Rank ${f.rank ?? 0}</span>
             <span class="bar"><i style="width:${Math.round(((f.xp || 0) / maxStanding) * 100)}%"></i></span>
-          </div>`,
-            )
+          </div>`;
+            })
             .join("") || '<span class="muted">No standing data.</span>';
+
+        // Currencies (owned amounts come from inventory, not the public profile).
+        const cur = data.currencies || {};
+        const curEntries = Object.entries(cur);
+        $("currencies").innerHTML = curEntries.length
+          ? curEntries
+              .map(
+                ([k, v]) =>
+                  `<div class="stat"><div class="n">${fmt(v)}</div><div class="l">${currencyName(k)}</div></div>`,
+              )
+              .join("")
+          : '<span class="muted">Owned currencies (Dracs, Harmonies…) aren\'t in the public profile — import your inventory to show them.</span>';
 
         // Weapon & Pact XP, grouped
         const groups = {};

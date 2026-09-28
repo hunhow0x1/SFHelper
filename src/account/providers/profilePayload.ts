@@ -39,6 +39,14 @@ interface ProfileResult {
   Affiliations?: Array<{ Tag?: string; Standing?: number; Title?: number }>;
   ChallengeProgress?: Array<{ Name?: string; Progress?: number }>;
   LoadOutInventory?: Record<string, unknown>;
+  DailyAffiliation?: number;
+  DailyAffiliationOde?: number;
+}
+
+/** Standing earned today toward the daily caps; both reset at 00:00 UTC. */
+export interface DailyStanding {
+  affiliation: number | null;
+  affiliationOde: number | null;
 }
 
 /** A game path's last segment is a usable display name until we have a real
@@ -167,6 +175,7 @@ function readStats(stats: Record<string, unknown> | undefined): ProfileStats {
 
 export interface ProfileSnapshot extends AccountSnapshot {
   stats: ProfileStats;
+  daily: DailyStanding;
 }
 
 export function snapshotFromProfile(payload: unknown, observedAt: string): ProfileSnapshot {
@@ -186,5 +195,9 @@ export function snapshotFromProfile(payload: unknown, observedAt: string): Profi
   base.items = readItems(result.LoadOutInventory ?? {}, source);
   base.progression = readProgression(result, source);
 
-  return { ...base, stats: readStats(envelope.Stats) };
+  const daily: DailyStanding = {
+    affiliation: num(result.DailyAffiliation) ?? null,
+    affiliationOde: num(result.DailyAffiliationOde) ?? null,
+  };
+  return { ...base, stats: readStats(envelope.Stats), daily };
 }

@@ -3552,5 +3552,10 @@
     "FeySyndicate": "Alca's Children",
     "OdeSyndicate": "Ode Infamy",
     "SilentRoseSyndicate": "The Silent Rose"
+  },
+  "factionTokens": {
+    "ChampionSyndicate": "Sineculum",
+    "FeySyndicate": "Baskbulb",
+    "SilentRoseSyndicate": "Sinners' Stratagem"
   }
 }

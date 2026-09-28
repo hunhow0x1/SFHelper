@@ -121,12 +121,15 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     }
     try {
       const snap = await getProfile(accountId);
+      const { PlayerLevel, ...currencies } = snap.currencies;
       sendJson(res, 200, {
         account: snap.account,
-        level: snap.currencies.PlayerLevel ?? null,
+        level: PlayerLevel ?? null,
         items: snap.items,
         progression: snap.progression,
         stats: snap.stats,
+        daily: snap.daily,
+        currencies, // real amounts require inventory data; empty from the profile alone
         capturedAt: snap.capturedAt,
       });
     } catch (err) {
