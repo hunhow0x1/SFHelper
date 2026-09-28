@@ -7,6 +7,20 @@ This repo currently contains the piece everything else depends on: the account
 data layer - how player data gets in, and the rules that keep getting it in
 from costing anyone their account.
 
+## Run the dashboard
+
+A local app you run alongside Soulframe. It fetches your public profile and
+shows faction standing, weapon/pact XP, and combat stats, refreshing every
+minute. No login, no game-memory access - just the public profile endpoint.
+
+```bash
+npm install
+npm start           # serves http://localhost:4317
+```
+
+Open the URL, paste your 24-character account id, and click **Track**. The id
+is remembered in your browser for next time.
+
 ## Read this first
 
 [`docs/account-data.md`](docs/account-data.md) - the six ways to pull Soulframe

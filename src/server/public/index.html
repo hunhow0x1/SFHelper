@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SFHelper</title>
+    <style>
+      :root {
+        --bg: #14110f;
+        --panel: #1e1a16;
+        --panel-2: #262019;
+        --line: #3a3128;
+        --text: #efe7db;
+        --muted: #a8987f;
+        --accent: #c9a55c;
+        --accent-2: #6fae8f;
+        --bar-bg: #2c251d;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 15px/1.5 "Segoe UI", system-ui, sans-serif;
+      }
+      header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px 28px;
+        align-items: baseline;
+        background: linear-gradient(180deg, #1b1712, var(--bg));
+      }
+      h1 { font-size: 20px; margin: 0; letter-spacing: 0.5px; color: var(--accent); }
+      .name { font-size: 18px; font-weight: 600; }
+      .kpi { color: var(--muted); font-size: 13px; }
+      .kpi b { color: var(--text); font-weight: 600; }
+      main { max-width: 1100px; margin: 0 auto; padding: 24px; display: grid; gap: 22px; }
+      section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+      h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--accent); margin: 0 0 14px; }
+      .setup { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+      input {
+        background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+        padding: 8px 12px; border-radius: 6px; font: inherit; min-width: 320px;
+      }
+      button {
+        background: var(--accent); color: #201a10; border: 0; padding: 8px 16px;
+        border-radius: 6px; font: inherit; font-weight: 600; cursor: pointer;
+      }
+      .status { color: var(--muted); font-size: 13px; }
+      .status.err { color: #d98a6a; }
+      .rows { display: grid; gap: 10px; }
+      .row { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; }
+      .row .label { font-weight: 500; }
+      .row .val { color: var(--muted); font-variant-numeric: tabular-nums; }
+      .bar { grid-column: 1 / -1; height: 7px; background: var(--bar-bg); border-radius: 4px; overflow: hidden; }
+      .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+      .stat { background: var(--panel-2); border-radius: 8px; padding: 12px 14px; }
+      .stat .n { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+      .stat .l { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
+      .xpgroup { margin-bottom: 16px; }
+      .xpgroup h3 { font-size: 13px; color: var(--accent-2); margin: 0 0 8px; }
+      .muted { color: var(--muted); }
+      table { width: 100%; border-collapse: collapse; }
+      td, th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+      th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
+      td.num, th.num { text-align: right; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>SFHelper</h1>
+      <span class="name" id="displayName">—</span>
+      <span class="kpi">Level <b id="level">—</b></span>
+      <span class="kpi">Played <b id="playtime">—</b></span>
+      <span class="kpi" id="updated"></span>
+    </header>
+    <main>
+      <section>
+        <h2>Account</h2>
+        <div class="setup">
+          <input id="accountId" placeholder="24-character account id" spellcheck="false" />
+          <button id="save">Track</button>
+          <span class="status" id="status">Enter your account id to begin.</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Faction Standing</h2>
+        <div class="rows" id="factions"><span class="muted">—</span></div>
+      </section>
+
+      <section>
+        <h2>Weapon &amp; Pact XP</h2>
+        <div id="xp"><span class="muted">—</span></div>
+      </section>
+
+      <section>
+        <h2>Combat</h2>
+        <div class="grid" id="scalars"></div>
+        <div style="margin-top:18px; display:grid; grid-template-columns:1fr 1fr; gap:24px;" id="tables"></div>
+      </section>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const fmt = (n) => (typeof n === "number" ? n.toLocaleString() : "—");
+
+      function shortName(itemType) {
+        const parts = String(itemType).split("/").filter(Boolean);
+        return parts[parts.length - 2] || parts[parts.length - 1] || itemType;
+      }
+      // Group an item path into a human bucket for the XP list.
+      function bucket(itemType) {
+        const p = String(itemType);
+        if (p.includes("/Souls/")) return "Souls";
+        if (p.includes("/Melee/")) return "Melee Weapons";
+        if (p.includes("/Guns/") || p.includes("/Ranged/")) return "Ranged Weapons";
+        if (p.includes("/Pact") || p.includes("/Abilities/")) return "Pacts";
+        return "Other";
+      }
+      function factionName(tag) {
+        return String(tag).replace(/Syndicate$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
+      }
+      function hours(sec) {
+        if (typeof sec !== "number") return "—";
+        return Math.round(sec / 3600).toLocaleString() + " h";
+      }
+
+      function render(data) {
+        $("displayName").textContent = data.account.displayName || "—";
+        $("level").textContent = fmt(data.level);
+        $("playtime").textContent = hours(data.stats?.scalars?.TimePlayedSec);
+        $("updated").textContent = "updated " + new Date(data.capturedAt).toLocaleTimeString();
+
+        // Faction standing
+        const factions = data.progression.filter((p) => p.kind === "affiliation");
+        const maxStanding = Math.max(1, ...factions.map((f) => f.xp || 0));
+        $("factions").innerHTML =
+          factions
+            .map(
+              (f) => `
+          <div class="row">
+            <span class="label">${factionName(f.displayName || f.key)}</span>
+            <span class="val">${fmt(f.xp)} &nbsp;·&nbsp; Rank ${f.rank ?? 0}</span>
+            <span class="bar"><i style="width:${Math.round(((f.xp || 0) / maxStanding) * 100)}%"></i></span>
+          </div>`,
+            )
+            .join("") || '<span class="muted">No standing data.</span>';
+
+        // Weapon & Pact XP, grouped
+        const groups = {};
+        for (const it of data.items) {
+          if (typeof it.rank !== "number") continue;
+          const b = bucket(it.key);
+          (groups[b] ||= []).push(it);
+        }
+        const order = ["Souls", "Pacts", "Melee Weapons", "Ranged Weapons", "Other"];
+        $("xp").innerHTML =
+          order
+            .filter((g) => groups[g]?.length)
+            .map((g) => {
+              const rows = groups[g]
+                .sort((a, b) => (b.rank || 0) - (a.rank || 0))
+                .map(
+                  (it) =>
+                    `<div class="row"><span class="label">${shortName(it.key)}</span><span class="val">${fmt(it.rank)} XP</span></div>`,
+                )
+                .join("");
+              return `<div class="xpgroup"><h3>${g}</h3><div class="rows">${rows}</div></div>`;
+            })
+            .join("") || '<span class="muted">No XP data.</span>';
+
+        // Scalars
+        const s = data.stats?.scalars || {};
+        const cards = [
+          ["Kills (melee)", s.MeleeKills],
+          ["Deaths", s.Deaths],
+          ["Revives", s.ReviveCount],
+          ["Heals", s.HealCount],
+          ["Pickups", s.PickupCount],
+          ["Income", s.Income],
+          ["Missions quit", s.MissionsQuit],
+        ].filter(([, v]) => typeof v === "number");
+        $("scalars").innerHTML = cards
+          .map(([l, v]) => `<div class="stat"><div class="n">${fmt(v)}</div><div class="l">${l}</div></div>`)
+          .join("");
+
+        // Top weapons / enemies
+        const topWeapons = (data.stats?.weapons || [])
+          .filter((w) => w.kills)
+          .sort((a, b) => (b.kills || 0) - (a.kills || 0))
+          .slice(0, 8);
+        const topEnemies = (data.stats?.enemies || [])
+          .sort((a, b) => (b.kills || 0) - (a.kills || 0))
+          .slice(0, 8);
+        const wTable = `<div><h3 style="color:var(--accent-2);font-size:13px;margin:0 0 8px">Top Weapons by Kills</h3>
+          <table><tr><th>Weapon</th><th class="num">Kills</th><th class="num">XP</th></tr>
+          ${topWeapons.map((w) => `<tr><td>${shortName(w.type)}</td><td class="num">${fmt(w.kills)}</td><td class="num">${fmt(w.xp)}</td></tr>`).join("")}</table></div>`;
+        const eTable = `<div><h3 style="color:var(--accent-2);font-size:13px;margin:0 0 8px">Top Enemies by Kills</h3>
+          <table><tr><th>Enemy</th><th class="num">Kills</th><th class="num">Exec.</th></tr>
+          ${topEnemies.map((e) => `<tr><td>${shortName(e.type)}</td><td class="num">${fmt(e.kills)}</td><td class="num">${fmt(e.executions)}</td></tr>`).join("")}</table></div>`;
+        $("tables").innerHTML = wTable + eTable;
+      }
+
+      let timer = null;
+      async function refresh() {
+        const id = ($("accountId").value || "").trim();
+        if (!/^[0-9a-f]{24}$/i.test(id)) {
+          setStatus("Enter your 24-character account id.", true);
+          return;
+        }
+        setStatus("Fetching…");
+        try {
+          const res = await fetch("/api/profile?accountId=" + encodeURIComponent(id));
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Request failed");
+          render(data);
+          setStatus("Live · refreshes every 60s");
+        } catch (e) {
+          setStatus(e.message, true);
+        }
+      }
+      function setStatus(msg, err) {
+        const el = $("status");
+        el.textContent = msg;
+        el.className = "status" + (err ? " err" : "");
+      }
+      function start() {
+        const id = ($("accountId").value || "").trim();
+        try { localStorage.setItem("sfhelper.accountId", id); } catch {}
+        if (timer) clearInterval(timer);
+        refresh();
+        timer = setInterval(refresh, 60000);
+      }
+
+      $("save").addEventListener("click", start);
+      $("accountId").addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
+      try {
+        const saved = localStorage.getItem("sfhelper.accountId");
+        if (saved) { $("accountId").value = saved; start(); }
+      } catch {}
+    </script>
+  </body>
+</html>

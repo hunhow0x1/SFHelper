@@ -10,10 +10,13 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "probe": "node scripts/probe-endpoints.mjs"
+    "probe": "node scripts/probe-endpoints.mjs",
+    "start": "tsx src/server/server.ts",
+    "helper": "tsx helper/cli.ts"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }
