@@ -62,6 +62,11 @@
       .stat .l { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
       .xpgroup { margin-bottom: 16px; }
       .xpgroup h3 { font-size: 13px; color: var(--accent-2); margin: 0 0 8px; }
+      .xpgroup h3 .count { color: var(--muted); font-weight: 400; }
+      .row .label .sub {
+        color: var(--muted); font-size: 12px; border: 1px solid var(--line);
+        border-radius: 4px; padding: 0 5px; margin-left: 6px; white-space: nowrap;
+      }
       .muted { color: var(--muted); }
       table { width: 100%; border-collapse: collapse; }
       td, th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
@@ -128,14 +133,29 @@
         if (leaf && DICT.items[leaf]) return DICT.items[leaf];
         return cleanName(itemType);
       }
-      // Group an item path into a human bucket for the XP list.
+      // Group an item path into a human bucket for the XP list. Souls carry the
+      // pacts, so they head this "Weapon & Pact XP" section.
       function bucket(itemType) {
         const p = String(itemType);
-        if (p.includes("/Souls/")) return "Souls";
+        if (p.includes("/Souls/")) return "Souls & Pacts";
         if (p.includes("/Melee/")) return "Melee Weapons";
         if (p.includes("/Guns/") || p.includes("/Ranged/")) return "Ranged Weapons";
-        if (p.includes("/Pact") || p.includes("/Abilities/")) return "Pacts";
+        if (p.includes("/Pact") || p.includes("/Abilities/")) return "Souls & Pacts";
         return "Other";
+      }
+      // A muted secondary tag from the path: the soul's family, or the weapon class.
+      function subLabel(itemType) {
+        const p = String(itemType);
+        if (p.includes("/Souls/")) {
+          const fam = p.split("/")[3] || "";
+          return fam && fam !== "Default" ? fam : "";
+        }
+        if (p.includes("/OneHand/")) return "One-Hand";
+        if (p.includes("/TwoHand/")) return "Two-Hand";
+        if (p.includes("/Thrown/")) return "Thrown";
+        if (/Bow/.test(p)) return "Bow";
+        if (/(Caster|Staff)/.test(p)) return "Caster";
+        return "";
       }
       function factionName(tag) {
         if (DICT.factions[tag]) return DICT.factions[tag];
@@ -174,19 +194,20 @@
           const b = bucket(it.key);
           (groups[b] ||= []).push(it);
         }
-        const order = ["Souls", "Pacts", "Melee Weapons", "Ranged Weapons", "Other"];
+        const order = ["Souls & Pacts", "Melee Weapons", "Ranged Weapons", "Other"];
         $("xp").innerHTML =
           order
             .filter((g) => groups[g]?.length)
             .map((g) => {
               const rows = groups[g]
                 .sort((a, b) => (b.rank || 0) - (a.rank || 0))
-                .map(
-                  (it) =>
-                    `<div class="row"><span class="label">${shortName(it.key)}</span><span class="val">${fmt(it.rank)} XP</span></div>`,
-                )
+                .map((it) => {
+                  const sub = subLabel(it.key);
+                  const tag = sub ? ` <span class="sub">${sub}</span>` : "";
+                  return `<div class="row"><span class="label">${shortName(it.key)}${tag}</span><span class="val">${fmt(it.rank)} XP</span></div>`;
+                })
                 .join("");
-              return `<div class="xpgroup"><h3>${g}</h3><div class="rows">${rows}</div></div>`;
+              return `<div class="xpgroup"><h3>${g} <span class="count">${groups[g].length}</span></h3><div class="rows">${rows}</div></div>`;
             })
             .join("") || '<span class="muted">No XP data.</span>';
 

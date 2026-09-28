@@ -5,15 +5,18 @@
 //
 // Host the resulting names.json at your SFHELPER_NAMES_URL endpoint.
 //
-// Factions map exactly: the profile's Affiliation "Tag" (e.g. SilentRoseSyndicate)
-// -> /SF/Language/Syndicates/<stem>Name in the dict.
-//
-// Items are best-effort here: the dict keys are localization paths
-// (/SF/Language/Weapons/FennJotarMeleeWeaponName = "Igne Mora"), whose stems do
-// not always equal the profile's ItemType leaf (FennJotarSwordMeleeWeapon). We
-// index every "*Name" string by its leaf stem so the dashboard's leaf lookup
-// resolves where they align. The precise ItemType->name bridge needs the item
-// definitions (parseable now that Oodle works via ooz-wasm) - see README.
+// The dict is keyed by localization paths (e.g.
+// /SF/Language/Weapons/FeySwordMeleeWeaponName = "Dewelion"), whose leaf stem
+// usually equals the profile's ItemType leaf ("FeySwordMeleeWeapon"). We index
+// every "*Name" string by that stem, then add category-aware aliases for the
+// cases where the two diverge (verified against a live profile):
+//   * weapons: RangedMelee<->RangedMeleeWeapon, Weapon->(Melee|RangedMelee)Weapon,
+//     Sword->Swords - each maps the dict stem onto the ItemType leaf form.
+//   * souls: /SF/Souls/<Char>/<Char>Soul takes its name from
+//     /SF/Language/Pacts/<Char>Name, so every Pacts "<X>Name" also aliases
+//     "<X>Soul".
+// Aliases never overwrite an exact stem match. A handful of items are simply
+// unnamed in the dict (e.g. StagSoul) and fall back to the cleaned leaf.
 
 import { readFile, writeFile } from "node:fs/promises";
 
@@ -24,19 +27,60 @@ const FACTION_TAGS = ["ChampionSyndicate", "FeySyndicate", "OdeSyndicate", "Sile
 
 const factions = {};
 for (const tag of FACTION_TAGS) {
-  const stem = tag.replace(/Syndicate$/, "");
-  const name = dict[`/SF/Language/Syndicates/${stem}Name`];
+  const name = dict[`/SF/Language/Syndicates/${tag.replace(/Syndicate$/, "")}Name`];
   if (name) factions[tag] = name;
 }
 
-// Index every "<path>/<Stem>Name" display string by its leaf stem, so the
-// dashboard (which looks up by ItemType leaf) can resolve matches.
+// A few items have dict keys the heuristics cannot derive (the dict drops or
+// reshapes part of the name, e.g. "FennJotar" vs the ItemType's "FennJotarSword").
+// List only ones confirmed against the dict; everything else is automatic.
+const MANUAL_OVERRIDES = {
+  FennJotarSwordMeleeWeapon: dict["/SF/Language/Weapons/FennJotarMeleeWeaponName"],
+};
+
 const items = {};
+const setPrimary = (key, value) => {
+  if (key) items[key] = value; // primary: authoritative, may overwrite
+};
+const setAlias = (key, value) => {
+  if (key && !(key in items)) items[key] = value; // fill gaps only
+};
+
+function weaponAliases(stem) {
+  const out = new Set();
+  if (stem.endsWith("RangedMelee")) out.add(stem + "Weapon");
+  if (stem.endsWith("Weapon") && !stem.endsWith("MeleeWeapon")) {
+    const base = stem.slice(0, -"Weapon".length);
+    out.add(base + "MeleeWeapon");
+    out.add(base + "RangedMeleeWeapon");
+  }
+  if (stem.includes("Sword")) out.add(stem.replaceAll("Sword", "Swords"));
+  return out;
+}
+
+// Pass 1 - primary index by exact leaf stem.
 for (const [key, value] of Object.entries(dict)) {
   if (typeof value !== "string" || !key.endsWith("Name")) continue;
-  if (value.startsWith("[PH]") || value === "") continue; // skip placeholders
+  if (value === "" || value.startsWith("[PH]")) continue;
   const stem = key.slice(key.lastIndexOf("/") + 1, -"Name".length);
-  if (stem && !(stem in items)) items[stem] = value;
+  if (stem && !(stem in items)) setPrimary(stem, value);
+}
+
+// Pass 2 - category-aware aliases (never clobber a primary).
+for (const [key, value] of Object.entries(dict)) {
+  if (typeof value !== "string" || !key.endsWith("Name")) continue;
+  if (value === "" || value.startsWith("[PH]")) continue;
+  const stem = key.slice(key.lastIndexOf("/") + 1, -"Name".length);
+  if (key.startsWith("/SF/Language/Weapons/")) {
+    for (const alias of weaponAliases(stem)) setAlias(alias, value);
+  } else if (key.startsWith("/SF/Language/Pacts/")) {
+    setAlias(stem + "Soul", value); // <Char>Name -> <Char>Soul
+  }
+}
+
+// Manual overrides win over everything (skip any that were not in the dict).
+for (const [key, value] of Object.entries(MANUAL_OVERRIDES)) {
+  if (value) items[key] = value;
 }
 
 const out = { items, factions };
