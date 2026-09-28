@@ -91,6 +91,12 @@
       .muted { color: var(--muted); }
       .daily { color: var(--muted); font-size: 13px; margin: -4px 0 14px; }
       .daily b { color: var(--text); font-variant-numeric: tabular-nums; }
+      .invstatus {
+        color: var(--muted); font-size: 12px;
+        margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line);
+      }
+      .invstatus:empty { display: none; }
+      .invstatus b { color: var(--text); font-variant-numeric: tabular-nums; }
       button.mini {
         background: var(--panel-2); color: var(--muted); border: 1px solid var(--line);
         padding: 1px 8px; font-size: 12px; font-weight: 500; border-radius: 4px;
@@ -105,6 +111,28 @@
       table.loadouts td .tag {
         color: var(--muted); font-size: 11px; border: 1px solid var(--line);
         border-radius: 4px; padding: 0 5px; margin-left: 6px;
+      }
+      table.loadouts td.name { cursor: pointer; }
+      table.loadouts .chev {
+        display: inline-block; color: var(--muted); font-size: 10px;
+        width: 12px; transition: transform 0.12s; transform: rotate(0deg);
+      }
+      table.loadouts .name.open .chev { transform: rotate(90deg); }
+      tr.detail { display: none; }
+      tr.detail.open { display: table-row; }
+      tr.detail > td { background: var(--bg); padding: 12px 8px 14px; }
+      .slotgrp { margin-bottom: 10px; }
+      .slotgrp:last-child { margin-bottom: 0; }
+      .slotgrp .slothead { color: var(--text); font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+      .slotgrp .slothead .kind { color: var(--muted); font-weight: 400; }
+      .chipline { margin: 2px 0; }
+      .chipline .h {
+        color: var(--accent-2); font-size: 11px; text-transform: uppercase;
+        letter-spacing: 0.6px; margin-right: 6px;
+      }
+      .chip {
+        display: inline-block; background: var(--panel-2); border: 1px solid var(--line);
+        border-radius: 4px; padding: 1px 8px; margin: 2px 5px 2px 0; font-size: 12px;
       }
     </style>
   </head>
@@ -150,7 +178,7 @@
           <section>
             <h2>Currencies</h2>
             <div class="grid" id="currencies"></div>
-            <div class="daily" id="invStatus" style="margin-bottom:0"></div>
+            <div class="invstatus" id="invStatus"></div>
           </section>
         </div>
 
@@ -205,6 +233,9 @@
       // In-game display names, loaded from /names.json. Until an entry exists
       // for an item, we fall back to a cleaned-up path segment.
       let DICT = { items: {}, factions: {}, factionTokens: {}, currencies: {} };
+      // Lowercased item-name index, so lookups survive the source dict's casing
+      // inconsistencies (e.g. LongbladeProjectileRune vs LongBladeProjectileRune).
+      let DICT_LC = {};
       // Per-faction, per-rank standing caps (from faction-ranks.json).
       let FACTION_RANKS = {};
 
@@ -234,40 +265,82 @@
 
       // Loadouts / builds. Presets come from the inventory; imported builds are
       // kept in this browser so they survive refreshes. Columns, left to right:
-      // Loadout (name) | Pact (soul/s) | Primary Weapon (l slot) | Sidearm (m slot).
+      // Loadout (name) | Pact (soul/s) | Primary Weapon (m slot) | Sidearm (l slot).
       let LAST_BUILDS = [];
       let IMPORTED_BUILDS = [];
       try { IMPORTED_BUILDS = JSON.parse(localStorage.getItem("sfhelper.builds") || "[]"); } catch {}
 
-      function buildRow(b, imported) {
-        const cell = (t) => (t ? shortName(t) : "—");
+      // A slot may arrive as an ItemType string (old exports/localStorage) or as
+      // { type, runes, totems } (current). Normalize both to the object form.
+      function normSlot(x) {
+        if (x == null) return { type: null, runes: [], totems: [] };
+        if (typeof x === "string") return { type: x, runes: [], totems: [] };
+        return {
+          type: x.type ?? null,
+          runes: Array.isArray(x.runes) ? x.runes : [],
+          totems: Array.isArray(x.totems) ? x.totems : [],
+        };
+      }
+      function normBuild(b) {
+        return {
+          name: b.name, favorite: b.favorite === true,
+          soul: normSlot(b.soul), ranged: normSlot(b.ranged), melee: normSlot(b.melee),
+        };
+      }
+      const chips = (arr) =>
+        arr && arr.length
+          ? arr.map((t) => `<span class="chip">${shortName(t)}</span>`).join("")
+          : '<span class="muted">—</span>';
+      // Detail block for one slot - only rendered when it carries runes/totems.
+      function slotDetail(label, slot) {
+        if (!slot || (!slot.runes.length && !slot.totems.length)) return "";
+        return `<div class="slotgrp">
+          <div class="slothead">${slot.type ? shortName(slot.type) : "—"} <span class="kind">· ${label}</span></div>
+          <div class="chipline"><span class="h">Runes</span>${chips(slot.runes)}</div>
+          <div class="chipline"><span class="h">Totems</span>${chips(slot.totems)}</div>
+        </div>`;
+      }
+      function buildRow(raw, imported, key) {
+        const b = normBuild(raw);
+        const cell = (s) => (s.type ? shortName(s.type) : "—");
         const payload = encodeURIComponent(JSON.stringify({ name: b.name, soul: b.soul, ranged: b.ranged, melee: b.melee }));
         const rm = imported ? ` <button class="mini" data-remove="${encodeURIComponent(b.name)}">Remove</button>` : "";
         const badge = imported ? '<span class="tag">imported</span>' : "";
         const star = b.favorite ? '<span class="fav">★ </span>' : "";
+        const detail =
+          slotDetail("Primary Weapon", b.melee) + slotDetail("Sidearm", b.ranged) + slotDetail("Pact", b.soul) ||
+          '<span class="muted">No runes or totems socketed.</span>';
         return `<tr>
-          <td>${star}${b.name}${badge}</td>
+          <td class="name" data-toggle="det-${key}"><span class="chev">▸</span>${star}${b.name}${badge}</td>
           <td>${cell(b.soul)}</td>
-          <td>${cell(b.ranged)}</td>
           <td>${cell(b.melee)}</td>
+          <td>${cell(b.ranged)}</td>
           <td class="act"><button class="mini" data-export="${payload}">Export</button>${rm}</td>
-        </tr>`;
+        </tr>
+        <tr class="detail" id="det-${key}"><td colspan="5">${detail}</td></tr>`;
       }
       function renderBuilds() {
-        const own = (LAST_BUILDS || []).map((b) => buildRow(b, false));
-        const imp = IMPORTED_BUILDS.map((b) => buildRow(b, true));
+        const own = (LAST_BUILDS || []).map((b, i) => buildRow(b, false, "o" + i));
+        const imp = IMPORTED_BUILDS.map((b, i) => buildRow(b, true, "i" + i));
         const rows = [...own, ...imp];
         $("loadouts").innerHTML = rows.length
           ? `<table class="loadouts">
               <tr><th>Loadout</th><th>Pact</th><th>Primary Weapon</th><th>Sidearm</th><th class="act"></th></tr>
               ${rows.join("")}
-            </table>`
+            </table>
+            <div class="muted" style="font-size:12px;margin-top:10px">Click a loadout to see its runes &amp; totems. Joineries aren't stored in account data, so they can't be shown.</div>`
           : '<span class="muted">No loadouts — run the memory helper to import your inventory, then refresh.</span>';
       }
       function saveImported() {
         try { localStorage.setItem("sfhelper.builds", JSON.stringify(IMPORTED_BUILDS)); } catch {}
       }
       $("loadouts").addEventListener("click", (e) => {
+        const tg = e.target.closest("[data-toggle]");
+        if (tg) {
+          const d = document.getElementById(tg.dataset.toggle);
+          if (d) d.classList.toggle("open");
+          tg.classList.toggle("open");
+        }
         const ex = e.target.closest("[data-export]");
         if (ex) {
           navigator.clipboard?.writeText(decodeURIComponent(ex.dataset.export));
@@ -287,7 +360,7 @@
         try {
           const b = JSON.parse(el.value);
           if (!b || typeof b.name !== "string") throw new Error("missing a build name");
-          IMPORTED_BUILDS.push({ name: b.name, favorite: false, soul: b.soul ?? null, ranged: b.ranged ?? null, melee: b.melee ?? null });
+          IMPORTED_BUILDS.push(normBuild({ ...b, favorite: false }));
           saveImported();
           el.value = "";
           $("importStatus").textContent = `Imported "${b.name}".`;
@@ -356,8 +429,23 @@
       // Prefer an exact dict match on the full path, then on the leaf, then clean.
       function shortName(itemType) {
         if (DICT.items[itemType]) return DICT.items[itemType];
-        const leaf = String(itemType).split("/").filter(Boolean).pop();
+        const p = String(itemType);
+        const leaf = p.split("/").filter(Boolean).pop();
         if (leaf && DICT.items[leaf]) return DICT.items[leaf];
+        // Runes key by <WeaponClass><Leaf> (e.g. BowStarterRune -> "Alca's Breath").
+        // The path's class token varies from the dict's ("Magiks" vs "Caster"),
+        // and casing differs, so try aliases against a lowercased index.
+        const rune = p.match(/\/Upgrades\/Runes\/Weapon\/([^/]+)\/([^/]+)$/);
+        if (rune) {
+          const CLASS_ALIAS = { magiks: ["caster", "magiks"] };
+          const cls = rune[1], name = rune[2];
+          const classes = CLASS_ALIAS[cls.toLowerCase()] || [cls];
+          for (const c of classes) {
+            const hit = DICT_LC[(c + name).toLowerCase()];
+            if (hit) return hit;
+          }
+        }
+        if (leaf && DICT_LC[leaf.toLowerCase()]) return DICT_LC[leaf.toLowerCase()];
         return cleanName(itemType);
       }
       // Group an item path into a human bucket for the XP list. Souls carry the
@@ -562,7 +650,11 @@
       async function loadDict() {
         try {
           const res = await fetch("/names.json");
-          if (res.ok) DICT = await res.json();
+          if (res.ok) {
+            DICT = await res.json();
+            DICT_LC = {};
+            for (const k in DICT.items) DICT_LC[k.toLowerCase()] = DICT.items[k];
+          }
         } catch {}
         try {
           const res = await fetch("/faction-ranks.json");
