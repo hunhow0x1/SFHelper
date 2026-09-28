@@ -1,0 +1,12 @@
+{
+  "_note": "Maps internal names to in-game display names. Generated/augmented by scripts/build_names.mjs from the extracted dict; factions below are exact. 'items' keys may be a full ItemType path or a leaf token; the dashboard tries full path, then leaf, then a cleaned-up guess.",
+  "items": {
+    "FennJotarSword": "Igne Mora"
+  },
+  "factions": {
+    "ChampionSyndicate": "The Kith of Kings",
+    "FeySyndicate": "Alca's Children",
+    "OdeSyndicate": "Ode Infamy",
+    "SilentRoseSyndicate": "The Silent Rose"
+  }
+}

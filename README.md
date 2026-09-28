@@ -21,6 +21,53 @@ npm start           # serves http://localhost:4317
 Open the URL, paste your 24-character account id, and click **Track**. The id
 is remembered in your browser for next time.
 
+## In-game names (hostable endpoint)
+
+The dashboard shows in-game names (e.g. `Igne Mora`, not `FennJotarSword`) from
+a name dictionary. The app pulls it from an endpoint you host, caches it for a
+day, and falls back to the small bundled seed when the endpoint is unset or
+down. Point it at your host with either:
+
+```bash
+export SFHELPER_NAMES_URL="https://your-host.example/soulframe-names.json"
+# or add {"namesUrl": "..."} to ~/.config/sfhelper/config.json
+```
+
+The file it serves is:
+
+```json
+{
+  "items":    { "FennJotarSword": "Igne Mora", "/SF/Souls/Ode/OdeSoul": "Ode" },
+  "factions": { "SilentRoseSyndicate": "Silent Rose" }
+}
+```
+
+`items` keys may be a full `ItemType` path (most precise) or the leaf token;
+lookups try full path, then leaf, then a cleaned-up guess.
+
+### Producing the names file
+
+The names come from the game's own localization (`Languages.bin` on DE's CDN),
+extracted with no proprietary dependency - Oodle decompression uses `ooz-wasm`
+(an open-source WASM Kraken decompressor pulled in by `npm install`, nothing to
+fetch by hand):
+
+```bash
+npm install
+node scripts/extract_names.mjs --out dict.en.json    # download + decompress the dict
+node scripts/build_names.mjs dict.en.json names.json  # -> { items, factions }
+```
+
+Host `names.json` at your `SFHELPER_NAMES_URL`. Re-run per patch. Factions map
+exactly; item names resolve by leaf where the localization key aligns with the
+profile's `ItemType`. The precise `ItemType -> name` bridge for the rest needs
+the item definitions (in the `Cache.Windows` packages, decompressible with the
+same `ooz-wasm`) - a follow-on step.
+
+`scripts/unpack_cache.py` / `extract_names.py` are the earlier ctypes-Oodle
+prototypes, kept for reference; the `.mjs` pipeline above is the integrated,
+dependency-free one.
+
 ## Read this first
 
 [`docs/account-data.md`](docs/account-data.md) - the six ways to pull Soulframe

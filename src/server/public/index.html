@@ -108,9 +108,25 @@
       const $ = (id) => document.getElementById(id);
       const fmt = (n) => (typeof n === "number" ? n.toLocaleString() : "—");
 
-      function shortName(itemType) {
+      // In-game display names, loaded from /names.json. Until an entry exists
+      // for an item, we fall back to a cleaned-up path segment.
+      let DICT = { items: {}, factions: {} };
+
+      // Best guess at a readable name from the internal path, when the dict has
+      // no entry: take the leaf, strip engine suffixes, avoid the folder token.
+      function cleanName(itemType) {
         const parts = String(itemType).split("/").filter(Boolean);
-        return parts[parts.length - 2] || parts[parts.length - 1] || itemType;
+        const leaf = parts[parts.length - 1] || itemType;
+        const stripped = leaf.replace(/(RangedMeleeWeapon|MeleeWeapon|RangedWeapon|Weapon|Soul|Gun)$/, "");
+        if (stripped) return stripped.replace(/([a-z])([A-Z])/g, "$1 $2");
+        return parts[parts.length - 2] || leaf;
+      }
+      // Prefer an exact dict match on the full path, then on the leaf, then clean.
+      function shortName(itemType) {
+        if (DICT.items[itemType]) return DICT.items[itemType];
+        const leaf = String(itemType).split("/").filter(Boolean).pop();
+        if (leaf && DICT.items[leaf]) return DICT.items[leaf];
+        return cleanName(itemType);
       }
       // Group an item path into a human bucket for the XP list.
       function bucket(itemType) {
@@ -122,6 +138,7 @@
         return "Other";
       }
       function factionName(tag) {
+        if (DICT.factions[tag]) return DICT.factions[tag];
         return String(tag).replace(/Syndicate$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
       }
       function hours(sec) {
@@ -247,8 +264,17 @@
       $("save").addEventListener("click", start);
       $("accountId").addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
 
+      // Load the in-game name dictionary before first render, so names resolve.
+      async function loadDict() {
+        try {
+          const res = await fetch("/names.json");
+          if (res.ok) DICT = await res.json();
+        } catch {}
+      }
+
       // On load, try to discover the id automatically before asking for it.
       async function autoStart() {
+        await loadDict();
         try {
           const res = await fetch("/api/account");
           const data = await res.json();

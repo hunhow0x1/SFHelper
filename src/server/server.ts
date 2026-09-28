@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join, normalize } from "node:path";
 import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/profilePayload";
 import { discoverAccountId, rememberAccountId } from "./accountId";
+import { getNames } from "./names";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -80,6 +81,12 @@ async function serveStatic(res: ServerResponse, urlPath: string): Promise<void> 
 
 async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const url = new URL(req.url ?? "/", "http://localhost");
+
+  // Names resolve from the hostable endpoint (or cache/bundle), not the static file.
+  if (url.pathname === "/names.json") {
+    sendJson(res, 200, await getNames());
+    return;
+  }
 
   // Report the auto-discovered account id (saved config, or Little Genius).
   if (url.pathname === "/api/account" && req.method === "GET") {
