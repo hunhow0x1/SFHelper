@@ -14,6 +14,7 @@ import { dirname, join, normalize } from "node:path";
 import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/profilePayload";
 import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
+import { getInventory } from "./inventory";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -121,15 +122,22 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     }
     try {
       const snap = await getProfile(accountId);
-      const { PlayerLevel, ...currencies } = snap.currencies;
+      const { PlayerLevel, ...profileCurrencies } = snap.currencies;
+      // Overlay a local inventory (memory helper / DE data request) when present:
+      // it is the only source of currencies and owned-item counts.
+      const inventory = await getInventory();
+      const ownedCounts = new Map(inventory?.items.map((i) => [i.key, i.count]) ?? []);
       sendJson(res, 200, {
         account: snap.account,
         level: PlayerLevel ?? null,
-        items: snap.items,
+        items: snap.items.map((it) =>
+          ownedCounts.has(it.key) ? { ...it, count: ownedCounts.get(it.key) } : it,
+        ),
         progression: snap.progression,
         stats: snap.stats,
         daily: snap.daily,
-        currencies, // real amounts require inventory data; empty from the profile alone
+        currencies: inventory ? inventory.currencies : profileCurrencies,
+        inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,
       });
     } catch (err) {

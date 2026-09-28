@@ -104,6 +104,7 @@
       <section>
         <h2>Currencies</h2>
         <div class="grid" id="currencies"></div>
+        <div class="daily" id="invStatus"></div>
       </section>
 
       <section>
@@ -246,6 +247,9 @@
               )
               .join("")
           : '<span class="muted">Owned currencies (Dracs, Harmonies…) aren\'t in the public profile — import your inventory to show them.</span>';
+        $("invStatus").innerHTML = data.inventory
+          ? `Inventory loaded: <b>${data.inventory.itemCount}</b> items from ${data.inventory.source.split(/[\\/]/).pop()} · updated ${new Date(data.inventory.updatedAt).toLocaleString()}`
+          : "";
 
         // Weapon & Pact XP, grouped
         const groups = {};
