@@ -33,6 +33,7 @@ function tokensFrom(buf: Buffer): string[] {
 export async function findNonceCandidates(
   mem: ReadOnlyMemory,
   accountId: string,
+  onProgress?: (scanned: number, total: number) => void,
 ): Promise<string[]> {
   const ranked = new Map<string, number>();
   const consider = (token: string, weight: number): void => {
@@ -47,11 +48,11 @@ export async function findNonceCandidates(
   };
 
   // Strongest anchor: bytes sitting right after the account id.
-  harvest(await mem.scan(Buffer.from(accountId, "latin1"), 96), 3);
+  harvest(await mem.scan(Buffer.from(accountId, "latin1"), { trailingBytes: 96, onProgress }), 3);
   // The request fragment the client assembles: "&nonce=" is followed by it.
-  harvest(await mem.scan(Buffer.from("&nonce=", "latin1"), 40), 3);
+  harvest(await mem.scan(Buffer.from("&nonce=", "latin1"), { trailingBytes: 40, onProgress }), 3);
   // Weaker: the bare key, which may precede the value in a struct/JSON.
-  harvest(await mem.scan(Buffer.from("nonce", "latin1"), 48), 1);
+  harvest(await mem.scan(Buffer.from("nonce", "latin1"), { trailingBytes: 48, onProgress }), 1);
 
   // Drop the account id itself if it slipped in as a token.
   ranked.delete(accountId);

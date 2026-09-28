@@ -52,6 +52,15 @@ export interface ScanHit {
   trailing: Buffer;
 }
 
+export interface ScanOptions {
+  trailingBytes?: number;
+  maxHits?: number;
+  /** Scan every readable region, not just writable anonymous ones (slow). */
+  allRegions?: boolean;
+  /** Called with (bytesScanned, bytesTotal) as the scan advances. */
+  onProgress?: ((scanned: number, total: number) => void) | undefined;
+}
+
 /** A strictly read-only view of one process. Construct via {@link openProcess}. */
 export class ReadOnlyMemory {
   private constructor(
@@ -77,14 +86,28 @@ export class ReadOnlyMemory {
     return buf;
   }
 
-  /** Search readable regions for a byte pattern, capturing trailing bytes so a
-   *  caller can pull an adjacent value (e.g. a nonce that follows a known key).
-   *  Regions are read in bounded chunks; unreadable regions are skipped. */
-  async scan(needle: Buffer, trailingBytes = 64, maxHits = 32): Promise<ScanHit[]> {
+  /** Regions worth scanning for live session data (the nonce, the account id).
+   *  That data lives in the heap/anonymous WRITABLE memory - never in the
+   *  gigabytes of read-only, file-backed texture/code mappings - so restricting
+   *  to writable anonymous regions cuts the scan from GBs to ~tens of MB. */
+  scanRegions(): MemoryRegion[] {
+    return this.regions.filter(
+      (r) => r.perms[1] === "w" && (r.path === null || r.path.startsWith("[")),
+    );
+  }
+
+  /** Search for a byte pattern, capturing trailing bytes so a caller can pull an
+   *  adjacent value (e.g. a nonce right after a key). By default scans only the
+   *  writable anonymous regions and reports progress so long scans are visible. */
+  async scan(needle: Buffer, opts: ScanOptions = {}): Promise<ScanHit[]> {
+    const trailingBytes = opts.trailingBytes ?? 64;
+    const maxHits = opts.maxHits ?? 32;
+    const regions = opts.allRegions ? this.regions : this.scanRegions();
+    const total = regions.reduce((n, r) => n + (r.end - r.start), 0);
     const hits: ScanHit[] = [];
     const CHUNK = 1 << 20; // 1 MiB
-    for (const region of this.regions) {
-      if (region.path && /\.(so|so\.\d+)$/.test(region.path)) continue; // skip libraries
+    let scanned = 0;
+    for (const region of regions) {
       for (let addr = region.start; addr < region.end; addr += CHUNK) {
         const size = Math.min(CHUNK, region.end - addr);
         let buf: Buffer;
@@ -103,6 +126,8 @@ export class ReadOnlyMemory {
           if (hits.length >= maxHits) return hits;
           idx = buf.indexOf(needle, idx + 1);
         }
+        scanned += size;
+        opts.onProgress?.(scanned, total);
       }
     }
     return hits;

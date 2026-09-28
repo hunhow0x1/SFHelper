@@ -27,19 +27,22 @@ function oidsFrom(buf: Buffer): string[] {
 
 /** Collect candidate account ids from the neighborhood of the request anchor,
  *  most-promising first (immediately after "accountId=" ranks highest). */
-export async function findAccountIdCandidates(mem: ReadOnlyMemory): Promise<string[]> {
+export async function findAccountIdCandidates(
+  mem: ReadOnlyMemory,
+  onProgress?: (scanned: number, total: number) => void,
+): Promise<string[]> {
   const ranked = new Map<string, number>();
   const consider = (id: string, weight: number): void => {
     if (weight > (ranked.get(id) ?? 0)) ranked.set(id, weight);
   };
 
   // Strongest: the id the client itself put into the inventory request URL.
-  for (const hit of await mem.scan(Buffer.from("accountId=", "latin1"), 26)) {
+  for (const hit of await mem.scan(Buffer.from("accountId=", "latin1"), { trailingBytes: 26, onProgress })) {
     const [first] = oidsFrom(hit.trailing);
     if (first) consider(first, 3);
   }
   // Fallback: ids near the "$oid" JSON key the profile/session data uses.
-  for (const hit of await mem.scan(Buffer.from("$oid", "latin1"), 40)) {
+  for (const hit of await mem.scan(Buffer.from("$oid", "latin1"), { trailingBytes: 40, onProgress })) {
     for (const id of oidsFrom(hit.trailing)) consider(id, 1);
   }
 

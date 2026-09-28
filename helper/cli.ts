@@ -11,13 +11,13 @@
  *       first that works to inventory.json for the app to import.
  *
  *  Usage:
- *    node cli.js [--account <24-hex-id>] [--out inventory.json] [--consent path]
- *    node cli.js --ack "<phrase>"     # record consent, then exit
+ *    npm run helper -- [--account <24-hex-id>] [--out inventory.json]
+ *    npm run helper -- --ack "<phrase>"     # record consent, then exit
  */
 
 import { join, dirname } from "node:path";
 import { homedir } from "node:os";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { recordConsent, requireConsent, CONSENT_NOTICE } from "./consent";
 import { findSoulframe } from "./processFinder";
 import { ReadOnlyMemory } from "./memoryReader";
@@ -56,6 +56,32 @@ async function rememberAccountId(accountId: string): Promise<void> {
   await writeFile(CONFIG_PATH, `${JSON.stringify({ accountId }, null, 2)}\n`);
 }
 
+/** The account id saved by a previous run (or by the dashboard), if valid. */
+async function readSavedAccountId(): Promise<string | undefined> {
+  try {
+    const cfg = JSON.parse(await readFile(CONFIG_PATH, "utf8")) as { accountId?: string };
+    return cfg.accountId && /^[0-9a-f]{24}$/i.test(cfg.accountId) ? cfg.accountId : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** A throttled stderr progress bar, reset at the start of each scan pass. */
+function progress(label: string): (scanned: number, total: number) => void {
+  let last = -10;
+  let prev = 0;
+  return (scanned, total) => {
+    if (scanned < prev) last = -10; // a new pass started
+    prev = scanned;
+    const pct = total ? Math.floor((scanned / total) * 100) : 0;
+    if (pct >= last + 10) {
+      last = pct;
+      process.stderr.write(`\r  ${label}: ${pct}%   `);
+    }
+    if (scanned >= total) process.stderr.write("\n");
+  };
+}
+
 async function main(): Promise<number> {
   const args = parseArgs(process.argv.slice(2));
 
@@ -69,7 +95,7 @@ async function main(): Promise<number> {
     await requireConsent(args.consent);
   } catch (err) {
     console.error((err as Error).message);
-    console.error(`\nRecord consent with:\n  node cli.js --ack "<phrase above>"`);
+    console.error(`\nRecord consent with:\n  npm run helper -- --ack "<phrase above>"`);
     return 2;
   }
 
@@ -79,8 +105,11 @@ async function main(): Promise<number> {
     console.error(CONSENT_NOTICE);
     return 3;
   }
+  console.error(`Found Soulframe (pid ${procs.map((p) => p.pid).join(", ")}).`);
 
-  let account = args.account;
+  // Prefer an explicit id, then the saved config, then a memory scan.
+  let account = args.account ?? (await readSavedAccountId());
+  if (account) console.error(`Using account id ${account}.`);
   let nonceCandidates: string[] = [];
   let usablePid: number | null = null;
 
@@ -93,9 +122,10 @@ async function main(): Promise<number> {
     }
     try {
       usablePid = proc.pid;
-      // Recover the account id from memory if the user did not supply it.
+      // Recover the account id from memory if we still do not have one.
       if (!account) {
-        const idCandidates = await findAccountIdCandidates(mem);
+        console.error("Scanning writable memory for the account id...");
+        const idCandidates = await findAccountIdCandidates(mem, progress("account id"));
         const verified = await discoverVerifiedAccountId(idCandidates);
         if (verified) {
           account = verified.accountId;
@@ -106,7 +136,9 @@ async function main(): Promise<number> {
         }
       }
       if (account) {
-        nonceCandidates = await findNonceCandidates(mem, account);
+        console.error("Scanning writable memory for the session nonce...");
+        nonceCandidates = await findNonceCandidates(mem, account, progress("nonce"));
+        console.error(`Found ${nonceCandidates.length} nonce candidate(s).`);
       }
     } finally {
       await mem.close();
