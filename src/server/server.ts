@@ -15,6 +15,7 @@ import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/
 import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
 import { getInventory } from "./inventory";
+import { getWorldState } from "./worldState";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -89,6 +90,16 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     return;
   }
 
+  // Global rotating events / cooldowns (Conquests, Descents).
+  if (url.pathname === "/api/worldstate") {
+    try {
+      sendJson(res, 200, await getWorldState());
+    } catch (err) {
+      sendJson(res, 502, { error: (err as Error).message });
+    }
+    return;
+  }
+
   // Report the auto-discovered account id (saved config, or Little Genius).
   if (url.pathname === "/api/account" && req.method === "GET") {
     const found = await discoverAccountId();
@@ -138,6 +149,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         daily: snap.daily,
         currencies: inventory ? inventory.currencies : profileCurrencies,
         owned: Object.fromEntries(ownedCounts), // ItemType -> owned count (for tokens, etc.)
+        builds: inventory?.builds ?? [],
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,
       });

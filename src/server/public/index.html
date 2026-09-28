@@ -70,6 +70,11 @@
       .muted { color: var(--muted); }
       .daily { color: var(--muted); font-size: 13px; margin: -4px 0 14px; }
       .daily b { color: var(--text); font-variant-numeric: tabular-nums; }
+      button.mini {
+        background: var(--panel-2); color: var(--muted); border: 1px solid var(--line);
+        padding: 1px 8px; font-size: 12px; font-weight: 500; border-radius: 4px; margin-left: 8px;
+      }
+      button.mini:hover { color: var(--text); }
       table { width: 100%; border-collapse: collapse; }
       td, th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
       th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
@@ -102,6 +107,21 @@
       </section>
 
       <section>
+        <h2>World Timers</h2>
+        <div class="rows" id="worldTimers"><span class="muted">—</span></div>
+      </section>
+
+      <section>
+        <h2>Loadouts</h2>
+        <div id="loadouts"><span class="muted">—</span></div>
+        <div class="setup" style="margin-top: 14px">
+          <input id="importBuild" placeholder="Paste a build JSON to import" spellcheck="false" />
+          <button id="importBtn">Import</button>
+          <span class="status" id="importStatus"></span>
+        </div>
+      </section>
+
+      <section>
         <h2>Faction Tokens</h2>
         <div class="grid" id="factionTokens"></div>
       </section>
@@ -131,6 +151,21 @@
       // In-game display names, loaded from /names.json. Until an entry exists
       // for an item, we fall back to a cleaned-up path segment.
       let DICT = { items: {}, factions: {}, factionTokens: {}, currencies: {} };
+      // Per-faction, per-rank standing caps (from faction-ranks.json).
+      let FACTION_RANKS = {};
+
+      // Cumulative standing to REACH each rank (caps are per-rank earn amounts).
+      function rankInfo(tag, standing, rank) {
+        const caps = FACTION_RANKS[tag] || FACTION_RANKS.default || [];
+        if (!caps.length) return null;
+        const reach = [0];
+        for (let i = 0; i < caps.length; i++) reach[i + 1] = reach[i] + caps[i];
+        const r = Math.min(Math.max(rank ?? 0, 0), caps.length - 1);
+        const base = reach[r];
+        const cap = caps[r];
+        const into = Math.max(0, (standing ?? 0) - base);
+        return { cap, into, pct: cap ? Math.min(1, into / cap) : 0, atMax: r === caps.length - 1 };
+      }
 
       // Daily standing resets at 00:00 UTC (DE's daily reset). Pure client clock.
       function msToDailyReset() {
@@ -142,11 +177,104 @@
         const p = (n) => String(n).padStart(2, "0");
         return `${p(Math.floor(s / 3600))}:${p(Math.floor((s % 3600) / 60))}:${p(s % 60)}`;
       }
+      // Loadouts / builds. Presets come from the inventory; imported builds are
+      // kept in this browser so they survive refreshes.
+      let LAST_BUILDS = [];
+      let IMPORTED_BUILDS = [];
+      try { IMPORTED_BUILDS = JSON.parse(localStorage.getItem("sfhelper.builds") || "[]"); } catch {}
+
+      function buildCard(b, imported) {
+        const line = (label, t) =>
+          `<div class="row"><span class="label">${label}</span><span class="val">${t ? shortName(t) : "—"}</span></div>`;
+        const payload = encodeURIComponent(JSON.stringify({ name: b.name, soul: b.soul, ranged: b.ranged, melee: b.melee }));
+        const rm = imported ? ` <button class="mini" data-remove="${encodeURIComponent(b.name)}">Remove</button>` : "";
+        return `<div class="xpgroup">
+          <h3>${b.favorite ? "★ " : ""}${b.name}${imported ? ' <span class="sub">imported</span>' : ""}
+            <button class="mini" data-export="${payload}">Export</button>${rm}</h3>
+          <div class="rows">${line("Soul", b.soul)}${line("Ranged", b.ranged)}${line("Melee", b.melee)}</div>
+        </div>`;
+      }
+      function renderBuilds() {
+        const own = (LAST_BUILDS || []).map((b) => buildCard(b, false));
+        const imp = IMPORTED_BUILDS.map((b) => buildCard(b, true));
+        const all = [...own, ...imp];
+        $("loadouts").innerHTML = all.length
+          ? all.join("")
+          : '<span class="muted">No loadouts — run the memory helper to import your inventory, then refresh.</span>';
+      }
+      function saveImported() {
+        try { localStorage.setItem("sfhelper.builds", JSON.stringify(IMPORTED_BUILDS)); } catch {}
+      }
+      $("loadouts").addEventListener("click", (e) => {
+        const ex = e.target.closest("[data-export]");
+        if (ex) {
+          navigator.clipboard?.writeText(decodeURIComponent(ex.dataset.export));
+          ex.textContent = "Copied!";
+          setTimeout(() => (ex.textContent = "Export"), 1200);
+        }
+        const rm = e.target.closest("[data-remove]");
+        if (rm) {
+          const name = decodeURIComponent(rm.dataset.remove);
+          IMPORTED_BUILDS = IMPORTED_BUILDS.filter((b) => b.name !== name);
+          saveImported();
+          renderBuilds();
+        }
+      });
+      $("importBtn").addEventListener("click", () => {
+        const el = $("importBuild");
+        try {
+          const b = JSON.parse(el.value);
+          if (!b || typeof b.name !== "string") throw new Error("missing a build name");
+          IMPORTED_BUILDS.push({ name: b.name, favorite: false, soul: b.soul ?? null, ranged: b.ranged ?? null, melee: b.melee ?? null });
+          saveImported();
+          el.value = "";
+          $("importStatus").textContent = `Imported "${b.name}".`;
+          renderBuilds();
+        } catch (err) {
+          $("importStatus").textContent = "Invalid build JSON.";
+        }
+      });
+
+      // Global rotating events (Conquests, Descents) with live countdowns.
+      let WORLD = { events: [] };
+      function eventName(e) {
+        if (e.kind === "conquest") {
+          return (e.id.replace(/^CT_/, "").replace(/([a-z])([A-Z])/g, "$1 $2") || "Conquest") + " Conquest";
+        }
+        if (e.kind === "descent") return e.id;
+        return e.id;
+      }
+      function renderWorldTimers() {
+        const now = Date.now() / 1000;
+        const rows = (WORLD.events || [])
+          .filter((e) => e.expiry && e.expiry > now)
+          .map((e) => {
+            const active = !e.activation || e.activation <= now;
+            const target = active ? e.expiry : e.activation;
+            const verb = active ? "ends in" : "starts in";
+            return `<div class="row"><span class="label">${eventName(e)}</span><span class="val">${verb} <b>${fmtDur((target - now) * 1000)}</b></span></div>`;
+          });
+        $("worldTimers").innerHTML = rows.length
+          ? rows.join("")
+          : '<span class="muted">No active rotating events.</span>';
+      }
+      async function loadWorldState() {
+        try {
+          const res = await fetch("/api/worldstate");
+          if (res.ok) WORLD = await res.json();
+        } catch {}
+        renderWorldTimers();
+      }
+
       function tickReset() {
         $("dailyReset").textContent = fmtDur(msToDailyReset());
+        renderWorldTimers(); // world-timer countdowns tick every second too
       }
       setInterval(tickReset, 1000);
       tickReset();
+      loadWorldState();
+      setInterval(loadWorldState, 5 * 60 * 1000); // refresh the world state periodically
+      renderBuilds(); // show imported builds immediately, before a profile loads
 
       // Internal currency ids -> in-game names: dict first, then a small fallback.
       const CURRENCY_NAMES = { RegularCredits: "Dracs", PremiumCredits: "Arcs", MoteDust: "Harmonies" };
@@ -221,18 +349,22 @@
             ? `Daily standing earned: <b>${fmt(d.affiliation)}</b> — resets in <b>${fmtDur(msToDailyReset())}</b>`
             : "";
 
-        // Faction standing.
+        // Faction standing - bar fills toward the CURRENT rank's cap.
         const factions = data.progression.filter((p) => p.kind === "affiliation");
-        const maxStanding = Math.max(1, ...factions.map((f) => f.xp || 0));
         $("factions").innerHTML =
           factions
             .map((f) => {
               const tag = factionTag(f);
+              const info = rankInfo(tag, f.xp, f.rank);
+              const val = info
+                ? `${fmt(info.into)} / ${fmt(info.cap)}${info.atMax ? " (max rank)" : ""} &nbsp;·&nbsp; Rank ${f.rank ?? 0}`
+                : `${fmt(f.xp)} &nbsp;·&nbsp; Rank ${f.rank ?? 0}`;
+              const pct = info ? Math.round(info.pct * 100) : 0;
               return `
           <div class="row">
             <span class="label">${factionName(tag)}</span>
-            <span class="val">${fmt(f.xp)} &nbsp;·&nbsp; Rank ${f.rank ?? 0}</span>
-            <span class="bar"><i style="width:${Math.round(((f.xp || 0) / maxStanding) * 100)}%"></i></span>
+            <span class="val">${val}</span>
+            <span class="bar"><i style="width:${pct}%"></i></span>
           </div>`;
             })
             .join("") || '<span class="muted">No standing data.</span>';
@@ -261,6 +393,10 @@
         $("invStatus").innerHTML = data.inventory
           ? `Inventory loaded: <b>${data.inventory.itemCount}</b> items from ${data.inventory.source.split(/[\\/]/).pop()} · updated ${new Date(data.inventory.updatedAt).toLocaleString()}`
           : "";
+
+        // Loadouts (presets from inventory + any imported builds).
+        LAST_BUILDS = data.builds || [];
+        renderBuilds();
 
         // Weapon & Pact XP, grouped
         const groups = {};
@@ -365,6 +501,10 @@
         try {
           const res = await fetch("/names.json");
           if (res.ok) DICT = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/faction-ranks.json");
+          if (res.ok) FACTION_RANKS = await res.json();
         } catch {}
       }
 

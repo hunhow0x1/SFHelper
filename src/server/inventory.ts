@@ -15,6 +15,7 @@ import { readFile, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { snapshotFromExport } from "../account/providers/jsonImport";
+import { parseBuilds, type Build } from "./loadouts";
 
 const CANDIDATES = [
   process.env.SFHELPER_INVENTORY,
@@ -31,6 +32,7 @@ export interface OwnedItem {
 export interface InventoryView {
   currencies: Record<string, number>;
   items: OwnedItem[];
+  builds: Build[];
   source: string;
   /** File mtime, so the dashboard can say how fresh the inventory is. */
   updatedAt: string;
@@ -52,10 +54,12 @@ export async function getInventory(): Promise<InventoryView | null> {
       return memo.view;
     }
     try {
-      const snap = snapshotFromExport(JSON.parse(await readFile(path, "utf8")), new Date().toISOString());
+      const raw = JSON.parse(await readFile(path, "utf8"));
+      const snap = snapshotFromExport(raw, new Date().toISOString());
       const view: InventoryView = {
         currencies: snap.currencies,
         items: snap.items.map((i) => ({ key: i.key, displayName: i.displayName, count: i.count })),
+        builds: parseBuilds(raw),
         source: path,
         updatedAt: new Date(mtimeMs).toISOString(),
       };

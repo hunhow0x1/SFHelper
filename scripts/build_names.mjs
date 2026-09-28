@@ -54,6 +54,7 @@ const MANUAL_OVERRIDES = {
   // Some souls' internal family differs from their pact's character name.
   WolfSoul: dict["/SF/Language/Pacts/OrengalName"], // -> Orengall
   StagSoul: dict["/SF/Language/Pacts/GarrenName"], // -> Garren Rood
+  SecondaryOdeSawDaggerMeleeWeapon: dict["/SF/Language/Weapons/OdeSecondarySawSwordMeleeWeaponName"], // -> Grinn
 };
 
 const items = {};
