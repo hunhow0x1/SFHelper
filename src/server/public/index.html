@@ -161,6 +161,11 @@
         if (DICT.factions[tag]) return DICT.factions[tag];
         return String(tag).replace(/Syndicate$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
       }
+      // The affiliation's raw Tag (e.g. "ChampionSyndicate") is how names.json
+      // keys factions; progression stores it as key "affiliation:<Tag>".
+      function factionTag(f) {
+        return String(f.key || "").replace(/^affiliation:/, "") || f.displayName || "";
+      }
       function hours(sec) {
         if (typeof sec !== "number") return "—";
         return Math.round(sec / 3600).toLocaleString() + " h";
@@ -180,7 +185,7 @@
             .map(
               (f) => `
           <div class="row">
-            <span class="label">${factionName(f.displayName || f.key)}</span>
+            <span class="label">${factionName(factionTag(f))}</span>
             <span class="val">${fmt(f.xp)} &nbsp;·&nbsp; Rank ${f.rank ?? 0}</span>
             <span class="bar"><i style="width:${Math.round(((f.xp || 0) / maxStanding) * 100)}%"></i></span>
           </div>`,
@@ -202,7 +207,8 @@
               const rows = groups[g]
                 .sort((a, b) => (b.rank || 0) - (a.rank || 0))
                 .map((it) => {
-                  const sub = subLabel(it.key);
+                  // Class chips only on weapons; pacts/souls show just the name.
+                  const sub = g === "Souls & Pacts" ? "" : subLabel(it.key);
                   const tag = sub ? ` <span class="sub">${sub}</span>` : "";
                   return `<div class="row"><span class="label">${shortName(it.key)}${tag}</span><span class="val">${fmt(it.rank)} XP</span></div>`;
                 })
