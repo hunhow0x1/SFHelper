@@ -12,5 +12,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["src", "tests", "helper"]
+  "include": ["src", "tests", "helper", "electron", "scripts/build_data.ts"]
 }

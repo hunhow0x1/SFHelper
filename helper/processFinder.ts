@@ -1,21 +1,23 @@
-/** Find the running Soulframe process on Linux (including under Proton/Wine).
+/** Find the running Soulframe process, cross-platform.
  *
- *  The name handling mirrors warframe-api-helper's Warframe.x64.exe ->
- *  Warframe.x64.ex fallback, and for the same reason: Linux truncates
- *  /proc/<pid>/comm to 15 characters (TASK_COMM_LEN - 1). "Soulframe.x64.exe"
- *  is 17 chars, so comm shows "Soulframe.x64.e". We match the full name in the
- *  richer /proc/<pid>/cmdline first, and fall back to the truncated comm.
+ *  Linux (incl. Proton/Wine): scan /proc. /proc/<pid>/comm is capped at 15 chars
+ *  (TASK_COMM_LEN-1), so we match the full name in /proc/<pid>/cmdline first and
+ *  fall back to the truncated comm.
+ *  Windows: parse `tasklist` for the image name.
  */
 
 import { readFile, readdir } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
 
 const FULL_NAME = "Soulframe.x64.exe";
-/** /proc/<pid>/comm is capped at 15 visible chars. */
 const COMM_TRUNCATED = FULL_NAME.slice(0, 15); // "Soulframe.x64.e"
 
 export interface FoundProcess {
   pid: number;
-  matchedOn: "cmdline" | "comm";
+  matchedOn: "cmdline" | "comm" | "tasklist";
 }
 
 async function readComm(pid: string): Promise<string | null> {
@@ -28,17 +30,13 @@ async function readComm(pid: string): Promise<string | null> {
 
 async function readCmdline(pid: string): Promise<string | null> {
   try {
-    // cmdline is NUL-separated; the exe name can appear as a Windows-style path.
     return (await readFile(`/proc/${pid}/cmdline`, "utf8")).replace(/\0/g, " ").trim();
   } catch {
     return null;
   }
 }
 
-/** Return every matching pid. More than one usually means the game plus a
- *  Wine/Proton helper thread group; the caller picks the one whose memory is
- *  readable. */
-export async function findSoulframe(): Promise<FoundProcess[]> {
+async function findLinux(): Promise<FoundProcess[]> {
   const entries = await readdir("/proc");
   const found: FoundProcess[] = [];
   for (const entry of entries) {
@@ -54,4 +52,26 @@ export async function findSoulframe(): Promise<FoundProcess[]> {
     }
   }
   return found;
+}
+
+async function findWindows(): Promise<FoundProcess[]> {
+  // CSV, no header: "Image Name","PID","Session Name","Session#","Mem Usage"
+  const { stdout } = await execFileAsync("tasklist", ["/FO", "CSV", "/NH"], {
+    windowsHide: true,
+    maxBuffer: 8 * 1024 * 1024,
+  });
+  const found: FoundProcess[] = [];
+  for (const line of stdout.split(/\r?\n/)) {
+    const cols = line.split('","').map((c) => c.replace(/^"|"$/g, ""));
+    if (cols.length < 2) continue;
+    if (cols[0]?.toLowerCase() === FULL_NAME.toLowerCase()) {
+      const pid = Number(cols[1]);
+      if (Number.isFinite(pid)) found.push({ pid, matchedOn: "tasklist" });
+    }
+  }
+  return found;
+}
+
+export async function findSoulframe(): Promise<FoundProcess[]> {
+  return process.platform === "win32" ? findWindows() : findLinux();
 }

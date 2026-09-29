@@ -15,10 +15,12 @@ import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/
 import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
 import { getInventory } from "./inventory";
-import { getWorldState } from "./worldState";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
+// Launch-built data (totems.json, runes.json) is written to a writable dir since
+// the packaged app's assets are read-only. Files here override the bundled ones.
+const DATA_DIR = process.env.SFHELPER_DATA_DIR ? normalize(process.env.SFHELPER_DATA_DIR) : null;
 const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=";
 const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
@@ -71,21 +73,27 @@ async function getProfile(accountId: string): Promise<ProfileSnapshot> {
   return snapshot;
 }
 
+async function readFromDir(base: string, rel: string): Promise<Buffer | null> {
+  const full = normalize(join(base, rel));
+  if (!full.startsWith(base)) return null; // path-traversal guard
+  try {
+    return await readFile(full);
+  } catch {
+    return null;
+  }
+}
+
 async function serveStatic(res: ServerResponse, urlPath: string): Promise<void> {
   const rel = urlPath === "/" ? "index.html" : urlPath.replace(/^\/+/, "");
-  const full = normalize(join(PUBLIC_DIR, rel));
-  if (!full.startsWith(PUBLIC_DIR)) {
-    res.writeHead(403).end("Forbidden");
+  // Prefer the writable data overlay (launch-built JSON), then the bundled assets.
+  const body = (DATA_DIR ? await readFromDir(DATA_DIR, rel) : null) ?? (await readFromDir(PUBLIC_DIR, rel));
+  if (!body) {
+    res.writeHead(404).end("Not found");
     return;
   }
-  try {
-    const body = await readFile(full);
-    const ext = full.slice(full.lastIndexOf("."));
-    res.writeHead(200, { "content-type": CONTENT_TYPES[ext] ?? "application/octet-stream" });
-    res.end(body);
-  } catch {
-    res.writeHead(404).end("Not found");
-  }
+  const ext = rel.slice(rel.lastIndexOf("."));
+  res.writeHead(200, { "content-type": CONTENT_TYPES[ext] ?? "application/octet-stream" });
+  res.end(body);
 }
 
 async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -94,16 +102,6 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   // Names resolve from the hostable endpoint (or cache/bundle), not the static file.
   if (url.pathname === "/names.json") {
     sendJson(res, 200, await getNames());
-    return;
-  }
-
-  // Global rotating events / cooldowns (Conquests, Descents).
-  if (url.pathname === "/api/worldstate") {
-    try {
-      sendJson(res, 200, await getWorldState());
-    } catch (err) {
-      sendJson(res, 502, { error: (err as Error).message });
-    }
     return;
   }
 
@@ -169,12 +167,31 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   await serveStatic(res, url.pathname);
 }
 
-const port = Number(process.env.SFHELPER_PORT ?? 4317);
-createServer((req, res) => {
-  handle(req, res).catch((err) => {
-    console.error(err);
-    if (!res.headersSent) res.writeHead(500).end("Internal error");
+export interface RunningServer {
+  port: number;
+  url: string;
+  close: () => Promise<void>;
+}
+
+/** Start the dashboard server. Resolves once it is listening. */
+export function startServer(port = Number(process.env.SFHELPER_PORT ?? 4317)): Promise<RunningServer> {
+  const server = createServer((req, res) => {
+    handle(req, res).catch((err) => {
+      console.error(err);
+      if (!res.headersSent) res.writeHead(500).end("Internal error");
+    });
   });
-}).listen(port, () => {
-  console.log(`SFHelper dashboard: http://localhost:${port}`);
-});
+  return new Promise((resolve, reject) => {
+    server.on("error", reject);
+    server.listen(port, () => {
+      const actual = (server.address() as { port: number }).port;
+      const url = `http://localhost:${actual}`;
+      console.log(`SFHelper dashboard: ${url}`);
+      resolve({
+        port: actual,
+        url,
+        close: () => new Promise((r) => server.close(() => r())),
+      });
+    });
+  });
+}

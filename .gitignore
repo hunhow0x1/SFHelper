@@ -4,3 +4,4 @@ dist/
 data/endpoints.discovered.json
 inventory.json
 dict.en.json
+release/

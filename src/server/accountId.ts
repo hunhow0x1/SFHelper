@@ -22,7 +22,10 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
-const CONFIG_PATH = join(homedir(), ".config", "sfhelper", "config.json");
+// The app's data dir. SFHELPER_HOME lets the packaged app point this at its
+// per-user userData directory; otherwise the conventional config location.
+const CONFIG_DIR = process.env.SFHELPER_HOME ?? join(homedir(), ".config", "sfhelper");
+const CONFIG_PATH = join(CONFIG_DIR, "config.json");
 
 export interface DiscoveredAccount {
   accountId: string;

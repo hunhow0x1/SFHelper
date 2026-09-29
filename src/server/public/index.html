@@ -60,7 +60,10 @@
 
       section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
       h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--accent); margin: 0 0 14px; }
+      h2.hdr { display: flex; align-items: center; gap: 10px; }
+      h2.hdr .mini { margin-left: auto; text-transform: none; letter-spacing: normal; }
       .setup { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+      .setup[hidden] { display: none; } /* .setup's display:flex would otherwise beat [hidden] */
       input {
         background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
         padding: 8px 12px; border-radius: 6px; font: inherit; min-width: 320px;
@@ -167,11 +170,13 @@
       <!-- OVERVIEW -->
       <div class="panel active" id="panel-overview">
         <section>
-          <h2>Account</h2>
-          <div class="setup">
+          <h2 class="hdr">Account
+            <button id="accountToggle" class="mini" aria-expanded="false">Edit ID</button>
+          </h2>
+          <span class="status" id="status">Enter your account id to begin.</span>
+          <div class="setup" id="accountSetup" hidden style="margin-top: 12px">
             <input id="accountId" placeholder="24-character account id" spellcheck="false" />
             <button id="save">Track</button>
-            <span class="status" id="status">Enter your account id to begin.</span>
           </div>
         </section>
 
@@ -194,10 +199,6 @@
           </section>
         </div>
 
-        <section>
-          <h2>World Timers</h2>
-          <div class="rows" id="worldTimers"><span class="muted">—</span></div>
-        </section>
       </div>
 
       <!-- LOADOUTS -->
@@ -420,45 +421,12 @@
         }
       });
 
-      // Global rotating events (Conquests, Descents) with live countdowns.
-      let WORLD = { events: [] };
-      function eventName(e) {
-        if (e.kind === "conquest") {
-          return (e.id.replace(/^CT_/, "").replace(/([a-z])([A-Z])/g, "$1 $2") || "Conquest") + " Conquest";
-        }
-        if (e.kind === "descent") return e.id;
-        return e.id;
-      }
-      function renderWorldTimers() {
-        const now = Date.now() / 1000;
-        const rows = (WORLD.events || [])
-          .filter((e) => e.expiry && e.expiry > now)
-          .map((e) => {
-            const active = !e.activation || e.activation <= now;
-            const target = active ? e.expiry : e.activation;
-            const verb = active ? "ends in" : "starts in";
-            return `<div class="row"><span class="label">${eventName(e)}</span><span class="val">${verb} <b>${fmtDur((target - now) * 1000)}</b></span></div>`;
-          });
-        $("worldTimers").innerHTML = rows.length
-          ? rows.join("")
-          : '<span class="muted">No active rotating events.</span>';
-      }
-      async function loadWorldState() {
-        try {
-          const res = await fetch("/api/worldstate");
-          if (res.ok) WORLD = await res.json();
-        } catch {}
-        renderWorldTimers();
-      }
-
+      // The header shows a live countdown to the daily reset (00:00 UTC).
       function tickReset() {
         $("dailyReset").textContent = fmtDur(msToDailyReset());
-        renderWorldTimers(); // world-timer countdowns tick every second too
       }
       setInterval(tickReset, 1000);
       tickReset();
-      loadWorldState();
-      setInterval(loadWorldState, 5 * 60 * 1000); // refresh the world state periodically
       renderBuilds(); // show imported builds immediately, before a profile loads
 
       // Internal currency ids -> in-game names: dict first, then a small fallback.
@@ -697,10 +665,21 @@
         if (timer) clearInterval(timer);
         refresh();
         timer = setInterval(refresh, 60000);
+        setAccountSetup(false); // collapse once we're tracking
       }
 
       $("save").addEventListener("click", start);
       $("accountId").addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
+
+      // Account ID entry is collapsed by default; this toggles it for manual entry.
+      function setAccountSetup(open) {
+        $("accountSetup").hidden = !open;
+        const btn = $("accountToggle");
+        btn.setAttribute("aria-expanded", String(open));
+        btn.textContent = open ? "Hide" : "Edit ID";
+        if (open) $("accountId").focus();
+      }
+      $("accountToggle").addEventListener("click", () => setAccountSetup($("accountSetup").hidden));
 
       // Load the in-game name dictionary before first render, so names resolve.
       async function loadDict() {
@@ -743,8 +722,10 @@
         // Fall back to a value this browser saved earlier.
         try {
           const saved = localStorage.getItem("sfhelper.accountId");
-          if (saved) { $("accountId").value = saved; start(); }
+          if (saved) { $("accountId").value = saved; start(); return; }
         } catch {}
+        // No id anywhere - open the entry so a first-time user can add one.
+        setAccountSetup(true);
       }
       autoStart();
     </script>

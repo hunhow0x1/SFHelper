@@ -19,6 +19,7 @@ import { parseBuilds, type Build } from "./loadouts";
 
 const CANDIDATES = [
   process.env.SFHELPER_INVENTORY,
+  process.env.SFHELPER_HOME ? join(process.env.SFHELPER_HOME, "inventory.json") : undefined,
   join(process.cwd(), "inventory.json"),
   join(homedir(), ".config", "sfhelper", "inventory.json"),
 ].filter((p): p is string => Boolean(p));

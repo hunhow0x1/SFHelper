@@ -1,9 +1,10 @@
 {
   "name": "sfhelper",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
-  "description": "Desktop Soulframe companion - account snapshots, progression tracking and world data",
+  "description": "Desktop Soulframe companion - account snapshots, progression tracking and loadouts",
   "type": "module",
+  "main": "dist/electron/main.js",
   "engines": {
     "node": ">=22"
   },
@@ -11,19 +12,60 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "probe": "node scripts/probe-endpoints.mjs",
-    "start": "tsx src/server/server.ts",
+    "start": "tsx src/server/start.ts",
     "helper": "tsx helper/cli.ts",
     "extract-names": "node scripts/extract_names.mjs",
-  "build-totems": "node scripts/build_totems.mjs",
-  "build-runes": "node scripts/build_runes.mjs"
+    "build-totems": "tsx scripts/build_data.ts totems",
+    "build-runes": "tsx scripts/build_data.ts runes",
+    "build:app": "node scripts/build_app.mjs",
+    "app": "npm run build:app && electron .",
+    "dist": "npm run build:app && electron-builder",
+    "dist:linux": "npm run build:app && electron-builder --linux AppImage",
+    "dist:win": "npm run build:app && electron-builder --win nsis"
   },
   "dependencies": {
-    "ooz-wasm": "^2.0.0"
+    "koffi": "^2.9.0"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.24.0",
+    "ooz-wasm": "^2.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
+  },
+  "build": {
+    "appId": "com.hunhow0x1.sfhelper",
+    "productName": "SFHelper",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/node_modules/koffi/**"
+    ],
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Game",
+      "artifactName": "SFHelper-${version}.${ext}"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "SFHelper-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
