@@ -55,6 +55,9 @@ const MANUAL_OVERRIDES = {
   WolfSoul: dict["/SF/Language/Pacts/OrengalName"], // -> Orengall
   StagSoul: dict["/SF/Language/Pacts/GarrenName"], // -> Garren Rood
   SecondaryOdeSawDaggerMeleeWeapon: dict["/SF/Language/Weapons/OdeSecondarySawSwordMeleeWeaponName"], // -> Grinn
+  // Totem whose inventory ItemType leaf ("HealRip") differs from its
+  // localization stem ("HealAoeRip").
+  HealRip: dict["/SF/Language/Motes/HealAoeRipName"], // -> Dabble Dredge
 };
 
 const items = {};

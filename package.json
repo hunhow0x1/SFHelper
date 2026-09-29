@@ -14,7 +14,8 @@
     "start": "tsx src/server/server.ts",
     "helper": "tsx helper/cli.ts",
     "extract-names": "node scripts/extract_names.mjs",
-  "build-totems": "node scripts/build_totems.mjs"
+  "build-totems": "node scripts/build_totems.mjs",
+  "build-runes": "node scripts/build_runes.mjs"
   },
   "dependencies": {
     "ooz-wasm": "^2.0.0"
