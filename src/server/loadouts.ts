@@ -14,6 +14,20 @@
  *  The result is a portable build the app can display, export, and re-import.
  */
 
+/** A Joinery (Kintsugi reforge) installed on a weapon. Only one at a time; the
+ *  weapon stores it in its `UpgradeType`. The code's family names the Joinery
+ *  product (which is tied to weapon type), and the SR<letter> suffix encodes the
+ *  Virtue chosen at reforge time (C=Courage, S=Spirit, G=Grace) - the pips make
+ *  the weapon scale harder with that Virtue. */
+export interface Joinery {
+  /** "Verite" | "Quicksilver" | "Feybalt" | "Gildaur", or null if unknown. */
+  name: string | null;
+  /** "Courage" | "Spirit" | "Grace", or null for plain/obsolete reforges. */
+  virtue: string | null;
+  /** Cleaned upgrade code, e.g. "DefenseSRG" (kept for reference/export). */
+  code: string;
+}
+
 export interface SlotGear {
   /** Weapon/soul ItemType, or null when the slot is empty. */
   type: string | null;
@@ -21,6 +35,8 @@ export interface SlotGear {
   runes: string[];
   /** Totem ItemTypes installed in this slot's active config. */
   totems: string[];
+  /** Installed Joinery (weapons only), or null. */
+  joinery: Joinery | null;
 }
 
 export interface Build {
@@ -40,9 +56,37 @@ interface GearInfo {
   type: string;
   /** Per-config lists of upgrade ItemIds (Configs[i].Upgrades). */
   configs: string[][];
+  /** The weapon's installed Joinery id (UpgradeType), if any. */
+  upgradeType: string | undefined;
 }
 
-const EMPTY_SLOT: SlotGear = { type: null, runes: [], totems: [] };
+const EMPTY_SLOT: SlotGear = { type: null, runes: [], totems: [], joinery: null };
+
+const VIRTUE: Record<string, string> = { C: "Courage", S: "Spirit", G: "Grace" };
+// Code family -> Joinery product. Verite/Quicksilver/Feybalt are weapon-type
+// specific (Melee/Ranged/Magick); Gildaur is universal (the "Defense" family,
+// which shows up across every weapon type in practice).
+const JOINERY_BY_FAMILY: Record<string, string> = {
+  Melee: "Verite",
+  Ranged: "Quicksilver",
+  Caster: "Feybalt",
+  Defense: "Gildaur",
+};
+
+/** Decode a weapon's UpgradeType (Kintsugi reforge) into a Joinery. */
+function decodeJoinery(upgradeType: string | undefined): Joinery | null {
+  if (!upgradeType) return null;
+  const leaf = upgradeType.split("/").pop() || upgradeType;
+  const code = leaf.replace(/^Kintsugi(?:Weapon)?Upgrade/, "");
+  const family = code.match(/^(Melee|Ranged|Caster|Defense)/)?.[1];
+  // Attuned reforges end in SR<Virtue> (optionally a higher "Two" tier).
+  const letter = leaf.match(/SR([CSG])(?:Two)?$/)?.[1];
+  return {
+    name: family ? (JOINERY_BY_FAMILY[family] ?? null) : null,
+    virtue: letter ? (VIRTUE[letter] ?? null) : null,
+    code,
+  };
+}
 
 /** ItemId -> { ItemType, per-config upgrade id lists } for every gear item. */
 function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
@@ -51,14 +95,18 @@ function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
     const list = raw[cat];
     if (!Array.isArray(list)) continue;
     for (const entry of list) {
-      const e = entry as { ItemId?: { $oid?: string }; ItemType?: string; Configs?: unknown };
+      const e = entry as { ItemId?: { $oid?: string }; ItemType?: string; Configs?: unknown; UpgradeType?: unknown };
       const oid = e?.ItemId?.$oid;
       if (!oid || typeof e.ItemType !== "string") continue;
       const configs = (Array.isArray(e.Configs) ? e.Configs : []).map((c) => {
         const ups = (c as { Upgrades?: unknown })?.Upgrades;
         return Array.isArray(ups) ? ups.filter((u): u is string => typeof u === "string") : [];
       });
-      idx.set(oid, { type: e.ItemType, configs });
+      idx.set(oid, {
+        type: e.ItemType,
+        configs,
+        upgradeType: typeof e.UpgradeType === "string" ? e.UpgradeType : undefined,
+      });
     }
   }
   return idx;
@@ -101,7 +149,7 @@ export function parseBuilds(raw: unknown): Build[] {
       if (type.includes("/Upgrades/Runes/")) runes.push(type);
       else if (type.includes("/Upgrades/Totems/")) totems.push(type);
     }
-    return { type: info.type, runes, totems };
+    return { type: info.type, runes, totems, joinery: decodeJoinery(info.upgradeType) };
   };
 
   return presets.map((p) => {

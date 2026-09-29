@@ -134,6 +134,11 @@
         display: inline-block; background: var(--panel-2); border: 1px solid var(--line);
         border-radius: 4px; padding: 1px 8px; margin: 2px 5px 2px 0; font-size: 12px;
       }
+      .jmini { height: 18px; width: 18px; vertical-align: -4px; margin-left: 6px; opacity: 0.9; }
+      .jmini.vpip { margin-left: 3px; opacity: 1; }
+      .chipline .jicon { height: 26px; width: 26px; vertical-align: middle; margin-right: 8px; }
+      .chipline .vicon { height: 16px; width: 16px; vertical-align: -3px; margin: 0 3px 0 10px; }
+      .chipline .jname { font-weight: 600; }
     </style>
   </head>
   <body>
@@ -279,6 +284,9 @@
           type: x.type ?? null,
           runes: Array.isArray(x.runes) ? x.runes : [],
           totems: Array.isArray(x.totems) ? x.totems : [],
+          joinery: x.joinery && typeof x.joinery === "object"
+            ? { name: x.joinery.name ?? null, virtue: x.joinery.virtue ?? null, code: x.joinery.code ?? "" }
+            : null,
         };
       }
       function normBuild(b) {
@@ -291,11 +299,31 @@
         arr && arr.length
           ? arr.map((t) => `<span class="chip">${shortName(t)}</span>`).join("")
           : '<span class="muted">—</span>';
-      // Detail block for one slot - only rendered when it carries runes/totems.
+      const VIRTUE_COLOR = { Courage: "#d98a6a", Spirit: "#6fae8f", Grace: "#c9a55c" };
+      const JOINERY_ICON = { Verite: "verite", Quicksilver: "quicksilver", Feybalt: "feybalt", Gildaur: "gildaur" };
+      const VIRTUE_ICON = { Courage: "courage", Spirit: "spirit", Grace: "grace" };
+      const joineryIconSrc = (j) => "img/joineries/" + (JOINERY_ICON[j && j.name] || "joinery") + ".png";
+      const virtueIconSrc = (v) => "img/joineries/" + (VIRTUE_ICON[v] || "joinery") + ".png";
+      const joineryName = (j) => j.name || (j.code || "reforge").replace(/([a-z])([A-Z])/g, "$1 $2");
+      // Full joinery display (detail panel): product icon + name + virtue icon.
+      function joineryLabel(j) {
+        if (!j) return '<span class="muted">—</span>';
+        const name = joineryName(j);
+        const icon = `<img class="jicon" src="${joineryIconSrc(j)}" alt="" onerror="this.style.display='none'">`;
+        if (j.virtue) {
+          const c = VIRTUE_COLOR[j.virtue] || "var(--text)";
+          return `${icon}<span class="jname">${name}</span>
+            <img class="vicon" src="${virtueIconSrc(j.virtue)}" alt="" onerror="this.style.display='none'">
+            <span style="color:${c}">${j.virtue}</span>`;
+        }
+        return `${icon}<span class="jname">${name}</span>`;
+      }
+      // Detail block for one slot - rendered when it carries runes/totems/joinery.
       function slotDetail(label, slot) {
-        if (!slot || (!slot.runes.length && !slot.totems.length)) return "";
+        if (!slot || (!slot.runes.length && !slot.totems.length && !slot.joinery)) return "";
         return `<div class="slotgrp">
           <div class="slothead">${slot.type ? shortName(slot.type) : "—"} <span class="kind">· ${label}</span></div>
+          <div class="chipline"><span class="h">Joinery</span>${joineryLabel(slot.joinery)}</div>
           <div class="chipline"><span class="h">Runes</span>${chips(slot.runes)}</div>
           <div class="chipline"><span class="h">Totems</span>${chips(slot.totems)}</div>
         </div>`;
@@ -303,6 +331,18 @@
       function buildRow(raw, imported, key) {
         const b = normBuild(raw);
         const cell = (s) => (s.type ? shortName(s.type) : "—");
+        // Weapon cell: name + a small Joinery icon and the Virtue pip icon
+        // (both real in-game art; hover either for the full label).
+        const wcell = (s) => {
+          if (!s.type) return "—";
+          if (!s.joinery) return shortName(s.type);
+          const t = joineryName(s.joinery) + (s.joinery.virtue ? " · " + s.joinery.virtue : "");
+          const jimg = `<img class="jmini" src="${joineryIconSrc(s.joinery)}" title="${t}" alt="" onerror="this.style.display='none'">`;
+          const vimg = s.joinery.virtue
+            ? `<img class="jmini vpip" src="${virtueIconSrc(s.joinery.virtue)}" title="${s.joinery.virtue}" alt="" onerror="this.style.display='none'">`
+            : "";
+          return `${shortName(s.type)} ${jimg}${vimg}`;
+        };
         const payload = encodeURIComponent(JSON.stringify({ name: b.name, soul: b.soul, ranged: b.ranged, melee: b.melee }));
         const rm = imported ? ` <button class="mini" data-remove="${encodeURIComponent(b.name)}">Remove</button>` : "";
         const badge = imported ? '<span class="tag">imported</span>' : "";
@@ -313,8 +353,8 @@
         return `<tr>
           <td class="name" data-toggle="det-${key}"><span class="chev">▸</span>${star}${b.name}${badge}</td>
           <td>${cell(b.soul)}</td>
-          <td>${cell(b.melee)}</td>
-          <td>${cell(b.ranged)}</td>
+          <td>${wcell(b.melee)}</td>
+          <td>${wcell(b.ranged)}</td>
           <td class="act"><button class="mini" data-export="${payload}">Export</button>${rm}</td>
         </tr>
         <tr class="detail" id="det-${key}"><td colspan="5">${detail}</td></tr>`;
@@ -328,7 +368,7 @@
               <tr><th>Loadout</th><th>Pact</th><th>Primary Weapon</th><th>Sidearm</th><th class="act"></th></tr>
               ${rows.join("")}
             </table>
-            <div class="muted" style="font-size:12px;margin-top:10px">Click a loadout to see its runes &amp; totems. Joineries aren't stored in account data, so they can't be shown.</div>`
+            <div class="muted" style="font-size:12px;margin-top:10px">Click a loadout to see each weapon's Joinery (Virtue attunement), runes &amp; totems.</div>`
           : '<span class="muted">No loadouts — run the memory helper to import your inventory, then refresh.</span>';
       }
       function saveImported() {
