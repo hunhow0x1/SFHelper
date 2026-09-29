@@ -134,6 +134,14 @@
         display: inline-block; background: var(--panel-2); border: 1px solid var(--line);
         border-radius: 4px; padding: 1px 8px; margin: 2px 5px 2px 0; font-size: 12px;
       }
+      .totemlist { display: inline-block; vertical-align: top; }
+      .totemrow { margin: 2px 0; }
+      .totemrow .tname {
+        display: inline-block; min-width: 130px; font-size: 12px;
+        background: var(--panel-2); border: 1px solid var(--line);
+        border-radius: 4px; padding: 1px 8px; margin-right: 8px;
+      }
+      .totemrow .teff { color: var(--muted); font-size: 12px; }
       .jmini { height: 18px; width: 18px; vertical-align: -4px; margin-left: 6px; opacity: 0.9; }
       .jtype { color: var(--muted); font-size: 12px; }
       .chipline .jicon { height: 26px; width: 26px; vertical-align: middle; margin-right: 8px; }
@@ -242,6 +250,8 @@
       let DICT_LC = {};
       // Per-faction, per-rank standing caps (from faction-ranks.json).
       let FACTION_RANKS = {};
+      // Totem display name -> effect text (from totems.json).
+      let TOTEMS = {};
 
       // Cumulative standing to REACH each rank (caps are per-rank earn amounts).
       function rankInfo(tag, standing, rank) {
@@ -298,7 +308,18 @@
         arr && arr.length
           ? arr.map((t) => `<span class="chip">${shortName(t)}</span>`).join("")
           : '<span class="muted">—</span>';
-      const VIRTUE_COLOR = { Courage: "#d98a6a", Spirit: "#6fae8f", Grace: "#c9a55c" };
+      // Totems as name + effect rows (effect from totems.json, by display name).
+      const totemRows = (arr) => {
+        if (!arr || !arr.length) return '<span class="muted">—</span>';
+        return arr
+          .map((t) => {
+            const name = shortName(t);
+            const eff = TOTEMS[name];
+            return `<div class="totemrow"><span class="tname">${name}</span>${eff ? `<span class="teff">${eff}</span>` : ""}</div>`;
+          })
+          .join("");
+      };
+      const VIRTUE_COLOR = { Courage: "#d98a6a", Spirit: "#6fae8f", Grace: "#6f9edb" };
       const JOINERY_ICON = { Verite: "verite", Quicksilver: "quicksilver", Feybalt: "feybalt", Gildaur: "gildaur" };
       const joineryIconSrc = (j) => "img/joineries/" + (JOINERY_ICON[j && j.name] || "joinery") + ".png";
       const joineryName = (j) => j.name || (j.code || "reforge").replace(/([a-z])([A-Z])/g, "$1 $2");
@@ -316,7 +337,7 @@
           <div class="slothead">${slot.type ? shortName(slot.type) : "—"} <span class="kind">· ${label}</span></div>
           <div class="chipline"><span class="h">Joinery</span>${joineryLabel(slot.joinery)}</div>
           <div class="chipline"><span class="h">Runes</span>${chips(slot.runes)}</div>
-          <div class="chipline"><span class="h">Totems</span>${chips(slot.totems)}</div>
+          <div class="chipline"><span class="h">Totems</span><div class="totemlist">${totemRows(slot.totems)}</div></div>
         </div>`;
       }
       function buildRow(raw, imported, key) {
@@ -465,7 +486,13 @@
         // and casing differs, so try aliases against a lowercased index.
         const rune = p.match(/\/Upgrades\/Runes\/Weapon\/([^/]+)\/([^/]+)$/);
         if (rune) {
-          const CLASS_ALIAS = { magiks: ["caster", "magiks"] };
+          // Inventory weapon-class tokens differ from the localization's:
+          // Magiks -> Caster/Magick, LongBlade/GreatSword -> Melee. Try aliases.
+          const CLASS_ALIAS = {
+            magiks: ["caster", "magick", "magiks"],
+            longblade: ["melee", "longblade"],
+            greatsword: ["greatsword", "melee"],
+          };
           const cls = rune[1], name = rune[2];
           const classes = CLASS_ALIAS[cls.toLowerCase()] || [cls];
           for (const c of classes) {
@@ -687,6 +714,10 @@
         try {
           const res = await fetch("/faction-ranks.json");
           if (res.ok) FACTION_RANKS = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/totems.json");
+          if (res.ok) TOTEMS = await res.json();
         } catch {}
       }
 
