@@ -17,6 +17,8 @@
     "extract-names": "node scripts/extract_names.mjs",
     "build-totems": "tsx scripts/build_data.ts totems",
     "build-runes": "tsx scripts/build_data.ts runes",
+    "build-weapons": "tsx scripts/build_data.ts weapons",
+    "build-pacts": "tsx scripts/build_data.ts pacts",
     "build:app": "node scripts/build_app.mjs",
     "app": "npm run build:app && electron .",
     "dist": "npm run build:app && electron-builder",

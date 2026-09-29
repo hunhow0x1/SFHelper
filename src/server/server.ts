@@ -143,6 +143,19 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
       // it is the only source of currencies and owned-item counts.
       const inventory = await getInventory();
       const ownedCounts = new Map(inventory?.items.map((i) => [i.key, i.count]) ?? []);
+      // Owned weapons + affinity: from the inventory when present (complete), else
+      // from the profile's leveled items (its `rank` field carries the XP).
+      const weapons =
+        inventory?.weapons ??
+        snap.items
+          .filter((it) => it.category === "weapon" && typeof it.rank === "number")
+          .map((it) => ({ key: it.key, xp: it.rank ?? 0, slot: "Melee" as const }));
+      // Owned Pacts (souls) + affinity, same source priority as weapons.
+      const pacts =
+        inventory?.pacts ??
+        snap.items
+          .filter((it) => it.category === "soul" && typeof it.rank === "number")
+          .map((it) => ({ key: it.key, xp: it.rank ?? 0 }));
       sendJson(res, 200, {
         account: snap.account,
         level: PlayerLevel ?? null,
@@ -154,6 +167,8 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         daily: snap.daily,
         currencies: inventory ? inventory.currencies : profileCurrencies,
         owned: Object.fromEntries(ownedCounts), // ItemType -> owned count (for tokens, etc.)
+        weapons, // [{ key, xp, slot }] owned weapons for the leveling tracker
+        pacts, // [{ key, xp }] owned pacts (souls) for the leveling tracker
         builds: inventory?.builds ?? [],
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,

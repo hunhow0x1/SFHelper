@@ -145,6 +145,16 @@
         border-radius: 4px; padding: 1px 8px;
       }
       .totemrow .teff { color: var(--muted); font-size: 12px; min-width: 0; }
+      .wfilter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+      .fchip {
+        background: var(--panel-2); color: var(--muted); border: 1px solid var(--line);
+        border-radius: 999px; padding: 4px 14px; font-size: 13px; font-weight: 500; cursor: pointer;
+      }
+      .fchip:hover { color: var(--text); }
+      .fchip.active { background: var(--accent); color: #201a10; border-color: var(--accent); }
+      .wrow.miss .label { color: var(--muted); }
+      .wrow.miss .val { color: #6f665a; }
+      .wrow .val .mx { color: var(--accent-2); font-weight: 600; }
       .jmini { height: 18px; width: 18px; vertical-align: -4px; margin-left: 6px; opacity: 0.9; }
       .jtype { color: var(--muted); font-size: 12px; }
       .chipline .jicon { height: 26px; width: 26px; vertical-align: middle; margin-right: 8px; }
@@ -164,6 +174,7 @@
       <nav class="tabs">
         <button class="tab active" data-tab="overview">Overview</button>
         <button class="tab" data-tab="loadouts">Loadouts</button>
+        <button class="tab" data-tab="weapons">Weapons &amp; Pacts</button>
         <button class="tab" data-tab="stats">Stats</button>
       </nav>
 
@@ -214,6 +225,21 @@
         </section>
       </div>
 
+      <!-- WEAPONS -->
+      <div class="panel" id="panel-weapons">
+        <section>
+          <h2>Weapons &amp; Pacts</h2>
+          <div class="wfilter" id="weaponFilter">
+            <button class="fchip active" data-f="all">All</button>
+            <button class="fchip" data-f="missing">Not owned</button>
+            <button class="fchip" data-f="leveling">Leveling</button>
+            <button class="fchip" data-f="maxed">Maxed</button>
+          </div>
+          <div class="daily" id="weaponSummary"></div>
+          <div id="weapons"><span class="muted">Import your inventory to track weapon leveling.</span></div>
+        </section>
+      </div>
+
       <!-- STATS -->
       <div class="panel" id="panel-stats">
         <section>
@@ -254,6 +280,14 @@
       // Totem / rune display name -> effect text (from totems.json / runes.json).
       let TOTEMS = {};
       let RUNES = {};
+      // Full weapon roster (name -> {class, slot}) from weapons.json, for the
+      // leveling tracker; and the last-seen owned weapons + the active filter.
+      let WEAPON_ROSTER = {};
+      let LAST_WEAPONS = [];
+      let WEAPON_FILTER = "all";
+      // Pact roster (name -> {}) from pacts.json, and the last-seen owned pacts.
+      let PACT_ROSTER = {};
+      let LAST_PACTS = [];
 
       // Cumulative standing to REACH each rank (caps are per-rank earn amounts).
       function rankInfo(tag, standing, rank) {
@@ -278,6 +312,75 @@
         const p = (n) => String(n).padStart(2, "0");
         return `${p(Math.floor(s / 3600))}:${p(Math.floor((s % 3600) / 60))}:${p(s % 60)}`;
       }
+
+      // Leveling: cumulative affinity to reach rank r is C*r^2, max 30. Weapons use
+      // C=500; Pacts (souls) the slower C=1000. pct is a smooth 0..1 bar that
+      // reaches r/30 exactly as each rank completes.
+      function levelOf(xp, C = 500) {
+        const MAX = 30;
+        if (!(xp > 0)) return { rank: 0, pct: 0, maxed: false };
+        let r = Math.floor(Math.sqrt(xp / C));
+        if (r >= MAX) return { rank: MAX, pct: 1, maxed: true };
+        const base = C * r * r, next = C * (r + 1) * (r + 1);
+        return { rank: r, pct: (r + (xp - base) / (next - base)) / MAX, maxed: false };
+      }
+
+      // Weapons and Pacts share this tracker. Each section has its own roster,
+      // owned list, leveling curve, and grouping.
+      function renderWeapons() {
+        const sections = [
+          { roster: WEAPON_ROSTER, owned: LAST_WEAPONS, C: 500, groupOf: (n) => (WEAPON_ROSTER[n] && WEAPON_ROSTER[n].class) || "Other" },
+          { roster: PACT_ROSTER, owned: LAST_PACTS, C: 1000, groupOf: () => "Pacts" },
+        ];
+        const groups = {}; // group name -> [{ name, w, C }]
+        let owned = 0, total = 0, maxed = 0, leveling = 0;
+        for (const sec of sections) {
+          const ownedByName = new Map((sec.owned || []).map((w) => [shortName(w.key), w]));
+          const names = new Set([...Object.keys(sec.roster), ...ownedByName.keys()]);
+          for (const name of names) {
+            total++;
+            const w = ownedByName.get(name) || null;
+            if (w) { owned++; levelOf(w.xp, sec.C).maxed ? maxed++ : leveling++; }
+            (groups[sec.groupOf(name)] ||= []).push({ name, w, C: sec.C });
+          }
+        }
+        $("weaponSummary").innerHTML = total
+          ? `Owned <b>${owned}/${total}</b> &nbsp;·&nbsp; Maxed <b>${maxed}</b> &nbsp;·&nbsp; Leveling <b>${leveling}</b> &nbsp;·&nbsp; Not owned <b>${total - owned}</b>`
+          : "";
+
+        const f = WEAPON_FILTER;
+        const rowFor = ({ name, w, C }) => {
+          if (!w) {
+            if (f !== "all" && f !== "missing") return "";
+            return `<div class="row wrow miss"><span class="label">${name}</span><span class="val">Not owned</span><span class="bar"></span></div>`;
+          }
+          const l = levelOf(w.xp, C);
+          if (f === "missing") return "";
+          if (f === "leveling" && l.maxed) return "";
+          if (f === "maxed" && !l.maxed) return "";
+          const status = l.maxed ? '<span class="mx">Max · 30/30</span>' : `Rank ${l.rank}/30`;
+          return `<div class="row wrow"><span class="label">${name}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
+        };
+        // Weapon classes alphabetically, then Pacts last.
+        const groupNames = Object.keys(groups).sort((a, b) =>
+          a === "Pacts" ? 1 : b === "Pacts" ? -1 : a.localeCompare(b),
+        );
+        const html = groupNames
+          .map((g) => {
+            const rows = groups[g].sort((a, b) => a.name.localeCompare(b.name)).map(rowFor).filter(Boolean).join("");
+            return rows ? `<div class="xpgroup"><h3>${g} <span class="count">${groups[g].length}</span></h3><div class="rows">${rows}</div></div>` : "";
+          })
+          .filter(Boolean)
+          .join("");
+        $("weapons").innerHTML = html || '<span class="muted">No weapons or pacts match this filter.</span>';
+      }
+      document.getElementById("weaponFilter").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-f]");
+        if (!b) return;
+        WEAPON_FILTER = b.dataset.f;
+        document.querySelectorAll("#weaponFilter .fchip").forEach((c) => c.classList.toggle("active", c === b));
+        renderWeapons();
+      });
 
       // Loadouts / builds. Presets come from the inventory; imported builds are
       // kept in this browser so they survive refreshes. Columns, left to right:
@@ -572,6 +675,11 @@
         LAST_BUILDS = data.builds || [];
         renderBuilds();
 
+        // Weapon & Pact leveling tracker (owned + rosters).
+        LAST_WEAPONS = data.weapons || [];
+        LAST_PACTS = data.pacts || [];
+        renderWeapons();
+
         // Weapon & Pact XP, grouped
         const groups = {};
         for (const it of data.items) {
@@ -702,6 +810,14 @@
         try {
           const res = await fetch("/runes.json");
           if (res.ok) RUNES = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/weapons.json");
+          if (res.ok) WEAPON_ROSTER = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/pacts.json");
+          if (res.ok) PACT_ROSTER = await res.json();
         } catch {}
       }
 

@@ -20,6 +20,13 @@ export type ProgressFn = (done: number, total: number, label: string) => void;
 const j = async (url: string): Promise<any> =>
   (await fetch(url, { headers: { "user-agent": UA } })).json();
 
+/** Write an object as JSON with keys sorted (stable diffs), values intact. */
+async function writeSorted(path: string, obj: Record<string, unknown>): Promise<void> {
+  const sorted: Record<string, unknown> = {};
+  for (const k of Object.keys(obj).sort()) sorted[k] = obj[k];
+  await writeFile(path, JSON.stringify(sorted, null, 2));
+}
+
 async function categoryMembers(category: string): Promise<string[]> {
   const names: string[] = [];
   let cont = "";
@@ -91,7 +98,79 @@ export async function buildTotems(outPath: string, onProgress?: ProgressFn): Pro
     } catch { unparsed.push(names[i]!); }
   }
   onProgress?.(names.length, names.length, "done");
-  await writeFile(outPath, JSON.stringify(out, Object.keys(out).sort(), 2));
+  await writeSorted(outPath, out);
+  return { ok, archived, unparsed };
+}
+
+// The actual weapon-type categories (a page also carries virtue/faction/damage
+// categories, so we match this whitelist rather than "first non-meta category").
+const WEAPON_TYPES = new Set([
+  "Bows", "Long Blades", "Short Blades", "Daggers", "Greatswords", "Great Swords", "Cleavers",
+  "Polearms", "Spears", "Flyblades", "Magick Weapons", "Casters", "Staves", "Heavy Maces", "Maces",
+  "Hammers", "Shields", "Whips", "Scythes", "Throwing Weapons", "Fists", "Claws", "Sword and Shields",
+]);
+const SLOT_CATEGORY: Record<string, string> = {
+  "Primary Weapons": "Primary",
+  Sidearm: "Sidearm",
+  Sidearms: "Sidearm",
+  "Secondary Weapons": "Sidearm",
+};
+
+async function pageCategories(name: string): Promise<string[]> {
+  const r = await j(`${API}?action=query&format=json&prop=categories&cllimit=50&titles=${encodeURIComponent(name)}`);
+  const pages = r.query?.pages ?? {};
+  const cats = pages[Object.keys(pages)[0] ?? ""]?.categories ?? [];
+  return cats.map((c: { title: string }) => c.title.replace(/^Category:/, ""));
+}
+
+export interface WeaponInfo { class: string; slot: string; }
+
+/** Build weapons.json { "<Weapon Name>": { class, slot } } from the wiki, so the
+ *  app can show the full roster (including weapons the player doesn't own). */
+export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
+  const names = await categoryMembers("Weapons");
+  const out: Record<string, WeaponInfo> = {};
+  let ok = 0, archived = 0;
+  const unparsed: string[] = [];
+  for (let i = 0; i < names.length; i++) {
+    onProgress?.(i, names.length, names[i]!);
+    try {
+      const cats = await pageCategories(names[i]!);
+      if (cats.some((c) => /^Archived/i.test(c))) { archived++; continue; }
+      let slot = "";
+      let klass = "";
+      for (const c of cats) {
+        if (SLOT_CATEGORY[c] && !slot) slot = SLOT_CATEGORY[c];
+        if (WEAPON_TYPES.has(c) && !klass) klass = c;
+      }
+      out[names[i]!] = { class: klass || "Other", slot: slot || "" };
+      ok++;
+    } catch { unparsed.push(names[i]!); }
+  }
+  onProgress?.(names.length, names.length, "done");
+  await writeSorted(outPath, out);
+  return { ok, archived, unparsed };
+}
+
+/** Build pacts.json { "<Pact Name>": {} } — the full roster of Pacts (souls).
+ *  Category:Pacts mixes real Pacts with Pact abilities/arts; a real Pact page
+ *  carries the "Items" category and lacks "Abilities". */
+export async function buildPacts(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
+  const names = await categoryMembers("Pacts");
+  const out: Record<string, Record<string, never>> = {};
+  let ok = 0, archived = 0;
+  const unparsed: string[] = [];
+  for (let i = 0; i < names.length; i++) {
+    onProgress?.(i, names.length, names[i]!);
+    try {
+      const cats = await pageCategories(names[i]!);
+      if (cats.includes("Abilities") || !cats.includes("Items")) continue; // not a real Pact
+      out[names[i]!] = {};
+      ok++;
+    } catch { unparsed.push(names[i]!); }
+  }
+  onProgress?.(names.length, names.length, "done");
+  await writeSorted(outPath, out);
   return { ok, archived, unparsed };
 }
 
@@ -110,7 +189,7 @@ export async function buildRunes(outPath: string, onProgress?: ProgressFn): Prom
     } catch { unparsed.push(names[i]!); }
   }
   onProgress?.(names.length, names.length, "done");
-  await writeFile(outPath, JSON.stringify(out, Object.keys(out).sort(), 2));
+  await writeSorted(outPath, out);
   return { ok, archived, unparsed };
 }
 
@@ -132,8 +211,16 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/runes.json";
       const r = await buildRunes(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} rune effects (${r.archived} archived skipped, ${r.unparsed.length} unparsed).\n`);
+    } else if (kind === "weapons") {
+      const out = process.argv[3] ?? "src/server/public/weapons.json";
+      const r = await buildWeapons(out, bar);
+      process.stderr.write(`\nWrote ${out}: ${r.ok} weapons (${r.archived} archived skipped, ${r.unparsed.length} unparsed).\n`);
+    } else if (kind === "pacts") {
+      const out = process.argv[3] ?? "src/server/public/pacts.json";
+      const r = await buildPacts(out, bar);
+      process.stderr.write(`\nWrote ${out}: ${r.ok} pacts (${r.unparsed.length} unparsed).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|runes> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|runes|weapons|pacts> [outPath]\n");
       process.exit(2);
     }
   };

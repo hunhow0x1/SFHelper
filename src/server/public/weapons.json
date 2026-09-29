@@ -1,0 +1,246 @@
+{
+  "Avex": {
+    "class": "Bows",
+    "slot": "Primary"
+  },
+  "Basker's Wrest": {
+    "class": "Magick Weapons",
+    "slot": "Sidearm"
+  },
+  "Blitzel": {
+    "class": "Bows",
+    "slot": "Primary"
+  },
+  "Bog & Myrtle": {
+    "class": "Shields",
+    "slot": "Primary"
+  },
+  "Bromius Shield": {
+    "class": "Shields",
+    "slot": "Primary"
+  },
+  "Cenotaph": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "Clivers": {
+    "class": "Short Blades",
+    "slot": "Sidearm"
+  },
+  "Cobladh": {
+    "class": "Short Blades",
+    "slot": "Sidearm"
+  },
+  "Coiled Dawn": {
+    "class": "Other",
+    "slot": "Primary"
+  },
+  "Dewelion": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "Duhk Halic": {
+    "class": "Polearms",
+    "slot": "Primary"
+  },
+  "Espadarte": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "Esthelle": {
+    "class": "Magick Weapons",
+    "slot": "Sidearm"
+  },
+  "Falx": {
+    "class": "Cleavers",
+    "slot": "Primary"
+  },
+  "Farilwyd": {
+    "class": "Polearms",
+    "slot": "Primary"
+  },
+  "Gathannan": {
+    "class": "Polearms",
+    "slot": "Primary"
+  },
+  "Grimana": {
+    "class": "Short Blades",
+    "slot": "Sidearm"
+  },
+  "Grinn": {
+    "class": "Short Blades",
+    "slot": "Sidearm"
+  },
+  "Gwylen": {
+    "class": "Magick Weapons",
+    "slot": "Primary"
+  },
+  "Gystalt": {
+    "class": "Magick Weapons",
+    "slot": "Primary"
+  },
+  "Igne Mora": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "Ilverac": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "Juniper": {
+    "class": "Bows",
+    "slot": "Primary"
+  },
+  "Lyke-Wake": {
+    "class": "Shields",
+    "slot": "Primary"
+  },
+  "Maestro": {
+    "class": "Bows",
+    "slot": "Primary"
+  },
+  "Marrow's Bane": {
+    "class": "Cleavers",
+    "slot": "Primary"
+  },
+  "Navalha": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "Needleseye": {
+    "class": "Greatswords",
+    "slot": "Primary"
+  },
+  "Nettle": {
+    "class": "Short Blades",
+    "slot": "Sidearm"
+  },
+  "Nurash": {
+    "class": "Cleavers",
+    "slot": "Primary"
+  },
+  "Odiac": {
+    "class": "Magick Weapons",
+    "slot": "Sidearm"
+  },
+  "Orst-III": {
+    "class": "Heavy Maces",
+    "slot": "Primary"
+  },
+  "Oryn-Umbr": {
+    "class": "Shields",
+    "slot": "Primary"
+  },
+  "Precklies": {
+    "class": "Flyblades",
+    "slot": "Sidearm"
+  },
+  "Purity": {
+    "class": "Greatswords",
+    "slot": "Primary"
+  },
+  "Rivt-II": {
+    "class": "Short Blades",
+    "slot": "Primary"
+  },
+  "Rook": {
+    "class": "Polearms",
+    "slot": "Primary"
+  },
+  "Rostrum": {
+    "class": "Short Blades",
+    "slot": "Primary"
+  },
+  "Seathorn": {
+    "class": "Magick Weapons",
+    "slot": "Primary"
+  },
+  "Silistavf": {
+    "class": "Magick Weapons",
+    "slot": "Primary"
+  },
+  "Skílter": {
+    "class": "Flyblades",
+    "slot": "Sidearm"
+  },
+  "Sollos-I": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "Stultin": {
+    "class": "Cleavers",
+    "slot": "Primary"
+  },
+  "Tessard": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "The Alder": {
+    "class": "Magick Weapons",
+    "slot": "Primary"
+  },
+  "The Erstroot": {
+    "class": "Magick Weapons",
+    "slot": ""
+  },
+  "The Ivor": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "The Paragon": {
+    "class": "Greatswords",
+    "slot": "Primary"
+  },
+  "The Royal Tines": {
+    "class": "Short Blades",
+    "slot": "Primary"
+  },
+  "The Starling": {
+    "class": "Bows",
+    "slot": "Primary"
+  },
+  "Thistle": {
+    "class": "Bows",
+    "slot": "Primary"
+  },
+  "Thrice Spurns": {
+    "class": "Flyblades",
+    "slot": "Sidearm"
+  },
+  "Unsula": {
+    "class": "Short Blades",
+    "slot": "Primary"
+  },
+  "Vasp-IV": {
+    "class": "Polearms",
+    "slot": "Primary"
+  },
+  "Veilk": {
+    "class": "Polearms",
+    "slot": "Primary"
+  },
+  "Vetch": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  },
+  "Virdigris": {
+    "class": "Short Blades",
+    "slot": "Sidearm"
+  },
+  "Vrusht-IX": {
+    "class": "Heavy Maces",
+    "slot": "Primary"
+  },
+  "Witan": {
+    "class": "Short Blades",
+    "slot": "Sidearm"
+  },
+  "Wreath": {
+    "class": "Other",
+    "slot": "Primary"
+  },
+  "Wulder": {
+    "class": "Long Blades",
+    "slot": "Primary"
+  }
+}
