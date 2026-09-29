@@ -136,7 +136,8 @@ export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Pr
     onProgress?.(i, names.length, names[i]!);
     try {
       const cats = await pageCategories(names[i]!);
-      if (cats.some((c) => /^Archived/i.test(c))) { archived++; continue; }
+      // Skip removed (Archived) and not-yet-released (Upcoming/Unreleased) items.
+      if (cats.some((c) => /^Archived|^Upcoming$|^Unreleased$/i.test(c))) { archived++; continue; }
       let slot = "";
       let klass = "";
       for (const c of cats) {
@@ -164,7 +165,9 @@ export async function buildPacts(outPath: string, onProgress?: ProgressFn): Prom
     onProgress?.(i, names.length, names[i]!);
     try {
       const cats = await pageCategories(names[i]!);
-      if (cats.includes("Abilities") || !cats.includes("Items")) continue; // not a real Pact
+      // A real, released Pact has "Items", isn't an "Abilities" page, and isn't "Upcoming".
+      if (cats.includes("Abilities") || !cats.includes("Items")) continue;
+      if (cats.includes("Upcoming") || cats.includes("Unreleased")) { archived++; continue; }
       out[names[i]!] = {};
       ok++;
     } catch { unparsed.push(names[i]!); }

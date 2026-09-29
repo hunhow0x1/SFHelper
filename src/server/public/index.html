@@ -243,11 +243,6 @@
       <!-- STATS -->
       <div class="panel" id="panel-stats">
         <section>
-          <h2>Weapon &amp; Pact XP</h2>
-          <div id="xp"><span class="muted">—</span></div>
-        </section>
-
-        <section>
           <h2>Combat</h2>
           <div class="grid" id="scalars"></div>
           <div style="margin-top:18px" class="cols" id="tables"></div>
@@ -575,30 +570,6 @@
         if (leaf && DICT_LC[leaf.toLowerCase()]) return DICT_LC[leaf.toLowerCase()];
         return cleanName(itemType);
       }
-      // Group an item path into a human bucket for the XP list. Souls carry the
-      // pacts, so they head this "Weapon & Pact XP" section.
-      function bucket(itemType) {
-        const p = String(itemType);
-        if (p.includes("/Souls/")) return "Pacts";
-        if (p.includes("/Melee/")) return "Melee Weapons";
-        if (p.includes("/Guns/") || p.includes("/Ranged/")) return "Ranged Weapons";
-        if (p.includes("/Pact") || p.includes("/Abilities/")) return "Pacts";
-        return "Other";
-      }
-      // A muted secondary tag from the path: the soul's family, or the weapon class.
-      function subLabel(itemType) {
-        const p = String(itemType);
-        if (p.includes("/Souls/")) {
-          const fam = p.split("/")[3] || "";
-          return fam && fam !== "Default" ? fam : "";
-        }
-        if (p.includes("/OneHand/")) return "One-Hand";
-        if (p.includes("/TwoHand/")) return "Two-Hand";
-        if (p.includes("/Thrown/")) return "Thrown";
-        if (/Bow/.test(p)) return "Bow";
-        if (/(Caster|Staff)/.test(p)) return "Caster";
-        return "";
-      }
       function factionName(tag) {
         if (DICT.factions[tag]) return DICT.factions[tag];
         return String(tag).replace(/Syndicate$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
@@ -679,31 +650,6 @@
         LAST_WEAPONS = data.weapons || [];
         LAST_PACTS = data.pacts || [];
         renderWeapons();
-
-        // Weapon & Pact XP, grouped
-        const groups = {};
-        for (const it of data.items) {
-          if (typeof it.rank !== "number") continue;
-          const b = bucket(it.key);
-          (groups[b] ||= []).push(it);
-        }
-        const order = ["Pacts", "Melee Weapons", "Ranged Weapons", "Other"];
-        $("xp").innerHTML =
-          order
-            .filter((g) => groups[g]?.length)
-            .map((g) => {
-              const rows = groups[g]
-                .sort((a, b) => (b.rank || 0) - (a.rank || 0))
-                .map((it) => {
-                  // Class chips only on weapons; pacts/souls show just the name.
-                  const sub = g === "Pacts" ? "" : subLabel(it.key);
-                  const tag = sub ? ` <span class="sub">${sub}</span>` : "";
-                  return `<div class="row"><span class="label">${shortName(it.key)}${tag}</span><span class="val">${fmt(it.rank)} XP</span></div>`;
-                })
-                .join("");
-              return `<div class="xpgroup"><h3>${g} <span class="count">${groups[g].length}</span></h3><div class="rows">${rows}</div></div>`;
-            })
-            .join("") || '<span class="muted">No XP data.</span>';
 
         // Scalars
         const s = data.stats?.scalars || {};
