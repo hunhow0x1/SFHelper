@@ -177,6 +177,95 @@ export async function buildPacts(outPath: string, onProgress?: ProgressFn): Prom
   return { ok, archived, unparsed };
 }
 
+// Temper Tag (AspectFingerprint.buff) -> in-game name. Derived from the game's
+// own localization strings (Aspect*Name / Skills/*Name), which are authoritative;
+// only the Tag->name pairing is curated here. ChargeRateMod has no localized name.
+const TEMPER_NAME: Record<string, string> = {
+  AerialAttackDamageAMod: "From Above",
+  AttackSpeedMod: "Swift Strike",
+  BlockingLessStaggerMod: "Fortified",
+  CassidDamageOnNearDeathMod: "Invader",
+  CassidDamageOnUndamagedMod: "First Strike",
+  CassidParryStaggerMod: "Clam's Foot",
+  CassidPoisonMod: "Sickness",
+  ConsecutiveAfterHeavyMod: "Follow Up",
+  DamageNoSidearmMod: "Unencumbered",
+  DamageWhenFullHealthMod: "Hale and Hearty",
+  DeflectDamageMod: "Arcane Rebound",
+  DendritFireDamageMod: "Enkindled",
+  DendritHealOnKillMod: "Renewed Slayer",
+  DendritRegainDecayMod: "Well Woven",
+  DendritRegainMod: "Hunter's Relish",
+  DodgeAttackDamageMod: "Rejoinder",
+  DodgeFocusMod: "Grounding Spell",
+  FeyDuplicateProjMod: "Duplicate",
+  FeykinArcanicDamageMod: "Aftershock",
+  FeykinDamageToNearbyMod: "Sympathy Pang",
+  FocusedHeavyAttackDamageMod: "Conjuration",
+  HeavyAttackDamageAndStaggerMod: "Full Force",
+  HeavyAttackWindUpMod: "Breakneck",
+  HeavyCastWindUpMod: "Arcane Alacrity",
+  LegShotMod: "Severed Root",
+  MagickHeavyAttackDamageAndStaggerMod: "Arcane Barrage",
+  MendicantBleedDamageMod: "Savagery",
+  MendicantFearMod: "Unnerving Blow",
+  MendicantFearThrowMod: "Sinister Volley",
+  MendicantWeaknessMod: "Hollowed",
+  OdeReduceDefenseMod: "Bypass",
+  OdeStaggerToKnockdownMod: "Slinger's Tempo",
+  OdeVoltaicDamageMod: "Galvanic Strike",
+  ParryWindowMod: "Heightened Parry",
+  RiposteDamageMod: "Vengeance",
+  ShatterDamageMod: "Rupture",
+  SprintAttackDamageMod: "Bounding Swipe",
+  StaggerCritMod: "Cowp",
+  StaggerMod: "Swooning Blow",
+  ThrowSpeedMod: "Streamlined",
+};
+
+/** Pull a temper's effect from its wiki page (Mechanics section, else Overview). */
+function temperEffect(extract: string): string | null {
+  let m = extract.match(/==+\s*Mechanics\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i);
+  let t = m ? m[1]! : "";
+  if (!t) {
+    // Fall back to the Overview, dropping the "<Name> is a ... Temper ..." lead-in.
+    const ov = extract.match(/==+\s*Overview\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i);
+    t = ov ? ov[1]!.replace(/^[\s\S]*?Temper[^.]*\.\s*/i, "") : "";
+  }
+  t = t.replace(/\s+/g, " ").replace(/\s+%/g, "%").trim();
+  // Keep it concise: first 1-2 sentences.
+  const sentences = t.match(/[^.]*\.(?:\s|$)/g);
+  if (sentences) t = sentences.slice(0, 2).join(" ").trim();
+  return t && t.length > 6 ? t : null;
+}
+
+/** Build tempers.json { "<Tag>": { name, effect } } from the curated Tag->name
+ *  map plus each temper's wiki effect. */
+export async function buildTempers(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
+  const tags = Object.keys(TEMPER_NAME).sort();
+  const out: Record<string, { name: string; effect: string | null }> = {};
+  let ok = 0;
+  const unparsed: string[] = [];
+  for (let i = 0; i < tags.length; i++) {
+    const tag = tags[i]!;
+    const name = TEMPER_NAME[tag]!;
+    onProgress?.(i, tags.length, name);
+    try {
+      const r = await j(`${API}?action=query&format=json&prop=extracts&explaintext=1&titles=${encodeURIComponent(name)}`);
+      const pages = r.query?.pages ?? {};
+      const extract = pages[Object.keys(pages)[0] ?? ""]?.extract ?? "";
+      out[tag] = { name, effect: temperEffect(extract) };
+      if (out[tag].effect) ok++; else unparsed.push(name);
+    } catch {
+      out[tag] = { name, effect: null };
+      unparsed.push(name);
+    }
+  }
+  onProgress?.(tags.length, tags.length, "done");
+  await writeSorted(outPath, out);
+  return { ok, archived: 0, unparsed };
+}
+
 export async function buildRunes(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
   const names = await categoryMembers("Runes");
   const out: Record<string, string> = {};
@@ -222,8 +311,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/pacts.json";
       const r = await buildPacts(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} pacts (${r.unparsed.length} unparsed).\n`);
+    } else if (kind === "tempers") {
+      const out = process.argv[3] ?? "src/server/public/tempers.json";
+      const r = await buildTempers(out, bar);
+      process.stderr.write(`\nWrote ${out}: ${r.ok} temper effects (${r.unparsed.length} without effect).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|runes|weapons|pacts> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|runes|weapons|pacts|tempers> [outPath]\n");
       process.exit(2);
     }
   };

@@ -169,6 +169,19 @@
       .pickhead .pickname { font-weight: 600; }
       .pickhead .pickwhen { margin-left: auto; color: var(--muted); font-size: 12px; }
       .pickrow .wtempers { margin-top: 6px; }
+      .chip.temper { cursor: pointer; }
+      .chip.temper:hover { border-color: var(--accent); color: var(--text); }
+      .tcount { background: none; border: 0; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; padding: 0; margin-left: 10px; }
+      .tcount:hover { color: var(--text); }
+      .wtemperbox { margin: 4px 0 8px; }
+      .wtemperbox[hidden] { display: none; }
+      .temperpop {
+        position: fixed; z-index: 50; max-width: 320px; background: var(--panel-2);
+        border: 1px solid var(--accent); border-radius: 8px; padding: 10px 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+      }
+      .temperpop .tp-name { color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+      .temperpop .tp-eff { color: var(--text); font-size: 13px; line-height: 1.45; }
       .wrow.miss .label { color: var(--muted); }
       .wrow.miss .val { color: #6f665a; }
       .wrow .val .mx { color: var(--accent-2); font-weight: 600; }
@@ -309,6 +322,8 @@
       // Totem / rune display name -> effect text (from totems.json / runes.json).
       let TOTEMS = {};
       let RUNES = {};
+      // Temper Tag -> { name, effect } (from tempers.json).
+      let TEMPER_DB = {};
       // Full weapon roster (name -> {class, slot}) from weapons.json, for the
       // leveling tracker; and the last-seen owned weapons + the active filter.
       let WEAPON_ROSTER = {};
@@ -370,13 +385,42 @@
         IQ_LEGENDARY: { name: "Legendary", bonus: 20, tier: 5, max: 8 },
       };
       const craftworkInfo = (q) => CRAFTWORK[q] || null;
-      // Temper tags describe their effect; clean them into readable labels.
-      const prettyTemper = (tag) =>
+      // Cleaned tag fallback when a temper isn't in the name DB.
+      const cleanTemper = (tag) =>
         String(tag).replace(/Mod$/, "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/\bAnd\b/g, "&").trim();
+      // In-game temper name (from tempers.json), else the cleaned tag.
+      const temperName = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].name) || cleanTemper(tag);
+      const temperEffect = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].effect) || "";
+      // A clickable temper chip (click shows its effect).
+      const temperChip = (tag) => `<span class="chip temper" data-tag="${tag}">${temperName(tag)}</span>`;
+      // Back-compat alias used elsewhere; now returns the in-game name.
+      const prettyTemper = (tag) => temperName(tag);
+
+      // Click a temper chip -> floating popover with its name + effect.
+      let temperPop = null;
+      function closeTemperPop() { if (temperPop) { temperPop.remove(); temperPop = null; } }
+      document.addEventListener("click", (e) => {
+        const chip = e.target.closest && e.target.closest(".temper");
+        closeTemperPop();
+        if (!chip) return;
+        e.stopPropagation();
+        const tag = chip.dataset.tag;
+        const eff = temperEffect(tag);
+        temperPop = document.createElement("div");
+        temperPop.className = "temperpop";
+        temperPop.innerHTML = `<div class="tp-name">${temperName(tag)}</div><div class="tp-eff">${eff || "No effect description available."}</div>`;
+        document.body.appendChild(temperPop);
+        const r = chip.getBoundingClientRect();
+        const top = r.bottom + 6;
+        temperPop.style.top = Math.round(top) + "px";
+        temperPop.style.left = Math.round(Math.min(r.left, window.innerWidth - temperPop.offsetWidth - 12)) + "px";
+      });
 
       // Weapons and Pacts share this tracker. Each section has its own roster,
       // owned list, leveling curve, and grouping.
+      let _wrowId = 0;
       function renderWeapons() {
+        _wrowId = 0;
         const sections = [
           { roster: WEAPON_ROSTER, owned: LAST_WEAPONS, C: 500, groupOf: (n) => (WEAPON_ROSTER[n] && WEAPON_ROSTER[n].class) || "Other" },
           { roster: PACT_ROSTER, owned: LAST_PACTS, C: 1000, groupOf: () => "Pacts" },
@@ -411,7 +455,7 @@
         const rowFor = ({ name, w, C }) => {
           if (!w) {
             if (f !== "all" && f !== "missing") return "";
-            return `<div class="row wrow miss"><span class="label">${name}</span><span class="val">Not owned</span><span class="bar"></span></div>`;
+            return `<div class="wrow2"><div class="row wrow miss"><span class="label">${name}</span><span class="val">Not owned</span><span class="bar"></span></div></div>`;
           }
           const l = levelOf(w.xp, C);
           if (f === "missing") return "";
@@ -420,10 +464,12 @@
           const status = l.maxed ? '<span class="mx">Max · 30/30</span>' : `Rank ${l.rank}/30`;
           const cw = craftworkInfo(w.craftwork);
           const cwBadge = cw ? ` <span class="cw cw${cw.tier}" title="+${cw.bonus} damage · up to ${cw.max} tempers">${cw.name}</span>` : "";
-          const temperChips = (w.tempers && w.tempers.length)
-            ? `<span class="wtempers">${w.tempers.map((t) => `<span class="chip">${prettyTemper(t)}</span>`).join("")}</span>`
-            : "";
-          return `<div class="row wrow"><span class="label">${name}${cwBadge}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(l.pct * 100)}%"></i></span>${temperChips}</div>`;
+          const nt = (w.tempers || []).length;
+          const id = "wt" + _wrowId++;
+          // Tempers are collapsed by default to keep the list clean; click to reveal.
+          const toggle = nt ? ` <button class="tcount" data-wt="${id}">${nt} temper${nt > 1 ? "s" : ""} ▾</button>` : "";
+          const box = nt ? `<div class="wtemperbox" id="${id}" hidden>${w.tempers.map(temperChip).join("")}</div>` : "";
+          return `<div class="wrow2"><div class="row wrow"><span class="label">${name}${cwBadge}</span><span class="val">${status}${toggle}</span><span class="bar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>${box}</div>`;
         };
         // Weapon classes alphabetically, then Pacts last.
         const groupNames = Object.keys(groups).sort((a, b) =>
@@ -449,6 +495,16 @@
         WEAPON_SEARCH = e.target.value;
         renderWeapons();
         renderTempers();
+      });
+      // Expand/collapse a weapon's tempers.
+      document.getElementById("weapons").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-wt]");
+        if (!b) return;
+        const box = document.getElementById(b.dataset.wt);
+        if (box) {
+          box.hidden = !box.hidden;
+          b.textContent = b.textContent.replace(/[▾▴]/, box.hidden ? "▾" : "▴");
+        }
       });
 
       // Tuvalkane temper learning: each temper is learned at 10 progress (earned
@@ -502,7 +558,7 @@
           .map((p) => {
             const cw = craftworkInfo(p.craftwork);
             const cwBadge = cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : "";
-            const chips = (p.tempers || []).map((t) => `<span class="chip">${prettyTemper(t)}</span>`).join("");
+            const chips = (p.tempers || []).map(temperChip).join("");
             return `<div class="pickrow">
               <div class="pickhead"><span class="pickname">${shortName(p.key)}</span> ${cwBadge}<span class="pickwhen">${ago(p.at)}</span></div>
               ${chips ? `<div class="wtempers">${chips}</div>` : ""}
@@ -580,7 +636,7 @@
           ? `<div class="chipline"><span class="h">Craftwork</span><span class="chip">${cw ? cw.name + " · +" + cw.bonus + " dmg" : slot.craftwork}</span></div>`
           : "";
         const temperLine = slot.tempers.length
-          ? `<div class="chipline"><span class="h">Tempers</span>${slot.tempers.map((t) => `<span class="chip">${prettyTemper(t)}</span>`).join("")}</div>`
+          ? `<div class="chipline"><span class="h">Tempers</span>${slot.tempers.map(temperChip).join("")}</div>`
           : "";
         return `<div class="slotgrp">
           <div class="slothead">${slot.type ? shortName(slot.type) : "—"} <span class="kind">· ${label}</span></div>
@@ -911,6 +967,10 @@
         try {
           const res = await fetch("/runes.json");
           if (res.ok) RUNES = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/tempers.json");
+          if (res.ok) TEMPER_DB = await res.json();
         } catch {}
         try {
           const res = await fetch("/weapons.json");

@@ -19,6 +19,7 @@
     "build-runes": "tsx scripts/build_data.ts runes",
     "build-weapons": "tsx scripts/build_data.ts weapons",
     "build-pacts": "tsx scripts/build_data.ts pacts",
+    "build-tempers": "tsx scripts/build_data.ts tempers",
     "watch-log": "node scripts/watch_log.mjs",
     "build:app": "node scripts/build_app.mjs",
     "app": "npm run build:app && electron .",
