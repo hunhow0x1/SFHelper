@@ -152,6 +152,23 @@
       }
       .fchip:hover { color: var(--text); }
       .fchip.active { background: var(--accent); color: #201a10; border-color: var(--accent); }
+      .wsearch { width: 100%; min-width: 0; margin-bottom: 14px; }
+      .wtempers { grid-column: 1 / -1; margin-top: 5px; }
+      .cw {
+        display: inline-block; font-size: 11px; border-radius: 4px; padding: 0 6px;
+        margin-left: 8px; border: 1px solid var(--line); color: var(--muted); vertical-align: 1px;
+      }
+      .cw1 { color: #6fae8f; border-color: #3f5a4c; }
+      .cw2 { color: #6f9edb; border-color: #3a4d66; }
+      .cw3 { color: #c9a55c; border-color: #5a4a2a; }
+      .cw4 { color: #b98cd8; border-color: #4d3a5e; }
+      .cw5 { color: #e0a94f; border-color: #6a521f; font-weight: 600; }
+      .pickrow { padding: 10px 0; border-bottom: 1px solid var(--line); }
+      .pickrow:last-child { border-bottom: 0; }
+      .pickhead { display: flex; align-items: center; gap: 8px; }
+      .pickhead .pickname { font-weight: 600; }
+      .pickhead .pickwhen { margin-left: auto; color: var(--muted); font-size: 12px; }
+      .pickrow .wtempers { margin-top: 6px; }
       .wrow.miss .label { color: var(--muted); }
       .wrow.miss .val { color: #6f665a; }
       .wrow .val .mx { color: var(--accent-2); font-weight: 600; }
@@ -175,6 +192,7 @@
         <button class="tab active" data-tab="overview">Overview</button>
         <button class="tab" data-tab="loadouts">Loadouts</button>
         <button class="tab" data-tab="weapons">Weapons &amp; Pacts</button>
+        <button class="tab" data-tab="pickups">Pickups</button>
         <button class="tab" data-tab="stats">Stats</button>
       </nav>
 
@@ -235,8 +253,24 @@
             <button class="fchip" data-f="leveling">Leveling</button>
             <button class="fchip" data-f="maxed">Maxed</button>
           </div>
+          <input id="weaponSearch" class="wsearch" placeholder="Search name, craftwork (e.g. Legendary), or temper…" spellcheck="false" />
           <div class="daily" id="weaponSummary"></div>
           <div id="weapons"><span class="muted">Import your inventory to track weapon leveling.</span></div>
+        </section>
+        <section>
+          <h2>Tempers · Tuvalkane</h2>
+          <div class="daily" id="temperSummary"></div>
+          <div id="tempers"><span class="muted">Dismantle weapons to teach Tuvalkane their tempers (10 to learn each).</span></div>
+        </section>
+      </div>
+
+      <!-- PICKUPS -->
+      <div class="panel" id="panel-pickups">
+        <section>
+          <h2>Picked-up Weapons</h2>
+          <input id="pickupSearch" class="wsearch" placeholder="Search name, craftwork, or temper…" spellcheck="false" />
+          <div class="daily" id="pickupSummary"></div>
+          <div id="pickups"><span class="muted">New weapons you acquire (with their craftwork &amp; tempers) will appear here as your inventory refreshes.</span></div>
         </section>
       </div>
 
@@ -280,9 +314,15 @@
       let WEAPON_ROSTER = {};
       let LAST_WEAPONS = [];
       let WEAPON_FILTER = "all";
+      let WEAPON_SEARCH = "";
       // Pact roster (name -> {}) from pacts.json, and the last-seen owned pacts.
       let PACT_ROSTER = {};
       let LAST_PACTS = [];
+      // Tuvalkane temper-learning progress [{tag, count}]; learned at 10.
+      let LAST_TEMPERS = [];
+      // Picked-up weapon history [{key, craftwork, tempers, xp, at}], newest first.
+      let LAST_PICKUPS = [];
+      let PICKUP_SEARCH = "";
 
       // Cumulative standing to REACH each rank (caps are per-rank earn amounts).
       function rankInfo(tag, standing, rank) {
@@ -320,6 +360,20 @@
         return { rank: r, pct: (r + (xp - base) / (next - base)) / MAX, maxed: false };
       }
 
+      // Craftwork quality tiers (raw IQ_* -> tier name, temper capacity, damage bonus).
+      const CRAFTWORK = {
+        IQ_WORN: { name: "Stock", bonus: 0, tier: 0, max: 1 },
+        IQ_MILITARY: { name: "Military", bonus: 4, tier: 1, max: 3 },
+        IQ_OFFICER: { name: "Officer", bonus: 8, tier: 2, max: 4 },
+        IQ_NOBLE: { name: "Noble", bonus: 12, tier: 3, max: 5 },
+        IQ_MASTERWORK: { name: "Sovereign", bonus: 16, tier: 4, max: 6 },
+        IQ_LEGENDARY: { name: "Legendary", bonus: 20, tier: 5, max: 8 },
+      };
+      const craftworkInfo = (q) => CRAFTWORK[q] || null;
+      // Temper tags describe their effect; clean them into readable labels.
+      const prettyTemper = (tag) =>
+        String(tag).replace(/Mod$/, "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/\bAnd\b/g, "&").trim();
+
       // Weapons and Pacts share this tracker. Each section has its own roster,
       // owned list, leveling curve, and grouping.
       function renderWeapons() {
@@ -344,6 +398,16 @@
           : "";
 
         const f = WEAPON_FILTER;
+        const q = (WEAPON_SEARCH || "").trim().toLowerCase();
+        // Search matches weapon name, craftwork tier, or any temper label.
+        const matches = ({ name, w }) => {
+          if (!q) return true;
+          if (name.toLowerCase().includes(q)) return true;
+          if (!w) return false;
+          const cw = craftworkInfo(w.craftwork);
+          if (cw && cw.name.toLowerCase().includes(q)) return true;
+          return (w.tempers || []).some((t) => prettyTemper(t).toLowerCase().includes(q));
+        };
         const rowFor = ({ name, w, C }) => {
           if (!w) {
             if (f !== "all" && f !== "missing") return "";
@@ -354,7 +418,12 @@
           if (f === "leveling" && l.maxed) return "";
           if (f === "maxed" && !l.maxed) return "";
           const status = l.maxed ? '<span class="mx">Max · 30/30</span>' : `Rank ${l.rank}/30`;
-          return `<div class="row wrow"><span class="label">${name}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
+          const cw = craftworkInfo(w.craftwork);
+          const cwBadge = cw ? ` <span class="cw cw${cw.tier}" title="+${cw.bonus} damage · up to ${cw.max} tempers">${cw.name}</span>` : "";
+          const temperChips = (w.tempers && w.tempers.length)
+            ? `<span class="wtempers">${w.tempers.map((t) => `<span class="chip">${prettyTemper(t)}</span>`).join("")}</span>`
+            : "";
+          return `<div class="row wrow"><span class="label">${name}${cwBadge}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(l.pct * 100)}%"></i></span>${temperChips}</div>`;
         };
         // Weapon classes alphabetically, then Pacts last.
         const groupNames = Object.keys(groups).sort((a, b) =>
@@ -362,7 +431,7 @@
         );
         const html = groupNames
           .map((g) => {
-            const rows = groups[g].sort((a, b) => a.name.localeCompare(b.name)).map(rowFor).filter(Boolean).join("");
+            const rows = groups[g].filter(matches).sort((a, b) => a.name.localeCompare(b.name)).map(rowFor).filter(Boolean).join("");
             return rows ? `<div class="xpgroup"><h3>${g} <span class="count">${groups[g].length}</span></h3><div class="rows">${rows}</div></div>` : "";
           })
           .filter(Boolean)
@@ -376,6 +445,76 @@
         document.querySelectorAll("#weaponFilter .fchip").forEach((c) => c.classList.toggle("active", c === b));
         renderWeapons();
       });
+      document.getElementById("weaponSearch").addEventListener("input", (e) => {
+        WEAPON_SEARCH = e.target.value;
+        renderWeapons();
+        renderTempers();
+      });
+
+      // Tuvalkane temper learning: each temper is learned at 10 progress (earned
+      // by dismantling weapons bearing it). ~43 tempers exist in-game (Preludes 16).
+      const TEMPER_GOAL = 10;
+      const TEMPER_TOTAL = 43;
+      function renderTempers() {
+        const list = LAST_TEMPERS || [];
+        const learned = list.filter((t) => t.count >= TEMPER_GOAL).length;
+        const inProgress = list.filter((t) => t.count > 0 && t.count < TEMPER_GOAL).length;
+        $("temperSummary").innerHTML = list.length
+          ? `Learned <b>${learned}</b> &nbsp;·&nbsp; In progress <b>${inProgress}</b> &nbsp;·&nbsp; Encountered <b>${list.length}</b> of ~${TEMPER_TOTAL} in-game`
+          : "";
+        const q = (WEAPON_SEARCH || "").trim().toLowerCase();
+        const rows = list
+          .filter((t) => !q || prettyTemper(t.tag).toLowerCase().includes(q))
+          .sort((a, b) =>
+            (b.count >= TEMPER_GOAL ? 1 : 0) - (a.count >= TEMPER_GOAL ? 1 : 0) ||
+            b.count - a.count ||
+            prettyTemper(a.tag).localeCompare(prettyTemper(b.tag)),
+          )
+          .map((t) => {
+            const done = t.count >= TEMPER_GOAL;
+            const status = done ? '<span class="mx">Learned</span>' : `${t.count}/${TEMPER_GOAL}`;
+            return `<div class="row wrow"><span class="label">${prettyTemper(t.tag)}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(Math.min(1, t.count / TEMPER_GOAL) * 100)}%"></i></span></div>`;
+          })
+          .join("");
+        if (list.length) $("tempers").innerHTML = rows || '<span class="muted">No tempers match.</span>';
+      }
+
+      // Relative time like "3h ago".
+      function ago(iso) {
+        const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+        if (s < 90) return "just now";
+        if (s < 3600) return Math.round(s / 60) + "m ago";
+        if (s < 86400) return Math.round(s / 3600) + "h ago";
+        return Math.round(s / 86400) + "d ago";
+      }
+      function renderPickups() {
+        const list = LAST_PICKUPS || [];
+        const q = (PICKUP_SEARCH || "").trim().toLowerCase();
+        $("pickupSummary").innerHTML = list.length ? `<b>${list.length}</b> weapon${list.length === 1 ? "" : "s"} picked up since tracking began` : "";
+        const rows = list
+          .filter((p) => {
+            if (!q) return true;
+            const cw = craftworkInfo(p.craftwork);
+            return shortName(p.key).toLowerCase().includes(q) ||
+              (cw && cw.name.toLowerCase().includes(q)) ||
+              (p.tempers || []).some((t) => prettyTemper(t).toLowerCase().includes(q));
+          })
+          .map((p) => {
+            const cw = craftworkInfo(p.craftwork);
+            const cwBadge = cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : "";
+            const chips = (p.tempers || []).map((t) => `<span class="chip">${prettyTemper(t)}</span>`).join("");
+            return `<div class="pickrow">
+              <div class="pickhead"><span class="pickname">${shortName(p.key)}</span> ${cwBadge}<span class="pickwhen">${ago(p.at)}</span></div>
+              ${chips ? `<div class="wtempers">${chips}</div>` : ""}
+            </div>`;
+          })
+          .join("");
+        if (list.length) $("pickups").innerHTML = rows || '<span class="muted">No pickups match.</span>';
+      }
+      document.getElementById("pickupSearch").addEventListener("input", (e) => {
+        PICKUP_SEARCH = e.target.value;
+        renderPickups();
+      });
 
       // Loadouts / builds. Presets come from the inventory; imported builds are
       // kept in this browser so they survive refreshes. Columns, left to right:
@@ -387,8 +526,9 @@
       // A slot may arrive as an ItemType string (old exports/localStorage) or as
       // { type, runes, totems } (current). Normalize both to the object form.
       function normSlot(x) {
-        if (x == null) return { type: null, runes: [], totems: [] };
-        if (typeof x === "string") return { type: x, runes: [], totems: [] };
+        const empty = { type: null, runes: [], totems: [], joinery: null, craftwork: null, tempers: [] };
+        if (x == null) return empty;
+        if (typeof x === "string") return { ...empty, type: x };
         return {
           type: x.type ?? null,
           runes: Array.isArray(x.runes) ? x.runes : [],
@@ -396,6 +536,8 @@
           joinery: x.joinery && typeof x.joinery === "object"
             ? { name: x.joinery.name ?? null, virtue: x.joinery.virtue ?? null, code: x.joinery.code ?? "" }
             : null,
+          craftwork: x.craftwork ?? null,
+          tempers: Array.isArray(x.tempers) ? x.tempers : [],
         };
       }
       function normBuild(b) {
@@ -430,14 +572,23 @@
         const icon = `<img class="jicon" src="${joineryIconSrc(j)}" alt="" onerror="this.style.display='none'">`;
         return `${icon}<span class="jname">${joineryName(j)}</span>${virtueTag(j.virtue)}`;
       }
-      // Detail block for one slot - rendered when it carries runes/totems/joinery.
+      // Detail block for one slot - rendered when it carries any gear detail.
       function slotDetail(label, slot) {
-        if (!slot || (!slot.runes.length && !slot.totems.length && !slot.joinery)) return "";
+        if (!slot || (!slot.runes.length && !slot.totems.length && !slot.joinery && !slot.craftwork && !slot.tempers.length)) return "";
+        const cw = craftworkInfo(slot.craftwork);
+        const cwLine = slot.craftwork
+          ? `<div class="chipline"><span class="h">Craftwork</span><span class="chip">${cw ? cw.name + " · +" + cw.bonus + " dmg" : slot.craftwork}</span></div>`
+          : "";
+        const temperLine = slot.tempers.length
+          ? `<div class="chipline"><span class="h">Tempers</span>${slot.tempers.map((t) => `<span class="chip">${prettyTemper(t)}</span>`).join("")}</div>`
+          : "";
         return `<div class="slotgrp">
           <div class="slothead">${slot.type ? shortName(slot.type) : "—"} <span class="kind">· ${label}</span></div>
+          ${cwLine}
           <div class="chipline"><span class="h">Joinery</span>${joineryLabel(slot.joinery)}</div>
           <div class="chipline"><span class="h">Runes</span><div class="totemlist">${effectRows(slot.runes, RUNES)}</div></div>
           <div class="chipline"><span class="h">Totems</span><div class="totemlist">${effectRows(slot.totems, TOTEMS)}</div></div>
+          ${temperLine}
         </div>`;
       }
       function buildRow(raw, imported, key) {
@@ -650,6 +801,10 @@
         LAST_WEAPONS = data.weapons || [];
         LAST_PACTS = data.pacts || [];
         renderWeapons();
+        LAST_TEMPERS = data.temperProgress || [];
+        renderTempers();
+        LAST_PICKUPS = data.pickups || [];
+        renderPickups();
 
         // Scalars
         const s = data.stats?.scalars || {};

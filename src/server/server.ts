@@ -15,6 +15,7 @@ import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/
 import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
 import { getInventory } from "./inventory";
+import { recordPickups } from "./pickups";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -149,13 +150,16 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         inventory?.weapons ??
         snap.items
           .filter((it) => it.category === "weapon" && typeof it.rank === "number")
-          .map((it) => ({ key: it.key, xp: it.rank ?? 0, slot: "Melee" as const }));
+          .map((it) => ({ key: it.key, xp: it.rank ?? 0, slot: "Melee" as const, craftwork: null, tempers: [], id: null }));
       // Owned Pacts (souls) + affinity, same source priority as weapons.
       const pacts =
         inventory?.pacts ??
         snap.items
           .filter((it) => it.category === "soul" && typeof it.rank === "number")
           .map((it) => ({ key: it.key, xp: it.rank ?? 0 }));
+      // Picked-up-weapon history (inventory diff by ItemId). Only when we have a
+      // real inventory to diff against.
+      const pickups = inventory ? await recordPickups(inventory.weaponInstances) : [];
       sendJson(res, 200, {
         account: snap.account,
         level: PlayerLevel ?? null,
@@ -167,8 +171,10 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         daily: snap.daily,
         currencies: inventory ? inventory.currencies : profileCurrencies,
         owned: Object.fromEntries(ownedCounts), // ItemType -> owned count (for tokens, etc.)
-        weapons, // [{ key, xp, slot }] owned weapons for the leveling tracker
+        weapons, // [{ key, xp, slot, craftwork, tempers }] for the leveling tracker
         pacts, // [{ key, xp }] owned pacts (souls) for the leveling tracker
+        temperProgress: inventory?.temperProgress ?? [], // Tuvalkane temper learning
+        pickups, // [{ key, craftwork, tempers, xp, at }] weapon pickup history
         builds: inventory?.builds ?? [],
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,

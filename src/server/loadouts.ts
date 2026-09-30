@@ -37,6 +37,10 @@ export interface SlotGear {
   totems: string[];
   /** Installed Joinery (weapons only), or null. */
   joinery: Joinery | null;
+  /** Craftwork quality (raw IQ_* value; weapons only), or null. */
+  craftwork: string | null;
+  /** Temper mod tags on this weapon (AspectFingerprint.buffs). */
+  tempers: string[];
 }
 
 export interface Build {
@@ -58,9 +62,13 @@ interface GearInfo {
   configs: string[][];
   /** The weapon's installed Joinery id (UpgradeType), if any. */
   upgradeType: string | undefined;
+  /** Craftwork quality (raw IQ_* value), if any. */
+  craftwork: string | null;
+  /** Temper mod tags (AspectFingerprint.buffs). */
+  tempers: string[];
 }
 
-const EMPTY_SLOT: SlotGear = { type: null, runes: [], totems: [], joinery: null };
+const EMPTY_SLOT: SlotGear = { type: null, runes: [], totems: [], joinery: null, craftwork: null, tempers: [] };
 
 const VIRTUE: Record<string, string> = { C: "Courage", S: "Spirit", G: "Grace" };
 // Code family -> Joinery product. Verite/Quicksilver/Feybalt are weapon-type
@@ -95,17 +103,23 @@ function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
     const list = raw[cat];
     if (!Array.isArray(list)) continue;
     for (const entry of list) {
-      const e = entry as { ItemId?: { $oid?: string }; ItemType?: string; Configs?: unknown; UpgradeType?: unknown };
+      const e = entry as { ItemId?: { $oid?: string }; ItemType?: string; Configs?: unknown; UpgradeType?: unknown; Quality?: unknown; AspectFingerprint?: unknown };
       const oid = e?.ItemId?.$oid;
       if (!oid || typeof e.ItemType !== "string") continue;
       const configs = (Array.isArray(e.Configs) ? e.Configs : []).map((c) => {
         const ups = (c as { Upgrades?: unknown })?.Upgrades;
         return Array.isArray(ups) ? ups.filter((u): u is string => typeof u === "string") : [];
       });
+      const fp = e.AspectFingerprint as { buffs?: unknown } | undefined;
+      const tempers = Array.isArray(fp?.buffs)
+        ? fp!.buffs.map((b) => (b as { Tag?: unknown }).Tag).filter((t): t is string => typeof t === "string")
+        : [];
       idx.set(oid, {
         type: e.ItemType,
         configs,
         upgradeType: typeof e.UpgradeType === "string" ? e.UpgradeType : undefined,
+        craftwork: typeof e.Quality === "string" ? e.Quality : null,
+        tempers,
       });
     }
   }
@@ -149,7 +163,7 @@ export function parseBuilds(raw: unknown): Build[] {
       if (type.includes("/Upgrades/Runes/")) runes.push(type);
       else if (type.includes("/Upgrades/Totems/")) totems.push(type);
     }
-    return { type: info.type, runes, totems, joinery: decodeJoinery(info.upgradeType) };
+    return { type: info.type, runes, totems, joinery: decodeJoinery(info.upgradeType), craftwork: info.craftwork, tempers: info.tempers };
   };
 
   return presets.map((p) => {
