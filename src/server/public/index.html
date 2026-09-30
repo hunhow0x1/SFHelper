@@ -171,6 +171,9 @@
       .pickrow .wtempers { margin-top: 6px; }
       .chip.temper { cursor: pointer; }
       .chip.temper:hover { border-color: var(--accent); color: var(--text); }
+      .chip.temper.stacked { border-color: var(--accent); color: var(--accent); }
+      .chip.temper .x2 { font-weight: 700; }
+      .temperpop .tp-dbl { color: var(--accent); font-size: 12px; margin-bottom: 4px; }
       .tcount { background: none; border: 0; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; padding: 0; margin-left: 10px; }
       .tcount:hover { color: var(--text); }
       .wtemperbox { margin: 4px 0 8px; }
@@ -400,7 +403,18 @@
       const temperName = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].name) || cleanTemper(tag);
       const temperEffect = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].effect) || "";
       // A clickable temper chip (click shows its effect).
-      const temperChip = (tag) => `<span class="chip temper" data-tag="${tag}">${temperName(tag)}</span>`;
+      const temperChip = (tag, count = 1) =>
+        `<span class="chip temper${count > 1 ? " stacked" : ""}" data-tag="${tag}" data-count="${count}">${temperName(tag)}${count > 1 ? ` <span class="x2">×${count}</span>` : ""}</span>`;
+      // Group identical tempers (double-stacked = same tag twice = 2x effect) and
+      // render them first, then singles, as one chip each.
+      function temperChips(arr) {
+        const counts = new Map();
+        for (const t of arr || []) counts.set(t, (counts.get(t) || 0) + 1);
+        return [...counts.entries()]
+          .sort((a, b) => b[1] - a[1] || temperName(a[0]).localeCompare(temperName(b[0])))
+          .map(([tag, count]) => temperChip(tag, count))
+          .join("");
+      }
       // Back-compat alias used elsewhere; now returns the in-game name.
       const prettyTemper = (tag) => temperName(tag);
 
@@ -413,10 +427,12 @@
         if (!chip) return;
         e.stopPropagation();
         const tag = chip.dataset.tag;
+        const count = Number(chip.dataset.count) || 1;
         const eff = temperEffect(tag);
         temperPop = document.createElement("div");
         temperPop.className = "temperpop";
-        temperPop.innerHTML = `<div class="tp-name">${temperName(tag)}</div><div class="tp-eff">${eff || "No effect description available."}</div>`;
+        const dbl = count > 1 ? `<div class="tp-dbl">Double-stacked ×${count} — effect is doubled</div>` : "";
+        temperPop.innerHTML = `<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div>${dbl}<div class="tp-eff">${eff || "No effect description available."}</div>`;
         document.body.appendChild(temperPop);
         const r = chip.getBoundingClientRect();
         const top = r.bottom + 6;
@@ -476,7 +492,7 @@
           const id = "wt" + _wrowId++;
           // Tempers are collapsed by default to keep the list clean; click to reveal.
           const toggle = nt ? ` <button class="tcount" data-wt="${id}">${nt} temper${nt > 1 ? "s" : ""} ▾</button>` : "";
-          const box = nt ? `<div class="wtemperbox" id="${id}" hidden>${w.tempers.map(temperChip).join("")}</div>` : "";
+          const box = nt ? `<div class="wtemperbox" id="${id}" hidden>${temperChips(w.tempers)}</div>` : "";
           return `<div class="wrow2"><div class="row wrow"><span class="label">${name}${cwBadge}</span><span class="val">${status}${toggle}</span><span class="bar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>${box}</div>`;
         };
         // Weapon classes alphabetically, then Pacts last.
@@ -566,7 +582,7 @@
           .map((p) => {
             const cw = craftworkInfo(p.craftwork);
             const cwBadge = cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : "";
-            const chips = (p.tempers || []).map(temperChip).join("");
+            const chips = temperChips(p.tempers);
             return `<div class="pickrow">
               <div class="pickhead"><span class="pickname">${shortName(p.key)}</span> ${cwBadge}<span class="pickwhen">${ago(p.at)}</span></div>
               ${chips ? `<div class="wtempers">${chips}</div>` : ""}
@@ -644,7 +660,7 @@
           ? `<div class="chipline"><span class="h">Craftwork</span><span class="chip">${cw ? cw.name + " · +" + cw.bonus + " dmg" : slot.craftwork}</span></div>`
           : "";
         const temperLine = slot.tempers.length
-          ? `<div class="chipline"><span class="h">Tempers</span>${slot.tempers.map(temperChip).join("")}</div>`
+          ? `<div class="chipline"><span class="h">Tempers</span>${temperChips(slot.tempers)}</div>`
           : "";
         return `<div class="slotgrp">
           <div class="slothead">${slot.type ? shortName(slot.type) : "—"} <span class="kind">· ${label}</span></div>
