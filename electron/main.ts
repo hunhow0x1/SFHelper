@@ -19,7 +19,7 @@ import { mkdir } from "node:fs/promises";
 import { readConsent, recordConsent, ACK_PHRASE } from "../helper/consent";
 import { importInventory } from "../helper/run";
 import { startServer, type RunningServer } from "../src/server/server";
-import { buildTotems, buildRunes, buildWeapons, buildPacts, buildTempers } from "../scripts/build_data";
+import { buildTotems, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -40,36 +40,44 @@ function log(msg: string): void {
 async function refreshData(): Promise<void> {
   try {
     await mkdir(DATA_DIR, { recursive: true });
-    log("Refreshing totem/rune/weapon/pact/temper data…");
-    const [t, r, w, p, tp] = await Promise.all([
+    log("Refreshing totem/rune/weapon/pact/temper/pact-art data…");
+    const [t, r, w, p, tp, pa] = await Promise.all([
       buildTotems(join(DATA_DIR, "totems.json")),
       buildRunes(join(DATA_DIR, "runes.json")),
       buildWeapons(join(DATA_DIR, "weapons.json")),
       buildPacts(join(DATA_DIR, "pacts.json")),
       buildTempers(join(DATA_DIR, "tempers.json")),
+      buildPactArts(join(DATA_DIR, "pactarts.json")),
     ]);
-    log(`Data updated: ${t.ok} totems, ${r.ok} runes, ${w.ok} weapons, ${p.ok} pacts, ${tp.ok} tempers.`);
+    log(`Data updated: ${t.ok} totems, ${r.ok} runes, ${w.ok} weapons, ${p.ok} pacts, ${tp.ok} tempers, ${pa.ok} pact arts.`);
   } catch (err) {
     log(`Effect data refresh failed (using bundled data): ${(err as Error).message}`);
   }
 }
 
-/** Run the read-only memory helper to import the live inventory. */
+/** Run the read-only memory helper to import the live inventory. The dashboard
+ *  polls the server on its own, and the server re-reads inventory.json when it
+ *  changes, so there's no need to reload the window (which would reset UI state).
+ *  We re-import periodically so pickups and progress stay near-current. */
+let importing = false;
 async function importFromMemory(): Promise<void> {
-  const result = await importInventory({
-    out: INVENTORY_PATH,
-    configPath: CONFIG_PATH,
-    consentPath: CONSENT_PATH,
-    onLog: (m) => log(m),
-    onProgress: (label, pct) => log(`${label}: ${pct}%`),
-  });
-  if (result.ok) {
-    log(result.message);
-    mainWindow?.webContents.reload(); // pick up the fresh inventory
-  } else {
-    log(`Inventory import skipped (${result.code}): ${result.message}`);
+  if (importing) return; // don't overlap scans
+  importing = true;
+  try {
+    const result = await importInventory({
+      out: INVENTORY_PATH,
+      configPath: CONFIG_PATH,
+      consentPath: CONSENT_PATH,
+      onLog: (m) => log(m),
+      onProgress: (label, pct) => log(`${label}: ${pct}%`),
+    });
+    log(result.ok ? result.message : `Inventory import skipped (${result.code}): ${result.message}`);
+  } finally {
+    importing = false;
   }
 }
+
+const REIMPORT_INTERVAL_MS = 120_000; // re-scan for new pickups / progress every 2 min
 
 function createMainWindow(url: string): void {
   mainWindow = new BrowserWindow({
@@ -91,9 +99,11 @@ async function proceed(): Promise<void> {
   server = await startServer(0); // 0 = an OS-assigned free port
   createMainWindow(server.url);
 
-  // Background work: refresh effect data on launch, then import the inventory.
+  // Background work: refresh effect data on launch, then import the inventory,
+  // then keep re-importing so pickups/leveling stay near-current while playing.
   void refreshData();
   void importFromMemory();
+  setInterval(() => void importFromMemory(), REIMPORT_INTERVAL_MS);
 }
 
 /** The consent popup. Resolves true if the user agrees, false if they decline. */

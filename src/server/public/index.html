@@ -126,6 +126,14 @@
       tr.detail > td { background: var(--bg); padding: 12px 8px 14px; }
       .slotgrp { margin-bottom: 10px; }
       .slotgrp:last-child { margin-bottom: 0; }
+      /* Divider between weapon slot groups (Primary / Sidearm / Pact) in a loadout. */
+      .slotgrp + .slotgrp { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; }
+      /* Weapon-type headers in the Weapons & Pacts tab, larger for clarity. */
+      .xpgroup h3.wclass {
+        font-size: 17px; color: var(--accent); text-transform: none; letter-spacing: 0.3px;
+        border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 10px;
+      }
+      .xpgroup h3.wclass .count { font-size: 13px; }
       .slotgrp .slothead { color: var(--text); font-weight: 600; font-size: 13px; margin-bottom: 4px; }
       .slotgrp .slothead .kind { color: var(--muted); font-weight: 400; }
       .chipline { margin: 2px 0; }
@@ -185,6 +193,33 @@
       }
       .temperpop .tp-name { color: var(--accent); font-weight: 600; margin-bottom: 4px; }
       .temperpop .tp-eff { color: var(--text); font-size: 13px; line-height: 1.45; }
+      .temperpop .tp-rank { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+      .temperpop .tp-quote { color: var(--muted); font-style: italic; font-size: 13px; line-height: 1.45; margin-bottom: 6px; }
+      .temperpop .tp-eff b { color: var(--accent); }
+      /* Pact Arts tree (in-game node/pip art, current Preludes layout). */
+      .pactarts { margin-top: 10px; }
+      .pactarts .pa-sum { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+      .pacttree {
+        display: block; width: 100%; max-width: 760px; height: auto;
+        background: radial-gradient(ellipse at 12% 55%, #2c2219 0%, #17120e 60%, #110d0a 100%);
+        border: 1px solid var(--line); border-radius: 10px;
+      }
+      .pacttree .artedge { fill: none; stroke: #b8964f; stroke-width: 1.4; stroke-dasharray: 5 3; opacity: 0.28; }
+      .pacttree .artedge.on { opacity: 0.8; }
+      .pacttree .artnode { cursor: pointer; }
+      .pacttree .artnode .hit { fill: transparent; }
+      .pacttree .artnode.on .gem { filter: drop-shadow(0 0 4px rgba(232, 200, 120, 0.75)) drop-shadow(0 0 10px rgba(201, 165, 92, 0.35)); }
+            .pacttree .artnode.off image { filter: grayscale(1) brightness(0.5); }
+      .pacttree .artnode.off:hover image { filter: grayscale(0.6) brightness(0.8); }
+      .pacttree .artnode .pip.off { filter: grayscale(1) brightness(0.38); }
+      .pacttree .artnode.on:hover .gem { filter: brightness(1.2) drop-shadow(0 0 6px rgba(232, 200, 120, 0.9)); }
+      .pacttree .artlabel {
+        font-family: "Cinzel", "Trajan Pro", Georgia, "Times New Roman", serif; font-variant: small-caps;
+        font-size: 14px; letter-spacing: 0.6px; fill: #e6dac2;
+      }
+      .pacttree .artnode.off .artlabel { fill: #7d7263; }
+      .pacttree .artrank { font-size: 11px; fill: var(--accent); }
+      .pacttree .artnode.off .artrank { fill: #6a6155; }
       .wrow.miss .label { color: var(--muted); }
       .wrow.miss .val { color: #6f665a; }
       .wrow .val .mx { color: var(--accent-2); font-weight: 600; }
@@ -303,6 +338,15 @@
     <script>
       const $ = (id) => document.getElementById(id);
       const fmt = (n) => (typeof n === "number" ? n.toLocaleString() : "—");
+      // True when a section's data differs from the last time it rendered, so we
+      // can skip re-rendering (and preserve expand/scroll state) on idle refreshes.
+      const _sectionJson = {};
+      function sectionChanged(key, val) {
+        const j = JSON.stringify(val);
+        if (_sectionJson[key] === j) return false;
+        _sectionJson[key] = j;
+        return true;
+      }
 
       // Tabs. The active tab is remembered so a data refresh or the post-import
       // window reload doesn't bounce you back to Overview.
@@ -335,6 +379,8 @@
       let RUNES = {};
       // Temper Tag -> { name, effect } (from tempers.json).
       let TEMPER_DB = {};
+      // Pact Art key ("Folder/Skill") -> { name, slot, max, virtue?, desc, detail } (pactarts.json).
+      let PACT_ARTS = {};
       // Full weapon roster (name -> {class, slot}) from weapons.json, for the
       // leveling tracker; and the last-seen owned weapons + the active filter.
       let WEAPON_ROSTER = {};
@@ -422,17 +468,22 @@
       let temperPop = null;
       function closeTemperPop() { if (temperPop) { temperPop.remove(); temperPop = null; } }
       document.addEventListener("click", (e) => {
-        const chip = e.target.closest && e.target.closest(".temper");
+        const chip = e.target.closest && e.target.closest(".temper, .artnode");
         closeTemperPop();
         if (!chip) return;
         e.stopPropagation();
-        const tag = chip.dataset.tag;
-        const count = Number(chip.dataset.count) || 1;
-        const eff = temperEffect(tag);
         temperPop = document.createElement("div");
         temperPop.className = "temperpop";
-        const dbl = count > 1 ? `<div class="tp-dbl">Double-stacked ×${count} — effect is doubled</div>` : "";
-        temperPop.innerHTML = `<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div>${dbl}<div class="tp-eff">${eff || "No effect description available."}</div>`;
+        if (chip.classList.contains("artnode")) {
+          temperPop.innerHTML = artPopHtml(chip.dataset.art, Number(chip.dataset.rank) || 0);
+        } else {
+          const tag = chip.dataset.tag;
+          const count = Number(chip.dataset.count) || 1;
+          const eff = temperEffect(tag);
+          const dbl = count > 1 ? `<div class="tp-dbl">Double-stacked ×${count} — effect is doubled</div>` : "";
+          const effHtml = eff ? `<div class="tp-eff">${eff}</div>` : `<div class="tp-eff muted">Effect not documented yet.</div>`;
+          temperPop.innerHTML = `<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div>${dbl}${effHtml}`;
+        }
         document.body.appendChild(temperPop);
         const r = chip.getBoundingClientRect();
         const top = r.bottom + 6;
@@ -502,7 +553,7 @@
         const html = groupNames
           .map((g) => {
             const rows = groups[g].filter(matches).sort((a, b) => a.name.localeCompare(b.name)).map(rowFor).filter(Boolean).join("");
-            return rows ? `<div class="xpgroup"><h3>${g} <span class="count">${groups[g].length}</span></h3><div class="rows">${rows}</div></div>` : "";
+            return rows ? `<div class="xpgroup"><h3 class="wclass">${g} <span class="count">${groups[g].length}</span></h3><div class="rows">${rows}</div></div>` : "";
           })
           .filter(Boolean)
           .join("");
@@ -612,12 +663,15 @@
         return {
           type: x.type ?? null,
           runes: Array.isArray(x.runes) ? x.runes : [],
-          totems: Array.isArray(x.totems) ? x.totems : [],
+          totems: (Array.isArray(x.totems) ? x.totems : []).map((t) =>
+            typeof t === "string" ? { type: t, rank: null } : { type: t.type, rank: t.rank ?? null },
+          ),
           joinery: x.joinery && typeof x.joinery === "object"
             ? { name: x.joinery.name ?? null, virtue: x.joinery.virtue ?? null, code: x.joinery.code ?? "" }
             : null,
           craftwork: x.craftwork ?? null,
           tempers: Array.isArray(x.tempers) ? x.tempers : [],
+          arts: x.arts && typeof x.arts === "object" ? x.arts : null,
         };
       }
       function normBuild(b) {
@@ -630,13 +684,35 @@
         arr && arr.length
           ? arr.map((t) => `<span class="chip">${shortName(t)}</span>`).join("")
           : '<span class="muted">—</span>';
-      // Runes/totems as name + effect rows (effect looked up by display name).
+      // Runes as name + effect rows (effect looked up by display name).
       const effectRows = (arr, table) => {
         if (!arr || !arr.length) return '<span class="muted">—</span>';
         return arr
           .map((t) => {
             const name = shortName(t);
             const eff = table[name];
+            return `<div class="totemrow"><span class="tname">${name}</span>${eff ? `<span class="teff">${eff}</span>` : ""}</div>`;
+          })
+          .join("");
+      };
+      // A per-rank effect: replace each "a/b/c/d" value list with the current
+      // rank's value and append the rank, e.g. "…+200 Life… (Rank 4)".
+      function effectAtRank(effect, rank) {
+        if (!effect) return "";
+        if (!rank) return effect;
+        const shown = effect.replace(/\d+(?:\/\d+)+/g, (grp) => {
+          const parts = grp.split("/");
+          return parts[Math.min(rank - 1, parts.length - 1)];
+        });
+        return `${shown} (Rank ${rank})`;
+      }
+      // Totems: name + effect at the totem's current rank.
+      const totemRows = (arr) => {
+        if (!arr || !arr.length) return '<span class="muted">—</span>';
+        return arr
+          .map((t) => {
+            const name = shortName(t.type);
+            const eff = effectAtRank(TOTEMS[name], t.rank);
             return `<div class="totemrow"><span class="tname">${name}</span>${eff ? `<span class="teff">${eff}</span>` : ""}</div>`;
           })
           .join("");
@@ -652,9 +728,114 @@
         const icon = `<img class="jicon" src="${joineryIconSrc(j)}" alt="" onerror="this.style.display='none'">`;
         return `${icon}<span class="jname">${joineryName(j)}</span>${virtueTag(j.virtue)}`;
       }
+      // ---- Pact Arts tree ----------------------------------------------------
+      // The account stores each Pact tree's arts as { "Folder/Skill": Level }.
+      // An entry's presence means the art is unlocked, and Level counts the pips
+      // filled beyond that (Warframe-style 0-based ranks). So rank = Level + 1,
+      // and an art missing from the list is locked.
+      const ART_LEVEL_BASE = 1;
+      // Node positions (viewBox units) of the current in-game layout, traced from
+      // the Ode Tempest tree; every Pact uses the same node spots.
+      const ART_POS = {
+        passiveA: [44, 140], passiveB: [192, 166], rooted: [128, 222], physic: [272, 192],
+        virtueMid: [282, 122], virtueTop: [256, 32], virtueRight: [498, 66],
+        forestall: [456, 116], wingspan: [372, 238], stalwart: [580, 186],
+      };
+      // The tree's connecting branches (from -> to, with the curve's control points).
+      const ART_EDGES = [
+        ["passiveA", "virtueTop", "C 72,62 180,26"],
+        ["passiveA", "virtueRight", "C 130,40 340,112"],
+        ["passiveA", "virtueMid", "C 110,86 222,88"],
+        ["passiveA", "passiveB", "C 104,112 162,122"],
+        ["passiveA", "rooted", "C 92,152 118,184"],
+        ["passiveB", "physic", "C 218,196 246,198"],
+        ["rooted", "wingspan", "C 164,292 304,292"],
+        ["wingspan", "forestall", "C 392,182 422,128"],
+        ["wingspan", "stalwart", "C 404,172 522,150"],
+      ];
+      const VIRTUE_POINTS = [0, 1, 3, 6]; // virtue points granted at rank 0..3
+      const artRank = (arts, key, max) => (arts && key in arts ? Math.min(max, (Number(arts[key]) || 0) + ART_LEVEL_BASE) : 0);
+      // Pip spots around the bottom of a node (angles in degrees, SVG y points down).
+      const PIP_ANGLES = { 1: [90], 2: [118, 62], 3: [140, 90, 40] };
+
+      // Resolve an allocation into one node per slot. The general arts always
+      // show; the two passives are whichever Pact-specific arts the tree lists.
+      function artNodes(arts) {
+        const bySlot = {};
+        for (const [key, def] of Object.entries(PACT_ARTS)) {
+          const isPassive = def.slot.startsWith("passive");
+          if (isPassive && !(arts && key in arts)) continue;
+          bySlot[def.slot] = { key, def, rank: artRank(arts, key, def.max) };
+        }
+        for (const slot of ["passiveA", "passiveB"])
+          if (!bySlot[slot]) bySlot[slot] = { key: "", def: { name: "Passive", slot, max: 4 }, rank: 0 };
+        return bySlot;
+      }
+      function pactTreeHtml(arts) {
+        if (!arts || !Object.keys(PACT_ARTS).length) return "";
+        const nodes = artNodes(arts);
+        const on = (s) => nodes[s] && nodes[s].rank > 0;
+        const edges = ART_EDGES.map(([a, b, c]) => {
+          const [x1, y1] = ART_POS[a], [x2, y2] = ART_POS[b];
+          return `<path class="artedge${on(a) && on(b) ? " on" : ""}" d="M ${x1},${y1} ${c} ${x2},${y2}"/>`;
+        }).join("");
+        const nodeSvg = Object.values(nodes).map(({ key, def, rank }) => {
+          const [x, y] = ART_POS[def.slot];
+          const pips = (PIP_ANGLES[def.max - 1] || []).map((deg, i) => {
+            const a = (deg * Math.PI) / 180, px = Math.cos(a) * 16.5, py = Math.sin(a) * 16.5;
+            return `<image class="pip ${i < rank - 1 ? "on" : "off"}" href="img/pactarts/pip.png" x="${(px - 7).toFixed(1)}" y="${(py - 7).toFixed(1)}" width="14" height="14"/>`;
+          }).join("");
+          return `<g class="artnode ${rank ? "on" : "off"}" data-art="${key}" data-rank="${rank}" transform="translate(${x},${y})">
+            <circle class="hit" r="24"/>
+            <image class="gem" href="img/pactarts/node.png" x="-16" y="-16" width="32" height="32"/>${pips}
+            <text class="artlabel" x="23" y="5">${def.name} <tspan class="artrank">${rank}/${def.max}</tspan></text>
+          </g>`;
+        }).join("");
+        // Summary: virtue points granted, and how many arts are unlocked.
+        const virt = Object.values(nodes).filter((n) => n.def.virtue && n.rank > 0)
+          .map((n) => `<span style="color:${VIRTUE_COLOR[n.def.virtue]}">+${VIRTUE_POINTS[n.rank]} ${n.def.virtue}</span>`);
+        const unlocked = Object.values(nodes).filter((n) => n.rank > 0).length;
+        const sum = `${unlocked}/${Object.keys(nodes).length} arts unlocked${virt.length ? " · Virtue bonus " + virt.join(" · ") : ""}`;
+        return `<div class="pactarts"><div class="pa-sum">${sum}</div>
+          <svg class="pacttree" viewBox="0 0 700 280" role="img" aria-label="Pact Arts tree">${edges}${nodeSvg}</svg></div>`;
+      }
+      // Replace a per-rank value list (e.g. "[25 / 30 / 40 / 60]", "0/5/11/22")
+      // with the current rank's value, keeping the full list for reference.
+      function artDetailAtRank(text, rank, max) {
+        if (!text || !(rank > 0)) return text || "";
+        return text.replace(/\[?\s*(\d+(?:\.\d+)?%?(?:\s*\/\s*\d+(?:\.\d+)?%?)+)\s*\]?/g, (m, list) => {
+          const vals = list.split("/").map((v) => v.trim());
+          if (vals.length !== max) return m;
+          return `<b>${vals[rank - 1]}</b> <span class="muted">(${vals.join(" / ")})</span>`;
+        });
+      }
+      function artPopHtml(key, rank) {
+        const def = PACT_ARTS[key];
+        if (!def) return `<div class="tp-name">Passive</div><div class="tp-eff muted">This Pact's passive hasn't been unlocked.</div>`;
+        const rankLine = rank ? `Rank ${rank} / ${def.max}` : `Locked · ${def.max} ranks`;
+        const quote = def.desc ? `<div class="tp-quote">${def.desc}</div>` : "";
+        let detail = def.virtue
+          ? `Grants <b>+${VIRTUE_POINTS[rank]} ${def.virtue}</b> <span class="muted">(1 / 3 / 6)</span>.`
+          : artDetailAtRank(def.detail, rank, def.max);
+        const eff = detail ? `<div class="tp-eff">${detail}</div>` : "";
+        return `<div class="tp-name">${def.name}</div><div class="tp-rank">${rankLine}</div>${quote}${eff}`;
+      }
+
       // Detail block for one slot - rendered when it carries any gear detail.
       function slotDetail(label, slot) {
-        if (!slot || (!slot.runes.length && !slot.totems.length && !slot.joinery && !slot.craftwork && !slot.tempers.length)) return "";
+        if (!slot || (!slot.runes.length && !slot.totems.length && !slot.joinery && !slot.craftwork && !slot.tempers.length && !slot.arts)) return "";
+        // Pacts: only show the gear lines they actually carry, then the arts tree.
+        if (slot.arts) {
+          const lines = [
+            slot.joinery ? `<div class="chipline"><span class="h">Joinery</span>${joineryLabel(slot.joinery)}</div>` : "",
+            slot.runes.length ? `<div class="chipline"><span class="h">Runes</span><div class="totemlist">${effectRows(slot.runes, RUNES)}</div></div>` : "",
+            slot.totems.length ? `<div class="chipline"><span class="h">Totems</span><div class="totemlist">${totemRows(slot.totems)}</div></div>` : "",
+          ].join("");
+          return `<div class="slotgrp">
+            <div class="slothead">${slot.type ? shortName(slot.type) : "—"} <span class="kind">· ${label} Arts</span></div>
+            ${lines}${pactTreeHtml(slot.arts)}
+          </div>`;
+        }
         const cw = craftworkInfo(slot.craftwork);
         const cwLine = slot.craftwork
           ? `<div class="chipline"><span class="h">Craftwork</span><span class="chip">${cw ? cw.name + " · +" + cw.bonus + " dmg" : slot.craftwork}</span></div>`
@@ -667,7 +848,7 @@
           ${cwLine}
           <div class="chipline"><span class="h">Joinery</span>${joineryLabel(slot.joinery)}</div>
           <div class="chipline"><span class="h">Runes</span><div class="totemlist">${effectRows(slot.runes, RUNES)}</div></div>
-          <div class="chipline"><span class="h">Totems</span><div class="totemlist">${effectRows(slot.totems, TOTEMS)}</div></div>
+          <div class="chipline"><span class="h">Totems</span><div class="totemlist">${totemRows(slot.totems)}</div></div>
           ${temperLine}
         </div>`;
       }
@@ -873,18 +1054,25 @@
           ? `Inventory loaded: <b>${data.inventory.itemCount}</b> items from ${data.inventory.source.split(/[\\/]/).pop()} · updated ${new Date(data.inventory.updatedAt).toLocaleString()}`
           : "";
 
-        // Loadouts (presets from inventory + any imported builds).
-        LAST_BUILDS = data.builds || [];
-        renderBuilds();
-
-        // Weapon & Pact leveling tracker (owned + rosters).
-        LAST_WEAPONS = data.weapons || [];
-        LAST_PACTS = data.pacts || [];
-        renderWeapons();
-        LAST_TEMPERS = data.temperProgress || [];
-        renderTempers();
-        LAST_PICKUPS = data.pickups || [];
-        renderPickups();
+        // Re-render these only when their data actually changed, so the 60s
+        // refresh doesn't collapse expanded loadouts / open temper boxes.
+        if (sectionChanged("builds", data.builds)) {
+          LAST_BUILDS = data.builds || [];
+          renderBuilds();
+        }
+        if (sectionChanged("weapons", [data.weapons, data.pacts])) {
+          LAST_WEAPONS = data.weapons || [];
+          LAST_PACTS = data.pacts || [];
+          renderWeapons();
+        }
+        if (sectionChanged("tempers", data.temperProgress)) {
+          LAST_TEMPERS = data.temperProgress || [];
+          renderTempers();
+        }
+        if (sectionChanged("pickups", data.pickups)) {
+          LAST_PICKUPS = data.pickups || [];
+          renderPickups();
+        }
 
         // Scalars
         const s = data.stats?.scalars || {};
@@ -930,7 +1118,7 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || "Request failed");
           render(data);
-          setStatus("Live · refreshes every 60s");
+          setStatus("Live · refreshes every 30s");
         } catch (e) {
           setStatus(e.message, true);
         }
@@ -953,7 +1141,7 @@
         }
         if (timer) clearInterval(timer);
         refresh();
-        timer = setInterval(refresh, 60000);
+        timer = setInterval(refresh, 30000);
         setAccountSetup(false); // collapse once we're tracking
       }
 
@@ -995,6 +1183,10 @@
         try {
           const res = await fetch("/tempers.json");
           if (res.ok) TEMPER_DB = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/pactarts.json");
+          if (res.ok) PACT_ARTS = await res.json();
         } catch {}
         try {
           const res = await fetch("/weapons.json");

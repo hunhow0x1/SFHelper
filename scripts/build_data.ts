@@ -188,6 +188,7 @@ const TEMPER_NAME: Record<string, string> = {
   CassidDamageOnUndamagedMod: "First Strike",
   CassidParryStaggerMod: "Clam's Foot",
   CassidPoisonMod: "Sickness",
+  ChargeRateMod: "Quick Draw", // bow charge rate
   ConsecutiveAfterHeavyMod: "Follow Up",
   CritChanceMod: "Sullying Force", // Smite chance (Soulframe's crit mechanic)
   DamageNoSidearmMod: "Unencumbered",
@@ -236,13 +237,22 @@ function temperEffect(extract: string): string | null {
   t = t
     .replace(/\s+/g, " ")
     .replace(/\s+%/g, "%")
-    // Drop the wiki's "unknown amount" placeholder clauses so they don't surface.
+    // Drop the wiki's unknown-value placeholders ("unknown amount", "???") so
+    // they don't surface in the app.
     .replace(/\s+by an unknown amount/gi, "")
     .replace(/\s+by an unspecified amount/gi, "")
+    .replace(/,?\s*and\s+\?\?\?[^.,]*/gi, "")
+    .replace(/\s*\?\?\?[^.,]*/g, "")
+    // Drop editorial parentheticals the wiki sometimes leaves in.
+    .replace(/\s*\([^)]*\b(?:need|needs|seem|confirm|approx|unconfirm|citation|TODO|unknown|assum)\w*[^)]*\)/gi, "")
+    .replace(/\s+,/g, ",")
+    .replace(/\s{2,}/g, " ")
     .trim();
   // Keep it concise: first 1-2 sentences.
-  const sentences = t.match(/[^.]*\.(?:\s|$)/g);
-  if (sentences) t = sentences.slice(0, 2).join(" ").trim();
+  // A "." only ends a sentence when followed by whitespace/end, so decimals
+  // like "~12.5%" aren't split mid-number.
+  const sentences = t.match(/(?:[^.]|\.(?!\s|$))*\.(?=\s|$)/g);
+  if (sentences) t = sentences.slice(0, 2).map((x) => x.trim()).join(" ").trim();
   return t && t.length > 6 ? t : null;
 }
 
@@ -269,6 +279,136 @@ export async function buildTempers(outPath: string, onProgress?: ProgressFn): Pr
     }
   }
   onProgress?.(tags.length, tags.length, "done");
+  await writeSorted(outPath, out);
+  return { ok, archived: 0, unparsed };
+}
+
+// Pact Arts: skill ItemType (path after "/Pacts/") -> in-game name, tree slot and
+// max rank. Names come from the game's localization; max rank = the node's pip
+// count + 1 (virtues 3, passives & Rooted 4, the single-pip general arts 2).
+// Slots are the node positions of the current (Preludes 13+) tree layout. Every
+// Pact shares the general arts; the two passives are Pact-specific ("A" is the
+// root node the tree branches from). Legacy arts (Akin/Healer, Voided, Sympathy,
+// whose ItemTypes linger in old allocations) are intentionally absent.
+type ArtSlot =
+  | "passiveA" | "passiveB" | "virtueTop" | "virtueMid" | "virtueRight"
+  | "rooted" | "physic" | "forestall" | "wingspan" | "stalwart";
+interface ArtDef { name: string; slot: ArtSlot; max: number; virtue?: string }
+const PACT_ARTS: Record<string, ArtDef> = {
+  // General arts (shared by every Pact)
+  "Fey/CourageVirtueUpgradeSkill": { name: "Mora's Pride", slot: "virtueTop", max: 3, virtue: "Courage" },
+  "Fey/GraceVirtueUpgradeSkill": { name: "Saphene's Gift", slot: "virtueMid", max: 3, virtue: "Grace" },
+  "Fey/SpiritVirtueUpgradeSkill": { name: "Iridis' Favour", slot: "virtueRight", max: 3, virtue: "Spirit" },
+  "Fey/StabilityUpgradeSkill": { name: "Rooted", slot: "rooted", max: 4 },
+  "Fey/BirdTimeUpgradeSkill": { name: "Wingspan", slot: "wingspan", max: 2 },
+  "Fencer/HealthPotionMaxStackUpgradeSkill": { name: "Physic", slot: "physic", max: 2 },
+  "Fey/PreventDeathUpgradeSkill": { name: "Forestall", slot: "forestall", max: 2 },
+  "Fey/PreventStabilityBreakUpgradeSkill": { name: "Stalwart", slot: "stalwart", max: 2 },
+  // Pact passives
+  "Bromius/ArmourShatterInstinctSkill": { name: "Barkbare", slot: "passiveA", max: 4 },
+  "Bromius/ReflectArmourlInstinctSkill": { name: "Canopy's Blessing", slot: "passiveB", max: 4 },
+  "Fencer/DodgeyDecoySkill": { name: "Chamariz", slot: "passiveA", max: 4 },
+  "Fencer/PokeyPokeySkill": { name: "Olho por Olho", slot: "passiveB", max: 4 },
+  "Garren/InstinctAUpgradeSkill": { name: "Healheart", slot: "passiveA", max: 4 },
+  "Garren/InstinctBUpgradeSkill": { name: "Righteous", slot: "passiveB", max: 4 },
+  "Fenn/FanTheFlamesInstinctSkill": { name: "Hungry Flame", slot: "passiveA", max: 4 },
+  "Fenn/SlowBoilInstinctSkill": { name: "Smolder", slot: "passiveB", max: 4 },
+  "Ode/InstinctAUpgradeSkill": { name: "Lightning Strike", slot: "passiveA", max: 4 },
+  "Ode/InstinctbUpgradeSkill": { name: "Gravitate", slot: "passiveB", max: 4 },
+  "Wolf/WolfPassveUpgradeSkill": { name: "Feral", slot: "passiveA", max: 4 },
+  "Wolf/WolfPackPassveUpgradeSkill": { name: "Soulbound", slot: "passiveB", max: 4 },
+  "Fey/WardThornsInstinctSkill": { name: "Tendril", slot: "passiveA", max: 4 },
+  "Fey/StandingWaterInstinctSkill": { name: "Vernal Pool", slot: "passiveB", max: 4 },
+  "Fey/FeySightInstinctSkill": { name: "Shrouded", slot: "passiveA", max: 4 },
+  "Fey/FeyStealInstinctSkill": { name: "Pickpocket", slot: "passiveB", max: 4 },
+  "Fey/KillersHandInstinctSkill": { name: "Conquerer", slot: "passiveA", max: 4 },
+  "Fey/LastStandInstinctSkill": { name: "Last Stand", slot: "passiveB", max: 4 },
+};
+
+/** Strip wikitext markup to plain text. */
+const stripWiki = (s: string): string =>
+  s
+    .replace(/\{\{[^{}|]*\|([^{}|]*)\|Display=([^{}]*)\}\}/g, "$2")
+    .replace(/\{\{[^{}|]*\|([^{}|]*)(?:\|[^{}]*)?\}\}/g, "$1")
+    .replace(/\{\{([^{}|]*)\}\}/g, "$1")
+    .replace(/\[\[(?:[^\]|]*\|)?([^\]]*)\]\]/g, "$1")
+    .replace(/'{2,}/g, "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** Tidy a prose snippet: drop wiki placeholders/editorial notes, keep <=2 sentences. */
+function tidy(t: string): string | null {
+  t = t
+    .replace(/\s+/g, " ")
+    .replace(/\s+%/g, "%")
+    .replace(/\s*\([^)]*\b(?:need|needs|seem|confirm|approx|unconfirm|citation|TODO|unknown|assum|may scale)\w*[^)]*\)/gi, "")
+    .replace(/\s*\?\?\?[^.,]*/g, "")
+    .replace(/\*+/g, "")
+    // "0 points: 0 1 point: 2 2 points: 3 ..." -> "[2 / 3 / ...]." (per rank)
+    .replace(/:?\s*((?:\d+ points?: [\d.]+%?\s*){2,})/g, (_m, list: string) => {
+      const vals = [...list.matchAll(/(\d+) points?: ([\d.]+%?)/g)].filter((x) => x[1] !== "0").map((x) => x[2]);
+      return `: [${vals.join(" / ")}]. `;
+    })
+    .replace(/\s+,/g, ",")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  // Skip editorial sentences (wiki notes about the in-game text, TBDs, bugs).
+  const sentences = t.match(/(?:[^.]|\.(?!\s|$))*\.(?=\s|$)/g)
+    ?.map((x) => x.trim())
+    .filter((x) => !/misleading|\bTBD\b|despite (?:its|the) description|in-game description|^It also does not|not yet (?:been )?tested|bugged/i.test(x));
+  if (sentences) t = sentences.slice(0, 2).join(" ").trim();
+  return t && t.length > 6 ? t : null;
+}
+
+/** Build pactarts.json { "<Folder/Skill>": { name, slot, max, virtue?, desc, detail } }.
+ *  General arts & virtues: the in-game quote and first mechanics bullet from the
+ *  Pact Arts page. Passives: their page's overview line and ability details. */
+export async function buildPactArts(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
+  const keys = Object.keys(PACT_ARTS).sort();
+  const out: Record<string, ArtDef & { desc: string | null; detail: string | null }> = {};
+  const unparsed: string[] = [];
+  let ok = 0;
+  // General arts + virtues live on the Pact Arts page as
+  //   '''Name''' - ''"quote"''  followed by "* mechanics" bullets.
+  const general = new Map<string, { desc: string; detail: string | null }>();
+  try {
+    const r = await j(`${API}?action=parse&format=json&prop=wikitext&page=Pact_Arts`);
+    const wt: string = r.parse?.wikitext?.["*"] ?? "";
+    // Only the current arts (not the "Legacy Pact Arts" archive section).
+    const current = wt.split(/==\s*Legacy Pact Arts\s*==/)[0] ?? wt;
+    const re = /'''(.+?)'''\s*-\s*''"?(.+?)"?''(?!')[^\n]*((?:\n\s*[*•][^\n]*)*)/g;
+    for (let m; (m = re.exec(current)); ) {
+      const bullets = (m[3] ?? "").split(/\n\s*[*•]\s*/).map(stripWiki).filter(Boolean);
+      // Prefer a bullet with a concrete number; skip "not yet tested" notes.
+      const concrete = bullets.find((b) => /\d/.test(b) && !/not yet (?:been )?tested|replaced/i.test(b))
+        ?? bullets.find((b) => !/not yet (?:been )?tested|replaced/i.test(b)) ?? null;
+      general.set(stripWiki(m[1]!), { desc: stripWiki(m[2]!), detail: concrete ? tidy(concrete) : null });
+    }
+  } catch { /* fall through: general arts get no text */ }
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]!;
+    const def = PACT_ARTS[key]!;
+    onProgress?.(i, keys.length, def.name);
+    let desc: string | null = null, detail: string | null = null;
+    const g = general.get(def.name);
+    if (g) {
+      desc = g.desc;
+      detail = g.detail;
+    } else if (def.slot.startsWith("passive")) {
+      try {
+        const ex = await pageExtract(def.name);
+        const ov = ex.match(/==+\s*Overview\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i)?.[1] ?? "";
+        desc = tidy(ov.replace(/^[\s\S]*?Passive Ability[^.]*\.\s*/i, ""));
+        const ad = ex.match(/==+\s*Ability Details\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i)?.[1] ?? "";
+        detail = tidy(ad);
+      } catch { /* leave empty */ }
+    }
+    out[key] = { ...def, desc, detail };
+    if (desc || detail) ok++; else unparsed.push(def.name);
+  }
+  onProgress?.(keys.length, keys.length, "done");
   await writeSorted(outPath, out);
   return { ok, archived: 0, unparsed };
 }
@@ -322,8 +462,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/tempers.json";
       const r = await buildTempers(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} temper effects (${r.unparsed.length} without effect).\n`);
+    } else if (kind === "pactarts") {
+      const out = process.argv[3] ?? "src/server/public/pactarts.json";
+      const r = await buildPactArts(out, bar);
+      process.stderr.write(`\nWrote ${out}: ${r.ok} pact arts with text (${r.unparsed.length} without: ${r.unparsed.join(", ")}).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|runes|weapons|pacts|tempers> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|runes|weapons|pacts|tempers|pactarts> [outPath]\n");
       process.exit(2);
     }
   };

@@ -1,0 +1,187 @@
+{
+  "Bromius/ArmourShatterInstinctSkill": {
+    "name": "Barkbare",
+    "slot": "passiveA",
+    "max": 4,
+    "desc": "Chance to steal Physical and Magick defense from Foes on strike, and grant it to oneself.",
+    "detail": "Barkbare grants most attacks a 10% Chance to steal Armour from the struck Foe, per rank invested in the Barkbare Pact Art. At max rank, the chance is 40%."
+  },
+  "Bromius/ReflectArmourlInstinctSkill": {
+    "name": "Canopy's Blessing",
+    "slot": "passiveB",
+    "max": 4,
+    "desc": "Reflects a small amount of damage blocked by armour back to the enemy.",
+    "detail": "When an Enemy strikes the Envoy, they will immediately suffer a portion of the Damage that was mitigated by the Envoy's Armour. Amount is 8% of Mitigated Damage per rank of the Canopy's Blessing Pact Art."
+  },
+  "Fencer/DodgeyDecoySkill": {
+    "name": "Chamariz",
+    "slot": "passiveA",
+    "max": 4,
+    "desc": "Dodges following a Perfect Dodge will leave behind clones of the Envoy, attracting enemy aggro for a number of seconds.",
+    "detail": "After a Perfect Dodge, the next [1 / 2 / 3 / 4] dodges will spawn a decoy that draws attention. Decoys last ~1 second."
+  },
+  "Fencer/HealthPotionMaxStackUpgradeSkill": {
+    "name": "Physic",
+    "slot": "physic",
+    "max": 2,
+    "desc": "Survival graces the well-prepared. Increase the amount of Life Elixirs you can carry.",
+    "detail": "Increases Life Elixir capacity by one per point invested."
+  },
+  "Fencer/PokeyPokeySkill": {
+    "name": "Olho por Olho",
+    "slot": "passiveB",
+    "max": 4,
+    "desc": "The next three hits after a dodge have a chance to inflict a Bleed proc upon damaged Foes.",
+    "detail": "Chance to apply a Bleed proc when attacking for the next successful melee hit/three successful ranged hits after Dodging. Chance scales with rank in the Olho por Olho Pact Art - The first hit has a 6% / 12% / 18% / 24% chance to inflict Bleed, and subsequent hits if applicable have a significantly lower chance."
+  },
+  "Fenn/FanTheFlamesInstinctSkill": {
+    "name": "Hungry Flame",
+    "slot": "passiveA",
+    "max": 4,
+    "desc": "Taking fire damage temporarily buffs the Envoy's Weapon Damage.",
+    "detail": "Taking Flame damage temporarily buffs the Envoy's Weapon damage. Activating Ember also triggers the buff."
+  },
+  "Fenn/SlowBoilInstinctSkill": {
+    "name": "Smolder",
+    "slot": "passiveB",
+    "max": 4,
+    "desc": "Targeted enemy takes ever-increasing tick damage and is eventually set on fire.",
+    "detail": "The target takes ever-increasing tick damage, and is eventually Ignited. Tick damage happens 4 seconds after targeting an Enemy."
+  },
+  "Fey/BirdTimeUpgradeSkill": {
+    "name": "Wingspan",
+    "slot": "wingspan",
+    "max": 2,
+    "desc": "When you fall, your Sparrow Soul has more time to return to your body.",
+    "detail": "Increases time until a fallen Envoy is forcibly revived at a Revive Shrine by 7 / 14 seconds depending on points invested."
+  },
+  "Fey/CourageVirtueUpgradeSkill": {
+    "name": "Mora's Pride",
+    "slot": "virtueTop",
+    "max": 3,
+    "virtue": "Courage",
+    "desc": "A pact under the red sun. Gain Courage.",
+    "detail": null
+  },
+  "Fey/FeySightInstinctSkill": {
+    "name": "Shrouded",
+    "slot": "passiveA",
+    "max": 4,
+    "desc": "Able to see enemies through walls whilst using Spectral Sight.",
+    "detail": "Detection range scales with points into Shrouded, but not with any virtue. Also detects fauna & teammates."
+  },
+  "Fey/FeyStealInstinctSkill": {
+    "name": "Pickpocket",
+    "slot": "passiveB",
+    "max": 4,
+    "desc": "Unalerted enemies drop loot if the Envoy stays next to them.",
+    "detail": "Once pickpocketed, an Enemy will no longer carry any loot to drop after its death. Additional points increase pickpocketing speed."
+  },
+  "Fey/GraceVirtueUpgradeSkill": {
+    "name": "Saphene's Gift",
+    "slot": "virtueMid",
+    "max": 3,
+    "virtue": "Grace",
+    "desc": "A pact under the blue sun. Gain Grace.",
+    "detail": null
+  },
+  "Fey/KillersHandInstinctSkill": {
+    "name": "Conquerer",
+    "slot": "passiveA",
+    "max": 4,
+    "desc": "Restores a small amount of Life with each foe slain.",
+    "detail": "Regain [25 / 30 / 40 / 60] Life per kill, scaling with points in the Conquerer Pact Art. Life restored is not affected by the Healer Art."
+  },
+  "Fey/LastStandInstinctSkill": {
+    "name": "Last Stand",
+    "slot": "passiveB",
+    "max": 4,
+    "desc": "Increased attack speed while below 45% Life.",
+    "detail": "Attack speed buff begins at +28% and increases by 8% per rank of the Last Stand Pact Art, reaching a maximum of +52% at Rank 4. Also benefits heavy attacks, throws, and Finishers."
+  },
+  "Fey/PreventDeathUpgradeSkill": {
+    "name": "Forestall",
+    "slot": "forestall",
+    "max": 2,
+    "desc": "Cheat death once more. Gain a chance to survive where otherwise you would die.",
+    "detail": null
+  },
+  "Fey/PreventStabilityBreakUpgradeSkill": {
+    "name": "Stalwart",
+    "slot": "stalwart",
+    "max": 2,
+    "desc": "Stand tall. Gain a chance to resist being knocked down.",
+    "detail": null
+  },
+  "Fey/SpiritVirtueUpgradeSkill": {
+    "name": "Iridis' Favour",
+    "slot": "virtueRight",
+    "max": 3,
+    "virtue": "Spirit",
+    "desc": "A pact under the green moon. Gain Spirit.",
+    "detail": null
+  },
+  "Fey/StabilityUpgradeSkill": {
+    "name": "Rooted",
+    "slot": "rooted",
+    "max": 4,
+    "desc": "Grounded by pact, your defence against Stagger is heightened.",
+    "detail": "Reduces Stagger damage taken by approximately 50% at max rank."
+  },
+  "Fey/StandingWaterInstinctSkill": {
+    "name": "Vernal Pool",
+    "slot": "passiveB",
+    "max": 4,
+    "desc": "Cooldown reduction for all abilities while standing in/on water.",
+    "detail": "Regenerates 1.5 / 3 / 4 / 5 'Cooldown Seconds' per Second while in water, depending on Rank of the Vernal Pool Pact Art. On Phantom Flock, the first Rank appears to be 2 Cooldown seconds per second."
+  },
+  "Fey/WardThornsInstinctSkill": {
+    "name": "Tendril",
+    "slot": "passiveA",
+    "max": 4,
+    "desc": "Chance to ensnare enemies who attack the Envoy, freezing them in place for several seconds.",
+    "detail": "Chance to ensnare is 6% per point spent in the Tendril Pact Art. Applies to any Enemy that the Envoy has Blocked, Parried, or taken Damage from."
+  },
+  "Garren/InstinctAUpgradeSkill": {
+    "name": "Healheart",
+    "slot": "passiveA",
+    "max": 4,
+    "desc": "Upon healing via Regain, Torment or Totems, gain an additional hidden charge for the equipped Rune which is revealed upon activation.",
+    "detail": "At any time, Heal any amount of lost Life via specific methods to renew the charge of the equipped Rune by approximately 50/70/95/110% of a single charge, scaling with points into the Healheart Pact Art. Note that the charge renewed by Healheart is invisible until the Rune is activated."
+  },
+  "Garren/InstinctBUpgradeSkill": {
+    "name": "Righteous",
+    "slot": "passiveB",
+    "max": 4,
+    "desc": "Reduces the base cooldown duration of the Behest arcanic.",
+    "detail": "Reduces the base cooldown duration of Behest by 7.5 Seconds per rank, up to a maximum of 30 Seconds."
+  },
+  "Ode/InstinctAUpgradeSkill": {
+    "name": "Lightning Strike",
+    "slot": "passiveA",
+    "max": 4,
+    "desc": "The first strike of a ground finisher deals an additional instance of damage.",
+    "detail": "Performing a Ground Finisher on a downed Foe will trigger an extra hit dealing 45/50/55/65 Voltaic Damage on the target and any nearby enemies. The extra hits are not Finishers, and will have their damage reduced by Enemy Armour accordingly."
+  },
+  "Ode/InstinctbUpgradeSkill": {
+    "name": "Gravitate",
+    "slot": "passiveB",
+    "max": 4,
+    "desc": "Kick whilst facing an enemy at range to grapple towards them, charging the Envoy's next melee or thrown attack with additional Voltaic damage.",
+    "detail": "Performing a Kick towards a Foe from up to ~14m away will grapple the Envoy towards the target, and grant an extra hit dealing 0/5/11/22 Voltaic damage on their next attack. Unlike other Pact-specific kicks, at least one point must be invested in the Gravitate Pact Art for the grapple to be performed."
+  },
+  "Wolf/WolfPackPassveUpgradeSkill": {
+    "name": "Soulbound",
+    "slot": "passiveB",
+    "max": 4,
+    "desc": "Weapon damage increased per nearby ally.",
+    "detail": "Damage increase scales with points into Soulbound. Increase per ally per Pact Art point invested: [2 / 3 / 4 / 5]."
+  },
+  "Wolf/WolfPassveUpgradeSkill": {
+    "name": "Feral",
+    "slot": "passiveA",
+    "max": 4,
+    "desc": "Orengall randomly appears to take down an enemy, killing them instantly before leaving.",
+    "detail": "Proc chance scales with points into the Feral Pact Art. Does not proc on bosses."
+  }
+}

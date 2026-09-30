@@ -28,19 +28,28 @@ export interface Joinery {
   code: string;
 }
 
+export interface TotemRef {
+  type: string;
+  /** In-game rank (fingerprint lvl + 1), or null if unranked. */
+  rank: number | null;
+}
+
 export interface SlotGear {
   /** Weapon/soul ItemType, or null when the slot is empty. */
   type: string | null;
   /** Rune ItemTypes installed in this slot's active config. */
   runes: string[];
-  /** Totem ItemTypes installed in this slot's active config. */
-  totems: string[];
+  /** Totems installed in this slot's active config, with their rank (lvl+1). */
+  totems: TotemRef[];
   /** Installed Joinery (weapons only), or null. */
   joinery: Joinery | null;
   /** Craftwork quality (raw IQ_* value; weapons only), or null. */
   craftwork: string | null;
   /** Temper mod tags on this weapon (AspectFingerprint.buffs). */
   tempers: string[];
+  /** Pact Arts allocation (Pact slot only): skill key ("Folder/Skill", the
+   *  ItemType after "/Pacts/") -> ranks allocated (0 = locked). */
+  arts?: Record<string, number> | null;
 }
 
 export interface Build {
@@ -69,6 +78,61 @@ interface GearInfo {
 }
 
 const EMPTY_SLOT: SlotGear = { type: null, runes: [], totems: [], joinery: null, craftwork: null, tempers: [] };
+
+/** Parse a totem/rune UpgradeFingerprint string for its level (0-based). */
+function fingerprintLvl(fp: unknown): number | null {
+  if (typeof fp !== "string") return null;
+  try {
+    const lvl = (JSON.parse(fp) as { lvl?: unknown }).lvl;
+    return typeof lvl === "number" ? lvl : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Pact ItemType leaf -> its SkillTrees leaf. Wyld variants share their base
+ *  Pact's tree. Anything unlisted falls back to "<Name>Soul" -> "<Name>PactSkillTree". */
+const SOUL_TREE: Record<string, string> = {
+  OdeSoul: "OdePactSkillTree",
+  StagSoul: "GarrenPactSkillTree",
+  WolfSoul: "WolfPactSkillTree",
+  BromiusSoul: "BromiusPactSkillTree",
+  FennSoul: "FennPactSkillTree",
+  FencerSoul: "FencerPactSkillTree",
+  ChampionSoul: "FeyChampionPactSkillTree",
+  PothiaSoul: "FeyChampionPactSkillTree",
+  WardSoul: "FeyWardPactSkillTree",
+  GaleneSoul: "FeyWardPactSkillTree",
+  SaboteurSoul: "FeySaboteurPactSkillTree",
+  JolsafarSoul: "FeySaboteurPactSkillTree",
+};
+
+/** SkillTrees -> { treeLeaf: { "Folder/Skill": level } } for the Pact trees. */
+export function parsePactArts(raw: unknown): Map<string, Record<string, number>> {
+  const out = new Map<string, Record<string, number>>();
+  const trees = (raw as Record<string, unknown> | null)?.SkillTrees;
+  if (!Array.isArray(trees)) return out;
+  for (const t of trees) {
+    const tree = t as { ItemType?: unknown; Skills?: unknown };
+    if (typeof tree.ItemType !== "string" || !tree.ItemType.endsWith("PactSkillTree")) continue;
+    const skills: Record<string, number> = {};
+    for (const sk of Array.isArray(tree.Skills) ? tree.Skills : []) {
+      const e = sk as { ItemType?: unknown; Level?: unknown };
+      if (typeof e.ItemType !== "string") continue;
+      const key = e.ItemType.split("/Pacts/")[1];
+      if (key) skills[key] = typeof e.Level === "number" && Number.isFinite(e.Level) ? e.Level : 0;
+    }
+    out.set(tree.ItemType.split("/").pop()!, skills);
+  }
+  return out;
+}
+
+/** The Pact Arts allocation for a Pact ItemType, or null if it has no tree. */
+function artsFor(soulType: string, trees: Map<string, Record<string, number>>): Record<string, number> | null {
+  const leaf = soulType.split("/").pop() ?? "";
+  const treeLeaf = SOUL_TREE[leaf] ?? leaf.replace(/Soul$/, "PactSkillTree");
+  return trees.get(treeLeaf) ?? null;
+}
 
 const VIRTUE: Record<string, string> = { C: "Courage", S: "Spirit", G: "Grace" };
 // Code family -> Joinery product. Verite/Quicksilver/Feybalt are weapon-type
@@ -126,15 +190,15 @@ function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
   return idx;
 }
 
-/** Installed-upgrade ItemId -> ItemType (Runes and Totems live here). */
-function upgradeIndex(raw: Record<string, unknown>): Map<string, string> {
-  const idx = new Map<string, string>();
+/** Installed-upgrade ItemId -> { ItemType, lvl } (Runes and Totems live here). */
+function upgradeIndex(raw: Record<string, unknown>): Map<string, { type: string; lvl: number | null }> {
+  const idx = new Map<string, { type: string; lvl: number | null }>();
   const list = raw.Upgrades;
   if (!Array.isArray(list)) return idx;
   for (const entry of list) {
-    const u = entry as { ItemId?: { $oid?: string }; ItemType?: string };
+    const u = entry as { ItemId?: { $oid?: string }; ItemType?: string; UpgradeFingerprint?: unknown };
     const oid = u?.ItemId?.$oid;
-    if (oid && typeof u.ItemType === "string") idx.set(oid, u.ItemType);
+    if (oid && typeof u.ItemType === "string") idx.set(oid, { type: u.ItemType, lvl: fingerprintLvl(u.UpgradeFingerprint) });
   }
   return idx;
 }
@@ -147,6 +211,7 @@ export function parseBuilds(raw: unknown): Build[] {
 
   const gear = gearIndex(record);
   const upgrades = upgradeIndex(record);
+  const trees = parsePactArts(record);
 
   const resolve = (slot: unknown): SlotGear => {
     const s = slot as Slot;
@@ -156,22 +221,24 @@ export function parseBuilds(raw: unknown): Build[] {
     if (!info) return { ...EMPTY_SLOT };
     const cfg = info.configs[typeof s.mod === "number" ? s.mod : 0] ?? info.configs[0] ?? [];
     const runes: string[] = [];
-    const totems: string[] = [];
+    const totems: TotemRef[] = [];
     for (const upId of cfg) {
-      const type = upgrades.get(upId);
-      if (!type) continue;
-      if (type.includes("/Upgrades/Runes/")) runes.push(type);
-      else if (type.includes("/Upgrades/Totems/")) totems.push(type);
+      const info = upgrades.get(upId);
+      if (!info) continue;
+      if (info.type.includes("/Upgrades/Runes/")) runes.push(info.type);
+      else if (info.type.includes("/Upgrades/Totems/")) totems.push({ type: info.type, rank: info.lvl != null ? info.lvl + 1 : null });
     }
     return { type: info.type, runes, totems, joinery: decodeJoinery(info.upgradeType), craftwork: info.craftwork, tempers: info.tempers };
   };
+
+  const withArts = (slot: SlotGear): SlotGear => (slot.type ? { ...slot, arts: artsFor(slot.type, trees) } : slot);
 
   return presets.map((p) => {
     const preset = p as Record<string, unknown>;
     return {
       name: typeof preset.n === "string" && preset.n ? preset.n : "Unnamed",
       favorite: preset.Favorite === true,
-      soul: resolve(preset.s),
+      soul: withArts(resolve(preset.s)),
       ranged: resolve(preset.l),
       melee: resolve(preset.m),
     };

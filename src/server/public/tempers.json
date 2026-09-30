@@ -1,103 +1,107 @@
 {
   "AerialAttackDamageAMod": {
     "name": "From Above",
-    "effect": "From Above causes Aerial Attacks to deal an additional 10 Damage.  When Double-Stacked, this bonus will be doubled to 20 Damage."
+    "effect": "From Above causes Aerial Attacks to deal an additional 10 Damage. When Double-Stacked, this bonus will be doubled to 20 Damage."
   },
   "AttackSpeedMod": {
     "name": "Swift Strike",
-    "effect": "Swift Strike increases the weapon's Attack Speed by 15%.  When Double-Stacked, this bonus will be doubled to 30%."
+    "effect": "Swift Strike increases the weapon's Attack Speed by 15%. When Double-Stacked, this bonus will be doubled to 30%."
   },
   "BlockingLessStaggerMod": {
     "name": "Fortified",
-    "effect": "Fortified reduces the amount of Stagger the Envoy receives upon Blocking attacks by Foes.  When Double-Stacked, Stagger reduction provided by Fortified will be doubled."
+    "effect": "Fortified reduces the amount of Stagger the Envoy receives upon Blocking attacks by Foes. When Double-Stacked, Stagger reduction provided by Fortified will be doubled."
   },
   "CassidDamageOnNearDeathMod": {
     "name": "Invader",
-    "effect": "Invader increases the Damage dealt to Foes with less than 30% Life by a TBD amount.  When Double-Stacked, this bonus will be doubled."
+    "effect": "Invader increases the Damage dealt to Foes with less than 30% Life by a TBD amount. When Double-Stacked, this bonus will be doubled."
   },
   "CassidDamageOnUndamagedMod": {
     "name": "First Strike",
-    "effect": "First Strike grants an additional 20 Damage against Foes who are at full Life.  When Double-Stacked, this bonus will be doubled to 40."
+    "effect": "First Strike grants an additional 20 Damage against Foes who are at full Life. When Double-Stacked, this bonus will be doubled to 40."
   },
   "CassidParryStaggerMod": {
     "name": "Clam's Foot",
-    "effect": "Clam's Foot causes Parries to deal additional Stagger to the parried Foe.  When Double-Stacked, the Stagger bonus will be doubled."
+    "effect": "Clam's Foot causes Parries to deal additional Stagger to the parried Foe. When Double-Stacked, the Stagger bonus will be doubled."
   },
   "CassidPoisonMod": {
     "name": "Sickness",
-    "effect": "Sickness grants all strikes a 10% chance to proc Poison status on hit.  When Double-Stacked, this bonus will be doubled to 20%."
+    "effect": "Sickness grants all strikes a 10% chance to proc Poison status on hit. When Double-Stacked, this bonus will be doubled to 20%."
+  },
+  "ChargeRateMod": {
+    "name": "Quick Draw",
+    "effect": "Increases Bow Charge Rate by ~12.5%. When Double-Stacked, this bonus will be doubled to ~25%."
   },
   "ConsecutiveAfterHeavyMod": {
     "name": "Follow Up",
-    "effect": "Consecutive light attacks following any Heavy Attack will accumulate bonus Damage by +7 Damage per hit, up to a maximum of +28 Damage on the final hit.  For example, the first follow-up strike will deal +7 Damage, the second will deal +14, the third +21, and the fourth +28."
+    "effect": "Consecutive light attacks following any Heavy Attack will accumulate bonus Damage by +7 Damage per hit, up to a maximum of +28 Damage on the final hit. For example, the first follow-up strike will deal +7 Damage, the second will deal +14, the third +21, and the fourth +28."
   },
   "CritChanceMod": {
     "name": "Sullying Force",
-    "effect": "Sullying Force grants the weapon an additional 3% chance to proc Smite.  When Double-Stacked, this bonus will be doubled to 6%."
+    "effect": "Sullying Force grants the weapon an additional 3% chance to proc Smite. When Double-Stacked, this bonus will be doubled to 6%."
   },
   "DamageNoSidearmMod": {
     "name": "Unencumbered",
-    "effect": "Unencumbered provides a consistent 14 Damage buff to the Weapon when the Envoy has no Sidearm equipped.  When Double-Stacked, this buff will be doubled to 28 Damage."
+    "effect": "Unencumbered provides a consistent 14 Damage buff to the Weapon when the Envoy has no Sidearm equipped. When Double-Stacked, this buff will be doubled to 28 Damage."
   },
   "DamageWhenFullHealthMod": {
     "name": "Hale and Hearty",
-    "effect": "Hale and Hearty causes attacks to deal an additional 12 Damage when the Envoy is at full Life.  When Double-Stacked, this bonus will be doubled to 24 Damage."
+    "effect": "Hale and Hearty causes attacks to deal an additional 12 Damage when the Envoy is at full Life. When Double-Stacked, this bonus will be doubled to 24 Damage."
   },
   "DeflectDamageMod": {
     "name": "Arcane Rebound",
-    "effect": "Arcane Rebound causes magick projectiles that are Deflected using Mirrorspell to deal ~20% more Damage.  When Double-Stacked, this damage bonus will be doubled to ~40%."
+    "effect": "Arcane Rebound causes magick projectiles that are Deflected using Mirrorspell to deal ~20% more Damage. When Double-Stacked, this damage bonus will be doubled to ~40%."
   },
   "DendritFireDamageMod": {
     "name": "Enkindled",
-    "effect": "Enkindled grants a 10% chance to proc the Ablaze status on hit.  When Double-Stacked, this bonus will be doubled to 20%."
+    "effect": "Enkindled grants a 10% chance to proc the Ablaze status on hit. When Double-Stacked, this bonus will be doubled to 20%."
   },
   "DendritHealOnKillMod": {
     "name": "Renewed Slayer",
-    "effect": "Renewed Slayer heals the Envoy by 5 Life per second for 4 seconds after slaying a Foe.  When Double-Stacked, the healing will be doubled to 10 Life per second, over the same 4-second duration."
+    "effect": "Renewed Slayer heals the Envoy by 5 Life per second for 4 seconds after slaying a Foe. When Double-Stacked, the healing will be doubled to 10 Life per second, over the same 4-second duration."
   },
   "DendritRegainDecayMod": {
     "name": "Well Woven",
-    "effect": "Well Woven doubles the amount of time Regain Potential (the yellow bar) remains stationary prior to decay.  As Regain Potential begins to decay after 5 Seconds by default, this results in a new total of 10 Seconds prior to decay."
+    "effect": "Well Woven doubles the amount of time Regain Potential (the yellow bar) remains stationary prior to decay. As Regain Potential begins to decay after 5 Seconds by default, this results in a new total of 10 Seconds prior to decay."
   },
   "DendritRegainMod": {
     "name": "Hunter's Relish",
-    "effect": "Hunter's Relish increases the amount of Life recovered from Regain Hits by +2% of Damage dealt.  As Regain Hits restore 20% of their Damage as Life by default, this results in a new total of 22% healing, up to the current Regain cap shown by the yellow bar."
+    "effect": "Hunter's Relish increases the amount of Life recovered from Regain Hits by +2% of Damage dealt. As Regain Hits restore 20% of their Damage as Life by default, this results in a new total of 22% healing, up to the current Regain cap shown by the yellow bar."
   },
   "DodgeAttackDamageMod": {
     "name": "Rejoinder",
-    "effect": "Rejoinder causes all Dodge Attacks, including Spectre Strikes, to deal 10 more base Damage before multipliers, and additional unknown stagger damage.  When Double-Stacked, this bonus will be doubled to 20."
+    "effect": "Rejoinder causes all Dodge Attacks, including Spectre Strikes, to deal 10 more base Damage before multipliers, and additional unknown stagger damage. When Double-Stacked, this bonus will be doubled to 20."
   },
   "DodgeFocusMod": {
     "name": "Grounding Spell",
-    "effect": "Grounding Spell Allows the Envoy to dodge once in any direction whilst keeping the Grounded pact art active.  When Double-Stacked The Envoy can dodge twice before disrupting Grounded."
+    "effect": "Grounding Spell Allows the Envoy to dodge once in any direction whilst keeping the Grounded pact art active. When Double-Stacked The Envoy can dodge twice before disrupting Grounded."
   },
   "FeyDuplicateProjMod": {
     "name": "Duplicate",
-    "effect": "Duplicate provides a 9% chance for projectile-based Magick attacks to be duplicated.  When Double-Stacked, the chance will be doubled to 18%."
+    "effect": "Duplicate provides a 9% chance for projectile-based Magick attacks to be duplicated. When Double-Stacked, the chance will be doubled to 18%."
   },
   "FeykinArcanicDamageMod": {
     "name": "Aftershock",
-    "effect": "Aftershock does not directly add any additional Damage to the weapon; it instead simply grants a 10% chance to proc the Arcanic status effect on each hit.  Arcanic Status deals 100% of the hit's damage over 2 ticks, for 50% damage per tick that are affected by Enemy Armour."
+    "effect": "Aftershock does not directly add any additional Damage to the weapon; it instead simply grants a 10% chance to proc the Arcanic status effect on each hit. Arcanic Status deals 100% of the hit's damage over 2 ticks, for 50% damage per tick that are affected by Enemy Armour."
   },
   "FeykinDamageToNearbyMod": {
     "name": "Sympathy Pang",
-    "effect": "Sympathy Pang deals 10% additional Damage to a nearby Foe on hit.  When Double-Stacked, this bonus will be doubled to 20%."
+    "effect": "Sympathy Pang deals 10% additional Damage to a nearby Foe on hit. When Double-Stacked, this bonus will be doubled to 20%."
   },
   "FocusedHeavyAttackDamageMod": {
     "name": "Conjuration",
-    "effect": "Conjuration increases heavy cast by +30 Damage when fully Grounded.  When Double-Stacked, this bonus will be doubled to +60 Damage."
+    "effect": "Conjuration increases heavy cast by +30 Damage when fully Grounded. When Double-Stacked, this bonus will be doubled to +60 Damage."
   },
   "HeavyAttackDamageAndStaggerMod": {
     "name": "Full Force",
-    "effect": "Full Force increases Heavy Attack Damage by 15.  It also increases Stagger damage."
+    "effect": "Full Force increases Heavy Attack Damage by 15. It also increases Stagger damage."
   },
   "HeavyAttackWindUpMod": {
     "name": "Breakneck",
-    "effect": "Breakneck increases Heavy Attack Charge rate by 15%.  This also includes Rune activation, as it shares the Heavy Attack animation."
+    "effect": "Breakneck increases Heavy Attack Charge rate by 15%. This also includes Rune activation, as it shares the Heavy Attack animation."
   },
   "HeavyCastWindUpMod": {
     "name": "Arcane Alacrity",
-    "effect": "Arcane Alacrity increases Heavy Attack Charge rate by 10%.  This also includes Rune activation, as it shares the Heavy Cast animation."
+    "effect": "Arcane Alacrity increases Heavy Attack Charge rate by 10%. This also includes Rune activation, as it shares the Heavy Cast animation."
   },
   "LegShotMod": {
     "name": "Severed Root",
@@ -105,62 +109,62 @@
   },
   "MagickHeavyAttackDamageAndStaggerMod": {
     "name": "Arcane Barrage",
-    "effect": "Arcane Barrage causes Heavy Casts to deal an additional 10 Damage, and ??? additional Stagger.  When Double-Stacked, this bonus will be doubled to 20."
+    "effect": "Arcane Barrage causes Heavy Casts to deal an additional 10 Damage. When Double-Stacked, this bonus will be doubled to 20."
   },
   "MendicantBleedDamageMod": {
     "name": "Savagery",
-    "effect": "Savagery grants attacks a 10% chance to proc the Bleed status on hit.  Bleeding Foes take Damage-over-time equal to 20% the attack's damage each tick, for 5 ticks."
+    "effect": "Savagery grants attacks a 10% chance to proc the Bleed status on hit. Bleeding Foes take Damage-over-time equal to 20% the attack's damage each tick, for 5 ticks."
   },
   "MendicantFearMod": {
     "name": "Unnerving Blow",
-    "effect": "Unnerving Blow provides a X% (Currently unknown) chance on hit to inflict the Fear status.  When Double-Stacked, this chance will be doubled."
+    "effect": "Unnerving Blow provides a X% chance on hit to inflict the Fear status. When Double-Stacked, this chance will be doubled."
   },
   "MendicantFearThrowMod": {
     "name": "Sinister Volley",
-    "effect": "Sinister Volley provides a X% (Currently unknown) chance to inflict the Fear status on a Foe struck by a Thrown attack.  When Double-Stacked, this chance will be doubled."
+    "effect": "Sinister Volley provides a X% chance to inflict the Fear status on a Foe struck by a Thrown attack. When Double-Stacked, this chance will be doubled."
   },
   "MendicantWeaknessMod": {
     "name": "Hollowed",
-    "effect": "Hollowed grants 10% chance on hit to reduces the amount of Damage the Envoy will receive from a Foe by 20% for 8 seconds.  When Double-Stacked, the chance will be doubled for a total of 20% chance."
+    "effect": "Hollowed grants 10% chance on hit to reduces the amount of Damage the Envoy will receive from a Foe by 20% for 8 seconds. When Double-Stacked, the chance will be doubled for a total of 20% chance."
   },
   "OdeReduceDefenseMod": {
     "name": "Bypass",
-    "effect": "The first strike against a foe will reduce Enemy Armour by 10.  When Double-Stacked, this reduction increases to 20."
+    "effect": "The first strike against a foe will reduce Enemy Armour by 10. When Double-Stacked, this reduction increases to 20."
   },
   "OdeStaggerToKnockdownMod": {
     "name": "Slinger's Tempo",
-    "effect": "Upon Staggering a Foe, Slinger's Tempo grants a 10% chance to instead send them into a full knockdown state.  This will allow the Envoy to perform a Ground Finisher instead of a regular Finisher."
+    "effect": "Upon Staggering a Foe, Slinger's Tempo grants a 10% chance to instead send them into a full knockdown state. This will allow the Envoy to perform a Ground Finisher instead of a regular Finisher."
   },
   "OdeVoltaicDamageMod": {
     "name": "Galvanic Strike",
-    "effect": "Despite its in-game description, Galvanic Strike does not add any additional Damage to the weapon.  It instead simply grants a 10% chance to proc the Voltaic status effect on each hit."
+    "effect": "Despite its in-game description, Galvanic Strike does not add any additional Damage to the weapon. It instead simply grants a 10% chance to proc the Voltaic status effect on each hit."
   },
   "ParryWindowMod": {
     "name": "Heightened Parry",
-    "effect": "Heightened Parry increases Parry Window.  When Double-Stacked, this bonus will be doubled."
+    "effect": "Heightened Parry increases Parry Window. When Double-Stacked, this bonus will be doubled."
   },
   "RiposteDamageMod": {
     "name": "Vengeance",
-    "effect": "Vengeance grants 15 additional Damage when executing a Riposte, prior to the weapon's Riposte Multiplier.  When Double-Stacked, this bonus will be doubled to 30."
+    "effect": "Vengeance grants 15 additional Damage when executing a Riposte, prior to the weapon's Riposte Multiplier. When Double-Stacked, this bonus will be doubled to 30."
   },
   "ShatterDamageMod": {
     "name": "Rupture",
-    "effect": "Rupture increases the Damage dealt by embedded arrows that are splintered by the Splinter Combat Art by 8 damage, and also increases the Stagger damage dealt by bows.  It is unconfirmed whether the Stagger damage applies to all shots, or just to Splinter."
+    "effect": "Rupture increases the Damage dealt by embedded arrows that are splintered by the Splinter Combat Art by 8 damage, and also increases the Stagger damage dealt by bows. It is unconfirmed whether the Stagger damage applies to all shots, or just to Splinter."
   },
   "SprintAttackDamageMod": {
     "name": "Bounding Swipe",
-    "effect": "Bounding Swipe causes Sprint Attacks to deal an additional 12 Damage, and ??? more Stagger.  When Double-Stacked, this bonus will be doubled to 24 Damage and ??? Stagger."
+    "effect": "Bounding Swipe causes Sprint Attacks to deal an additional 12 Damage. When Double-Stacked, this bonus will be doubled to 24 Damage."
   },
   "StaggerCritMod": {
     "name": "Cowp",
-    "effect": "Cowp grants a 10% chance for the amount of Stagger dealt by a Weapon attack to be doubled.  When Double-Stacked, the chance to proc this effect will be doubled to 20%."
+    "effect": "Cowp grants a 10% chance for the amount of Stagger dealt by a Weapon attack to be doubled. When Double-Stacked, the chance to proc this effect will be doubled to 20%."
   },
   "StaggerMod": {
     "name": "Swooning Blow",
-    "effect": "Swooning Blow causes hits to deal an additional 12 Stagger Damage.  When Double-Stacked, this bonus will be doubled to 24."
+    "effect": "Swooning Blow causes hits to deal an additional 12 Stagger Damage. When Double-Stacked, this bonus will be doubled to 24."
   },
   "ThrowSpeedMod": {
     "name": "Streamlined",
-    "effect": "Streamlined increases a Melee weapon's Throw Speed by 20%.  When Double-Stacked, this bonus will be doubled to 40%."
+    "effect": "Streamlined increases a Melee weapon's Throw Speed by 20%. When Double-Stacked, this bonus will be doubled to 40%."
   }
 }
