@@ -1,0 +1,5 @@
+Cinzel (c) The Cinzel Project Authors (Natanael Gama)
+Alegreya Sans (c) The Alegreya Sans Project Authors (Juan Pablo del Peral, Huerta Tipografica)
+
+Both are licensed under the SIL Open Font License, Version 1.1:
+https://openfontlicense.org
