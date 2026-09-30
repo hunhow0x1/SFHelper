@@ -31,6 +31,10 @@
     "name": "Follow Up",
     "effect": "Consecutive light attacks following any Heavy Attack will accumulate bonus Damage by +7 Damage per hit, up to a maximum of +28 Damage on the final hit.  For example, the first follow-up strike will deal +7 Damage, the second will deal +14, the third +21, and the fourth +28."
   },
+  "CritChanceMod": {
+    "name": "Sullying Force",
+    "effect": "Sullying Force grants the weapon an additional 3% chance to proc Smite.  When Double-Stacked, this bonus will be doubled to 6%."
+  },
   "DamageNoSidearmMod": {
     "name": "Unencumbered",
     "effect": "Unencumbered provides a consistent 14 Damage buff to the Weapon when the Envoy has no Sidearm equipped.  When Double-Stacked, this buff will be doubled to 28 Damage."
@@ -85,7 +89,7 @@
   },
   "HeavyAttackDamageAndStaggerMod": {
     "name": "Full Force",
-    "effect": "Full Force increases Heavy Attack Damage by 15.  It also increases Stagger damage by an unknown amount."
+    "effect": "Full Force increases Heavy Attack Damage by 15.  It also increases Stagger damage."
   },
   "HeavyAttackWindUpMod": {
     "name": "Breakneck",
@@ -133,7 +137,7 @@
   },
   "ParryWindowMod": {
     "name": "Heightened Parry",
-    "effect": "Heightened Parry increases Parry Window by an unknown amount.  When Double-Stacked, this bonus will be doubled."
+    "effect": "Heightened Parry increases Parry Window.  When Double-Stacked, this bonus will be doubled."
   },
   "RiposteDamageMod": {
     "name": "Vengeance",

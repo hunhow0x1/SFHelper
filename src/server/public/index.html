@@ -301,15 +301,23 @@
       const $ = (id) => document.getElementById(id);
       const fmt = (n) => (typeof n === "number" ? n.toLocaleString() : "—");
 
-      // Tabs
+      // Tabs. The active tab is remembered so a data refresh or the post-import
+      // window reload doesn't bounce you back to Overview.
+      function activateTab(name) {
+        if (!document.getElementById("panel-" + name)) return;
+        document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x.dataset.tab === name));
+        document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === "panel-" + name));
+      }
       document.querySelectorAll(".tab").forEach((t) => {
         t.addEventListener("click", () => {
-          document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x === t));
-          document.querySelectorAll(".panel").forEach((p) =>
-            p.classList.toggle("active", p.id === "panel-" + t.dataset.tab),
-          );
+          activateTab(t.dataset.tab);
+          try { localStorage.setItem("sfhelper.tab", t.dataset.tab); } catch {}
         });
       });
+      try {
+        const savedTab = localStorage.getItem("sfhelper.tab");
+        if (savedTab) activateTab(savedTab);
+      } catch {}
 
       // In-game display names, loaded from /names.json. Until an entry exists
       // for an item, we fall back to a cleaned-up path segment.

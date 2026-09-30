@@ -189,6 +189,7 @@ const TEMPER_NAME: Record<string, string> = {
   CassidParryStaggerMod: "Clam's Foot",
   CassidPoisonMod: "Sickness",
   ConsecutiveAfterHeavyMod: "Follow Up",
+  CritChanceMod: "Sullying Force", // Smite chance (Soulframe's crit mechanic)
   DamageNoSidearmMod: "Unencumbered",
   DamageWhenFullHealthMod: "Hale and Hearty",
   DeflectDamageMod: "Arcane Rebound",
@@ -232,7 +233,13 @@ function temperEffect(extract: string): string | null {
     const ov = extract.match(/==+\s*Overview\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i);
     t = ov ? ov[1]!.replace(/^[\s\S]*?Temper[^.]*\.\s*/i, "") : "";
   }
-  t = t.replace(/\s+/g, " ").replace(/\s+%/g, "%").trim();
+  t = t
+    .replace(/\s+/g, " ")
+    .replace(/\s+%/g, "%")
+    // Drop the wiki's "unknown amount" placeholder clauses so they don't surface.
+    .replace(/\s+by an unknown amount/gi, "")
+    .replace(/\s+by an unspecified amount/gi, "")
+    .trim();
   // Keep it concise: first 1-2 sentences.
   const sentences = t.match(/[^.]*\.(?:\s|$)/g);
   if (sentences) t = sentences.slice(0, 2).join(" ").trim();
