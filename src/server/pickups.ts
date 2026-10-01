@@ -14,18 +14,28 @@
  *  Only "pickup" entries belong in the Picked-up Weapons list.
  *
  *  Moonsteel is the game's "Shiny" item flag; see moonsteelOf() in weapons.ts.
+ *
+ *  `at` is when the import noticed the weapon, which trails the real pickup by
+ *  the game's sync delay. `when` is the real time: from the game log when the
+ *  pickup is in the current session's log, else the server time in the ItemId.
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import type { AcquisitionContext, WeaponInstance } from "./weapons";
+import { logPickupTimes, objectIdTime } from "./gameLog";
 
 export type PickupSource = "pickup" | "crafted" | "purchased";
 
 export interface Pickup extends WeaponInstance {
   /** ISO time the weapon was first seen in the inventory. */
   at: string;
+  /** ISO time it was actually acquired (see whenSource). */
+  when?: string;
+  /** Where `when` came from: the game log (exact), the ItemId's server
+   *  timestamp (when the game synced it), or neither (falls back to `at`). */
+  whenSource?: "log" | "server" | "import";
   /** How it was acquired (absent on entries recorded before classification). */
   source?: PickupSource;
 }
@@ -90,6 +100,43 @@ function blueprintFor(weaponKey: string, blueprints: string[]): string | null {
   }) ?? null;
 }
 
+/** Fill in `when` for entries that have not been timed yet (new ones, and
+ *  entries recorded before timing existed). Each entry is resolved once: the
+ *  log already holds a pickup by the time the server has the weapon. */
+async function resolveTimes(history: Pickup[]): Promise<boolean> {
+  const pending = history.filter((p) => !p.whenSource);
+  if (!pending.length) return false;
+  // Log events already assigned to earlier entries must not be reused.
+  const taken = new Map<string, Set<number>>();
+  for (const p of history) {
+    if (p.whenSource !== "log" || !p.when) continue;
+    const leaf = p.key.split("/").pop()!;
+    if (!taken.has(leaf)) taken.set(leaf, new Set());
+    taken.get(leaf)!.add(Date.parse(p.when));
+  }
+  let fromLog = new Map<string, number>();
+  try {
+    fromLog = await logPickupTimes(pending.filter((p) => p.id).map((p) => ({ id: p.id!, key: p.key })), taken);
+  } catch {
+    // The log is a bonus; never let it break pickup tracking.
+  }
+  for (const p of pending) {
+    const logged = p.id ? fromLog.get(p.id) : undefined;
+    const synced = objectIdTime(p.id);
+    if (logged !== undefined) {
+      p.when = new Date(logged).toISOString();
+      p.whenSource = "log";
+    } else if (synced !== null) {
+      p.when = new Date(synced).toISOString();
+      p.whenSource = "server";
+    } else {
+      p.when = p.at;
+      p.whenSource = "import";
+    }
+  }
+  return true;
+}
+
 /** Diff the current instances against what we've seen; record new ones. Returns
  *  the full history (newest first), every source included. */
 export async function recordPickups(instances: WeaponInstance[], ctx: AcquisitionContext): Promise<Pickup[]> {
@@ -128,6 +175,7 @@ export async function recordPickups(instances: WeaponInstance[], ctx: Acquisitio
     if (entry.moonsteel) moonsteel.push(entry);
     changed = true;
   }
+  if (await resolveTimes(s.history)) changed = true;
   // Always roll the context forward so the next diff compares adjacent imports.
   const ctxChanged = JSON.stringify(prev) !== JSON.stringify(ctx);
   s.last = ctx;

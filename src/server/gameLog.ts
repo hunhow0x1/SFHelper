@@ -1,0 +1,205 @@
+/** Exact weapon pickup times from the game's own log (EE.log). Read-only.
+ *
+ *  A new weapon only reaches the server inventory when the game next syncs, so
+ *  the inventory diff can be minutes late. The game logs the moment itself:
+ *  picking a weapon up logs
+ *      "Set owner called multiple times on item <WeaponLeaf>"
+ *  and, about a second later, loads that weapon's acquired-toast icon
+ *      "ResourceLoader ... (/SF/Interface/Graphics/StoreItems/Weapons/<Icon>.png)".
+ *  The owner line also appears when a weapon on the ground is hovered or one is
+ *  equipped, so only an owner line followed shortly by an icon load counts as
+ *  an acquisition; a bare owner line is a weaker fallback.
+ *
+ *  Log times are seconds since launch; the header's "Current time ... [UTC: ...]"
+ *  line anchors them. EE.log is rewritten every launch, so only the current
+ *  session's pickups can be timed this way. Older ones fall back to the time
+ *  embedded in the weapon's ItemId (a MongoDB ObjectId stamped when the server
+ *  created the item, i.e. the sync time).
+ */
+
+import { createReadStream } from "node:fs";
+import { readdir, readFile, stat } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
+import { createInterface } from "node:readline";
+
+/** An icon load counts as an acquisition if an owner line preceded it this closely. */
+const ICON_AFTER_OWNER_S = 4;
+/** Allowed clock skew between this machine (log) and the server (ItemId time). */
+const SKEW_MS = 60_000;
+/** How far before the sync a pickup can plausibly have happened. */
+const MAX_SYNC_LAG_MS = 6 * 3600_000;
+
+const LOG_TAIL = join("pfx", "drive_c", "users", "steamuser", "AppData", "Local", "Soulframe", "EE.log");
+
+/** Steam library roots (native and Flatpak installs, plus extra library folders). */
+async function steamLibraries(): Promise<string[]> {
+  const home = homedir();
+  const roots = [
+    join(home, ".local", "share", "Steam"),
+    join(home, ".steam", "steam"),
+    join(home, ".var", "app", "com.valvesoftware.Steam", ".local", "share", "Steam"),
+  ];
+  const libs = new Set<string>(roots);
+  for (const root of roots) {
+    try {
+      const vdf = await readFile(join(root, "steamapps", "libraryfolders.vdf"), "utf8");
+      for (const m of vdf.matchAll(/"path"\s+"([^"]+)"/g)) libs.add(m[1]!.replace(/\\\\/g, "\\"));
+    } catch {
+      // No Steam here.
+    }
+  }
+  return [...libs];
+}
+
+/** Candidate EE.log locations; the most recently written one wins. */
+async function findLog(): Promise<string | null> {
+  const candidates: string[] = [];
+  if (process.env.LOCALAPPDATA) candidates.push(join(process.env.LOCALAPPDATA, "Soulframe", "EE.log"));
+  for (const lib of await steamLibraries()) {
+    const compat = join(lib, "steamapps", "compatdata");
+    try {
+      for (const id of await readdir(compat)) candidates.push(join(compat, id, LOG_TAIL));
+    } catch {
+      // No Proton prefixes in this library.
+    }
+  }
+  let best: { path: string; mtime: number } | null = null;
+  for (const path of candidates) {
+    try {
+      const s = await stat(path);
+      if (!best || s.mtimeMs > best.mtime) best = { path, mtime: s.mtimeMs };
+    } catch {
+      // Not here.
+    }
+  }
+  return best?.path ?? null;
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "Thu Oct  1 17:19:03 2026" (UTC) -> epoch ms. */
+function parseUtc(s: string): number | null {
+  const m = /^\w{3}\s+(\w{3})\s+(\d{1,2})\s+(\d{2}):(\d{2}):(\d{2})\s+(\d{4})$/.exec(s.trim());
+  if (!m) return null;
+  const mon = MONTHS.indexOf(m[1]!);
+  if (mon < 0) return null;
+  return Date.UTC(Number(m[6]), mon, Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5]));
+}
+
+interface LogEvents {
+  /** Epoch ms the log's clock starts at. */
+  start: number;
+  /** Owner line followed by an icon load: weapon leaf -> times (epoch ms, ascending). */
+  acquired: Map<string, number[]>;
+  /** Every owner line: weapon leaf -> times (epoch ms, ascending). */
+  owner: Map<string, number[]>;
+}
+
+const OWNER_RE = /^(\d+\.\d+) .*Set owner called multiple times on item (\S+)/;
+const ICON_RE = /^(\d+\.\d+) .*ResourceLoader \S+ \(\/SF\/Interface\/Graphics\/StoreItems\/Weapons\//;
+const START_RE = /Current time: .*\[UTC: (.+)\]/;
+
+async function readEvents(path: string): Promise<LogEvents | null> {
+  let start: number | null = null;
+  const acquired = new Map<string, number[]>();
+  const owner = new Map<string, number[]>();
+  let lastOwner: { t: number; leaf: string } | null = null;
+  const push = (m: Map<string, number[]>, k: string, v: number) => {
+    const a = m.get(k);
+    if (a) a.push(v);
+    else m.set(k, [v]);
+  };
+
+  const lines = createInterface({ input: createReadStream(path, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
+  try {
+    for await (const line of lines) {
+      if (start === null) {
+        const h = START_RE.exec(line);
+        if (h) start = parseUtc(h[1]!);
+        continue;
+      }
+      // Cheap substring checks first: the log can be very large.
+      if (line.includes("Set owner called")) {
+        const m = OWNER_RE.exec(line);
+        if (!m) continue;
+        const t = start + Math.round(Number(m[1]) * 1000);
+        lastOwner = { t, leaf: m[2]! };
+        push(owner, m[2]!, t);
+      } else if (line.includes("StoreItems/Weapons/") && line.includes("ResourceLoader")) {
+        const m = ICON_RE.exec(line);
+        if (!m || !lastOwner) continue;
+        const t = start + Math.round(Number(m[1]) * 1000);
+        if (t - lastOwner.t <= ICON_AFTER_OWNER_S * 1000) {
+          push(acquired, lastOwner.leaf, t);
+          lastOwner = null; // one icon per acquisition
+        }
+      }
+    }
+  } catch {
+    return null;
+  } finally {
+    lines.close();
+  }
+  return start === null ? null : { start, acquired, owner };
+}
+
+/** Server creation time embedded in a 24-hex ObjectId, or null. */
+export function objectIdTime(id: string | null | undefined): number | null {
+  if (!id || !/^[0-9a-f]{24}$/i.test(id)) return null;
+  const secs = parseInt(id.slice(0, 8), 16);
+  return secs > 0 ? secs * 1000 : null;
+}
+
+export interface TimedWeapon {
+  id: string;
+  key: string;
+}
+
+/** Pickup times from the current game log for the given weapons (id -> epoch
+ *  ms). Weapons with no matching log event are left out. `taken` holds times
+ *  already assigned to other weapons, per leaf, so one event is never reused. */
+export async function logPickupTimes(
+  weapons: TimedWeapon[],
+  taken: Map<string, Set<number>> = new Map(),
+): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  const wanted = weapons
+    .map((w) => ({ ...w, leaf: w.key.split("/").pop()!, synced: objectIdTime(w.id) }))
+    .filter((w): w is typeof w & { synced: number } => w.synced !== null)
+    .sort((a, b) => a.synced - b.synced);
+  if (!wanted.length) return out;
+
+  const path = await findLog();
+  if (!path) return out;
+  const ev = await readEvents(path);
+  if (!ev) return out;
+
+  const used = (leaf: string) => {
+    let s = taken.get(leaf);
+    if (!s) taken.set(leaf, (s = new Set()));
+    return s;
+  };
+  // Latest unused event for this leaf that precedes the sync.
+  const pick = (times: number[] | undefined, leaf: string, synced: number): number | null => {
+    if (!times) return null;
+    const u = used(leaf);
+    for (let i = times.length - 1; i >= 0; i--) {
+      const t = times[i]!;
+      if (t > synced + SKEW_MS) continue;
+      if (t < synced - MAX_SYNC_LAG_MS) break;
+      // Skip a used time, and an owner line belonging to an already-used pickup.
+      if (!u.has(t) && ![...u].some((x) => x >= t && x - t <= ICON_AFTER_OWNER_S * 1000)) return t;
+    }
+    return null;
+  };
+
+  for (const w of wanted) {
+    if (w.synced + SKEW_MS < ev.start) continue; // synced before this log began
+    const t = pick(ev.acquired.get(w.leaf), w.leaf, w.synced) ?? pick(ev.owner.get(w.leaf), w.leaf, w.synced);
+    if (t === null) continue;
+    used(w.leaf).add(t);
+    out.set(w.id, t);
+  }
+  return out;
+}

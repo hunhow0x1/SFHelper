@@ -16,6 +16,7 @@ import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
 import { getInventory } from "./inventory";
 import { recordPickups } from "./pickups";
+import { getSettings, updateSettings } from "./settings";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -132,6 +133,22 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     return;
   }
 
+  // App preferences (e.g. the Moonsteel notification toggle).
+  if (url.pathname === "/api/settings" && req.method === "GET") {
+    sendJson(res, 200, await getSettings());
+    return;
+  }
+  if (url.pathname === "/api/settings" && req.method === "POST") {
+    let body = "";
+    for await (const chunk of req) body += chunk;
+    try {
+      sendJson(res, 200, await updateSettings(JSON.parse(body || "{}") as Record<string, unknown>));
+    } catch {
+      sendJson(res, 400, { error: "Invalid request." });
+    }
+    return;
+  }
+
   if (url.pathname === "/api/profile") {
     const accountId = url.searchParams.get("accountId") ?? "";
     if (!ACCOUNT_ID_RE.test(accountId)) {
@@ -175,7 +192,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         weapons, // [{ key, xp, slot, craftwork, tempers }] for the leveling tracker
         pacts, // [{ key, xp }] owned pacts (souls) for the leveling tracker
         temperProgress: inventory?.temperProgress ?? [], // Tuvalkane temper learning
-        pickups, // [{ key, craftwork, tempers, xp, at }] weapon pickup history
+        pickups, // [{ key, craftwork, tempers, xp, at, when, whenSource }] weapon pickup history
         builds: inventory?.builds ?? [],
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,

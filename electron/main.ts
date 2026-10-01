@@ -20,6 +20,7 @@ import { readConsent, recordConsent, ACK_PHRASE } from "../helper/consent";
 import { importInventory } from "../helper/run";
 import { startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
+import { getSettings } from "../src/server/settings";
 import { buildTotems, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -102,9 +103,11 @@ const CRAFTWORK_NAME: Record<string, string> = {
 };
 
 /** Desktop notification (with the system sound) for a new Moonsteel weapon.
- *  Clicking it brings SFHelper forward on the Pickups tab. */
+ *  Clicking it brings SFHelper forward on the Pickups tab. Off when the user
+ *  has turned the toggle on the Pickups tab off. */
 async function notifyMoonsteel(p: Pickup): Promise<void> {
   if (!Notification.isSupported()) return;
+  if (!(await getSettings()).moonsteelNotify) return;
   const name = await displayName(p.key);
   const craft = (p.craftwork && CRAFTWORK_NAME[p.craftwork]) || "";
   const how = p.source === "crafted" ? "crafted" : p.source === "purchased" ? "bought" : "picked up";
