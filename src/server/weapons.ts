@@ -101,6 +101,26 @@ export interface WeaponInstance {
   craftwork: string | null;
   tempers: string[];
   xp: number;
+  /** Rare Moonsteel cosmetic roll (the game calls it "Shiny" internally). */
+  moonsteel: boolean;
+  /** Unrecognised raw fields on this entry (diagnostics for new flags). */
+  extra?: Record<string, unknown>;
+}
+
+// Fields every weapon entry is known to carry. Anything else on a new pickup is
+// kept for diagnosis - that's how an unseen flag (e.g. Moonsteel) would surface.
+const KNOWN_WEAPON_KEYS = new Set([
+  "ItemType", "ItemId", "Configs", "XP", "Quality", "AspectType", "AspectFingerprint",
+  "UpgradeType", "UpgradeFingerprint", "UpgradeVer", "IgnoreBinCount", "TitleType", "Features",
+]);
+
+/** Moonsteel: the game's item field is "Shiny" (mShiny in the client). Accept
+ *  any truthy shiny/moonsteel-named field, on the item or its fingerprint. */
+function moonsteelOf(e: Record<string, unknown>): boolean {
+  const truthy = (o: unknown) =>
+    !!o && typeof o === "object" &&
+    Object.entries(o as Record<string, unknown>).some(([k, v]) => /shiny|moonsteel/i.test(k) && !!v && v !== "0");
+  return truthy(e) || truthy(e.AspectFingerprint);
 }
 
 const WEAPON_BUCKETS: OwnedWeapon["slot"][] = ["Melee", "LongGuns", "Pistols"];
@@ -117,16 +137,58 @@ export function parseWeaponInstances(raw: unknown): WeaponInstance[] {
       const e = entry as { ItemType?: string; XP?: unknown; Quality?: unknown; AspectFingerprint?: unknown; ItemId?: { $oid?: string } };
       const id = e.ItemId?.$oid;
       if (!id || typeof e.ItemType !== "string") continue;
+      const extra = Object.keys(e).filter((k) => !KNOWN_WEAPON_KEYS.has(k));
       out.push({
         id,
         key: e.ItemType,
         craftwork: craftworkOf(e),
         tempers: tempersOf(e),
         xp: typeof e.XP === "number" && Number.isFinite(e.XP) ? e.XP : 0,
+        moonsteel: moonsteelOf(e as Record<string, unknown>),
+        ...(extra.length ? { extra: Object.fromEntries(extra.map((k) => [k, (e as Record<string, unknown>)[k]])) } : {}),
       });
     }
   }
   return out;
+}
+
+/** What the account could have spent to make or buy a weapon, so the pickup
+ *  tracker can tell crafted / purchased weapons from ones picked up off the
+ *  ground. Weapon fragments are blueprint counts in Recipes; crafting spends
+ *  them (and may queue in PendingRecipes). Vendor buys bump NumPurchased. */
+export interface AcquisitionContext {
+  /** Weapon blueprint leaf -> fragment count. */
+  blueprints: Record<string, number>;
+  /** Weapon blueprint leaves currently queued for crafting. */
+  pending: string[];
+  /** Sum of NumPurchased across vendors that can sell weapons. */
+  vendorPurchases: number;
+}
+export function parseAcquisitionContext(raw: unknown): AcquisitionContext {
+  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const leaf = (t: string) => t.split("/").pop() ?? t;
+  const blueprints: Record<string, number> = {};
+  for (const x of Array.isArray(r.Recipes) ? r.Recipes : []) {
+    const e = x as { ItemType?: unknown; ItemCount?: unknown };
+    if (typeof e.ItemType === "string" && e.ItemType.includes("/Recipes/Weapons/"))
+      blueprints[leaf(e.ItemType)] = typeof e.ItemCount === "number" ? e.ItemCount : 0;
+  }
+  const pending = (Array.isArray(r.PendingRecipes) ? r.PendingRecipes : [])
+    .map((x) => (x as { ItemType?: unknown }).ItemType)
+    .filter((t): t is string => typeof t === "string" && t.includes("/Recipes/Weapons/"))
+    .map(leaf);
+  let vendorPurchases = 0;
+  for (const v of Array.isArray(r.RecentVendorPurchases) ? r.RecentVendorPurchases : []) {
+    // Avakot sells premium goods (Moonsteel Thread, Chordstones...), never
+    // weapons; counting it would misfile a real pickup made in the same window.
+    const vt = (v as { VendorType?: unknown }).VendorType;
+    if (typeof vt === "string" && /Avakot/i.test(vt)) continue;
+    for (const h of (v as { PurchaseHistory?: unknown }).PurchaseHistory as unknown[] ?? []) {
+      const n = (h as { NumPurchased?: unknown }).NumPurchased;
+      if (typeof n === "number") vendorPurchases += n;
+    }
+  }
+  return { blueprints, pending, vendorPurchases };
 }
 
 export function parseWeapons(raw: unknown): OwnedWeapon[] {

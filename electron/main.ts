@@ -12,13 +12,14 @@
  *  All per-user state lives under Electron's userData dir (SFHELPER_HOME).
  */
 
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, Notification } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import { readConsent, recordConsent, ACK_PHRASE } from "../helper/consent";
 import { importInventory } from "../helper/run";
 import { startServer, type RunningServer } from "../src/server/server";
+import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { buildTotems, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -79,6 +80,52 @@ async function importFromMemory(): Promise<void> {
 
 const REIMPORT_INTERVAL_MS = 120_000; // re-scan for new pickups / progress every 2 min
 
+/** In-game display name for an ItemType, from the bundled names.json (keyed by
+ *  full path or leaf); falls back to a cleaned-up leaf. */
+let itemNames: Record<string, string> | null = null;
+async function displayName(itemType: string): Promise<string> {
+  if (!itemNames) {
+    try {
+      itemNames = (JSON.parse(await readFile(join(HERE, "public", "names.json"), "utf8")) as { items?: Record<string, string> }).items ?? {};
+    } catch {
+      itemNames = {};
+    }
+  }
+  const leaf = itemType.split("/").pop() ?? itemType;
+  return itemNames[itemType] ?? itemNames[leaf] ??
+    leaf.replace(/(RangedMeleeWeapon|MeleeWeapon|RangedWeapon|Weapon)$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
+const CRAFTWORK_NAME: Record<string, string> = {
+  IQ_WORN: "Stock", IQ_MILITARY: "Military", IQ_OFFICER: "Officer",
+  IQ_NOBLE: "Noble", IQ_MASTERWORK: "Sovereign", IQ_LEGENDARY: "Legendary",
+};
+
+/** Desktop notification (with the system sound) for a new Moonsteel weapon.
+ *  Clicking it brings SFHelper forward on the Pickups tab. */
+async function notifyMoonsteel(p: Pickup): Promise<void> {
+  if (!Notification.isSupported()) return;
+  const name = await displayName(p.key);
+  const craft = (p.craftwork && CRAFTWORK_NAME[p.craftwork]) || "";
+  const how = p.source === "crafted" ? "crafted" : p.source === "purchased" ? "bought" : "picked up";
+  const n = new Notification({
+    title: `✦ Moonsteel ${name}!`,
+    body: `You ${how} a Moonsteel ${name}${craft ? ` (${craft})` : ""}.`,
+    silent: false,
+  });
+  n.on("click", () => {
+    if (!mainWindow) return;
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    void mainWindow.webContents.executeJavaScript(
+      `typeof activateTab === "function" && activateTab("pickups")`,
+    );
+  });
+  n.show();
+  log(`Moonsteel ${name} acquired (${p.source ?? "pickup"}).`);
+}
+
 function createMainWindow(url: string): void {
   mainWindow = new BrowserWindow({
     width: 1180,
@@ -96,6 +143,7 @@ async function proceed(): Promise<void> {
   process.env.SFHELPER_DATA_DIR = DATA_DIR;
   process.env.SFHELPER_INVENTORY = INVENTORY_PATH;
 
+  onMoonsteelAcquired((p) => void notifyMoonsteel(p));
   server = await startServer(0); // 0 = an OS-assigned free port
   createMainWindow(server.url);
 
@@ -149,6 +197,9 @@ app.on("window-all-closed", () => {
 });
 
 async function boot(): Promise<void> {
+  // Windows only shows toasts for apps with an App User Model ID (matches the
+  // installer's appId).
+  if (process.platform === "win32") app.setAppUserModelId("com.hunhow0x1.sfhelper");
   await app.whenReady();
   const consent = await readConsent(CONSENT_PATH);
   if (!consent?.acknowledged) {

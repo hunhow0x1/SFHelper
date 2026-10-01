@@ -16,7 +16,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { snapshotFromExport } from "../account/providers/jsonImport";
 import { parseBuilds, type Build } from "./loadouts";
-import { parseWeapons, parsePacts, parseTemperProgress, parseWeaponInstances, type OwnedWeapon, type OwnedPact, type TemperProgress, type WeaponInstance } from "./weapons";
+import { parseWeapons, parsePacts, parseTemperProgress, parseWeaponInstances, parseAcquisitionContext, type AcquisitionContext, type OwnedWeapon, type OwnedPact, type TemperProgress, type WeaponInstance } from "./weapons";
 
 const CANDIDATES = [
   process.env.SFHELPER_INVENTORY,
@@ -39,6 +39,7 @@ export interface InventoryView {
   pacts: OwnedPact[];
   temperProgress: TemperProgress[];
   weaponInstances: WeaponInstance[];
+  acquisition: AcquisitionContext;
   source: string;
   /** File mtime, so the dashboard can say how fresh the inventory is. */
   updatedAt: string;
@@ -70,6 +71,7 @@ export async function getInventory(): Promise<InventoryView | null> {
         pacts: parsePacts(raw),
         temperProgress: parseTemperProgress(raw),
         weaponInstances: parseWeaponInstances(raw),
+        acquisition: parseAcquisitionContext(raw),
         source: path,
         updatedAt: new Date(mtimeMs).toISOString(),
       };

@@ -160,7 +160,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
           .map((it) => ({ key: it.key, xp: it.rank ?? 0 }));
       // Picked-up-weapon history (inventory diff by ItemId). Only when we have a
       // real inventory to diff against.
-      const pickups = inventory ? await recordPickups(inventory.weaponInstances) : [];
+      const pickups = inventory ? await recordPickups(inventory.weaponInstances, inventory.acquisition) : [];
       sendJson(res, 200, {
         account: snap.account,
         level: PlayerLevel ?? null,
