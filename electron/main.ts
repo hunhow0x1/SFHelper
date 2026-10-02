@@ -21,7 +21,7 @@ import { importInventory } from "../helper/run";
 import { startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
-import { buildTotems, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts } from "../scripts/build_data";
+import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -43,15 +43,16 @@ async function refreshData(): Promise<void> {
   try {
     await mkdir(DATA_DIR, { recursive: true });
     log("Refreshing totem/rune/weapon/pact/temper/pact-art data…");
-    const [t, r, w, p, tp, pa] = await Promise.all([
+    const [t, r, w, p, tp, pa, td] = await Promise.all([
       buildTotems(join(DATA_DIR, "totems.json")),
       buildRunes(join(DATA_DIR, "runes.json")),
       buildWeapons(join(DATA_DIR, "weapons.json")),
       buildPacts(join(DATA_DIR, "pacts.json")),
       buildTempers(join(DATA_DIR, "tempers.json")),
       buildPactArts(join(DATA_DIR, "pactarts.json")),
+      buildTotemData(join(DATA_DIR, "totemdata.json")),
     ]);
-    log(`Data updated: ${t.ok} totems, ${r.ok} runes, ${w.ok} weapons, ${p.ok} pacts, ${tp.ok} tempers, ${pa.ok} pact arts.`);
+    log(`Data updated: ${t.ok} totems, ${r.ok} runes, ${w.ok} weapons, ${p.ok} pacts, ${tp.ok} tempers, ${pa.ok} pact arts, ${td.ok} totem cards.`);
   } catch (err) {
     log(`Effect data refresh failed (using bundled data): ${(err as Error).message}`);
   }

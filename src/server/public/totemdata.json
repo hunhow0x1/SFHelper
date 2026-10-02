@@ -1,0 +1,646 @@
+{
+  "Arcanic Gnaws": {
+    "animal": "Rat",
+    "enhances": "Smite Proc",
+    "description": "Just a nibble",
+    "effect": "Increases Arcanic damage by +$1 on Smite",
+    "base": [
+      [
+        "5",
+        "15",
+        "20",
+        "25"
+      ]
+    ],
+    "grip": [
+      [
+        "10",
+        "20",
+        "25",
+        "30"
+      ]
+    ]
+  },
+  "Armour Coat": {
+    "animal": "Beaver",
+    "enhances": "Runes (Passive)",
+    "description": "Sheltered by thick hide",
+    "effect": "Increase Physical Armour by +$1 per Rune Charge",
+    "base": [
+      [
+        "2",
+        "2",
+        "3",
+        "3"
+      ]
+    ],
+    "grip": [
+      [
+        "3",
+        "3",
+        "4",
+        "5"
+      ]
+    ]
+  },
+  "Bandicota Blast": {
+    "animal": "Rat",
+    "enhances": "Smite Proc",
+    "description": "Small and stout",
+    "effect": "Smite creates a blast that Staggers and deals +$1 Stagger damage to nearby enemies",
+    "base": [
+      [
+        "100",
+        "125",
+        "150",
+        "200"
+      ]
+    ],
+    "grip": [
+      [
+        "125",
+        "150",
+        "175",
+        "225"
+      ]
+    ]
+  },
+  "Binky Kick": {
+    "animal": "Rabbit",
+    "enhances": "Pull Smite",
+    "description": "Swift thud by rabbit foot",
+    "effect": "Pull Smite causes a +$1 damage explosion $2 m around the Envoy",
+    "base": [
+      [
+        "50",
+        "75",
+        "100",
+        "125"
+      ],
+      [
+        "4",
+        "5",
+        "6",
+        "7"
+      ]
+    ],
+    "grip": [
+      [
+        "75",
+        "100",
+        "125",
+        "150"
+      ],
+      [
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  "Blinding Bite": {
+    "animal": "Squirrel",
+    "enhances": "Smite Proc",
+    "description": "Shining luster in buck teeth",
+    "effect": "Creates a bright flash that blinds foes within a $1 m radius on Smite",
+    "base": [
+      [
+        "8",
+        "8",
+        "8",
+        "8"
+      ]
+    ],
+    "grip": [
+      [
+        "8",
+        "8",
+        "8",
+        "8"
+      ]
+    ]
+  },
+  "Cervid Ward": {
+    "animal": "Fawn",
+    "enhances": "Runes (Passive)",
+    "description": "Protection of cloven hoof",
+    "effect": "Increase Magick Armour by +$1 per Rune Charge",
+    "base": [
+      [
+        "2",
+        "2",
+        "3",
+        "3"
+      ]
+    ],
+    "grip": [
+      [
+        "3",
+        "3",
+        "4",
+        "5"
+      ]
+    ]
+  },
+  "Dabble Dredge": {
+    "animal": "Duck",
+    "enhances": "Pull Smite",
+    "description": "Squirming prey, freshly caught",
+    "effect": "Restore +$1 Life on Pull Smite",
+    "base": [
+      [
+        "50",
+        "125",
+        "175",
+        "200"
+      ]
+    ],
+    "grip": [
+      [
+        "75",
+        "100",
+        "175",
+        "250"
+      ]
+    ]
+  },
+  "Dewclawer": {
+    "animal": "Rabbit",
+    "enhances": "Runes (Passive)",
+    "description": "Soft paw, fierce claw",
+    "effect": "Runes deal $1 % additional damage",
+    "base": [
+      [
+        "5",
+        "8",
+        "10",
+        "15"
+      ]
+    ],
+    "grip": [
+      [
+        "8",
+        "10",
+        "15",
+        "23"
+      ]
+    ]
+  },
+  "Diving Drake": {
+    "animal": "Duck",
+    "enhances": "Pull Smite",
+    "description": "Dredged from the mud",
+    "effect": "Pull Smite deals +$1 additional damage",
+    "base": [
+      [
+        "30",
+        "50",
+        "80",
+        "100"
+      ]
+    ],
+    "grip": [
+      [
+        "50",
+        "100",
+        "125",
+        "150"
+      ]
+    ]
+  },
+  "Draft Dam": {
+    "animal": "Beaver",
+    "enhances": "Rune Activation",
+    "description": "Restraining current's flow",
+    "effect": "Reduce Rune drain by $1 %",
+    "base": [
+      [
+        "10",
+        "15",
+        "20",
+        "25"
+      ]
+    ],
+    "grip": [
+      [
+        "15",
+        null,
+        "25",
+        "35"
+      ]
+    ]
+  },
+  "Far Foul": {
+    "animal": "Duck",
+    "enhances": "Pull Smite",
+    "description": "Within feather's reach",
+    "effect": "Increase Pull Smite Range by +$1 m",
+    "base": [
+      [
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    ],
+    "grip": [
+      [
+        "3",
+        "4",
+        "6",
+        "8"
+      ]
+    ]
+  },
+  "Hare Harms": {
+    "animal": "Rabbit",
+    "enhances": "Pull Smite",
+    "description": "Tremors 'neath rabbit foot",
+    "effect": "Pull Smite causes +$1 damage explosion $2 m around the Enemy",
+    "base": [
+      [
+        "30",
+        "40",
+        "50",
+        "80"
+      ],
+      [
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    ],
+    "grip": [
+      [
+        "50",
+        "75",
+        "100",
+        "125"
+      ],
+      [
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    ]
+  },
+  "Heal Preens": {
+    "animal": "Duck",
+    "enhances": "Pull Smite",
+    "description": "A flock alight in rippling waves",
+    "effect": "Heals all allies within $1 m for +$2 Life on Pull Smite",
+    "base": [
+      [
+        "8",
+        "10",
+        "12",
+        "15"
+      ],
+      [
+        "50",
+        "75",
+        "100",
+        "125"
+      ]
+    ],
+    "grip": [
+      [
+        "8",
+        "10",
+        "12",
+        "15"
+      ],
+      [
+        "50",
+        "100",
+        "125",
+        "150"
+      ]
+    ]
+  },
+  "Hollowed Herd": {
+    "animal": "Fawn",
+    "enhances": "Pull Smite",
+    "description": "No fawn grazes alone",
+    "effect": "Create a Decoy for $1 seconds on Pull Smite",
+    "base": [
+      [
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    ],
+    "grip": [
+      [
+        "2",
+        "4",
+        "6",
+        "8"
+      ]
+    ]
+  },
+  "Lingering Litter": {
+    "animal": "Rat",
+    "enhances": "Smite Proc",
+    "description": "Tracked by beady eyes",
+    "effect": "Increase Smite duration by +$1 seconds",
+    "base": [
+      [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    ],
+    "grip": [
+      [
+        "2",
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  "Moving Musk": {
+    "animal": "Fawn",
+    "enhances": "Pull Smite",
+    "description": "The scent of fearful prey",
+    "effect": "Drag enemies towards the Envoy on Pull Smite dealing +$1 damage",
+    "base": [
+      [
+        "20",
+        "40",
+        "60",
+        "80"
+      ]
+    ],
+    "grip": [
+      [
+        "30",
+        "60",
+        "90",
+        "120"
+      ]
+    ]
+  },
+  "Noble Nestling": {
+    "animal": "Rat",
+    "enhances": "Pull Smite",
+    "description": "Beady dignity",
+    "effect": "Buff Virtue $1 % associated with enemy soul colour on Pull Smite",
+    "base": [
+      [
+        "5",
+        "8",
+        "10",
+        "12"
+      ]
+    ],
+    "grip": [
+      [
+        "5",
+        "10",
+        "12",
+        "15"
+      ]
+    ]
+  },
+  "Quick Drey": {
+    "animal": "Squirrel",
+    "enhances": "Pull Smite",
+    "description": "Razor-quick from nest's embrace",
+    "effect": "Increase attack speed by $1 % on Pull Smite",
+    "base": [
+      [
+        "10",
+        "12",
+        "14",
+        "16"
+      ]
+    ],
+    "grip": [
+      [
+        "10",
+        "12",
+        "14",
+        "16"
+      ]
+    ]
+  },
+  "Rivers Revive": {
+    "animal": "Beaver",
+    "enhances": "Rune Activation",
+    "description": "Mended by webbed paw",
+    "effect": "Restore +$1 Life per second for $2 seconds upon unleashing a Rune",
+    "base": [
+      [
+        "15",
+        "16",
+        "18",
+        "20"
+      ],
+      [
+        "8",
+        "8",
+        "8",
+        "8"
+      ]
+    ],
+    "grip": [
+      [
+        "15",
+        "18",
+        "23",
+        "30"
+      ],
+      [
+        "6",
+        "6",
+        "6",
+        "6"
+      ]
+    ]
+  },
+  "Smiting Stag": {
+    "animal": "Fawn",
+    "enhances": "Runes (Passive)",
+    "description": "Charged forth in bone wreath",
+    "effect": "Increase Smite Chance by $1 % per Rune Charge",
+    "base": [
+      [
+        "0.5",
+        "1",
+        "1.5",
+        "2"
+      ]
+    ],
+    "grip": [
+      [
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  "Spreading Sploot": {
+    "animal": "Squirrel",
+    "enhances": "Pull Smite",
+    "description": "Unfurled and ready",
+    "effect": "$1 % chance to Smite another enemy within $2 m of Pull Smite",
+    "base": [
+      [
+        "10",
+        "12.5",
+        "16.7",
+        "20"
+      ],
+      [
+        "5",
+        "6",
+        "6",
+        "7"
+      ]
+    ],
+    "grip": [
+      [
+        "12.5",
+        "14.3",
+        "20",
+        "25"
+      ],
+      [
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    ]
+  },
+  "Sprout Spring": {
+    "animal": "Rabbit",
+    "enhances": "Pull Smite",
+    "description": "One field feeds many",
+    "effect": "Effects of Pull Smite has a $1 % chance of spreading to all allies",
+    "base": [
+      [
+        "20",
+        "33.3",
+        "33.3",
+        "50"
+      ]
+    ],
+    "grip": [
+      [
+        "20",
+        "33.3",
+        "33.3",
+        "50"
+      ]
+    ]
+  },
+  "Stocky Lodge": {
+    "animal": "Beaver",
+    "enhances": "Rune Activation",
+    "description": "Tough of tooth and paw",
+    "effect": "+$1 Armour upon unleashing Rune",
+    "base": [
+      [
+        "12",
+        "15",
+        "18",
+        "22"
+      ]
+    ],
+    "grip": [
+      [
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  "Thunder Tail": {
+    "animal": "Beaver",
+    "enhances": "Rune Activation",
+    "description": "Laid low by flat tail",
+    "effect": "Unleashing a Rune deals +$1 Stagger damage within $2 m",
+    "base": [
+      [
+        "70",
+        "90",
+        "110",
+        "130"
+      ],
+      [
+        "5",
+        "6",
+        "8",
+        "10"
+      ]
+    ],
+    "grip": [
+      [
+        "80",
+        "100",
+        "120",
+        "150"
+      ],
+      [
+        "5",
+        "8",
+        "10",
+        "12"
+      ]
+    ]
+  },
+  "Turn Tusk": {
+    "animal": "Fawn",
+    "enhances": "Pull Smite",
+    "description": "Mesmerized by tail's flick",
+    "effect": "Temporarily turn enemies into allies for $1 seconds on Pull Smite",
+    "base": [
+      [
+        "2",
+        "3",
+        "3",
+        "4"
+      ]
+    ],
+    "grip": [
+      [
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    ]
+  },
+  "Voltaic Scurry": {
+    "animal": "Squirrel",
+    "enhances": "Smite Proc",
+    "description": "Lightning quick pitter-patter",
+    "effect": "Increase Voltaic Damage by +$1 on Smitten enemies",
+    "base": [
+      [
+        "5",
+        "15",
+        "20",
+        "25"
+      ]
+    ],
+    "grip": [
+      [
+        "10",
+        "20",
+        "25",
+        "35"
+      ]
+    ]
+  }
+}

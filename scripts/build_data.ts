@@ -432,6 +432,56 @@ export async function buildRunes(outPath: string, onProgress?: ProgressFn): Prom
   return { ok, archived, unparsed };
 }
 
+export interface TotemData {
+  animal: string;
+  /** What fires the effect: "Runes (Passive)", "Rune Activation", "Pull Smite", "Smite Proc". */
+  enhances: string;
+  description: string;
+  /** Effect template with $1, $2... placeholders. */
+  effect: string;
+  /** Per placeholder, the value at ranks 1-4. */
+  base: string[][];
+  /** Same, for grip-aligned (Combat Art) copies; null where the wiki doesn't know it. */
+  grip: (string | null)[][];
+}
+
+/** "5/8/10/15,4/5/6/7" -> [["5","8","10","15"],["4","5","6","7"]]; unknowns ("-", "?", "X") -> null. */
+const statGroups = (s: string): (string | null)[][] =>
+  s.split(",").map((g) => g.split("/").map((v) => (/^[\d.]+$/.test(v.trim()) ? v.trim() : null)));
+
+/** Build totemdata.json from the wiki's Module:Data/Totems (the data behind its
+ *  totem cards): animal, trigger, effect template and per-rank stats, including
+ *  the stronger values a grip-aligned totem gets. */
+export async function buildTotemData(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
+  onProgress?.(0, 1, "Module:Data/Totems");
+  const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Totems")}&prop=wikitext&format=json`);
+  const lua: string = r.parse?.wikitext?.["*"] ?? "";
+  const out: Record<string, TotemData> = {};
+  const unparsed: string[] = [];
+  // Each entry: ["Name"] = { ...fields..., bonuses = { effect = "" }, stats = { base = "", gripBonusBase = "" } }
+  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s{4}\}/g)) {
+    const name = m[1]!;
+    const f: Record<string, string> = {};
+    for (const kv of m[2]!.matchAll(/(\w+)\s*=\s*"((?:[^"\\]|\\.)*)"/g)) f[kv[1]!] = kv[2]!.replace(/\\"/g, '"');
+    if (!f.Animal || !f.effect || !f.base) { unparsed.push(name); continue; }
+    const base = statGroups(f.base);
+    if (base.some((g) => g.some((v) => v === null))) { unparsed.push(name); continue; }
+    out[name] = {
+      animal: f.Animal,
+      enhances: f.Enhances ?? "",
+      description: f.description ?? "",
+      effect: f.effect,
+      base: base as string[][],
+      grip: f.gripBonusBase ? statGroups(f.gripBonusBase) : base,
+    };
+  }
+  onProgress?.(1, 1, "done");
+  // Never replace good data with nothing if the module's format changes.
+  if (Object.keys(out).length < 10) throw new Error(`Module:Data/Totems parsed only ${Object.keys(out).length} totems`);
+  await writeSorted(outPath, out);
+  return { ok: Object.keys(out).length, unparsed };
+}
+
 // CLI: tsx scripts/build_data.ts <totems|runes> [outPath]
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const kind = process.argv[2];
@@ -462,12 +512,16 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/tempers.json";
       const r = await buildTempers(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} temper effects (${r.unparsed.length} without effect).\n`);
+    } else if (kind === "totemdata") {
+      const out = process.argv[3] ?? "src/server/public/totemdata.json";
+      const r = await buildTotemData(out, bar);
+      process.stderr.write(`\nWrote ${out}: ${r.ok} totems (${r.unparsed.length} unparsed: ${r.unparsed.join(", ")}).\n`);
     } else if (kind === "pactarts") {
       const out = process.argv[3] ?? "src/server/public/pactarts.json";
       const r = await buildPactArts(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} pact arts with text (${r.unparsed.length} without: ${r.unparsed.join(", ")}).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|runes|weapons|pacts|tempers|pactarts> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|runes|weapons|pacts|tempers|pactarts> [outPath]\n");
       process.exit(2);
     }
   };

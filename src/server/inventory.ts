@@ -16,6 +16,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { snapshotFromExport } from "../account/providers/jsonImport";
 import { parseBuilds, type Build } from "./loadouts";
+import { parseTotems, type OwnedTotem } from "./totems";
 import { parseWeapons, parsePacts, parseTemperProgress, parseWeaponInstances, parseAcquisitionContext, type AcquisitionContext, type OwnedWeapon, type OwnedPact, type TemperProgress, type WeaponInstance } from "./weapons";
 
 const CANDIDATES = [
@@ -38,6 +39,7 @@ export interface InventoryView {
   weapons: OwnedWeapon[];
   pacts: OwnedPact[];
   temperProgress: TemperProgress[];
+  totems: OwnedTotem[];
   weaponInstances: WeaponInstance[];
   acquisition: AcquisitionContext;
   source: string;
@@ -70,6 +72,7 @@ export async function getInventory(): Promise<InventoryView | null> {
         weapons: parseWeapons(raw),
         pacts: parsePacts(raw),
         temperProgress: parseTemperProgress(raw),
+        totems: parseTotems(raw),
         weaponInstances: parseWeaponInstances(raw),
         acquisition: parseAcquisitionContext(raw),
         source: path,

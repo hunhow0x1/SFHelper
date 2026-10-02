@@ -194,6 +194,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         temperProgress: inventory?.temperProgress ?? [], // Tuvalkane temper learning
         pickups, // [{ key, craftwork, tempers, xp, at, when, whenSource }] weapon pickup history
         builds: inventory?.builds ?? [],
+        totems: inventory?.totems ?? null, // [{ id, type, rank, virtue, grip, equippedOn }] owned totems
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,
       });

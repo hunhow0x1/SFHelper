@@ -65,7 +65,7 @@ interface Slot {
   mod?: number;
 }
 
-interface GearInfo {
+export interface GearInfo {
   type: string;
   /** Per-config lists of upgrade ItemIds (Configs[i].Upgrades). */
   configs: string[][];
@@ -161,7 +161,7 @@ function decodeJoinery(upgradeType: string | undefined): Joinery | null {
 }
 
 /** ItemId -> { ItemType, per-config upgrade id lists } for every gear item. */
-function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
+export function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
   const idx = new Map<string, GearInfo>();
   for (const cat of ["Suits", "Melee", "LongGuns", "Pistols", "OperatorAmps"]) {
     const list = raw[cat];
