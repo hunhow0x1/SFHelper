@@ -43,7 +43,10 @@ interface ProfileResult {
   DailyAffiliationOde?: number;
 }
 
-/** Standing earned today toward the daily caps; both reset at 00:00 UTC. */
+/** Daily standing cap still AVAILABLE today (not earned), for the standard
+ *  factions and for the Ode. Matches 16,000 + 500 x player level when nothing
+ *  has been earned yet. Both reset at 00:00 UTC. Per-faction earnings are
+ *  tracked separately (server/standing.ts). */
 export interface DailyStanding {
   affiliation: number | null;
   affiliationOde: number | null;

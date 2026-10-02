@@ -17,6 +17,7 @@ import { getNames } from "./names";
 import { getInventory } from "./inventory";
 import { recordPickups } from "./pickups";
 import { getSettings, updateSettings } from "./settings";
+import { recordStanding, dailyCaps } from "./standing";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -178,6 +179,26 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
       // Picked-up-weapon history (inventory diff by ItemId). Only when we have a
       // real inventory to diff against.
       const pickups = inventory ? await recordPickups(inventory.weaponInstances, inventory.acquisition) : [];
+      // Standing earned since the daily reset, per faction (tracked over time).
+      const standingNow: Record<string, number> = {};
+      for (const p of snap.progression) {
+        if (p.kind === "affiliation" && typeof p.xp === "number") standingNow[p.key.replace(/^affiliation:/, "")] = p.xp;
+      }
+      const standingToday = Object.keys(standingNow).length ? await recordStanding(standingNow) : null;
+      // Remaining daily caps: the profile's, or the inventory's if it was read
+      // since today's reset and has counted down further.
+      const lowest = (a: number | null, b: number | null | undefined) =>
+        a == null ? (b ?? null) : b == null ? a : Math.min(a, b);
+      const resetMs = Date.parse(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
+      const invDaily = inventory && Date.parse(inventory.updatedAt) >= resetMs ? inventory.daily : null;
+      const caps = dailyCaps(
+        PlayerLevel ?? null,
+        {
+          affiliation: lowest(snap.daily.affiliation, invDaily?.affiliation),
+          affiliationOde: lowest(snap.daily.affiliationOde, invDaily?.affiliationOde),
+        },
+        standingToday,
+      );
       sendJson(res, 200, {
         account: snap.account,
         level: PlayerLevel ?? null,
@@ -187,6 +208,8 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         progression: snap.progression,
         stats: snap.stats,
         daily: snap.daily,
+        standingToday, // { since, exact, total, factions: { Tag: earned } } since 00:00 UTC
+        dailyCaps: caps, // { cap, remaining, odeCap, odeRemaining, earned, exact }
         currencies: inventory ? inventory.currencies : profileCurrencies,
         owned: Object.fromEntries(ownedCounts), // ItemType -> owned count (for tokens, etc.)
         weapons, // [{ key, xp, slot, craftwork, tempers }] for the leveling tracker

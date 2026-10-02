@@ -40,6 +40,8 @@ export interface InventoryView {
   pacts: OwnedPact[];
   temperProgress: TemperProgress[];
   totems: OwnedTotem[];
+  /** Remaining daily standing caps from the game's own inventory copy. */
+  daily: { affiliation: number | null; affiliationOde: number | null };
   weaponInstances: WeaponInstance[];
   acquisition: AcquisitionContext;
   source: string;
@@ -73,6 +75,10 @@ export async function getInventory(): Promise<InventoryView | null> {
         pacts: parsePacts(raw),
         temperProgress: parseTemperProgress(raw),
         totems: parseTotems(raw),
+        daily: {
+          affiliation: typeof raw.DailyAffiliation === "number" ? raw.DailyAffiliation : null,
+          affiliationOde: typeof raw.DailyAffiliationOde === "number" ? raw.DailyAffiliationOde : null,
+        },
         weaponInstances: parseWeaponInstances(raw),
         acquisition: parseAcquisitionContext(raw),
         source: path,

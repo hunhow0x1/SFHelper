@@ -160,6 +160,8 @@
       .row { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-items: baseline; }
       .row .label { font-weight: 500; font-size: 15.5px; }
       .row .val { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+      .row .label .today { white-space: nowrap; margin-left: 12px; font-weight: 500; font-size: 13.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+      .row .label .today.up { color: var(--accent-2); }
       .bar {
         grid-column: 1 / -1; height: 6px; background: var(--bar-bg); border-radius: 1px; overflow: hidden;
         box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(201, 165, 92, 0.08);
@@ -186,6 +188,20 @@
       }
       .stat .n { font: 600 23px/1.2 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums; }
       .stat .l { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.14em; margin-top: 4px; }
+      .stat .s { color: var(--faint); font-size: 13px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+      .stat .n .of { color: var(--faint); font: 500 14px/1 var(--body); letter-spacing: 0; margin-left: 4px; }
+      .stat .bar { height: 4px; margin-top: 10px; }
+      .standtiles { margin-bottom: 26px; }
+      .standtiles { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+      .standtiles .stat .l { margin: 0 0 8px; white-space: nowrap; }
+      @media (max-width: 640px) {
+        .standtiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .standtiles .stat { padding: 12px 14px; }
+        .standtiles .stat .n { font-size: 19px; }
+        .standtiles .stat .n .of { display: block; margin: 4px 0 0; }
+        .standtiles .stat .l { white-space: normal; min-height: 2.9em; }
+        .row .label .today { display: block; margin: 2px 0 0; }
+      }
 
       /* ---- Tables (stats) -------------------------------------------------- */
       table { width: 100%; border-collapse: collapse; }
@@ -229,6 +245,23 @@
       .wsearch { width: 100%; min-width: 0; margin-bottom: 18px; }
       .xpgroup { margin-bottom: 30px; }
       .xpgroup:last-child { margin-bottom: 0; }
+      /* Weapon classes flow into balanced columns; a class never splits. */
+      #weapons { columns: 3 300px; column-gap: 40px; }
+      #weapons .xpgroup { break-inside: avoid; margin-bottom: 26px; }
+      /* One type selected: its rows flow across all the columns instead. */
+      #weapons.single .xpgroup { break-inside: auto; }
+      #weapons.single .xpgroup h3.wclass { column-span: all; }
+      #weapons .wrow2 { break-inside: avoid; }
+      #weaponTypeFilter { gap: 8px; margin-top: -4px; }
+      #weaponTypeFilter .fchip { padding: 6px 12px; }
+      #weaponTypeFilter .fchip .n { color: var(--faint); font: 500 12px/1 var(--body); letter-spacing: 0; margin-left: 6px; }
+      #weaponTypeFilter .fchip.active .n { color: rgba(27, 20, 11, 0.65); }
+      #weapons .xpgroup h3.wclass { font-size: 16px; margin-bottom: 10px; }
+      #weapons .rows, #tempers { gap: 10px; }
+      #weapons .row .label, #tempers .row .label { font-size: 15px; }
+      #weapons .cw { margin-left: 6px; }
+      #tempers { display: block; columns: 3 240px; column-gap: 40px; }
+      #tempers .row { break-inside: avoid; margin-bottom: 12px; }
       .xpgroup h3.wclass {
         display: flex; align-items: baseline; gap: 10px;
         font: 600 18px/1.2 var(--display); letter-spacing: 0.08em; color: var(--accent-hi);
@@ -443,7 +476,7 @@
         <button class="tab active" data-tab="overview">Overview</button>
         <button class="tab" data-tab="loadouts">Loadouts</button>
         <button class="tab" data-tab="weapons">Weapons &amp; Pacts</button>
-        <button class="tab" data-tab="totems">Totems</button>
+        <button class="tab" data-tab="upgrades">Upgrades</button>
         <button class="tab" data-tab="pickups">Pickups</button>
         <button class="tab" data-tab="stats">Stats</button>
       </nav>
@@ -463,7 +496,7 @@
 
         <section>
           <h2>Faction Standing</h2>
-          <div class="daily" id="dailyStanding"></div>
+          <div class="grid standtiles" id="dailyStanding"></div>
           <div class="rows" id="factions"><span class="muted">—</span></div>
         </section>
 
@@ -505,19 +538,20 @@
             <button class="fchip" data-f="leveling">Leveling</button>
             <button class="fchip" data-f="maxed">Maxed</button>
           </div>
+          <div class="wfilter" id="weaponTypeFilter"></div>
           <input id="weaponSearch" class="wsearch" placeholder="Search name, craftwork (e.g. Legendary), or temper…" spellcheck="false" />
           <div class="daily" id="weaponSummary"></div>
           <div id="weapons"><span class="muted">Import your inventory to track weapon leveling.</span></div>
         </section>
+      </div>
+
+      <!-- UPGRADES: Tuvalkane temper learning + Totems -->
+      <div class="panel" id="panel-upgrades">
         <section>
           <h2>Tempers · Tuvalkane</h2>
           <div class="daily" id="temperSummary"></div>
-          <div id="tempers"><span class="muted">Dismantle weapons to teach Tuvalkane their tempers (10 to learn each).</span></div>
+          <div id="tempers" class="rows"><span class="muted">Dismantle weapons to teach Tuvalkane their tempers (10 to learn each).</span></div>
         </section>
-      </div>
-
-      <!-- TOTEMS -->
-      <div class="panel" id="panel-totems">
         <section>
           <h2>Totems</h2>
           <input id="totemSearch" class="wsearch" placeholder="Search names or effects, e.g. rune damage, pull smite, armour…" spellcheck="false" />
@@ -594,7 +628,7 @@
       });
       try {
         const savedTab = localStorage.getItem("sfhelper.tab");
-        if (savedTab) activateTab(savedTab);
+        if (savedTab) activateTab(savedTab === "totems" ? "upgrades" : savedTab); // Totems moved into Upgrades
       } catch {}
 
       // In-game display names, loaded from /names.json. Until an entry exists
@@ -617,6 +651,7 @@
       let WEAPON_ROSTER = {};
       let LAST_WEAPONS = [];
       let WEAPON_FILTER = "all";
+      let WEAPON_TYPE = "all"; // a weapon class name, "Pacts", or "all"
       let WEAPON_SEARCH = "";
       // Pact roster (name -> {}) from pacts.json, and the last-seen owned pacts.
       let PACT_ROSTER = {};
@@ -781,7 +816,14 @@
         const groupNames = Object.keys(groups).sort((a, b) =>
           a === "Pacts" ? 1 : b === "Pacts" ? -1 : a.localeCompare(b),
         );
+        // Type buttons: one per class (and Pacts), with how many items each holds.
+        if (WEAPON_TYPE !== "all" && !groups[WEAPON_TYPE]) WEAPON_TYPE = "all";
+        const typeChip = (val, label, n) =>
+          `<button class="fchip${WEAPON_TYPE === val ? " active" : ""}" data-type="${val}">${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
+        $("weaponTypeFilter").innerHTML = typeChip("all", "All types") + groupNames.map((g) => typeChip(g, g, groups[g].length)).join("");
+        $("weapons").classList.toggle("single", WEAPON_TYPE !== "all");
         const html = groupNames
+          .filter((g) => WEAPON_TYPE === "all" || g === WEAPON_TYPE)
           .map((g) => {
             const rows = groups[g].filter(matches).sort((a, b) => a.name.localeCompare(b.name)).map(rowFor).filter(Boolean).join("");
             return rows ? `<div class="xpgroup"><h3 class="wclass">${g} <span class="count">${groups[g].length}</span></h3><div class="rows">${rows}</div></div>` : "";
@@ -797,10 +839,15 @@
         document.querySelectorAll("#weaponFilter .fchip").forEach((c) => c.classList.toggle("active", c === b));
         renderWeapons();
       });
+      document.getElementById("weaponTypeFilter").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-type]");
+        if (!b) return;
+        WEAPON_TYPE = b.dataset.type;
+        renderWeapons();
+      });
       document.getElementById("weaponSearch").addEventListener("input", (e) => {
         WEAPON_SEARCH = e.target.value;
         renderWeapons();
-        renderTempers();
       });
       // Expand/collapse a weapon's tempers.
       document.getElementById("weapons").addEventListener("click", (e) => {
@@ -824,9 +871,7 @@
         $("temperSummary").innerHTML = list.length
           ? `Learned <b>${learned}</b> &nbsp;·&nbsp; In progress <b>${inProgress}</b> &nbsp;·&nbsp; Encountered <b>${list.length}</b> of ~${TEMPER_TOTAL} in-game`
           : "";
-        const q = (WEAPON_SEARCH || "").trim().toLowerCase();
         const rows = list
-          .filter((t) => !q || prettyTemper(t.tag).toLowerCase().includes(q))
           .sort((a, b) =>
             (b.count >= TEMPER_GOAL ? 1 : 0) - (a.count >= TEMPER_GOAL ? 1 : 0) ||
             b.count - a.count ||
@@ -1360,6 +1405,8 @@
       // The header shows a live countdown to the daily reset (00:00 UTC).
       function tickReset() {
         $("dailyReset").textContent = fmtDur(msToDailyReset());
+        const sr = document.getElementById("standingReset");
+        if (sr) sr.textContent = fmtDur(msToDailyReset());
       }
       setInterval(tickReset, 1000);
       tickReset();
@@ -1428,12 +1475,30 @@
         $("playtime").textContent = hours(data.stats?.scalars?.TimePlayedSec);
         $("updated").textContent = "updated " + new Date(data.capturedAt).toLocaleTimeString();
 
-        // Daily standing (resets at 00:00 UTC - see the header timer).
-        const d = data.daily || {};
-        $("dailyStanding").innerHTML =
-          d.affiliation != null
-            ? `Daily standing earned: <b>${fmt(d.affiliation)}</b> — resets in <b>${fmtDur(msToDailyReset())}</b>`
-            : "";
+        // Daily standing: the remaining caps (the game counts them down as
+        // standing is earned) and standing earned since the reset (00:00 UTC).
+        // Per-faction earnings are tracked server-side; if SFHelper wasn't
+        // running at the reset and the game's countdown can't fill the gap,
+        // the total only counts from when it started today.
+        const st = data.standingToday;
+        const caps = data.dailyCaps;
+        const todayOf = (tag) => (st && st.factions[tag]) || 0;
+        const capTile = (label, rem, cap, tip) => `<div class="stat" title="${tip}">
+            <div class="l">${label}</div>
+            <div class="n">${fmt(rem)}<span class="of">/ ${fmt(cap)}</span></div>
+            <div class="bar"><i style="width:${cap ? Math.round((rem / cap) * 100) : 0}%"></i></div>
+          </div>`;
+        const earned = caps ? caps.earned : st ? st.total : null;
+        const exact = caps ? caps.exact : st ? st.exact : true;
+        const sinceTxt = !exact && st ? `since ${new Date(st.since).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "since reset";
+        $("dailyStanding").innerHTML = (caps || st)
+          ? (caps ? capTile("Daily Standing Cap", caps.remaining, caps.cap, "Standing you can still earn today from your factions") : "") +
+            (caps ? capTile("Ode Daily Cap", caps.odeRemaining, caps.odeCap, "Ode Infamy you can still earn today (a separate cap)") : "") +
+            `<div class="stat"${exact ? "" : ` title="Standing earned today before SFHelper started can't be counted"`}>
+              <div class="l">Standing Earned Today</div><div class="n">${fmt(earned)}</div><div class="s">${sinceTxt}</div>
+            </div>
+            <div class="stat"><div class="l">Resets In</div><div class="n" id="standingReset">${fmtDur(msToDailyReset())}</div><div class="s">00:00 UTC</div></div>`
+          : "";
 
         // Faction standing - bar fills toward the CURRENT rank's cap.
         const factions = data.progression.filter((p) => p.kind === "affiliation");
@@ -1448,7 +1513,7 @@
               const pct = info ? Math.round(info.pct * 100) : 0;
               return `
           <div class="row">
-            <span class="label">${factionName(tag)}</span>
+            <span class="label">${factionName(tag)}${st ? `<span class="today${todayOf(tag) > 0 ? " up" : ""}">+${fmt(todayOf(tag))} today</span>` : ""}</span>
             <span class="val">${val}</span>
             <span class="bar"><i style="width:${pct}%"></i></span>
           </div>`;
