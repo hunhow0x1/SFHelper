@@ -163,6 +163,9 @@ export interface AcquisitionContext {
   pending: string[];
   /** Sum of NumPurchased across vendors that can sell weapons. */
   vendorPurchases: number;
+  /** Enclave tag -> Favour (Standing). Enclave purchases don't appear in
+   *  RecentVendorPurchases, but they do spend Favour. Absent in older state. */
+  favour?: Record<string, number>;
 }
 export function parseAcquisitionContext(raw: unknown): AcquisitionContext {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
@@ -188,7 +191,12 @@ export function parseAcquisitionContext(raw: unknown): AcquisitionContext {
       if (typeof n === "number") vendorPurchases += n;
     }
   }
-  return { blueprints, pending, vendorPurchases };
+  const favour: Record<string, number> = {};
+  for (const a of Array.isArray(r.Affiliations) ? r.Affiliations : []) {
+    const e = a as { Tag?: unknown; Standing?: unknown };
+    if (typeof e.Tag === "string" && typeof e.Standing === "number") favour[e.Tag] = e.Standing;
+  }
+  return { blueprints, pending, vendorPurchases, favour };
 }
 
 export function parseWeapons(raw: unknown): OwnedWeapon[] {

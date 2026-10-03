@@ -9,7 +9,9 @@
  *  by what else changed since the previous import:
  *    - crafted:   its blueprint's fragment count (Recipes) dropped or vanished,
  *                 or its blueprint was in the crafting queue (PendingRecipes);
- *    - purchased: a vendor's NumPurchased went up (one weapon per purchase);
+ *    - purchased: a vendor's NumPurchased went up (one weapon per purchase), or
+ *                 Favour was spent at an Enclave (up to one weapon per 1,000
+ *                 spent, the cheapest weapon offering);
  *    - pickup:    anything else.
  *  Only "pickup" entries belong in the Picked-up Weapons list.
  *
@@ -153,6 +155,16 @@ export async function recordPickups(instances: WeaponInstance[], ctx: Acquisitio
   let changed = false;
   const moonsteel: Pickup[] = [];
   let purchasesLeft = prev ? Math.max(0, ctx.vendorPurchases - prev.vendorPurchases) : 0;
+  // Enclave weapons are bought with Favour and never show up in the vendor
+  // purchase history, so a Favour drop is the tell.
+  let favourSpent = 0;
+  if (prev?.favour && ctx.favour) {
+    for (const [tag, v] of Object.entries(ctx.favour)) {
+      const before = prev.favour[tag];
+      if (before !== undefined && v < before) favourSpent += before - v;
+    }
+  }
+  let enclaveLeft = Math.floor(favourSpent / 1000);
   const bpNames = [...new Set([...Object.keys(ctx.blueprints), ...Object.keys(prev?.blueprints ?? {}), ...(prev?.pending ?? [])])];
 
   for (const w of instances) {
@@ -169,6 +181,9 @@ export async function recordPickups(instances: WeaponInstance[], ctx: Acquisitio
     if (source === "pickup" && purchasesLeft > 0) {
       source = "purchased";
       purchasesLeft--;
+    } else if (source === "pickup" && enclaveLeft > 0) {
+      source = "purchased";
+      enclaveLeft--;
     }
     const entry: Pickup = { ...w, at: now, source };
     s.history.unshift(entry);

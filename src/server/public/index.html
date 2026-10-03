@@ -245,21 +245,27 @@
       .wsearch { width: 100%; min-width: 0; margin-bottom: 18px; }
       .xpgroup { margin-bottom: 30px; }
       .xpgroup:last-child { margin-bottom: 0; }
-      /* Weapon classes flow into balanced columns; a class never splits. */
-      #weapons { columns: 3 300px; column-gap: 40px; }
-      #weapons .xpgroup { break-inside: avoid; margin-bottom: 26px; }
+      /* ---- Mastery: classes flow into balanced columns; a class never splits. */
+      #mastery { columns: 3 280px; column-gap: 44px; }
+      #mastery .xpgroup { break-inside: avoid; margin-bottom: 28px; }
       /* One type selected: its rows flow across all the columns instead. */
-      #weapons.single .xpgroup { break-inside: auto; }
-      #weapons.single .xpgroup h3.wclass { column-span: all; }
-      #weapons .wrow2 { break-inside: avoid; }
-      #weaponTypeFilter { gap: 8px; margin-top: -4px; }
-      #weaponTypeFilter .fchip { padding: 6px 12px; }
-      #weaponTypeFilter .fchip .n { color: var(--faint); font: 500 12px/1 var(--body); letter-spacing: 0; margin-left: 6px; }
-      #weaponTypeFilter .fchip.active .n { color: rgba(27, 20, 11, 0.65); }
-      #weapons .xpgroup h3.wclass { font-size: 16px; margin-bottom: 10px; }
-      #weapons .rows, #tempers { gap: 10px; }
-      #weapons .row .label, #tempers .row .label { font-size: 15px; }
-      #weapons .cw { margin-left: 6px; }
+      #mastery.single .xpgroup { break-inside: auto; }
+      #mastery.single .xpgroup h3.wclass { column-span: all; }
+      #mastery .xpgroup h3.wclass { font-size: 15px; margin-bottom: 12px; padding-bottom: 7px; }
+      .mrows { display: grid; gap: 11px; }
+      .mrow { display: grid; grid-template-columns: 1fr auto; gap: 5px 12px; align-items: baseline; break-inside: avoid; }
+      .mrow .mname { font-size: 15px; font-weight: 500; min-width: 0; }
+      .mrow .mval { font-size: 13.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .mrow .mbar { grid-column: 1 / -1; height: 3px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
+      .mrow .mbar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi)); }
+      .mrow.done .mval { color: var(--accent-2); }
+      .mrow.done .mbar > i { background: linear-gradient(90deg, #4f7c66, var(--accent-2)); }
+      .mrow.miss .mname, .mrow.miss .mval { color: var(--faint); }
+      .mrow.miss .mbar { opacity: 0.45; }
+      .mcw { font: 600 10px/1 var(--body); letter-spacing: 0.13em; text-transform: uppercase; margin-left: 8px; vertical-align: 1px; color: var(--muted); }
+      .mcw.t1 { color: #7fb59a; } .mcw.t2 { color: #7ea8e0; } .mcw.t3 { color: #d3b06a; } .mcw.t4 { color: #bf94dc; } .mcw.t5 { color: #eab45a; }
+      #tempers { gap: 10px; }
+      #tempers .row .label { font-size: 15px; }
       #tempers { display: block; columns: 3 240px; column-gap: 40px; }
       #tempers .row { break-inside: avoid; margin-bottom: 12px; }
       .xpgroup h3.wclass {
@@ -268,12 +274,6 @@
         margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line);
       }
       .xpgroup h3.wclass .count { font: 400 13px/1 var(--body); color: var(--faint); letter-spacing: 0; }
-      .wrow.miss .label { color: var(--faint); }
-      .wrow.miss .val { color: var(--faint); font-style: italic; }
-      .tcount { background: none; border: 0; box-shadow: none; color: var(--muted); font: 500 13px/1 var(--body); letter-spacing: 0; text-transform: none; cursor: pointer; padding: 0; margin-left: 12px; }
-      .tcount:hover { color: var(--accent-hi); filter: none; }
-      .wtemperbox { margin: 6px 0 4px; }
-      .wtemperbox[hidden] { display: none; }
       .wtempers { grid-column: 1 / -1; margin-top: 8px; }
 
       /* ---- Pickups --------------------------------------------------------- */
@@ -475,7 +475,7 @@
       <nav class="tabs">
         <button class="tab active" data-tab="overview">Overview</button>
         <button class="tab" data-tab="loadouts">Loadouts</button>
-        <button class="tab" data-tab="weapons">Weapons &amp; Pacts</button>
+        <button class="tab" data-tab="mastery">Mastery</button>
         <button class="tab" data-tab="upgrades">Upgrades</button>
         <button class="tab" data-tab="pickups">Pickups</button>
         <button class="tab" data-tab="stats">Stats</button>
@@ -528,20 +528,14 @@
         </section>
       </div>
 
-      <!-- WEAPONS -->
-      <div class="panel" id="panel-weapons">
+      <!-- MASTERY: weapon & pact leveling -->
+      <div class="panel" id="panel-mastery">
         <section>
-          <h2>Weapons &amp; Pacts</h2>
-          <div class="wfilter" id="weaponFilter">
-            <button class="fchip active" data-f="all">All</button>
-            <button class="fchip" data-f="missing">Not owned</button>
-            <button class="fchip" data-f="leveling">Leveling</button>
-            <button class="fchip" data-f="maxed">Maxed</button>
-          </div>
-          <div class="wfilter" id="weaponTypeFilter"></div>
-          <input id="weaponSearch" class="wsearch" placeholder="Search name, craftwork (e.g. Legendary), or temper…" spellcheck="false" />
-          <div class="daily" id="weaponSummary"></div>
-          <div id="weapons"><span class="muted">Import your inventory to track weapon leveling.</span></div>
+          <h2>Mastery</h2>
+          <input id="masterySearch" class="wsearch" placeholder="Search weapons and pacts, or a craftwork like Noble…" spellcheck="false" />
+          <div class="tfilters" id="masteryFilters"></div>
+          <div class="daily" id="masterySummary"></div>
+          <div id="mastery"><span class="muted">Import your inventory to track weapon and pact mastery.</span></div>
         </section>
       </div>
 
@@ -628,7 +622,9 @@
       });
       try {
         const savedTab = localStorage.getItem("sfhelper.tab");
-        if (savedTab) activateTab(savedTab === "totems" ? "upgrades" : savedTab); // Totems moved into Upgrades
+        // Older tab names: Totems moved into Upgrades; Weapons & Pacts became Mastery.
+        const RENAMED_TAB = { totems: "upgrades", weapons: "mastery" };
+        if (savedTab) activateTab(RENAMED_TAB[savedTab] || savedTab);
       } catch {}
 
       // In-game display names, loaded from /names.json. Until an entry exists
@@ -650,9 +646,10 @@
       // leveling tracker; and the last-seen owned weapons + the active filter.
       let WEAPON_ROSTER = {};
       let LAST_WEAPONS = [];
-      let WEAPON_FILTER = "all";
-      let WEAPON_TYPE = "all"; // a weapon class name, "Pacts", or "all"
-      let WEAPON_SEARCH = "";
+      // Mastery filters (remembered per viewer; the search box is not).
+      const MASTERY_UI = { own: "all", mastery: "all", type: "all", q: "" };
+      try { Object.assign(MASTERY_UI, JSON.parse(localStorage.getItem("sfhelper.mastery") || "{}"), { q: "" }); } catch {}
+      const saveMasteryUi = () => { try { localStorage.setItem("sfhelper.mastery", JSON.stringify({ ...MASTERY_UI, q: "" })); } catch {} };
       // Pact roster (name -> {}) from pacts.json, and the last-seen owned pacts.
       let PACT_ROSTER = {};
       let LAST_PACTS = [];
@@ -757,107 +754,98 @@
         temperPop.style.left = Math.round(Math.min(r.left, window.innerWidth - temperPop.offsetWidth - 12)) + "px";
       });
 
-      // Weapons and Pacts share this tracker. Each section has its own roster,
-      // owned list, leveling curve, and grouping.
-      let _wrowId = 0;
-      function renderWeapons() {
-        _wrowId = 0;
+      // Mastery: weapons and pacts share this tracker. Each section has its own
+      // roster, owned list, leveling curve (C) and grouping.
+      function renderMastery() {
         const sections = [
           { roster: WEAPON_ROSTER, owned: LAST_WEAPONS, C: 500, groupOf: (n) => (WEAPON_ROSTER[n] && WEAPON_ROSTER[n].class) || "Other" },
           { roster: PACT_ROSTER, owned: LAST_PACTS, C: 1000, groupOf: () => "Pacts" },
         ];
-        const groups = {}; // group name -> [{ name, w, C }]
-        let owned = 0, total = 0, maxed = 0, leveling = 0;
+        const items = []; // { name, group, w, lvl }
         for (const sec of sections) {
           const ownedByName = new Map((sec.owned || []).map((w) => [shortName(w.key), w]));
-          const names = new Set([...Object.keys(sec.roster), ...ownedByName.keys()]);
-          for (const name of names) {
-            total++;
+          for (const name of new Set([...Object.keys(sec.roster), ...ownedByName.keys()])) {
             const w = ownedByName.get(name) || null;
-            if (w) { owned++; levelOf(w.xp, sec.C).maxed ? maxed++ : leveling++; }
-            (groups[sec.groupOf(name)] ||= []).push({ name, w, C: sec.C });
+            items.push({ name, group: sec.groupOf(name), w, lvl: w ? levelOf(w.xp, sec.C) : null });
           }
         }
-        $("weaponSummary").innerHTML = total
-          ? `Owned <b>${owned}/${total}</b> &nbsp;·&nbsp; Maxed <b>${maxed}</b> &nbsp;·&nbsp; Leveling <b>${leveling}</b> &nbsp;·&nbsp; Not owned <b>${total - owned}</b>`
+        const owned = items.filter((i) => i.w).length;
+        const mastered = items.filter((i) => i.lvl && i.lvl.maxed).length;
+        $("masterySummary").innerHTML = items.length
+          ? `Owned <b>${owned}/${items.length}</b> &nbsp;·&nbsp; Mastered <b>${mastered}</b> &nbsp;·&nbsp; Leveling <b>${owned - mastered}</b>`
           : "";
 
-        const f = WEAPON_FILTER;
-        const q = (WEAPON_SEARCH || "").trim().toLowerCase();
-        // Search matches weapon name, craftwork tier, or any temper label.
-        const matches = ({ name, w }) => {
-          if (!q) return true;
-          if (name.toLowerCase().includes(q)) return true;
-          if (!w) return false;
-          const cw = craftworkInfo(w.craftwork);
-          if (cw && cw.name.toLowerCase().includes(q)) return true;
-          return (w.tempers || []).some((t) => prettyTemper(t).toLowerCase().includes(q));
-        };
-        const rowFor = ({ name, w, C }) => {
-          if (!w) {
-            if (f !== "all" && f !== "missing") return "";
-            return `<div class="wrow2"><div class="row wrow miss"><span class="label">${name}</span><span class="val">Not owned</span><span class="bar"></span></div></div>`;
-          }
-          const l = levelOf(w.xp, C);
-          if (f === "missing") return "";
-          if (f === "leveling" && l.maxed) return "";
-          if (f === "maxed" && !l.maxed) return "";
-          const status = l.maxed ? '<span class="mx">Max · 30/30</span>' : `Rank ${l.rank}/30`;
-          const cw = craftworkInfo(w.craftwork);
-          const cwBadge = cw ? ` <span class="cw cw${cw.tier}" title="+${cw.bonus} damage · up to ${cw.max} tempers">${cw.name}</span>` : "";
-          const nt = (w.tempers || []).length;
-          const id = "wt" + _wrowId++;
-          // Tempers are collapsed by default to keep the list clean; click to reveal.
-          const toggle = nt ? ` <button class="tcount" data-wt="${id}">${nt} temper${nt > 1 ? "s" : ""} ▾</button>` : "";
-          const box = nt ? `<div class="wtemperbox" id="${id}" hidden>${temperChips(w.tempers)}</div>` : "";
-          return `<div class="wrow2"><div class="row wrow"><span class="label">${name}${cwBadge}</span><span class="val">${status}${toggle}</span><span class="bar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>${box}</div>`;
-        };
         // Weapon classes alphabetically, then Pacts last.
-        const groupNames = Object.keys(groups).sort((a, b) =>
+        const groupNames = [...new Set(items.map((i) => i.group))].sort((a, b) =>
           a === "Pacts" ? 1 : b === "Pacts" ? -1 : a.localeCompare(b),
         );
-        // Type buttons: one per class (and Pacts), with how many items each holds.
-        if (WEAPON_TYPE !== "all" && !groups[WEAPON_TYPE]) WEAPON_TYPE = "all";
-        const typeChip = (val, label, n) =>
-          `<button class="fchip${WEAPON_TYPE === val ? " active" : ""}" data-type="${val}">${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
-        $("weaponTypeFilter").innerHTML = typeChip("all", "All types") + groupNames.map((g) => typeChip(g, g, groups[g].length)).join("");
-        $("weapons").classList.toggle("single", WEAPON_TYPE !== "all");
+        if (MASTERY_UI.type !== "all" && !groupNames.includes(MASTERY_UI.type)) MASTERY_UI.type = "all";
+
+        const q = MASTERY_UI.q.trim().toLowerCase();
+        const passOwn = (i) => MASTERY_UI.own === "all" || (MASTERY_UI.own === "owned") === !!i.w;
+        const passMastery = (i) => MASTERY_UI.mastery === "all" || (MASTERY_UI.mastery === "mastered") === !!(i.lvl && i.lvl.maxed);
+        const passType = (i) => MASTERY_UI.type === "all" || i.group === MASTERY_UI.type;
+        const passSearch = (i) => {
+          if (!q) return true;
+          const cw = i.w && craftworkInfo(i.w.craftwork);
+          return i.name.toLowerCase().includes(q) || !!(cw && cw.name.toLowerCase().includes(q));
+        };
+
+        // Filter rows; each chip counts what it would show given the other filters.
+        const chip = (key, val, label, n) =>
+          `<button class="fchip${MASTERY_UI[key] === val ? " active" : ""}" data-k="${key}" data-v="${val}">${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
+        const countIf = (pred) => items.filter((i) => passSearch(i) && pred(i)).length;
+        $("masteryFilters").innerHTML =
+          `<span class="fl">Owned</span><div class="wfilter">` +
+            chip("own", "all", "All") +
+            chip("own", "owned", "Owned", countIf((i) => i.w && passMastery(i) && passType(i))) +
+            chip("own", "unowned", "Unowned", countIf((i) => !i.w && passMastery(i) && passType(i))) +
+          `</div><span class="fl">Mastery</span><div class="wfilter">` +
+            chip("mastery", "all", "All") +
+            chip("mastery", "mastered", "Mastered", countIf((i) => i.lvl && i.lvl.maxed && passOwn(i) && passType(i))) +
+            chip("mastery", "unmastered", "Not Mastered", countIf((i) => !(i.lvl && i.lvl.maxed) && passOwn(i) && passType(i))) +
+          `</div><span class="fl">Type</span><div class="wfilter">` +
+            chip("type", "all", "All") +
+            groupNames
+              .map((g) => ({ g, n: countIf((i) => i.group === g && passOwn(i) && passMastery(i)) }))
+              .filter((c) => c.n > 0 || MASTERY_UI.type === c.g)
+              .map((c) => chip("type", c.g, c.g, c.n))
+              .join("") +
+          `</div>`;
+
+        const rowFor = (i) => {
+          if (!i.w) {
+            return `<div class="mrow miss"><span class="mname">${i.name}</span><span class="mval">Unowned</span><span class="mbar"></span></div>`;
+          }
+          const l = i.lvl;
+          const cw = craftworkInfo(i.w.craftwork);
+          // Stock is the default; only call out better craftwork.
+          const cwTag = cw && cw.tier > 0 ? `<span class="mcw t${cw.tier}" title="+${cw.bonus} damage">${cw.name}</span>` : "";
+          const val = l.maxed ? "Mastered" : `${l.rank} / 30`;
+          return `<div class="mrow${l.maxed ? " done" : ""}"><span class="mname">${i.name}${cwTag}</span><span class="mval">${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
+        };
+        const shown = items.filter((i) => passOwn(i) && passMastery(i) && passType(i) && passSearch(i));
+        $("mastery").classList.toggle("single", MASTERY_UI.type !== "all");
         const html = groupNames
-          .filter((g) => WEAPON_TYPE === "all" || g === WEAPON_TYPE)
           .map((g) => {
-            const rows = groups[g].filter(matches).sort((a, b) => a.name.localeCompare(b.name)).map(rowFor).filter(Boolean).join("");
-            return rows ? `<div class="xpgroup"><h3 class="wclass">${g} <span class="count">${groups[g].length}</span></h3><div class="rows">${rows}</div></div>` : "";
+            const list = shown.filter((i) => i.group === g).sort((a, b) => a.name.localeCompare(b.name));
+            return list.length
+              ? `<div class="xpgroup"><h3 class="wclass">${g} <span class="count">${list.length}</span></h3><div class="mrows">${list.map(rowFor).join("")}</div></div>`
+              : "";
           })
-          .filter(Boolean)
           .join("");
-        $("weapons").innerHTML = html || '<span class="muted">No weapons or pacts match this filter.</span>';
+        $("mastery").innerHTML = html || '<span class="muted">Nothing matches these filters.</span>';
       }
-      document.getElementById("weaponFilter").addEventListener("click", (e) => {
-        const b = e.target.closest("[data-f]");
+      $("masteryFilters").addEventListener("click", (e) => {
+        const b = e.target.closest(".fchip");
         if (!b) return;
-        WEAPON_FILTER = b.dataset.f;
-        document.querySelectorAll("#weaponFilter .fchip").forEach((c) => c.classList.toggle("active", c === b));
-        renderWeapons();
+        MASTERY_UI[b.dataset.k] = b.dataset.v;
+        saveMasteryUi();
+        renderMastery();
       });
-      document.getElementById("weaponTypeFilter").addEventListener("click", (e) => {
-        const b = e.target.closest("[data-type]");
-        if (!b) return;
-        WEAPON_TYPE = b.dataset.type;
-        renderWeapons();
-      });
-      document.getElementById("weaponSearch").addEventListener("input", (e) => {
-        WEAPON_SEARCH = e.target.value;
-        renderWeapons();
-      });
-      // Expand/collapse a weapon's tempers.
-      document.getElementById("weapons").addEventListener("click", (e) => {
-        const b = e.target.closest("[data-wt]");
-        if (!b) return;
-        const box = document.getElementById(b.dataset.wt);
-        if (box) {
-          box.hidden = !box.hidden;
-          b.textContent = b.textContent.replace(/[▾▴]/, box.hidden ? "▾" : "▴");
-        }
+      $("masterySearch").addEventListener("input", (e) => {
+        MASTERY_UI.q = e.target.value;
+        renderMastery();
       });
 
       // Tuvalkane temper learning: each temper is learned at 10 progress (earned
@@ -1554,7 +1542,7 @@
         if (sectionChanged("weapons", [data.weapons, data.pacts])) {
           LAST_WEAPONS = data.weapons || [];
           LAST_PACTS = data.pacts || [];
-          renderWeapons();
+          renderMastery();
         }
         if (sectionChanged("tempers", data.temperProgress)) {
           LAST_TEMPERS = data.temperProgress || [];
