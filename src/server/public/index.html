@@ -179,6 +179,7 @@
       }
       .invstatus:empty { display: none; }
       .invstatus b { color: var(--text); font-variant-numeric: tabular-nums; }
+      .invstatus .err { color: var(--courage); }
 
       /* ---- Stat tiles ------------------------------------------------------ */
       .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
@@ -1602,9 +1603,13 @@
               )
               .join("")
           : '<span class="muted">Owned currencies (Dracs, Harmonies…) aren\'t in the public profile — import your inventory to show them.</span>';
-        $("invStatus").innerHTML = data.inventory
-          ? `Inventory loaded: <b>${data.inventory.itemCount}</b> items from ${data.inventory.source.split(/[\\/]/).pop()} · updated ${new Date(data.inventory.updatedAt).toLocaleString()}`
+        const imp = data.importStatus;
+        const impNote = imp && imp.state === "error" && imp.code !== 3
+          ? ` <span class="err" title="${imp.message.replace(/"/g, "&quot;")}">· Last import failed: ${imp.message}</span>`
           : "";
+        $("invStatus").innerHTML = data.inventory
+          ? `Inventory loaded: <b>${data.inventory.itemCount}</b> items from ${data.inventory.source.split(/[\\/]/).pop()} · updated ${new Date(data.inventory.updatedAt).toLocaleString()}${impNote}`
+          : impNote.replace(" · ", "");
 
         // Re-render these only when their data actually changed, so the 60s
         // refresh doesn't collapse expanded loadouts / open temper boxes.
@@ -1763,10 +1768,22 @@
       // First launch in the desktop app: the memory import finds the account id
       // once Soulframe is running, so keep the entry collapsed and wait for it.
       let accountWait = null;
+      // While waiting, say what the memory import is doing rather than nothing.
+      const IMPORT_HINT = {
+        3: "Waiting for Soulframe — start the game and log in to a character; your account is detected automatically.",
+      };
+      async function showImportStatus() {
+        try {
+          const st = await (await fetch("/api/import-status")).json();
+          if (!st) return;
+          if (st.state === "error") setStatus(IMPORT_HINT[st.code] || st.message, st.code !== 3);
+          else if (st.state === "scanning") setStatus(st.message);
+        } catch {}
+      }
       async function tryDiscoveredAccount() {
         try {
           const data = await (await fetch("/api/account")).json();
-          if (!data.accountId) return false;
+          if (!data.accountId) { if (accountWait) showImportStatus(); return false; }
           $("accountId").value = data.accountId;
           const via = data.source === "little-genius" ? "found via Little Genius" : "remembered";
           setStatus("Account id " + via + " — tracking…");
@@ -1789,7 +1806,8 @@
         // entry for a first-time user there.
         if (navigator.userAgent.includes("Electron")) {
           setStatus("Waiting for Soulframe — your account is detected automatically once the game is running. (Or use Edit ID.)");
-          accountWait = setInterval(tryDiscoveredAccount, 10000);
+          accountWait = setInterval(tryDiscoveredAccount, 5000);
+          showImportStatus();
         } else {
           setAccountSetup(true);
         }

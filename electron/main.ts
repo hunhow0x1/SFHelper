@@ -15,12 +15,13 @@
 import { app, BrowserWindow, ipcMain, Notification } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdir, readFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { readConsent, recordConsent, ACK_PHRASE } from "../helper/consent";
 import { importInventory } from "../helper/run";
 import { startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
+import { setImportStatus } from "../src/server/importStatus";
 import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -30,12 +31,20 @@ const CONSENT_PATH = join(USER_DATA, "consent.json");
 const CONFIG_PATH = join(USER_DATA, "config.json");
 const INVENTORY_PATH = join(USER_DATA, "inventory.json");
 const DATA_DIR = join(USER_DATA, "data");
+// Session log, so a tester can send it when something goes wrong
+// (Windows: %APPDATA%\SFHelper\sfhelper.log). Started fresh each launch.
+const LOG_PATH = join(USER_DATA, "sfhelper.log");
 
 let server: RunningServer | null = null;
 let mainWindow: BrowserWindow | null = null;
 
+let logReady: Promise<void> | null = null;
 function log(msg: string): void {
   console.log(`[sfhelper] ${msg}`);
+  logReady ??= mkdir(USER_DATA, { recursive: true })
+    .then(() => writeFile(LOG_PATH, `SFHelper ${app.getVersion()} on ${process.platform} ${process.arch}\n`))
+    .catch(() => {});
+  logReady = logReady.then(() => appendFile(LOG_PATH, `${new Date().toISOString()} ${msg}\n`)).catch(() => {});
 }
 
 /** Refresh totem/rune effect data from the wiki into the writable data dir. */
@@ -66,15 +75,28 @@ let importing = false;
 async function importFromMemory(): Promise<void> {
   if (importing) return; // don't overlap scans
   importing = true;
+  setImportStatus({ state: "scanning", message: "Looking for Soulframe…" });
   try {
     const result = await importInventory({
       out: INVENTORY_PATH,
       configPath: CONFIG_PATH,
       consentPath: CONSENT_PATH,
       onLog: (m) => log(m),
-      onProgress: (label, pct) => log(`${label}: ${pct}%`),
+      onProgress: (label, pct) => {
+        log(`${label}: ${pct}%`);
+        setImportStatus({ state: "scanning", message: `Reading game memory for the ${label}… ${pct}%` });
+      },
     });
     log(result.ok ? result.message : `Inventory import skipped (${result.code}): ${result.message}`);
+    setImportStatus(
+      result.ok
+        ? { state: "ok", message: "Inventory imported." }
+        : { state: "error", code: result.code, message: result.message },
+    );
+  } catch (err) {
+    // Unexpected failure (e.g. the native memory module failed to load).
+    log(`Inventory import failed: ${(err as Error).stack ?? String(err)}`);
+    setImportStatus({ state: "error", message: `Import failed: ${(err as Error).message}` });
   } finally {
     importing = false;
   }
@@ -205,6 +227,7 @@ async function boot(): Promise<void> {
   // installer's appId).
   if (process.platform === "win32") app.setAppUserModelId("com.hunhow0x1.sfhelper");
   await app.whenReady();
+  log(`Starting (data folder: ${USER_DATA})`);
   const consent = await readConsent(CONSENT_PATH);
   if (!consent?.acknowledged) {
     const agreed = await askConsent();
@@ -221,6 +244,7 @@ if (!app.requestSingleInstanceLock()) {
 } else {
   boot().catch((err) => {
     console.error(err);
+    log(`Startup failed: ${(err as Error).stack ?? String(err)}`);
     app.quit();
   });
 }

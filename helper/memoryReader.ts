@@ -76,9 +76,16 @@ export class ReadOnlyMemory {
     for (const region of regions) {
       for (let addr = region.start; addr < region.end; addr += CHUNK) {
         const size = Math.min(CHUNK, region.end - addr);
+        // Never read past the region: on Windows the next page is often
+        // uncommitted, and ReadProcessMemory then fails the WHOLE read, which
+        // used to skip every small region. A hit in the region's last bytes
+        // just gets whatever trailing context the region has.
+        // Read far enough past the chunk for a needle that starts in it to be
+        // whole AND carry its full trailing context.
+        const readLen = Math.min(size + needle.length + trailingBytes, region.end - addr);
         let buf: Buffer;
         try {
-          buf = await this.read(addr, size + trailingBytes);
+          buf = await this.read(addr, readLen);
         } catch {
           break; // region became unreadable (process moved on); skip it
         }
@@ -94,6 +101,10 @@ export class ReadOnlyMemory {
         }
         scanned += size;
         opts.onProgress?.(scanned, total);
+        // Yield to the event loop between chunks. The Windows backend reads
+        // synchronously, and the scan runs in the app's main process: without
+        // this the window (and the local server) freeze for the whole scan.
+        await new Promise<void>((r) => setImmediate(r));
       }
     }
     return hits;

@@ -18,6 +18,7 @@ import { getInventory } from "./inventory";
 import { recordPickups } from "./pickups";
 import { getSettings, updateSettings } from "./settings";
 import { recordStanding, dailyCaps } from "./standing";
+import { getImportStatus } from "./importStatus";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -134,6 +135,12 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     return;
   }
 
+  // What the desktop app's memory import is doing (null outside the app).
+  if (url.pathname === "/api/import-status") {
+    sendJson(res, 200, getImportStatus());
+    return;
+  }
+
   // App preferences (e.g. the Moonsteel notification toggle).
   if (url.pathname === "/api/settings" && req.method === "GET") {
     sendJson(res, 200, await getSettings());
@@ -210,6 +217,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         daily: snap.daily,
         standingToday, // { since, exact, total, factions: { Tag: earned } } since 00:00 UTC
         dailyCaps: caps, // { cap, remaining, odeCap, odeRemaining, earned, exact }
+        importStatus: getImportStatus(), // desktop app's memory import, or null
         currencies: inventory ? inventory.currencies : profileCurrencies,
         owned: Object.fromEntries(ownedCounts), // ItemType -> owned count (for tokens, etc.)
         weapons, // [{ key, xp, slot, craftwork, tempers }] for the leveling tracker

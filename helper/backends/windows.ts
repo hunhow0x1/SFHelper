@@ -87,8 +87,11 @@ class WindowsBackend implements MemBackend {
     const buf = Buffer.alloc(length);
     const read = [0];
     const ok = this.k32.ReadProcessMemory(this.handle, address, buf, length, read);
-    if (!ok) throw new Error(`ReadProcessMemory failed at 0x${address.toString(16)}`);
-    return read[0] && read[0] < length ? buf.subarray(0, read[0]) : buf;
+    const n = Number(read[0] ?? 0);
+    // A read that crosses into an inaccessible page fails with
+    // ERROR_PARTIAL_COPY but may still report the bytes it did copy.
+    if (!ok && n === 0) throw new Error(`ReadProcessMemory failed at 0x${address.toString(16)}`);
+    return n > 0 && n < length ? buf.subarray(0, n) : buf;
   }
 
   async close(): Promise<void> {

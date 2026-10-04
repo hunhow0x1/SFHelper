@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseMaps } from "../helper/memoryReader";
+import { parseMaps, ReadOnlyMemory } from "../helper/memoryReader";
 import { ACK_PHRASE, readConsent, recordConsent, requireConsent } from "../helper/consent";
 
 describe("memory maps parsing", () => {
@@ -22,6 +22,43 @@ describe("memory maps parsing", () => {
   it("records the backing path when present", () => {
     const heap = parseMaps(maps).find((r) => r.path === "[heap]");
     expect(heap?.perms).toBe("rw-p");
+  });
+});
+
+describe("memory scan (Windows-like reads)", () => {
+  // Regions separated by uncommitted gaps; a read that crosses a region's end
+  // fails outright, as ReadProcessMemory does with ERROR_PARTIAL_COPY.
+  function fakeMemory(): ReadOnlyMemory {
+    const regions: { start: number; end: number; perms: string; path: null; data: Buffer }[] = [];
+    let base = 0x10000;
+    for (const size of [64 * 1024, 200 * 1024, 3 * 1024 * 1024]) {
+      regions.push({ start: base, end: base + size, perms: "rw-p", path: null, data: Buffer.alloc(size, 0x2e) });
+      base += size + 0x10000;
+    }
+    regions[0]!.data.write("accountId=0123456789abcdef01234567", 1000, "latin1"); // small region
+    const r1 = regions[1]!;
+    r1.data.write("accountId=aaaaaaaaaaaaaaaaaaaaaaaa", r1.data.length - 34, "latin1"); // flush with region end
+    regions[2]!.data.write("accountId=bbbbbbbbbbbbbbbbbbbbbbbb", (1 << 20) - 5, "latin1"); // across a 1 MiB chunk
+    const backend = {
+      pid: 1,
+      regions,
+      async read(addr: number, len: number) {
+        const r = regions.find((x) => addr >= x.start && addr < x.end);
+        if (!r || addr + len > r.end) throw new Error("partial copy");
+        return Buffer.from(r.data.subarray(addr - r.start, addr - r.start + len));
+      },
+      async close() {},
+    };
+    return Object.assign(Object.create(ReadOnlyMemory.prototype), { backend }) as ReadOnlyMemory;
+  }
+
+  it("finds needles in small regions, at region ends and across chunk boundaries, with full trailing context", async () => {
+    const hits = await fakeMemory().scan(Buffer.from("accountId=", "latin1"), { trailingBytes: 24 });
+    expect(hits.map((h) => h.trailing.toString("latin1"))).toEqual([
+      "0123456789abcdef01234567",
+      "aaaaaaaaaaaaaaaaaaaaaaaa",
+      "bbbbbbbbbbbbbbbbbbbbbbbb",
+    ]);
   });
 });
 
