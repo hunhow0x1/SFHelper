@@ -7,24 +7,23 @@
  *  dashboard can show currencies and counts once one exists. No file, no data -
  *  the dashboard just shows its "import your inventory" note.
  *
- *  Search order: SFHELPER_INVENTORY, ./inventory.json (where the helper writes
- *  by default), then ~/.config/sfhelper/inventory.json.
+ *  Search order: SFHELPER_INVENTORY, the app data folder (SFHELPER_HOME, else
+ *  ~/.config/sfhelper), then ./inventory.json (the CLI helper's default).
  */
 
 import { readFile, stat } from "node:fs/promises";
-import { homedir } from "node:os";
 import { join } from "node:path";
 import { snapshotFromExport } from "../account/providers/jsonImport";
 import { parseBuilds, type Build } from "./loadouts";
 import { parseTotems, type OwnedTotem } from "./totems";
 import { parseWeapons, parsePacts, parseTemperProgress, parseWeaponInstances, parseAcquisitionContext, type AcquisitionContext, type OwnedWeapon, type OwnedPact, type TemperProgress, type WeaponInstance } from "./weapons";
+import { appFile } from "./paths";
 
-const CANDIDATES = [
-  process.env.SFHELPER_INVENTORY,
-  process.env.SFHELPER_HOME ? join(process.env.SFHELPER_HOME, "inventory.json") : undefined,
-  join(process.cwd(), "inventory.json"),
-  join(homedir(), ".config", "sfhelper", "inventory.json"),
-].filter((p): p is string => Boolean(p));
+/** Resolved per call: the app sets SFHELPER_INVENTORY after modules load. */
+const candidates = (): string[] =>
+  [process.env.SFHELPER_INVENTORY, appFile("inventory.json"), join(process.cwd(), "inventory.json")].filter(
+    (p): p is string => Boolean(p),
+  );
 
 export interface OwnedItem {
   key: string;
@@ -54,7 +53,7 @@ let memo: { at: number; path: string; mtimeMs: number; view: InventoryView } | n
 /** The parsed inventory, or null if no file is present. Re-reads when the file
  *  changes (the helper rewrites it) but memoizes within a short window. */
 export async function getInventory(): Promise<InventoryView | null> {
-  for (const path of CANDIDATES) {
+  for (const path of candidates()) {
     let mtimeMs: number;
     try {
       mtimeMs = (await stat(path)).mtimeMs;

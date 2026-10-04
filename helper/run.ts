@@ -25,6 +25,17 @@ export interface ImportOptions {
   consentPath: string;
   onLog?: ((msg: string) => void) | undefined;
   onProgress?: ((label: string, pct: number) => void) | undefined;
+  /** The session from an earlier successful import. Its nonce is tried first,
+   *  so repeat imports skip the memory scan while the login session lasts. */
+  session?: ImportSession | undefined;
+}
+
+/** What a successful import used. The nonce is a live session credential: the
+ *  caller keeps this in memory only and never writes it to disk or the log. */
+export interface ImportSession {
+  pid: number;
+  accountId: string;
+  nonce: string;
 }
 
 export interface ImportResult {
@@ -33,6 +44,8 @@ export interface ImportResult {
   message: string;
   accountId?: string;
   outPath?: string;
+  /** On success: pass back as `session` next time. */
+  session?: ImportSession;
 }
 
 async function rememberAccountId(configPath: string, accountId: string): Promise<void> {
@@ -80,6 +93,26 @@ export async function importInventory(opts: ImportOptions): Promise<ImportResult
 
   let account = opts.account ?? (await readSavedAccountId(opts.configPath));
   if (account) log(`Using account id ${account}.`);
+
+  // Same game process, same account: try the nonce that worked last time. It
+  // holds for the whole login session, so this skips re-reading gigabytes of
+  // memory; only a rejection (re-login) falls through to a fresh scan.
+  const prev = opts.session;
+  if (account && prev && prev.accountId === account && procs.some((p) => p.pid === prev.pid)) {
+    log("Reusing this session's nonce (no memory scan).");
+    try {
+      const result = await verifyNonce(account, [prev.nonce]);
+      if (result) {
+        await saveInventory(opts.out, result.body);
+        return { ok: true, code: 0, message: `Inventory saved to ${opts.out}.`, accountId: account, outPath: opts.out, session: prev };
+      }
+    } catch (err) {
+      if (err instanceof EndpointRefusedError) return { ok: false, code: 8, message: err.message };
+      throw err;
+    }
+    log("The session nonce was not accepted (new login?); scanning memory again.");
+  }
+
   let nonceCandidates: string[] = [];
   let usablePid: number | null = null;
 
@@ -146,7 +179,14 @@ export async function importInventory(opts: ImportOptions): Promise<ImportResult
       return { ok: false, code: 7, message: "No candidate was accepted. The session may not be live." };
     }
     await saveInventory(opts.out, result.body);
-    return { ok: true, code: 0, message: `Inventory saved to ${opts.out}.`, accountId: account, outPath: opts.out };
+    return {
+      ok: true,
+      code: 0,
+      message: `Inventory saved to ${opts.out}.`,
+      accountId: account,
+      outPath: opts.out,
+      session: { pid: usablePid, accountId: account, nonce: result.nonce },
+    };
   } catch (err) {
     if (err instanceof EndpointRefusedError) {
       return { ok: false, code: 8, message: err.message };

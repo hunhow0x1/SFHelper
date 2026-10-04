@@ -23,10 +23,10 @@
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
 import type { AcquisitionContext, WeaponInstance } from "./weapons";
 import { logPickupTimes, objectIdTime } from "./gameLog";
+import { appFile } from "./paths";
 
 export type PickupSource = "pickup" | "crafted" | "purchased";
 
@@ -59,13 +59,12 @@ export function onMoonsteelAcquired(fn: MoonsteelListener): () => void {
   return () => moonsteelListeners.delete(fn);
 }
 
-const BASE = process.env.SFHELPER_HOME ?? join(homedir(), ".config", "sfhelper");
-const STATE_PATH = join(BASE, "pickups.json");
+const statePath = () => appFile("pickups.json");
 const MAX_HISTORY = 1000;
 
 async function load(): Promise<State> {
   try {
-    const s = JSON.parse(await readFile(STATE_PATH, "utf8")) as Partial<State>;
+    const s = JSON.parse(await readFile(statePath(), "utf8")) as Partial<State>;
     return {
       seeded: s.seeded === true,
       known: s.known ?? {},
@@ -78,8 +77,9 @@ async function load(): Promise<State> {
 }
 
 async function save(s: State): Promise<void> {
-  await mkdir(dirname(STATE_PATH), { recursive: true });
-  await writeFile(STATE_PATH, JSON.stringify(s));
+  const path = statePath();
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, JSON.stringify(s));
 }
 
 /** Weapon/blueprint leaf -> comparable base name ("CorruptedScimitar"). */

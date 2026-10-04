@@ -20,12 +20,10 @@ import { getSettings, updateSettings } from "./settings";
 import { recordStanding, dailyCaps } from "./standing";
 import { getImportStatus } from "./importStatus";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
+import { dataDir } from "./paths";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
-// Launch-built data (totems.json, runes.json) is written to a writable dir since
-// the packaged app's assets are read-only. Files here override the bundled ones.
-const DATA_DIR = process.env.SFHELPER_DATA_DIR ? normalize(process.env.SFHELPER_DATA_DIR) : null;
 const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=";
 const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
@@ -95,8 +93,10 @@ async function readFromDir(base: string, rel: string): Promise<Buffer | null> {
 
 async function serveStatic(res: ServerResponse, urlPath: string): Promise<void> {
   const rel = urlPath === "/" ? "index.html" : urlPath.replace(/^\/+/, "");
-  // Prefer the writable data overlay (launch-built JSON), then the bundled assets.
-  const body = (DATA_DIR ? await readFromDir(DATA_DIR, rel) : null) ?? (await readFromDir(PUBLIC_DIR, rel));
+  // Prefer the writable data overlay (launch-built JSON, written there because
+  // the packaged app's assets are read-only), then the bundled assets.
+  const overlay = dataDir();
+  const body = (overlay ? await readFromDir(overlay, rel) : null) ?? (await readFromDir(PUBLIC_DIR, rel));
   if (!body) {
     res.writeHead(404).end("Not found");
     return;

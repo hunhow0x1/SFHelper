@@ -20,12 +20,11 @@
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
+import { appFile } from "./paths";
 
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
-// The app's data dir. SFHELPER_HOME lets the packaged app point this at its
-// per-user userData directory; otherwise the conventional config location.
-const CONFIG_DIR = process.env.SFHELPER_HOME ?? join(homedir(), ".config", "sfhelper");
-const CONFIG_PATH = join(CONFIG_DIR, "config.json");
+// In the app's data dir (the packaged app's userData folder; see paths.ts).
+const configPath = () => appFile("config.json");
 
 export interface DiscoveredAccount {
   accountId: string;
@@ -34,7 +33,7 @@ export interface DiscoveredAccount {
 
 async function fromConfig(): Promise<string | null> {
   try {
-    const parsed = JSON.parse(await readFile(CONFIG_PATH, "utf8")) as { accountId?: unknown };
+    const parsed = JSON.parse(await readFile(configPath(), "utf8")) as { accountId?: unknown };
     return typeof parsed.accountId === "string" && ACCOUNT_ID_RE.test(parsed.accountId)
       ? parsed.accountId
       : null;
@@ -102,6 +101,7 @@ export async function discoverAccountId(): Promise<DiscoveredAccount | null> {
 /** Persist the id so future launches resolve it from config automatically. */
 export async function rememberAccountId(accountId: string): Promise<void> {
   if (!ACCOUNT_ID_RE.test(accountId)) throw new Error("account id must be 24 hex characters");
-  await mkdir(dirname(CONFIG_PATH), { recursive: true });
-  await writeFile(CONFIG_PATH, `${JSON.stringify({ accountId }, null, 2)}\n`);
+  const path = configPath();
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, `${JSON.stringify({ accountId }, null, 2)}\n`);
 }

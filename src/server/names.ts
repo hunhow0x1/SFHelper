@@ -18,9 +18,9 @@
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { appFile } from "./paths";
 
 export interface NameDict {
   items: Record<string, string>;
@@ -31,8 +31,8 @@ export interface NameDict {
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BUNDLED_SEED = join(HERE, "public", "names.json");
-const CONFIG_PATH = join(homedir(), ".config", "sfhelper", "config.json");
-const CACHE_PATH = join(homedir(), ".config", "sfhelper", "names.cache.json");
+const configPath = () => appFile("config.json");
+const cachePath = () => appFile("names.cache.json");
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 
@@ -76,7 +76,7 @@ async function readJson(path: string): Promise<unknown | null> {
 
 async function resolveNamesUrl(): Promise<string | null> {
   if (process.env.SFHELPER_NAMES_URL) return process.env.SFHELPER_NAMES_URL;
-  const config = (await readJson(CONFIG_PATH)) as { namesUrl?: unknown } | null;
+  const config = (await readJson(configPath())) as { namesUrl?: unknown } | null;
   return typeof config?.namesUrl === "string" && config.namesUrl ? config.namesUrl : null;
 }
 
@@ -85,8 +85,8 @@ async function fetchRemote(url: string): Promise<NameDict | null> {
     const res = await fetch(url, { headers: { "user-agent": USER_AGENT } });
     if (!res.ok) return null;
     const dict = coerce(await res.json());
-    await mkdir(dirname(CACHE_PATH), { recursive: true });
-    await writeFile(CACHE_PATH, JSON.stringify({ at: Date.now(), dict }, null, 2));
+    await mkdir(dirname(cachePath()), { recursive: true });
+    await writeFile(cachePath(), JSON.stringify({ at: Date.now(), dict }, null, 2));
     return dict;
   } catch {
     return null;
@@ -94,7 +94,7 @@ async function fetchRemote(url: string): Promise<NameDict | null> {
 }
 
 async function readCache(): Promise<{ at: number; dict: NameDict } | null> {
-  const raw = (await readJson(CACHE_PATH)) as { at?: number; dict?: unknown } | null;
+  const raw = (await readJson(cachePath())) as { at?: number; dict?: unknown } | null;
   if (!raw || typeof raw.at !== "number") return null;
   return { at: raw.at, dict: coerce(raw.dict) };
 }

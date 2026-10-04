@@ -17,7 +17,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { readConsent, recordConsent, ACK_PHRASE } from "../helper/consent";
-import { importInventory } from "../helper/run";
+import { importInventory, type ImportSession } from "../helper/run";
 import { startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
@@ -73,6 +73,9 @@ async function refreshData(): Promise<void> {
  *  changes, so there's no need to reload the window (which would reset UI state).
  *  We re-import periodically so pickups and progress stay near-current. */
 let importing = false;
+/** The last import's game session (pid, account, nonce), so the next import can
+ *  reuse its nonce instead of re-scanning memory. In memory only - never saved. */
+let session: ImportSession | undefined;
 async function importFromMemory(): Promise<void> {
   if (importing) return; // don't overlap scans
   // DE refused us recently: don't scan or send anything until the pause ends.
@@ -88,6 +91,7 @@ async function importFromMemory(): Promise<void> {
       out: INVENTORY_PATH,
       configPath: CONFIG_PATH,
       consentPath: CONSENT_PATH,
+      session,
       onLog: (m) => log(m),
       onProgress: (label, pct) => {
         log(`${label}: ${pct}%`);
@@ -95,6 +99,10 @@ async function importFromMemory(): Promise<void> {
       },
     });
     if (result.ok) noteApiAccepted();
+    // Keep the session through a refusal (8): the nonce may still work once
+    // DE lets requests through again. Any other failure means it's gone stale.
+    if (result.ok) session = result.session;
+    else if (result.code !== 8) session = undefined;
     // 8 = DE refused (403/429): pause every request to DE, profile included.
     const message = result.code === 8 ? pausedMessage(noteApiRefused()) : result.message;
     log(result.ok ? result.message : `Inventory import skipped (${result.code}): ${result.message}`);

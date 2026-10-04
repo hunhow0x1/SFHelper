@@ -1,8 +1,8 @@
 /** App preferences, kept in the user's config dir (settings.json). */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
+import { appFile } from "./paths";
 
 export interface Settings {
   /** Raise a desktop notification when a Moonsteel weapon is acquired. */
@@ -11,12 +11,11 @@ export interface Settings {
 
 const DEFAULTS: Settings = { moonsteelNotify: true };
 
-const BASE = process.env.SFHELPER_HOME ?? join(homedir(), ".config", "sfhelper");
-const SETTINGS_PATH = join(BASE, "settings.json");
+const settingsPath = () => appFile("settings.json");
 
 export async function getSettings(): Promise<Settings> {
   try {
-    const s = JSON.parse(await readFile(SETTINGS_PATH, "utf8")) as Partial<Settings>;
+    const s = JSON.parse(await readFile(settingsPath(), "utf8")) as Partial<Settings>;
     return { moonsteelNotify: typeof s.moonsteelNotify === "boolean" ? s.moonsteelNotify : DEFAULTS.moonsteelNotify };
   } catch {
     return { ...DEFAULTS };
@@ -27,7 +26,8 @@ export async function getSettings(): Promise<Settings> {
 export async function updateSettings(patch: Record<string, unknown>): Promise<Settings> {
   const s = await getSettings();
   if (typeof patch.moonsteelNotify === "boolean") s.moonsteelNotify = patch.moonsteelNotify;
-  await mkdir(dirname(SETTINGS_PATH), { recursive: true });
-  await writeFile(SETTINGS_PATH, `${JSON.stringify(s, null, 2)}\n`);
+  const path = settingsPath();
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, `${JSON.stringify(s, null, 2)}\n`);
   return s;
 }

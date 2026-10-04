@@ -14,8 +14,8 @@
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
+import { appFile } from "./paths";
 
 /** A pre-reset observation this close to the reset counts as an exact baseline
  *  (the dashboard refreshes every 30s while open). */
@@ -91,15 +91,14 @@ export function dailyCaps(
   };
 }
 
-const BASE = process.env.SFHELPER_HOME ?? join(homedir(), ".config", "sfhelper");
-const STATE_PATH = join(BASE, "standing.json");
+const statePath = () => appFile("standing.json");
 
 const dayKey = (ms: number): string => new Date(ms).toISOString().slice(0, 10);
 const resetOf = (ms: number): number => Date.parse(`${dayKey(ms)}T00:00:00Z`);
 
 async function load(): Promise<State | null> {
   try {
-    const s = JSON.parse(await readFile(STATE_PATH, "utf8")) as State;
+    const s = JSON.parse(await readFile(statePath(), "utf8")) as State;
     return s && typeof s.day === "string" && s.last && s.earned ? s : null;
   } catch {
     return null;
@@ -107,8 +106,9 @@ async function load(): Promise<State | null> {
 }
 
 async function save(s: State): Promise<void> {
-  await mkdir(dirname(STATE_PATH), { recursive: true });
-  await writeFile(STATE_PATH, JSON.stringify(s));
+  const path = statePath();
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, JSON.stringify(s));
 }
 
 /** Record the current per-faction Standing; returns today's tally. */
