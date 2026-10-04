@@ -32,6 +32,11 @@ export interface TotemRef {
   type: string;
   /** In-game rank (fingerprint lvl + 1), or null if unranked. */
   rank: number | null;
+  /** Totem slot on the weapon, 1-4. A config's Upgrades list is positional:
+   *  index 0 holds the Rune, 1-4 the totem slots (4 is the one the Rune unlocks). */
+  slot: number | null;
+  /** The totem's own attuned Virtue (fingerprint "pol"). */
+  virtue: "Courage" | "Spirit" | "Grace" | null;
 }
 
 export interface SlotGear {
@@ -79,14 +84,19 @@ export interface GearInfo {
 
 const EMPTY_SLOT: SlotGear = { type: null, runes: [], totems: [], joinery: null, craftwork: null, tempers: [] };
 
-/** Parse a totem/rune UpgradeFingerprint string for its level (0-based). */
-function fingerprintLvl(fp: unknown): number | null {
-  if (typeof fp !== "string") return null;
+/** Parse a totem/rune UpgradeFingerprint string for its level (0-based) and,
+ *  for totems, attuned Virtue. */
+const POL_VIRTUE: Record<string, TotemRef["virtue"]> = { AP_COURAGE: "Courage", AP_SPIRIT: "Spirit", AP_GRACE: "Grace" };
+function parseFingerprint(fp: unknown): { lvl: number | null; virtue: TotemRef["virtue"] } {
+  if (typeof fp !== "string") return { lvl: null, virtue: null };
   try {
-    const lvl = (JSON.parse(fp) as { lvl?: unknown }).lvl;
-    return typeof lvl === "number" ? lvl : null;
+    const f = JSON.parse(fp) as { lvl?: unknown; pol?: unknown };
+    return {
+      lvl: typeof f.lvl === "number" ? f.lvl : null,
+      virtue: (typeof f.pol === "string" && POL_VIRTUE[f.pol]) || null,
+    };
   } catch {
-    return null;
+    return { lvl: null, virtue: null };
   }
 }
 
@@ -190,15 +200,15 @@ export function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
   return idx;
 }
 
-/** Installed-upgrade ItemId -> { ItemType, lvl } (Runes and Totems live here). */
-function upgradeIndex(raw: Record<string, unknown>): Map<string, { type: string; lvl: number | null }> {
-  const idx = new Map<string, { type: string; lvl: number | null }>();
+/** Installed-upgrade ItemId -> { ItemType, lvl, virtue } (Runes and Totems live here). */
+function upgradeIndex(raw: Record<string, unknown>): Map<string, { type: string; lvl: number | null; virtue: TotemRef["virtue"] }> {
+  const idx = new Map<string, { type: string; lvl: number | null; virtue: TotemRef["virtue"] }>();
   const list = raw.Upgrades;
   if (!Array.isArray(list)) return idx;
   for (const entry of list) {
     const u = entry as { ItemId?: { $oid?: string }; ItemType?: string; UpgradeFingerprint?: unknown };
     const oid = u?.ItemId?.$oid;
-    if (oid && typeof u.ItemType === "string") idx.set(oid, { type: u.ItemType, lvl: fingerprintLvl(u.UpgradeFingerprint) });
+    if (oid && typeof u.ItemType === "string") idx.set(oid, { type: u.ItemType, ...parseFingerprint(u.UpgradeFingerprint) });
   }
   return idx;
 }
@@ -222,12 +232,19 @@ export function parseBuilds(raw: unknown): Build[] {
     const cfg = info.configs[typeof s.mod === "number" ? s.mod : 0] ?? info.configs[0] ?? [];
     const runes: string[] = [];
     const totems: TotemRef[] = [];
-    for (const upId of cfg) {
+    cfg.forEach((upId, i) => {
       const info = upgrades.get(upId);
-      if (!info) continue;
+      if (!info) return;
       if (info.type.includes("/Upgrades/Runes/")) runes.push(info.type);
-      else if (info.type.includes("/Upgrades/Totems/")) totems.push({ type: info.type, rank: info.lvl != null ? info.lvl + 1 : null });
-    }
+      else if (info.type.includes("/Upgrades/Totems/")) {
+        totems.push({
+          type: info.type,
+          rank: info.lvl != null ? info.lvl + 1 : null,
+          slot: i >= 1 && i <= 4 ? i : null,
+          virtue: info.virtue,
+        });
+      }
+    });
     return { type: info.type, runes, totems, joinery: decodeJoinery(info.upgradeType), craftwork: info.craftwork, tempers: info.tempers };
   };
 

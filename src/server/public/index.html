@@ -425,6 +425,13 @@
       .totemrow { display: grid; gap: 2px; }
       .totemrow .tname { font-weight: 500; font-size: 15px; color: var(--text); }
       .totemrow .teff { color: var(--muted); font-size: 14px; line-height: 1.45; }
+      /* Totems by slot: a fixed label column, then name/virtue over the effect. */
+      .totemrow.slotted { grid-template-columns: 74px 1fr; column-gap: 12px; }
+      .totemrow.slotted .tslot { grid-row: span 2; padding-top: 2px; color: var(--faint); font: 600 10.5px/1.3 var(--body); letter-spacing: 0.12em; text-transform: uppercase; }
+      .totemrow.slotted .tslot small { display: block; font-size: 9.5px; letter-spacing: 0.1em; color: var(--faint); opacity: 0.8; }
+      .totemrow.slotted .tname, .totemrow.slotted .teff { grid-column: 2; }
+      .totemrow.empty .tname { color: var(--faint); font-style: italic; font-weight: 400; }
+      .totemrow .tvirt { margin-left: 8px; font-size: 12.5px; font-weight: 500; }
       .joinery { display: flex; align-items: center; gap: 10px; font-size: 15px; }
       .joinery .jicon { height: 28px; width: 28px; }
       .joinery .jname { font-weight: 600; }
@@ -521,7 +528,7 @@
           <h2>Loadouts</h2>
           <div id="loadouts"><span class="muted">—</span></div>
           <div class="setup lo-import">
-            <input id="importBuild" placeholder="Paste a build JSON to import" spellcheck="false" />
+            <input id="importBuild" placeholder="Paste a loadout code to import" spellcheck="false" />
             <button id="importBtn">Import</button>
             <span class="status" id="importStatus"></span>
           </div>
@@ -1132,7 +1139,9 @@
           type: x.type ?? null,
           runes: Array.isArray(x.runes) ? x.runes : [],
           totems: (Array.isArray(x.totems) ? x.totems : []).map((t) =>
-            typeof t === "string" ? { type: t, rank: null } : { type: t.type, rank: t.rank ?? null },
+            typeof t === "string"
+              ? { type: t, rank: null, slot: null, virtue: null }
+              : { type: t.type, rank: t.rank ?? null, slot: t.slot ?? null, virtue: t.virtue ?? null },
           ),
           joinery: x.joinery && typeof x.joinery === "object"
             ? { name: x.joinery.name ?? null, virtue: x.joinery.virtue ?? null, code: x.joinery.code ?? "" }
@@ -1174,14 +1183,38 @@
         });
         return `${shown} (Rank ${rank})`;
       }
-      // Totems: name + effect at the totem's current rank.
-      const totemRows = (arr) => {
+      // Totems in weapon slot order (1-4; slot 4 is the one the Rune unlocks),
+      // with empty slots shown. Name + the totem's own Virtue, then its effect
+      // at its current rank. Older exports carry no slot numbers, so those list
+      // in their saved order without slot labels. Slot 4's Virtue comes from the
+      // Rune's description ("...grants an additional Courage slot for Totems").
+      const runeSlotVirtue = (runes) => {
+        const eff = runes && runes.length ? RUNES[shortName(runes[0])] || "" : "";
+        const m = /additional (Courage|Spirit|Grace)\b[^.]*\bslot/i.exec(eff);
+        return m ? m[1][0].toUpperCase() + m[1].slice(1).toLowerCase() : null;
+      };
+      const totemRows = (arr, runes) => {
+        const hasRune = !!(runes && runes.length);
+        const slot4 = runeSlotVirtue(runes);
         if (!arr || !arr.length) return '<span class="muted">—</span>';
-        return arr
-          .map((t) => {
-            const name = shortName(t.type);
-            const eff = effectAtRank(TOTEMS[name], t.rank);
-            return `<div class="totemrow"><span class="tname">${name}</span>${eff ? `<span class="teff">${eff}</span>` : ""}</div>`;
+        const body = (t) => {
+          const name = totemName(t.type);
+          const eff = effectAtRank(TOTEMS[name], t.rank);
+          const virt = t.virtue ? `<span class="tvirt" style="color:${VIRTUE_COLOR[t.virtue]}">${t.virtue}</span>` : "";
+          return `<span class="tname">${name}${virt}</span>${eff ? `<span class="teff">${eff}</span>` : ""}`;
+        };
+        if (!arr.some((t) => t.slot)) return arr.map((t) => `<div class="totemrow">${body(t)}</div>`).join("");
+        const slots = hasRune || arr.some((t) => t.slot === 4) ? 4 : 3;
+        return Array.from({ length: slots }, (_, i) => i + 1)
+          .map((n) => {
+            const t = arr.find((x) => x.slot === n);
+            const sub = n === 4
+              ? `<small${slot4 ? ` style="color:${VIRTUE_COLOR[slot4]}"` : ""}>${slot4 ? `${slot4} · ` : ""}Rune</small>`
+              : "";
+            const label = `<span class="tslot">Slot ${n}${sub}</span>`;
+            return t
+              ? `<div class="totemrow slotted">${label}${body(t)}</div>`
+              : `<div class="totemrow slotted empty">${label}<span class="tname">Empty</span></div>`;
           })
           .join("");
       };
@@ -1300,7 +1333,7 @@
           </div>`;
         const joinery = slot.joinery ? prop("Joinery", `<div class="joinery">${joineryLabel(slot.joinery)}</div>`) : "";
         const runes = slot.runes.length ? prop("Runes", `<div class="fxlist">${effectRows(slot.runes, RUNES)}</div>`) : "";
-        const totems = slot.totems.length ? prop("Totems", `<div class="fxlist">${totemRows(slot.totems)}</div>`) : "";
+        const totems = slot.totems.length ? prop("Totems", `<div class="fxlist">${totemRows(slot.totems, slot.runes)}</div>`) : "";
         if (slot.arts) {
           return `<div class="gear pact">${head()}${joinery}${runes}${totems}${pactTreeHtml(slot.arts)}</div>`;
         }
@@ -1350,15 +1383,44 @@
             <div class="lo-hint">Open a loadout to see its Pact Arts, and each weapon's Joinery, runes, totems &amp; tempers.</div>`
           : '<span class="muted">No loadouts — run the memory helper to import your inventory, then refresh.</span>';
       }
+      // Loadout codes: "SFH1:" + base64url(deflate(JSON)). Compressing first is
+      // what makes them short; base64 on its own makes text ~33% longer. Empty
+      // fields are left out (normSlot restores them). Import also accepts the
+      // older plain-JSON codes.
+      const CODE_PREFIX = "SFH1:";
+      const toB64url = (bytes) => {
+        let bin = "";
+        for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+        return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      };
+      const fromB64url = (str) => {
+        const b64 = str.replace(/-/g, "+").replace(/_/g, "/");
+        return Uint8Array.from(atob(b64 + "===".slice((b64.length + 3) % 4)), (c) => c.charCodeAt(0));
+      };
+      const pipeBytes = async (bytes, stream) =>
+        new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+      async function encodeBuild(b) {
+        const json = JSON.stringify(b, (k, v) => (v === null || v === false || (Array.isArray(v) && !v.length) ? undefined : v));
+        return CODE_PREFIX + toB64url(await pipeBytes(new TextEncoder().encode(json), new CompressionStream("deflate-raw")));
+      }
+      async function decodeBuild(code) {
+        const t = code.trim();
+        if (t.startsWith("{")) return JSON.parse(t); // older plain-JSON codes
+        const body = t.startsWith(CODE_PREFIX) ? t.slice(CODE_PREFIX.length) : t;
+        const bytes = await pipeBytes(fromB64url(body), new DecompressionStream("deflate-raw"));
+        return JSON.parse(new TextDecoder().decode(bytes));
+      }
       function saveImported() {
         try { localStorage.setItem("sfhelper.builds", JSON.stringify(IMPORTED_BUILDS)); } catch {}
       }
       $("loadouts").addEventListener("click", (e) => {
         const ex = e.target.closest("[data-export]");
         if (ex) {
-          navigator.clipboard?.writeText(decodeURIComponent(ex.dataset.export));
-          ex.textContent = "Copied!";
-          setTimeout(() => (ex.textContent = "Export"), 1200);
+          encodeBuild(JSON.parse(decodeURIComponent(ex.dataset.export)))
+            .then((code) => navigator.clipboard.writeText(code))
+            .then(() => { ex.textContent = "Copied!"; })
+            .catch(() => { ex.textContent = "Copy failed"; })
+            .finally(() => setTimeout(() => (ex.textContent = "Export"), 1400));
           return;
         }
         const rm = e.target.closest("[data-remove]");
@@ -1375,10 +1437,10 @@
           document.getElementById("lo-" + tg.dataset.toggle)?.classList.toggle("open", open);
         }
       });
-      $("importBtn").addEventListener("click", () => {
+      $("importBtn").addEventListener("click", async () => {
         const el = $("importBuild");
         try {
-          const b = JSON.parse(el.value);
+          const b = await decodeBuild(el.value);
           if (!b || typeof b.name !== "string") throw new Error("missing a build name");
           IMPORTED_BUILDS.push(normBuild({ ...b, favorite: false }));
           saveImported();
@@ -1386,7 +1448,7 @@
           $("importStatus").textContent = `Imported "${b.name}".`;
           renderBuilds();
         } catch (err) {
-          $("importStatus").textContent = "Invalid build JSON.";
+          $("importStatus").textContent = "That doesn't look like a loadout code.";
         }
       });
 
