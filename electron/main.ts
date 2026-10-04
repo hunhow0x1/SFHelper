@@ -22,6 +22,7 @@ import { startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
 import { setImportStatus } from "../src/server/importStatus";
+import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
 import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -74,6 +75,12 @@ async function refreshData(): Promise<void> {
 let importing = false;
 async function importFromMemory(): Promise<void> {
   if (importing) return; // don't overlap scans
+  // DE refused us recently: don't scan or send anything until the pause ends.
+  const paused = apiPausedUntil();
+  if (paused) {
+    setImportStatus({ state: "error", code: 8, message: pausedMessage(paused) });
+    return;
+  }
   importing = true;
   setImportStatus({ state: "scanning", message: "Looking for Soulframe…" });
   try {
@@ -87,11 +94,14 @@ async function importFromMemory(): Promise<void> {
         setImportStatus({ state: "scanning", message: `Reading game memory for the ${label}… ${pct}%` });
       },
     });
+    if (result.ok) noteApiAccepted();
+    // 8 = DE refused (403/429): pause every request to DE, profile included.
+    const message = result.code === 8 ? pausedMessage(noteApiRefused()) : result.message;
     log(result.ok ? result.message : `Inventory import skipped (${result.code}): ${result.message}`);
     setImportStatus(
       result.ok
         ? { state: "ok", message: "Inventory imported." }
-        : { state: "error", code: result.code, message: result.message },
+        : { state: "error", code: result.code, message },
     );
   } catch (err) {
     // Unexpected failure (e.g. the native memory module failed to load).

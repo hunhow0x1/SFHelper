@@ -4,6 +4,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseMaps, ReadOnlyMemory } from "../helper/memoryReader";
 import { ACK_PHRASE, readConsent, recordConsent, requireConsent } from "../helper/consent";
+import { discoverVerifiedAccountId } from "../helper/accountIdLocator";
+import { EndpointRefusedError } from "../helper/fetchInventory";
+import { apiPausedUntil, noteApiAccepted, noteApiRefused } from "../src/server/apiBackoff";
 
 describe("memory maps parsing", () => {
   const maps = [
@@ -59,6 +62,48 @@ describe("memory scan (Windows-like reads)", () => {
       "aaaaaaaaaaaaaaaaaaaaaaaa",
       "bbbbbbbbbbbbbbbbbbbbbbbb",
     ]);
+  });
+
+  it("matches several needles in one pass over memory", async () => {
+    const mem = fakeMemory();
+    let reads = 0;
+    const backend = (mem as unknown as { backend: { read: (a: number, l: number) => Promise<Buffer> } }).backend;
+    const read = backend.read.bind(backend);
+    backend.read = (a, l) => ((reads += 1), read(a, l));
+    const [ids, keys, none] = await mem.scanMany([
+      { needle: Buffer.from("accountId=", "latin1"), trailingBytes: 4 },
+      { needle: Buffer.from("Id=", "latin1"), trailingBytes: 4, maxHits: 2 },
+      { needle: Buffer.from("absent", "latin1") },
+    ]);
+    expect(ids?.map((h) => h.trailing.toString("latin1"))).toEqual(["0123", "aaaa", "bbbb"]);
+    expect(keys).toHaveLength(2);
+    expect(none).toEqual([]);
+    expect(reads).toBe(1 + 1 + 3); // each 1 MiB chunk read once, not once per needle
+  });
+});
+
+describe("refusals stop requests", () => {
+  it("stops verifying account ids at the first 403", async () => {
+    let calls = 0;
+    const refuse = (async () => ((calls += 1), new Response("", { status: 403 }))) as typeof fetch;
+    await expect(discoverVerifiedAccountId(["a".repeat(24), "b".repeat(24)], refuse)).rejects.toBeInstanceOf(
+      EndpointRefusedError,
+    );
+    expect(calls).toBe(1);
+  });
+
+  it("pauses every request after a refusal, longer each time, until one is accepted", () => {
+    const t = 1_000_000;
+    expect(apiPausedUntil(t)).toBeNull();
+    const first = noteApiRefused(t);
+    expect(first - t).toBe(15 * 60_000);
+    expect(apiPausedUntil(t + 60_000)).toBe(first);
+    expect(apiPausedUntil(first)).toBeNull();
+    expect(noteApiRefused(first) - first).toBe(30 * 60_000);
+    noteApiAccepted();
+    expect(apiPausedUntil(first + 1)).toBeNull();
+    expect(noteApiRefused(t) - t).toBe(15 * 60_000);
+    noteApiAccepted();
   });
 });
 

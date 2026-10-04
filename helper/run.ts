@@ -92,10 +92,19 @@ export async function importInventory(opts: ImportOptions): Promise<ImportResult
     }
     try {
       usablePid = proc.pid;
+      const regions = mem.scanRegions();
+      const mb = regions.reduce((n, r) => n + (r.end - r.start), 0) / (1 << 20);
+      log(`Pid ${proc.pid}: ${regions.length} writable regions, ${Math.round(mb)} MB to search.`);
       if (!account) {
         log("Scanning writable memory for the account id...");
         const idCandidates = await findAccountIdCandidates(mem, progress("account id"));
-        const verified = await discoverVerifiedAccountId(idCandidates);
+        let verified: Awaited<ReturnType<typeof discoverVerifiedAccountId>>;
+        try {
+          verified = await discoverVerifiedAccountId(idCandidates);
+        } catch (err) {
+          if (err instanceof EndpointRefusedError) return { ok: false, code: 8, message: err.message };
+          throw err;
+        }
         if (verified) {
           account = verified.accountId;
           await rememberAccountId(opts.configPath, account);
@@ -104,8 +113,9 @@ export async function importInventory(opts: ImportOptions): Promise<ImportResult
       }
       if (account) {
         log("Scanning writable memory for the session nonce...");
+        const t0 = Date.now();
         nonceCandidates = await findNonceCandidates(mem, account, progress("nonce"));
-        log(`Found ${nonceCandidates.length} nonce candidate(s).`);
+        log(`Found ${nonceCandidates.length} nonce candidate(s) in ${((Date.now() - t0) / 1000).toFixed(1)}s.`);
       }
     } finally {
       await mem.close();

@@ -19,6 +19,7 @@ import { recordPickups } from "./pickups";
 import { getSettings, updateSettings } from "./settings";
 import { recordStanding, dailyCaps } from "./standing";
 import { getImportStatus } from "./importStatus";
+import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -58,18 +59,22 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
 }
 
 /** Fetch and parse a profile, with a short cache so rapid polling from the page
- *  does not hammer DE's server. Throws EndpointRefused text on 403/429. */
+ *  does not hammer DE's server. On 403/429 every request to DE pauses (see
+ *  apiBackoff) - the page keeps polling, but nothing reaches DE until then. */
 async function getProfile(accountId: string): Promise<ProfileSnapshot> {
   const cached = cache.get(accountId);
   if (cached && Date.now() - cached.at < MIN_FETCH_INTERVAL_MS) return cached.snapshot;
+  const paused = apiPausedUntil();
+  if (paused) throw new Error(pausedMessage(paused));
 
   const response = await fetch(PROFILE_ENDPOINT + encodeURIComponent(accountId), {
     headers: { "user-agent": USER_AGENT },
   });
   if (response.status === 403 || response.status === 429) {
-    throw new Error(`Soulframe refused the request (${response.status}). Backing off.`);
+    throw new Error(pausedMessage(noteApiRefused(), response.status));
   }
   if (!response.ok) throw new Error(`Profile lookup failed (${response.status}).`);
+  noteApiAccepted();
 
   const text = await response.text();
   if (text.trim() === "") throw new Error("No profile for that account id.");

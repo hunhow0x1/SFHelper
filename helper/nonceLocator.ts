@@ -47,12 +47,21 @@ export async function findNonceCandidates(
     }
   };
 
-  // Strongest anchor: bytes sitting right after the account id.
-  harvest(await mem.scan(Buffer.from(accountId, "latin1"), { trailingBytes: 96, onProgress }), 3);
-  // The request fragment the client assembles: "&nonce=" is followed by it.
-  harvest(await mem.scan(Buffer.from("&nonce=", "latin1"), { trailingBytes: 40, onProgress }), 3);
-  // Weaker: the bare key, which may precede the value in a struct/JSON.
-  harvest(await mem.scan(Buffer.from("nonce", "latin1"), { trailingBytes: 48, onProgress }), 1);
+  // All anchors in one pass over memory:
+  const [afterId, afterParam, afterKey] = await mem.scanMany(
+    [
+      // Strongest anchor: bytes sitting right after the account id.
+      { needle: Buffer.from(accountId, "latin1"), trailingBytes: 96 },
+      // The request fragment the client assembles: "&nonce=" is followed by it.
+      { needle: Buffer.from("&nonce=", "latin1"), trailingBytes: 40 },
+      // Weaker: the bare key, which may precede the value in a struct/JSON.
+      { needle: Buffer.from("nonce", "latin1"), trailingBytes: 48 },
+    ],
+    { onProgress },
+  );
+  harvest(afterId ?? [], 3);
+  harvest(afterParam ?? [], 3);
+  harvest(afterKey ?? [], 1);
 
   // Drop the account id itself if it slipped in as a token.
   ranked.delete(accountId);

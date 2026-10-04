@@ -26,6 +26,10 @@ const MEM_COMMIT = 0x1000;
 const MEM_PRIVATE = 0x20000;
 const PAGE_GUARD = 0x100;
 const PAGE_NOACCESS = 0x01;
+// Uncached / write-combined pages are device (GPU) memory: reading them is
+// extremely slow and they never hold the session strings we look for.
+const PAGE_NOCACHE = 0x200;
+const PAGE_WRITECOMBINE = 0x400;
 // Protections that permit reading (any of these, unless guarded/noaccess).
 const READABLE = new Set([0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]); // R, RW, WC, XR, XRW, X? see below
 const WRITABLE = new Set([0x04, 0x08, 0x40, 0x80]); // RW, WC, EX_RW, EX_WC
@@ -112,7 +116,8 @@ function enumerateRegions(k32: K32, handle: unknown): MemoryRegion[] {
     const protectFull = mbi.Protect ?? 0;
     const protect = protectFull & 0xff;
     const guarded = (protectFull & PAGE_GUARD) !== 0 || protect === PAGE_NOACCESS;
-    if (mbi.State === MEM_COMMIT && !guarded && READABLE.has(protect)) {
+    const device = (protectFull & (PAGE_NOCACHE | PAGE_WRITECOMBINE)) !== 0;
+    if (mbi.State === MEM_COMMIT && !guarded && !device && READABLE.has(protect)) {
       const w = WRITABLE.has(protect);
       const priv = mbi.Type === MEM_PRIVATE;
       regions.push({
@@ -120,7 +125,11 @@ function enumerateRegions(k32: K32, handle: unknown): MemoryRegion[] {
         end: base + size,
         // Synthesize a Linux-style perm string so shared scan filters work.
         perms: `r${w ? "w" : "-"}-${priv ? "p" : "s"}`,
-        path: priv ? null : "[mapped]",
+        // Only private memory (the heaps) counts as "anonymous" for the scan
+        // filter. Mapped/image memory gets a non-bracketed tag so it's skipped
+        // like a Linux file mapping (a "[...]" tag would read as [heap]/[stack]
+        // and pull in gigabytes of shared GPU/driver mappings).
+        path: priv ? null : "mapped",
       });
     }
     addr = base + size;

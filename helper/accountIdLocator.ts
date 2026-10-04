@@ -16,6 +16,7 @@
  */
 
 import type { ReadOnlyMemory } from "./memoryReader";
+import { EndpointRefusedError } from "./fetchInventory";
 
 const OID_RE = /[0-9a-f]{24}/gi;
 const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=";
@@ -36,13 +37,20 @@ export async function findAccountIdCandidates(
     if (weight > (ranked.get(id) ?? 0)) ranked.set(id, weight);
   };
 
+  const [afterParam, afterOid] = await mem.scanMany(
+    [
+      { needle: Buffer.from("accountId=", "latin1"), trailingBytes: 26 },
+      { needle: Buffer.from("$oid", "latin1"), trailingBytes: 40 },
+    ],
+    { onProgress },
+  );
   // Strongest: the id the client itself put into the inventory request URL.
-  for (const hit of await mem.scan(Buffer.from("accountId=", "latin1"), { trailingBytes: 26, onProgress })) {
+  for (const hit of afterParam ?? []) {
     const [first] = oidsFrom(hit.trailing);
     if (first) consider(first, 3);
   }
   // Fallback: ids near the "$oid" JSON key the profile/session data uses.
-  for (const hit of await mem.scan(Buffer.from("$oid", "latin1"), { trailingBytes: 40, onProgress })) {
+  for (const hit of afterOid ?? []) {
     for (const id of oidsFrom(hit.trailing)) consider(id, 1);
   }
 
@@ -50,7 +58,8 @@ export async function findAccountIdCandidates(
 }
 
 /** Confirm a candidate against the PUBLIC profile endpoint (no nonce, no
- *  session). Returns the display name on success so the caller can show it. */
+ *  session). Returns the display name on success so the caller can show it.
+ *  Throws EndpointRefusedError on 403/429 so no further candidates are tried. */
 export async function verifyAccountId(
   accountId: string,
   fetchImpl: typeof fetch = fetch,
@@ -58,6 +67,7 @@ export async function verifyAccountId(
   const response = await fetchImpl(PROFILE_ENDPOINT + encodeURIComponent(accountId), {
     headers: { "user-agent": USER_AGENT },
   });
+  if (response.status === 403 || response.status === 429) throw new EndpointRefusedError(response.status);
   if (!response.ok) return null;
   const text = await response.text();
   if (text.trim() === "") return null;
