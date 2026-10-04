@@ -219,6 +219,13 @@
       .chip.temper:hover { border-color: var(--accent); background: rgba(201, 165, 92, 0.1); }
       .chip.temper.stacked { border-color: rgba(232, 201, 126, 0.6); background: rgba(201, 165, 92, 0.13); color: var(--accent-hi); }
       .chip.temper .x2 { font-weight: 700; }
+      /* In-game temper icons (bundled from the wiki's copies of the game art). */
+      .chip.temper { display: inline-flex; align-items: center; gap: 7px; padding-left: 5px; }
+      .ticn { width: 20px; height: 20px; object-fit: contain; flex: none; border-radius: 2px; }
+      .temperpop .tp-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+      .temperpop .tp-head .ticn { width: 44px; height: 44px; border: 1px solid rgba(201, 165, 92, 0.35); background: rgba(0, 0, 0, 0.35); padding: 2px; }
+      .temperpop .tp-head .tp-name { margin-bottom: 0; }
+      .row .label .ticn { width: 22px; height: 22px; vertical-align: -6px; margin-right: 9px; }
       .tag {
         color: var(--muted); font: 500 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase;
         border: 1px solid var(--line-2); border-radius: 2px; padding: 3px 6px; margin-left: 10px; vertical-align: 3px;
@@ -718,9 +725,13 @@
       // In-game temper name (from tempers.json), else the cleaned tag.
       const temperName = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].name) || cleanTemper(tag);
       const temperEffect = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].effect) || "";
+      // The temper's in-game icon, bundled as img/tempers/<slug>.png (see
+      // build_data.ts tempericons). Removed quietly if there's no icon for it.
+      const temperIcon = (tag) =>
+        `<img class="ticn" src="img/tempers/${temperName(tag).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.png" alt="" loading="lazy" onerror="this.remove()">`;
       // A clickable temper chip (click shows its effect).
       const temperChip = (tag, count = 1) =>
-        `<span class="chip temper${count > 1 ? " stacked" : ""}" data-tag="${tag}" data-count="${count}">${temperName(tag)}${count > 1 ? ` <span class="x2">×${count}</span>` : ""}</span>`;
+        `<span class="chip temper${count > 1 ? " stacked" : ""}" data-tag="${tag}" data-count="${count}">${temperIcon(tag)}<span>${temperName(tag)}${count > 1 ? ` <span class="x2">×${count}</span>` : ""}</span></span>`;
       // Group identical tempers (double-stacked = same tag twice = 2x effect) and
       // render them first, then singles, as one chip each.
       function temperChips(arr) {
@@ -752,7 +763,7 @@
           const eff = temperEffect(tag);
           const dbl = count > 1 ? `<div class="tp-dbl">Double-stacked ×${count} — effect is doubled</div>` : "";
           const effHtml = eff ? `<div class="tp-eff">${eff}</div>` : `<div class="tp-eff muted">Effect not documented yet.</div>`;
-          temperPop.innerHTML = `<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div>${dbl}${effHtml}`;
+          temperPop.innerHTML = `<div class="tp-head">${temperIcon(tag)}<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div></div>${dbl}${effHtml}`;
         }
         document.body.appendChild(temperPop);
         const r = chip.getBoundingClientRect();
@@ -875,7 +886,7 @@
           .map((t) => {
             const done = t.count >= TEMPER_GOAL;
             const status = done ? '<span class="mx">Learned</span>' : `${t.count}/${TEMPER_GOAL}`;
-            return `<div class="row wrow"><span class="label">${prettyTemper(t.tag)}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(Math.min(1, t.count / TEMPER_GOAL) * 100)}%"></i></span></div>`;
+            return `<div class="row wrow"><span class="label">${temperIcon(t.tag)}${prettyTemper(t.tag)}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(Math.min(1, t.count / TEMPER_GOAL) * 100)}%"></i></span></div>`;
           })
           .join("");
         if (list.length) $("tempers").innerHTML = rows || '<span class="muted">No tempers match.</span>';
@@ -1685,6 +1696,7 @@
           }).catch(() => {});
         }
         if (timer) clearInterval(timer);
+        if (accountWait) { clearInterval(accountWait); accountWait = null; }
         refresh();
         timer = setInterval(refresh, 30000);
         setAccountSetup(false); // collapse once we're tracking
@@ -1748,26 +1760,39 @@
       }
 
       // On load, try to discover the id automatically before asking for it.
+      // First launch in the desktop app: the memory import finds the account id
+      // once Soulframe is running, so keep the entry collapsed and wait for it.
+      let accountWait = null;
+      async function tryDiscoveredAccount() {
+        try {
+          const data = await (await fetch("/api/account")).json();
+          if (!data.accountId) return false;
+          $("accountId").value = data.accountId;
+          const via = data.source === "little-genius" ? "found via Little Genius" : "remembered";
+          setStatus("Account id " + via + " — tracking…");
+          start();
+          return true;
+        } catch {
+          return false;
+        }
+      }
       async function autoStart() {
         await loadDict();
-        try {
-          const res = await fetch("/api/account");
-          const data = await res.json();
-          if (data.accountId) {
-            $("accountId").value = data.accountId;
-            const via = data.source === "little-genius" ? "found via Little Genius" : "remembered";
-            setStatus("Account id " + via + " — tracking…");
-            start();
-            return;
-          }
-        } catch {}
+        if (await tryDiscoveredAccount()) return;
         // Fall back to a value this browser saved earlier.
         try {
           const saved = localStorage.getItem("sfhelper.accountId");
           if (saved) { $("accountId").value = saved; start(); return; }
         } catch {}
-        // No id anywhere - open the entry so a first-time user can add one.
-        setAccountSetup(true);
+        // No id anywhere yet. The desktop app detects it from the running game,
+        // so stay collapsed and check back; a plain browser can't, so open the
+        // entry for a first-time user there.
+        if (navigator.userAgent.includes("Electron")) {
+          setStatus("Waiting for Soulframe — your account is detected automatically once the game is running. (Or use Edit ID.)");
+          accountWait = setInterval(tryDiscoveredAccount, 10000);
+        } else {
+          setAccountSetup(true);
+        }
       }
       autoStart();
     </script>

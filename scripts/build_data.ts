@@ -9,7 +9,8 @@
  *  Archived/removed entries are skipped.
  */
 
-import { writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
 const API = "https://wiki.avakot.org/w/api.php";
@@ -482,6 +483,56 @@ export async function buildTotemData(outPath: string, onProgress?: ProgressFn): 
   return { ok: Object.keys(out).length, unparsed };
 }
 
+/** File slug a temper's icon is stored under: "Heightened Parry" -> "heightened-parry". */
+export const temperIconSlug = (name: string): string => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+/** Download every temper's in-game icon (the wiki hosts the game's art, listed
+ *  in Module:Data/Tempers) into outDir as <slug>.png, resized to 96px with
+ *  ImageMagick when available. Dev-time only: the icons are bundled with the
+ *  app rather than fetched at launch. */
+export async function buildTemperIcons(outDir: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
+  const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Tempers")}&prop=wikitext&format=json`);
+  const lua: string = r.parse?.wikitext?.["*"] ?? "";
+  const icons = new Map<string, string>(); // temper name -> wiki file name
+  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n {2}\},/g)) {
+    const icon = /Icon\s*=\s*"([^"]+)"/.exec(m[2]!)?.[1];
+    if (icon) icons.set(m[1]!, icon);
+  }
+  if (icons.size < 10) throw new Error(`Module:Data/Tempers listed only ${icons.size} icons`);
+  // Resolve file names to URLs, 50 per request.
+  const url = new Map<string, string>();
+  const files = [...new Set(icons.values())];
+  for (let i = 0; i < files.length; i += 50) {
+    const titles = files.slice(i, i + 50).map((f) => `File:${f}`).join("|");
+    const q = await j(`${API}?action=query&prop=imageinfo&iiprop=url&format=json&titles=${encodeURIComponent(titles)}`);
+    for (const p of Object.values(q.query?.pages ?? {}) as { title: string; imageinfo?: { url: string }[] }[]) {
+      if (p.imageinfo?.[0]) url.set(p.title.replace(/^File:/, "").replace(/ /g, "_"), p.imageinfo[0].url);
+    }
+  }
+  await mkdir(outDir, { recursive: true });
+  const hasMagick = spawnSync("magick", ["-version"]).status === 0;
+  let ok = 0, n = 0;
+  const unparsed: string[] = [];
+  for (const [name, file] of icons) {
+    onProgress?.(n++, icons.size, name);
+    const src = url.get(file.replace(/ /g, "_"));
+    if (!src) { unparsed.push(name); continue; }
+    try {
+      const png = Buffer.from(await (await fetch(src, { headers: { "user-agent": UA } })).arrayBuffer());
+      const out = `${outDir}/${temperIconSlug(name)}.png`;
+      if (hasMagick) {
+        const res = spawnSync("magick", ["png:-", "-resize", "96x96", "-strip", out], { input: png });
+        if (res.status !== 0) throw new Error("magick failed");
+      } else {
+        await writeFile(out, png);
+      }
+      ok++;
+    } catch { unparsed.push(name); }
+  }
+  onProgress?.(icons.size, icons.size, "done");
+  return { ok, unparsed };
+}
+
 // CLI: tsx scripts/build_data.ts <totems|runes> [outPath]
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const kind = process.argv[2];
@@ -512,6 +563,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/tempers.json";
       const r = await buildTempers(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} temper effects (${r.unparsed.length} without effect).\n`);
+    } else if (kind === "tempericons") {
+      const out = process.argv[3] ?? "src/server/public/img/tempers";
+      const r = await buildTemperIcons(out, bar);
+      process.stderr.write(`\nWrote ${r.ok} temper icons to ${out} (${r.unparsed.length} missing: ${r.unparsed.join(", ")}).\n`);
     } else if (kind === "totemdata") {
       const out = process.argv[3] ?? "src/server/public/totemdata.json";
       const r = await buildTotemData(out, bar);
@@ -521,7 +576,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const r = await buildPactArts(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} pact arts with text (${r.unparsed.length} without: ${r.unparsed.join(", ")}).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|runes|weapons|pacts|tempers|pactarts> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|runes|weapons|pacts|tempers|pactarts> [outPath]\n");
       process.exit(2);
     }
   };

@@ -22,6 +22,7 @@
     "build-tempers": "tsx scripts/build_data.ts tempers",
     "build-pactarts": "tsx scripts/build_data.ts pactarts",
     "build-totemdata": "tsx scripts/build_data.ts totemdata",
+    "build-tempericons": "tsx scripts/build_data.ts tempericons",
     "watch-log": "node scripts/watch_log.mjs",
     "build:app": "node scripts/build_app.mjs",
     "app": "npm run build:app && electron .",
