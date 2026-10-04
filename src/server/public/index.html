@@ -798,12 +798,13 @@
         const groupNames = [...new Set(items.map((i) => i.group))].sort((a, b) =>
           a === "Pacts" ? 1 : b === "Pacts" ? -1 : a.localeCompare(b),
         );
-        if (MASTERY_UI.type !== "all" && !groupNames.includes(MASTERY_UI.type)) MASTERY_UI.type = "all";
+        if (!["all", "weapons", "pacts"].includes(MASTERY_UI.type)) MASTERY_UI.type = "all"; // older saved class filters
 
         const q = MASTERY_UI.q.trim().toLowerCase();
         const passOwn = (i) => MASTERY_UI.own === "all" || (MASTERY_UI.own === "owned") === !!i.w;
         const passMastery = (i) => MASTERY_UI.mastery === "all" || (MASTERY_UI.mastery === "mastered") === !!(i.lvl && i.lvl.maxed);
-        const passType = (i) => MASTERY_UI.type === "all" || i.group === MASTERY_UI.type;
+        const isPact = (i) => i.group === "Pacts";
+        const passType = (i) => MASTERY_UI.type === "all" || (MASTERY_UI.type === "pacts") === isPact(i);
         const passSearch = (i) => {
           if (!q) return true;
           const cw = i.w && craftworkInfo(i.w.craftwork);
@@ -825,11 +826,8 @@
             chip("mastery", "unmastered", "Not Mastered", countIf((i) => !(i.lvl && i.lvl.maxed) && passOwn(i) && passType(i))) +
           `</div><span class="fl">Type</span><div class="wfilter">` +
             chip("type", "all", "All") +
-            groupNames
-              .map((g) => ({ g, n: countIf((i) => i.group === g && passOwn(i) && passMastery(i)) }))
-              .filter((c) => c.n > 0 || MASTERY_UI.type === c.g)
-              .map((c) => chip("type", c.g, c.g, c.n))
-              .join("") +
+            chip("type", "weapons", "Weapons", countIf((i) => !isPact(i) && passOwn(i) && passMastery(i))) +
+            chip("type", "pacts", "Pacts", countIf((i) => isPact(i) && passOwn(i) && passMastery(i))) +
           `</div>`;
 
         const rowFor = (i) => {
@@ -844,7 +842,7 @@
           return `<div class="mrow${l.maxed ? " done" : ""}"><span class="mname">${i.name}${cwTag}</span><span class="mval">${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
         };
         const shown = items.filter((i) => passOwn(i) && passMastery(i) && passType(i) && passSearch(i));
-        $("mastery").classList.toggle("single", MASTERY_UI.type !== "all");
+        $("mastery").classList.toggle("single", MASTERY_UI.type === "pacts"); // one group: let it flow across columns
         const html = groupNames
           .map((g) => {
             const list = shown.filter((i) => i.group === g).sort((a, b) => a.name.localeCompare(b.name));
@@ -1654,15 +1652,25 @@
           .filter((w) => w.kills)
           .sort((a, b) => (b.kills || 0) - (a.kills || 0))
           .slice(0, 8);
-        const topEnemies = (data.stats?.enemies || [])
-          .sort((a, b) => (b.kills || 0) - (a.kills || 0))
+        // Several internal types share one in-game name (every Sinecure Soldier
+        // variant is "Sinecure Soldier"), so combine them under that name.
+        const enemyRows = new Map();
+        for (const e of data.stats?.enemies || []) {
+          const name = e.name || shortName(e.type);
+          const row = enemyRows.get(name) || { name, kills: 0, executions: undefined };
+          row.kills += e.kills || 0;
+          if (typeof e.executions === "number") row.executions = (row.executions || 0) + e.executions;
+          enemyRows.set(name, row);
+        }
+        const topEnemies = [...enemyRows.values()]
+          .sort((a, b) => b.kills - a.kills)
           .slice(0, 8);
         const wTable = `<div><h3 class="sub">Top Weapons by Kills</h3>
           <table><tr><th>Weapon</th><th class="num">Kills</th><th class="num">XP</th></tr>
           ${topWeapons.map((w) => `<tr><td>${shortName(w.type)}</td><td class="num">${fmt(w.kills)}</td><td class="num">${fmt(w.xp)}</td></tr>`).join("")}</table></div>`;
         const eTable = `<div><h3 class="sub">Top Enemies by Kills</h3>
           <table><tr><th>Enemy</th><th class="num">Kills</th><th class="num">Exec.</th></tr>
-          ${topEnemies.map((e) => `<tr><td>${shortName(e.type)}</td><td class="num">${fmt(e.kills)}</td><td class="num">${fmt(e.executions)}</td></tr>`).join("")}</table></div>`;
+          ${topEnemies.map((e) => `<tr><td>${e.name}</td><td class="num">${fmt(e.kills)}</td><td class="num">${fmt(e.executions)}</td></tr>`).join("")}</table></div>`;
         $("tables").innerHTML = wTable + eTable;
       }
 

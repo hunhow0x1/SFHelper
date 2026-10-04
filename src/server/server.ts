@@ -21,6 +21,7 @@ import { recordStanding, dailyCaps } from "./standing";
 import { getImportStatus } from "./importStatus";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
 import { dataDir } from "./paths";
+import { getEnemyNamer } from "./enemies";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -170,6 +171,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     }
     try {
       const snap = await getProfile(accountId);
+      const enemyName = await getEnemyNamer();
       const { PlayerLevel, ...profileCurrencies } = snap.currencies;
       // Overlay a local inventory (memory helper / DE data request) when present:
       // it is the only source of currencies and owned-item counts.
@@ -218,7 +220,8 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
           ownedCounts.has(it.key) ? { ...it, count: ownedCounts.get(it.key) } : it,
         ),
         progression: snap.progression,
-        stats: snap.stats,
+        // Enemy kill stats with each type's in-game name ("Sinecure Soldier").
+        stats: { ...snap.stats, enemies: snap.stats.enemies.map((e) => ({ ...e, name: typeof e.type === "string" ? enemyName(e.type) : null })) },
         daily: snap.daily,
         standingToday, // { since, exact, total, factions: { Tag: earned } } since 00:00 UTC
         dailyCaps: caps, // { cap, remaining, odeCap, odeRemaining, earned, exact }
