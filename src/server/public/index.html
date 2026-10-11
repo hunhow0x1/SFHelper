@@ -270,8 +270,7 @@
       .mrow.done .mbar > i { background: linear-gradient(90deg, #4f7c66, var(--accent-2)); }
       .mrow.miss .mname, .mrow.miss .mval { color: var(--faint); }
       .mrow.miss .mbar { opacity: 0.45; }
-      .mcw { font: 600 10px/1 var(--body); letter-spacing: 0.13em; text-transform: uppercase; margin-left: 8px; vertical-align: 1px; color: var(--muted); }
-      .mcw.t1 { color: #7fb59a; } .mcw.t2 { color: #7ea8e0; } .mcw.t3 { color: #d3b06a; } .mcw.t4 { color: #bf94dc; } .mcw.t5 { color: #eab45a; }
+      .mnote { font: 600 10px/1 var(--body); letter-spacing: 0.13em; text-transform: uppercase; margin-right: 9px; color: var(--faint); vertical-align: 1px; }
       #tempers { gap: 10px; }
       #tempers .row .label { font-size: 15px; }
       #tempers { display: block; columns: 3 240px; column-gap: 40px; }
@@ -547,7 +546,7 @@
       <div class="panel" id="panel-mastery">
         <section>
           <h2>Mastery</h2>
-          <input id="masterySearch" class="wsearch" placeholder="Search weapons and pacts, or a craftwork like Noble…" spellcheck="false" />
+          <input id="masterySearch" class="wsearch" placeholder="Search weapons and pacts…" spellcheck="false" />
           <div class="tfilters" id="masteryFilters"></div>
           <div class="daily" id="masterySummary"></div>
           <div id="mastery"><span class="muted">Import your inventory to track weapon and pact mastery.</span></div>
@@ -668,6 +667,9 @@
       // Pact roster (name -> {}) from pacts.json, and the last-seen owned pacts.
       let PACT_ROSTER = {};
       let LAST_PACTS = [];
+      // The game's mastery record: ItemType -> most XP ever reached (XPInfo), kept
+      // through dismantling/selling. Null without an inventory.
+      let LAST_MASTERY = null;
       // Tuvalkane temper-learning progress [{tag, count}]; learned at 10.
       let LAST_TEMPERS = [];
       // Picked-up weapon history [{key, craftwork, tempers, xp, at}], newest first.
@@ -698,9 +700,10 @@
         return `${p(Math.floor(s / 3600))}:${p(Math.floor((s % 3600) / 60))}:${p(s % 60)}`;
       }
 
-      // Leveling: cumulative affinity to reach rank r is C*r^2, max 30. Weapons use
-      // C=500; Pacts (souls) the slower C=1000. pct is a smooth 0..1 bar that
-      // reaches r/30 exactly as each rank completes.
+      // Leveling: cumulative affinity to reach rank r is C*r^2, max 30. Weapons and
+      // Pacts both use C=500 (the wiki's 1000 for Pacts is out of date: in game a
+      // pact at 450,859 XP is maxed). pct is a smooth 0..1 bar that reaches r/30
+      // exactly as each rank completes.
       function levelOf(xp, C = 500) {
         const MAX = 30;
         if (!(xp > 0)) return { rank: 0, pct: 0, maxed: false };
@@ -774,24 +777,41 @@
       });
 
       // Mastery: weapons and pacts share this tracker. Each section has its own
-      // roster, owned list, leveling curve (C) and grouping.
+      // roster, owned list and grouping. Mastery comes from the game's record of
+      // the most XP each item has ever reached, so a dismantled, sold or
+      // re-crafted item keeps the Mastery it granted; the copy you hold has its
+      // own rank. Without an inventory, the held copy's XP is all we have.
       function renderMastery() {
         const sections = [
-          { roster: WEAPON_ROSTER, owned: LAST_WEAPONS, C: 500, groupOf: (n) => (WEAPON_ROSTER[n] && WEAPON_ROSTER[n].class) || "Other" },
-          { roster: PACT_ROSTER, owned: LAST_PACTS, C: 1000, groupOf: () => "Pacts" },
+          { roster: WEAPON_ROSTER, owned: LAST_WEAPONS, prefix: "/SF/Weapons/", groupOf: (n) => (WEAPON_ROSTER[n] && WEAPON_ROSTER[n].class) || "Other" },
+          { roster: PACT_ROSTER, owned: LAST_PACTS, prefix: "/SF/Souls/", groupOf: () => "Pacts" },
         ];
-        const items = []; // { name, group, w, lvl }
+        const items = []; // { name, group, w, lvl (mastery earned), copy (held copy's rank) }
         for (const sec of sections) {
           const ownedByName = new Map((sec.owned || []).map((w) => [shortName(w.key), w]));
-          for (const name of new Set([...Object.keys(sec.roster), ...ownedByName.keys()])) {
+          const earnedByName = new Map();
+          for (const [type, xp] of Object.entries(LAST_MASTERY || {})) {
+            if (!type.startsWith(sec.prefix)) continue;
+            const n = shortName(type);
+            earnedByName.set(n, Math.max(earnedByName.get(n) || 0, xp));
+          }
+          for (const name of new Set([...Object.keys(sec.roster), ...ownedByName.keys(), ...earnedByName.keys()])) {
             const w = ownedByName.get(name) || null;
-            items.push({ name, group: sec.groupOf(name), w, lvl: w ? levelOf(w.xp, sec.C) : null });
+            const earned = Math.max(earnedByName.get(name) || 0, w ? w.xp : 0);
+            items.push({
+              name,
+              group: sec.groupOf(name),
+              w,
+              lvl: w || earned > 0 ? levelOf(earned) : null,
+              copy: w ? levelOf(w.xp) : null,
+            });
           }
         }
         const owned = items.filter((i) => i.w).length;
         const mastered = items.filter((i) => i.lvl && i.lvl.maxed).length;
+        const leveling = items.filter((i) => i.w && !(i.lvl && i.lvl.maxed)).length;
         $("masterySummary").innerHTML = items.length
-          ? `Owned <b>${owned}/${items.length}</b> &nbsp;·&nbsp; Mastered <b>${mastered}</b> &nbsp;·&nbsp; Leveling <b>${owned - mastered}</b>`
+          ? `Owned <b>${owned}/${items.length}</b> &nbsp;·&nbsp; Mastered <b>${mastered}</b> &nbsp;·&nbsp; Leveling <b>${leveling}</b>`
           : "";
 
         // Weapon classes alphabetically, then Pacts last.
@@ -805,11 +825,7 @@
         const passMastery = (i) => MASTERY_UI.mastery === "all" || (MASTERY_UI.mastery === "mastered") === !!(i.lvl && i.lvl.maxed);
         const isPact = (i) => i.group === "Pacts";
         const passType = (i) => MASTERY_UI.type === "all" || (MASTERY_UI.type === "pacts") === isPact(i);
-        const passSearch = (i) => {
-          if (!q) return true;
-          const cw = i.w && craftworkInfo(i.w.craftwork);
-          return i.name.toLowerCase().includes(q) || !!(cw && cw.name.toLowerCase().includes(q));
-        };
+        const passSearch = (i) => !q || i.name.toLowerCase().includes(q);
 
         // Filter rows; each chip counts what it would show given the other filters.
         const chip = (key, val, label, n) =>
@@ -831,15 +847,20 @@
           `</div>`;
 
         const rowFor = (i) => {
-          if (!i.w) {
+          const l = i.lvl;
+          if (!l) {
             return `<div class="mrow miss"><span class="mname">${i.name}</span><span class="mval">Unowned</span><span class="mbar"></span></div>`;
           }
-          const l = i.lvl;
-          const cw = craftworkInfo(i.w.craftwork);
-          // Stock is the default; only call out better craftwork.
-          const cwTag = cw && cw.tier > 0 ? `<span class="mcw t${cw.tier}" title="+${cw.bonus} damage">${cw.name}</span>` : "";
+          // Say when the held copy is behind the Mastery already earned
+          // (re-crafted), or when the Mastery came from a copy no longer owned.
+          const note = !i.w
+            ? `<span class="mnote" title="Mastery earned before this item left your inventory">unowned</span>`
+            : i.copy.rank < l.rank
+              ? `<span class="mnote" title="The copy you hold is rank ${i.copy.rank}; Mastery counts the highest rank this item has reached">copy ${i.copy.rank}</span>`
+              : "";
           const val = l.maxed ? "Mastered" : `${l.rank} / 30`;
-          return `<div class="mrow${l.maxed ? " done" : ""}"><span class="mname">${i.name}${cwTag}</span><span class="mval">${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
+          const cls = "mrow" + (l.maxed ? " done" : "") + (i.w ? "" : " miss");
+          return `<div class="${cls}"><span class="mname">${i.name}</span><span class="mval">${note}${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
         };
         const shown = items.filter((i) => passOwn(i) && passMastery(i) && passType(i) && passSearch(i));
         $("mastery").classList.toggle("single", MASTERY_UI.type === "pacts"); // one group: let it flow across columns
@@ -1615,9 +1636,10 @@
           LAST_BUILDS = data.builds || [];
           renderBuilds();
         }
-        if (sectionChanged("weapons", [data.weapons, data.pacts])) {
+        if (sectionChanged("weapons", [data.weapons, data.pacts, data.mastery])) {
           LAST_WEAPONS = data.weapons || [];
           LAST_PACTS = data.pacts || [];
+          LAST_MASTERY = data.mastery || null;
           renderMastery();
         }
         if (sectionChanged("tempers", data.temperProgress)) {

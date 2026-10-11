@@ -230,6 +230,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         owned: Object.fromEntries(ownedCounts), // ItemType -> owned count (for tokens, etc.)
         weapons, // [{ key, xp, slot, craftwork, tempers }] for the leveling tracker
         pacts, // [{ key, xp }] owned pacts (souls) for the leveling tracker
+        mastery: inventory?.mastery ?? null, // ItemType -> most XP ever reached (XPInfo), or null without an inventory
         temperProgress: inventory?.temperProgress ?? [], // Tuvalkane temper learning
         pickups, // [{ key, craftwork, tempers, xp, at, when, whenSource }] weapon pickup history
         builds: inventory?.builds ?? [],

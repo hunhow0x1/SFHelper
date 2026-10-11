@@ -47,10 +47,9 @@ export function xpToRank(xp: number): number {
   return Math.max(0, Math.min(MAX_RANK, Math.floor(Math.sqrt(xp / RANK_CONST))));
 }
 
-/** A Pact (Soul). Pacts level 0-30 like weapons but on the slower "frame" curve
- *  (cumulative affinity = 1000 * r^2), consistent with the wiki noting Pacts take
- *  longer to level than weapons. */
-export const PACT_RANK_CONST = 1000;
+/** A Pact (Soul). Pacts level 0-30 on the same curve as weapons (cumulative
+ *  affinity = 500 * r^2). The wiki still says 1000 * r^2, but in game every pact
+ *  past 450,000 XP is maxed (checked 2026-10-11: one at 450,859 shows Bond 30). */
 export interface OwnedPact {
   key: string;
   xp: number;
@@ -69,6 +68,23 @@ export function parsePacts(raw: unknown): OwnedPact[] {
     if (!prev || xp > prev.xp) byKey.set(e.ItemType, { key: e.ItemType, xp });
   }
   return [...byKey.values()];
+}
+
+/** The mastery record (XPInfo): the most XP each item type has ever reached.
+ *  The game keeps it when a copy is dismantled, sold or re-crafted, so it - not
+ *  a copy's current XP - says how much Mastery an item has granted (all of it
+ *  once it reaches the rank-30 XP). */
+export function parseMastery(raw: unknown): Record<string, number> {
+  if (!raw || typeof raw !== "object") return {};
+  const list = (raw as Record<string, unknown>).XPInfo;
+  if (!Array.isArray(list)) return {};
+  const out: Record<string, number> = {};
+  for (const entry of list) {
+    const e = entry as { ItemType?: unknown; XP?: unknown };
+    if (typeof e.ItemType !== "string" || typeof e.XP !== "number" || !Number.isFinite(e.XP)) continue;
+    out[e.ItemType] = Math.max(out[e.ItemType] ?? 0, e.XP);
+  }
+  return out;
 }
 
 /** Tuvalkane temper-learning progress (Preludes 16): dismantling weapons grants

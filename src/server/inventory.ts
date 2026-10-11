@@ -16,7 +16,7 @@ import { join } from "node:path";
 import { snapshotFromExport } from "../account/providers/jsonImport";
 import { parseBuilds, type Build } from "./loadouts";
 import { parseTotems, type OwnedTotem } from "./totems";
-import { parseWeapons, parsePacts, parseTemperProgress, parseWeaponInstances, parseAcquisitionContext, type AcquisitionContext, type OwnedWeapon, type OwnedPact, type TemperProgress, type WeaponInstance } from "./weapons";
+import { parseWeapons, parsePacts, parseMastery, parseTemperProgress, parseWeaponInstances, parseAcquisitionContext, type AcquisitionContext, type OwnedWeapon, type OwnedPact, type TemperProgress, type WeaponInstance } from "./weapons";
 import { appFile } from "./paths";
 
 /** Resolved per call: the app sets SFHELPER_INVENTORY after modules load. */
@@ -37,6 +37,8 @@ export interface InventoryView {
   builds: Build[];
   weapons: OwnedWeapon[];
   pacts: OwnedPact[];
+  /** Mastery record: ItemType -> most XP ever reached (XPInfo). */
+  mastery: Record<string, number>;
   temperProgress: TemperProgress[];
   totems: OwnedTotem[];
   /** Remaining daily standing caps from the game's own inventory copy. */
@@ -72,6 +74,7 @@ export async function getInventory(): Promise<InventoryView | null> {
         builds: parseBuilds(raw),
         weapons: parseWeapons(raw),
         pacts: parsePacts(raw),
+        mastery: parseMastery(raw),
         temperProgress: parseTemperProgress(raw),
         totems: parseTotems(raw),
         daily: {
