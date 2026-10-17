@@ -270,6 +270,30 @@
       .mrow.done .mbar > i { background: linear-gradient(90deg, #4f7c66, var(--accent-2)); }
       .mrow.miss .mname, .mrow.miss .mval { color: var(--faint); }
       .mrow.miss .mbar { opacity: 0.45; }
+      /* Envoy Rank tracker: a badge that fills from the bottom, as in game. */
+      .erank {
+        display: grid; grid-template-columns: auto 1fr auto; gap: 18px 22px; align-items: center;
+        background: var(--well); border: 1px solid var(--line); border-radius: 3px; padding: 16px 20px; margin-bottom: 22px;
+      }
+      .ebadge {
+        width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+        border: 2px solid var(--accent-lo); box-shadow: 0 0 0 3px var(--panel), 0 0 0 4px var(--line-2);
+        background: linear-gradient(to top, rgba(201, 165, 92, 0.38) var(--fill), var(--bar-bg) var(--fill));
+        font: 700 26px/1 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums;
+      }
+      .einfo { min-width: 0; }
+      .elabel { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.14em; }
+      .einfo .ehead { font: 600 18px/1.2 var(--display); letter-spacing: 0.06em; color: var(--text); margin: 3px 0 9px; }
+      .ebar { height: 5px; background: var(--line); border-radius: 2px; overflow: hidden; }
+      .ebar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi)); }
+      .esub { color: var(--faint); font-size: 13px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+      .esub b { color: var(--muted); font-weight: 600; }
+      .emax { text-align: right; }
+      .emax .n { font: 600 23px/1.2 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums; }
+      @media (max-width: 640px) {
+        .erank { grid-template-columns: auto 1fr; }
+        .emax { grid-column: 1 / -1; text-align: left; display: flex; gap: 10px; align-items: baseline; }
+      }
       .mnote { font: 600 10px/1 var(--body); letter-spacing: 0.13em; text-transform: uppercase; margin-right: 9px; color: var(--faint); vertical-align: 1px; }
       #tempers { gap: 10px; }
       #tempers .row .label { font-size: 15px; }
@@ -546,6 +570,7 @@
       <div class="panel" id="panel-mastery">
         <section>
           <h2>Mastery</h2>
+          <div id="envoyRank"></div>
           <input id="masterySearch" class="wsearch" placeholder="Search weapons and pacts…" spellcheck="false" />
           <div class="tfilters" id="masteryFilters"></div>
           <div class="daily" id="masterySummary"></div>
@@ -670,6 +695,8 @@
       // The game's mastery record: ItemType -> most XP ever reached (XPInfo), kept
       // through dismantling/selling. Null without an inventory.
       let LAST_MASTERY = null;
+      // Envoy Rank: { rank, maxRank, maxMastery, patch, progress (estimate), calibrated, items }.
+      let LAST_ENVOY = null;
       // Tuvalkane temper-learning progress [{tag, count}]; learned at 10.
       let LAST_TEMPERS = [];
       // Picked-up weapon history [{key, craftwork, tempers, xp, at}], newest first.
@@ -775,6 +802,41 @@
         temperPop.style.top = Math.round(top) + "px";
         temperPop.style.left = Math.round(Math.min(r.left, window.innerWidth - temperPop.offsetWidth - 12)) + "px";
       });
+
+      // Envoy Rank tracker. The rank and the patch maximum are exact; progress to
+      // the next rank is an estimate (the game doesn't expose its Mastery
+      // total), so it's labelled as one.
+      const PATCH_NAME = (p) => (/^P(\d+(?:\.\d+)?)$/.test(p || "") ? `Preludes ${p.slice(1)}` : p || "");
+      function renderEnvoyRank() {
+        const e = LAST_ENVOY;
+        if (!e) { $("envoyRank").innerHTML = ""; return; }
+        const atMax = e.maxRank != null && e.rank >= e.maxRank;
+        const pct = e.progress != null ? Math.round(e.progress * 100) : null;
+        const fill = atMax ? 100 : pct ?? 0;
+        let sub;
+        if (atMax) sub = "Highest rank reachable this patch";
+        else if (pct != null) {
+          const how = e.calibrated ? "estimate, anchored to your last rank-up" : "estimate";
+          sub = `<b>~${pct}%</b> to rank ${e.rank + 1} <span title="Soulframe doesn't share Mastery totals. This is modelled from your weapon and pact ranks; histories and discoveries aren't counted.">· ${how}</span>`;
+        } else sub = "Import your inventory to estimate progress";
+        const items = e.items
+          ? `<div class="esub">Weapon ranks <b>${e.items.weaponRanks.toLocaleString()} / ${e.items.weaponMax.toLocaleString()}</b> · Pact ranks <b>${e.items.pactRanks} / ${e.items.pactMax}</b></div>`
+          : "";
+        const max = e.maxRank != null
+          ? `<div class="emax"><div class="elabel">Max this patch</div><div class="n">${e.maxRank}</div><div class="esub" title="From the Soulframe wiki (~${e.maxMastery})">${PATCH_NAME(e.patch)}</div></div>`
+          : "";
+        $("envoyRank").innerHTML = `<div class="erank">
+          <div class="ebadge" style="--fill:${fill}%" title="Envoy Rank ${e.rank}">${e.rank}</div>
+          <div class="einfo">
+            <div class="elabel">Envoy Rank</div>
+            <div class="ehead">Rank ${e.rank}${atMax ? "" : ` <span class="esub">→ ${e.rank + 1}</span>`}</div>
+            <div class="ebar"><i style="width:${fill}%"></i></div>
+            <div class="esub">${sub}</div>
+            ${items}
+          </div>
+          ${max}
+        </div>`;
+      }
 
       // Mastery: weapons and pacts share this tracker. Each section has its own
       // roster, owned list and grouping. Mastery comes from the game's record of
@@ -1635,6 +1697,10 @@
         if (sectionChanged("builds", data.builds)) {
           LAST_BUILDS = data.builds || [];
           renderBuilds();
+        }
+        if (sectionChanged("envoy", data.envoyRank)) {
+          LAST_ENVOY = data.envoyRank || null;
+          renderEnvoyRank();
         }
         if (sectionChanged("weapons", [data.weapons, data.pacts, data.mastery])) {
           LAST_WEAPONS = data.weapons || [];

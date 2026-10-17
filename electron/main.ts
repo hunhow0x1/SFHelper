@@ -23,7 +23,7 @@ import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
 import { setImportStatus } from "../src/server/importStatus";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
-import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts } from "../scripts/build_data";
+import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts, buildMasteryRank } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -53,7 +53,7 @@ async function refreshData(): Promise<void> {
   try {
     await mkdir(DATA_DIR, { recursive: true });
     log("Refreshing totem/rune/weapon/pact/temper/pact-art data…");
-    const [t, r, w, p, tp, pa, td] = await Promise.all([
+    const [t, r, w, p, tp, pa, td, mr] = await Promise.all([
       buildTotems(join(DATA_DIR, "totems.json")),
       buildRunes(join(DATA_DIR, "runes.json")),
       buildWeapons(join(DATA_DIR, "weapons.json")),
@@ -61,8 +61,10 @@ async function refreshData(): Promise<void> {
       buildTempers(join(DATA_DIR, "tempers.json")),
       buildPactArts(join(DATA_DIR, "pactarts.json")),
       buildTotemData(join(DATA_DIR, "totemdata.json")),
+      // Optional: a wording change on the wiki shouldn't fail the whole refresh.
+      buildMasteryRank(join(DATA_DIR, "masteryrank.json")).catch(() => ({ ok: 0 })),
     ]);
-    log(`Data updated: ${t.ok} totems, ${r.ok} runes, ${w.ok} weapons, ${p.ok} pacts, ${tp.ok} tempers, ${pa.ok} pact arts, ${td.ok} totem cards.`);
+    log(`Data updated: ${t.ok} totems, ${r.ok} runes, ${w.ok} weapons, ${p.ok} pacts, ${tp.ok} tempers, ${pa.ok} pact arts, ${td.ok} totem cards${mr.ok ? ", max Envoy Rank" : ""}.`);
   } catch (err) {
     log(`Effect data refresh failed (using bundled data): ${(err as Error).message}`);
   }

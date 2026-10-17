@@ -22,6 +22,7 @@ import { getImportStatus } from "./importStatus";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
 import { dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
+import { getEnvoyRank } from "./envoyRank";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -231,6 +232,8 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         weapons, // [{ key, xp, slot, craftwork, tempers }] for the leveling tracker
         pacts, // [{ key, xp }] owned pacts (souls) for the leveling tracker
         mastery: inventory?.mastery ?? null, // ItemType -> most XP ever reached (XPInfo), or null without an inventory
+        // Envoy (Mastery) Rank: exact rank, the patch's max, and an estimated progress.
+        envoyRank: PlayerLevel != null ? await getEnvoyRank(accountId, PlayerLevel, inventory?.mastery ?? null) : null,
         temperProgress: inventory?.temperProgress ?? [], // Tuvalkane temper learning
         pickups, // [{ key, craftwork, tempers, xp, at, when, whenSource }] weapon pickup history
         builds: inventory?.builds ?? [],
