@@ -25,6 +25,7 @@
     "build-tempericons": "tsx scripts/build_data.ts tempericons",
     "build-enemies": "node scripts/build_enemies.mjs",
     "build-talismans": "tsx scripts/build_data.ts talismans",
+    "build-masteryrank": "tsx scripts/build_data.ts masteryrank",
     "watch-log": "node scripts/watch_log.mjs",
     "build:app": "node scripts/build_app.mjs",
     "app": "npm run build:app && electron .",

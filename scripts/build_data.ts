@@ -555,6 +555,29 @@ export async function buildTalismans(outPath: string, onProgress?: ProgressFn): 
   return { ok: Object.keys(out).length, unparsed: Object.keys(TALISMAN_NAMES).filter((k) => !out[k]) };
 }
 
+/** The highest Envoy (Mastery) Rank reachable in the current patch, from the
+ *  wiki's Envoy Rank page: "Maximum Mastery as of {{VerShort|P16}} is ~19.1".
+ *  Written as { maxMastery: 19.1, patch: "P16" }. */
+export interface MasteryRankData {
+  maxMastery: number;
+  patch: string;
+}
+export function parseMaxMastery(wikitext: string): MasteryRankData | null {
+  const m = wikitext.match(/Maximum Mastery'*\s+as of\s+\{\{VerShort\|([^}|]+)\}\}\s+is\s+~?'*([\d.]+)/i);
+  const max = m ? Number(m[2]) : NaN;
+  return m && Number.isFinite(max) && max > 0 ? { maxMastery: max, patch: m[1]!.trim() } : null;
+}
+export async function buildMasteryRank(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
+  onProgress?.(0, 1, "Envoy Rank");
+  const r = await j(`${API}?action=parse&page=${encodeURIComponent("Envoy Rank")}&prop=wikitext&format=json`);
+  const data = parseMaxMastery(r.parse?.wikitext?.["*"] ?? "");
+  onProgress?.(1, 1, "done");
+  // Keep the bundled value rather than write nothing if the page's wording changes.
+  if (!data) throw new Error("Envoy Rank page: maximum Mastery not found");
+  await writeFile(outPath, `${JSON.stringify(data, null, 2)}\n`);
+  return { ok: 1, unparsed: [] };
+}
+
 /** File slug a temper's icon is stored under: "Heightened Parry" -> "heightened-parry". */
 export const temperIconSlug = (name: string): string => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -647,12 +670,16 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/talismans.json";
       const r = await buildTalismans(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} talismans (${r.unparsed.length} not on the wiki: ${r.unparsed.join(", ")}).\n`);
+    } else if (kind === "masteryrank") {
+      const out = process.argv[3] ?? "src/server/public/masteryrank.json";
+      await buildMasteryRank(out, bar);
+      process.stderr.write(`\nWrote ${out}.\n`);
     } else if (kind === "pactarts") {
       const out = process.argv[3] ?? "src/server/public/pactarts.json";
       const r = await buildPactArts(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} pact arts with text (${r.unparsed.length} without: ${r.unparsed.join(", ")}).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|runes|weapons|pacts|tempers|pactarts|talismans> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|runes|weapons|pacts|tempers|pactarts|talismans|masteryrank> [outPath]\n");
       process.exit(2);
     }
   };
