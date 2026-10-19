@@ -220,19 +220,33 @@ const BASE_VIRTUE_POINTS = 16;
  *  Envoy's intrinsic points (16 + Envoy Rank) as a spot in the Arsenal's
  *  triangle: vu = Spirit, vv = Grace, Courage the rest. (Mapped from presets
  *  that sit in a corner: an all-Magick one has vu = 2/3.)
- *  Whole points, as the Arsenal shows them: Spirit rounds down, Grace rounds
- *  up, and Courage gets what's left. Checked against two loadouts whose
- *  fractions rule out plain or largest-remainder rounding (shares x 33:
- *  14.62 / 3.62 / 14.75 shows 14 Spirit, 4 Grace, 15 Courage; 5.31 / 15.27 /
- *  12.42 shows 5 / 16 / 12). Points from talismans, Pact Art passives and
- *  Fables come on top and aren't included here. */
+ *  Whole points, as the Arsenal shows them: each Virtue rounds to nearest, and
+ *  if that leaves the total a point off, the Virtue with the most points takes
+ *  the difference (on a tie, the first in stored order: Spirit, Grace,
+ *  Courage). Checked against four loadouts in game, e.g. Spirit / Grace /
+ *  Courage x 33 = 14.62 / 3.62 / 14.75 rounds to 15 / 4 / 15 (34), shown as
+ *  14 / 4 / 15. The shares are stored in 1/255 steps, so the math runs on those
+ *  whole units (170/255 of 33 is exactly 22). Points from talismans, Pact Art
+ *  passives and Fables come on top. */
 export function virtuePoints(vu: unknown, vv: unknown, envoyRank: unknown): VirtuePoints | null {
   if (typeof vu !== "number" || typeof vv !== "number" || typeof envoyRank !== "number") return null;
   const total = BASE_VIRTUE_POINTS + envoyRank;
-  const clamp = (n: number) => Math.min(total, Math.max(0, n));
-  const Spirit = clamp(Math.floor(vu * total));
-  const Grace = clamp(Math.min(total - Spirit, Math.ceil(vv * total)));
-  return { Courage: total - Spirit - Grace, Spirit, Grace };
+  const u = Math.min(255, Math.max(0, Math.round(vu * 255)));
+  const v = Math.min(255 - u, Math.max(0, Math.round(vv * 255)));
+  const order: [keyof VirtuePoints, number][] = [
+    ["Spirit", u],
+    ["Grace", v],
+    ["Courage", 255 - u - v],
+  ];
+  const out: VirtuePoints = { Courage: 0, Spirit: 0, Grace: 0 };
+  for (const [k, x] of order) out[k] = Math.round((x * total) / 255);
+  const off = total - (out.Courage + out.Spirit + out.Grace);
+  if (off !== 0) {
+    let top = order[0]![0];
+    for (const [k] of order) if (out[k] > out[top]) top = k;
+    out[top] += off;
+  }
+  return out;
 }
 
 /** Virtue points from Fable choices (BonusAttributes: AT_COURAGE etc., +1 each). */

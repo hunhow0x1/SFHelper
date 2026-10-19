@@ -32,10 +32,12 @@ describe("loadout Virtues", () => {
     // In-game, less Pact Arts, Talisman and Fable bonuses:
     expect(virtuePoints(0.44313726, 0.10980392, 17)).toEqual({ Courage: 15, Spirit: 14, Grace: 4 }); // Duelo
     expect(virtuePoints(0.16078432, 0.4627451, 17)).toEqual({ Courage: 12, Spirit: 5, Grace: 16 }); // Bromius
-    // Corners stay whole and add up.
-    const v = virtuePoints(0.66666669, 0.16862746, 17)!;
-    expect(v).toEqual({ Courage: 5, Spirit: 22, Grace: 6 });
+    expect(virtuePoints(0.16862746, 0.66666669, 17)).toEqual({ Courage: 5, Spirit: 6, Grace: 22 }); // Sirin: exactly 22, not 23
+    expect(virtuePoints(0.16862746, 0.16862746, 17)).toEqual({ Courage: 21, Spirit: 6, Grace: 6 }); // Tethren
+    // Edges stay whole and add up.
     expect(virtuePoints(0, 1, 0)).toEqual({ Courage: 0, Spirit: 0, Grace: 16 });
+    expect(virtuePoints(1, 0, 0)).toEqual({ Courage: 0, Spirit: 16, Grace: 0 });
+    expect(virtuePoints(0, 0, 0)).toEqual({ Courage: 16, Spirit: 0, Grace: 0 });
   });
 
   it("is null without a stored allocation", () => {
