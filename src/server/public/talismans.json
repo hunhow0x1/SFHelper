@@ -1,0 +1,146 @@
+{
+  "CardinalTotem": {
+    "name": "Cardinal Charm",
+    "Courage": 1,
+    "Spirit": 2,
+    "Grace": 1
+  },
+  "ChampionHubTotem": {
+    "name": "Medallion of Mora",
+    "Courage": 1,
+    "Spirit": 0,
+    "Grace": 0
+  },
+  "ChampionHubUpgradedTotem": {
+    "name": "Molten Mora",
+    "Courage": 6,
+    "Spirit": 0,
+    "Grace": 0
+  },
+  "CircadeBlueTotem": {
+    "name": "Dawn Pendant",
+    "Courage": 0,
+    "Spirit": 0,
+    "Grace": 1
+  },
+  "CircadeCompleteTotem": {
+    "name": "Triune Talisman",
+    "Courage": 3,
+    "Spirit": 3,
+    "Grace": 3
+  },
+  "CircadeGreenTotem": {
+    "name": "Midnight Pendant",
+    "Courage": 0,
+    "Spirit": 1,
+    "Grace": 0
+  },
+  "CircadeRedTotem": {
+    "name": "Dusk Pendant",
+    "Courage": 1,
+    "Spirit": 0,
+    "Grace": 0
+  },
+  "CogahCorruptedTotem": {
+    "name": "The Cogah Grod",
+    "Courage": 0,
+    "Spirit": 2,
+    "Grace": 0
+  },
+  "CogahCreatureTotem": {
+    "name": "The Cogah Creutair",
+    "Courage": 0,
+    "Spirit": 0,
+    "Grace": 2
+  },
+  "CogahHumanTotem": {
+    "name": "The Cogah Lorcaan",
+    "Courage": 2,
+    "Spirit": 0,
+    "Grace": 0
+  },
+  "FeyHubTotem": {
+    "name": "Sproutfolk Seed",
+    "Courage": 0,
+    "Spirit": 1,
+    "Grace": 0
+  },
+  "FeyHubUpgradedTotem": {
+    "name": "Sproutfolk Shoot",
+    "Courage": 0,
+    "Spirit": 6,
+    "Grace": 0
+  },
+  "GaleneTotem": {
+    "name": "Wylding's Heart",
+    "Courage": 0,
+    "Spirit": 3,
+    "Grace": 0
+  },
+  "IchorousTotem": {
+    "name": "Wazzard's Wish",
+    "Courage": 0,
+    "Spirit": 1,
+    "Grace": 0
+  },
+  "JosalfarTotem": {
+    "name": "Wylding's Hush",
+    "Courage": 0,
+    "Spirit": 0,
+    "Grace": 3
+  },
+  "OdeSoulBoonTotem": {
+    "name": "Synod's Bell Jar",
+    "Courage": 4,
+    "Spirit": 1,
+    "Grace": 1
+  },
+  "OrengalIdolTotem": {
+    "name": "Direskull",
+    "Courage": 1,
+    "Spirit": 1,
+    "Grace": 4
+  },
+  "OrengalSoulBoonTotem": {
+    "name": "Orengall's Fang",
+    "Courage": 1,
+    "Spirit": 4,
+    "Grace": 1
+  },
+  "PothiaTotem": {
+    "name": "Wylding's Hilt",
+    "Courage": 3,
+    "Spirit": 0,
+    "Grace": 0
+  },
+  "PreludesHonorMoteTotem": {
+    "name": "Prelude Honour",
+    "Courage": 1,
+    "Spirit": 1,
+    "Grace": 1
+  },
+  "PrimordialTotem": {
+    "name": "Paragon Periapt",
+    "Courage": 3,
+    "Spirit": 3,
+    "Grace": 3
+  },
+  "SilentRoseHubTotem": {
+    "name": "Rose's Bodkin",
+    "Courage": 0,
+    "Spirit": 0,
+    "Grace": 1
+  },
+  "SilentRoseHubUpgradedTotem": {
+    "name": "Bloomin' Bodkin",
+    "Courage": 0,
+    "Spirit": 0,
+    "Grace": 6
+  },
+  "WolfPrintTotem": {
+    "name": "Packblood's Tribute",
+    "Courage": 2,
+    "Spirit": 3,
+    "Grace": 4
+  }
+}

@@ -483,6 +483,78 @@ export async function buildTotemData(outPath: string, onProgress?: ProgressFn): 
   return { ok: Object.keys(out).length, unparsed };
 }
 
+/** Talisman ItemType leaf (/SF/Upgrades/Skins/Totem/<leaf>) -> in-game name,
+ *  from the game's own text (/SF/Language/Totems/*Name). Several keys differ
+ *  from their leaf ("CogahHumanTotem" is "CogahTalismanHumansName"), so the
+ *  pairs are spelled out. */
+export const TALISMAN_NAMES: Record<string, string> = {
+  AncientSpriteTotem: "Heartwood Soams",
+  CardinalTotem: "Cardinal Charm",
+  ChampionHubTotem: "Medallion of Mora",
+  ChampionHubUpgradedTotem: "Molten Mora",
+  CircadeBlueTotem: "Dawn Pendant",
+  CircadeCompleteTotem: "Triune Talisman",
+  CircadeGreenTotem: "Midnight Pendant",
+  CircadeRedTotem: "Dusk Pendant",
+  CogahCorruptedTotem: "The Cogah Grod",
+  CogahCreatureTotem: "The Cogah Creutair",
+  CogahHumanTotem: "The Cogah Lorcaan",
+  CorruptCasterTotem: "Callous Crust",
+  FeyHubTotem: "Sproutfolk Seed",
+  FeyHubUpgradedTotem: "Sproutfolk Shoot",
+  GaleneTotem: "Wylding's Heart",
+  IchorousTotem: "Wazzard's Wish",
+  JosalfarTotem: "Wylding's Hush",
+  OdeSoulBoonTotem: "Synod's Bell Jar",
+  OrengalIdolTotem: "Direskull",
+  OrengalSoulBoonTotem: "Orengall's Fang",
+  PothiaTotem: "Wylding's Hilt",
+  PreludesHonorMoteTotem: "Prelude Honour",
+  PrimordialTotem: "Paragon Periapt",
+  SilentRoseHubTotem: "Rose's Bodkin",
+  SilentRoseHubUpgradedTotem: "Bloomin' Bodkin",
+  SparrowTotem: "Chirrup Charm",
+  WolfPrintTotem: "Packblood's Tribute",
+};
+
+export interface TalismanData {
+  name: string;
+  Courage: number;
+  Spirit: number;
+  Grace: number;
+}
+
+/** Talismans' Virtue bonuses from the wiki (Module:Data/Armour, Slot =
+ *  "Talisman"), keyed by ItemType leaf: { PrimordialTotem: { name: "Paragon
+ *  Periapt", Courage: 3, Spirit: 3, Grace: 3 } }. */
+export function parseTalismans(lua: string): Record<string, TalismanData> {
+  const byName = new Map<string, Omit<TalismanData, "name">>();
+  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\t\},/g)) {
+    const body = m[2]!;
+    if (!/Slot\s*=\s*"Talisman"/.test(body)) continue;
+    const stats = body.match(/Stats\s*=\s*\{([\s\S]*?)\}/)?.[1] ?? "";
+    const v = { Courage: 0, Spirit: 0, Grace: 0 };
+    for (const s of stats.matchAll(/\b(Courage|Spirit|Grace)\s*=\s*(\d+)/g)) v[s[1] as keyof typeof v] = Number(s[2]);
+    byName.set(m[1]!.trim(), v);
+  }
+  const out: Record<string, TalismanData> = {};
+  for (const [leaf, name] of Object.entries(TALISMAN_NAMES)) {
+    const v = byName.get(name);
+    if (v) out[leaf] = { name, ...v };
+  }
+  return out;
+}
+export async function buildTalismans(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
+  onProgress?.(0, 1, "Module:Data/Armour");
+  const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Armour")}&prop=wikitext&format=json`);
+  const out = parseTalismans(r.parse?.wikitext?.["*"] ?? "");
+  onProgress?.(1, 1, "done");
+  // Never replace good data with nothing if the module's format changes.
+  if (Object.keys(out).length < 10) throw new Error(`Module:Data/Armour gave only ${Object.keys(out).length} talismans`);
+  await writeSorted(outPath, out as Record<string, unknown>);
+  return { ok: Object.keys(out).length, unparsed: Object.keys(TALISMAN_NAMES).filter((k) => !out[k]) };
+}
+
 /** File slug a temper's icon is stored under: "Heightened Parry" -> "heightened-parry". */
 export const temperIconSlug = (name: string): string => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -571,12 +643,16 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/totemdata.json";
       const r = await buildTotemData(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} totems (${r.unparsed.length} unparsed: ${r.unparsed.join(", ")}).\n`);
+    } else if (kind === "talismans") {
+      const out = process.argv[3] ?? "src/server/public/talismans.json";
+      const r = await buildTalismans(out, bar);
+      process.stderr.write(`\nWrote ${out}: ${r.ok} talismans (${r.unparsed.length} not on the wiki: ${r.unparsed.join(", ")}).\n`);
     } else if (kind === "pactarts") {
       const out = process.argv[3] ?? "src/server/public/pactarts.json";
       const r = await buildPactArts(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} pact arts with text (${r.unparsed.length} without: ${r.unparsed.join(", ")}).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|runes|weapons|pacts|tempers|pactarts> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|runes|weapons|pacts|tempers|pactarts|talismans> [outPath]\n");
       process.exit(2);
     }
   };

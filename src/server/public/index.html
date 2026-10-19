@@ -443,6 +443,23 @@
       .joinery .jicon { height: 28px; width: 28px; }
       .joinery .jname { font-weight: 600; }
       .jmini { height: 16px; width: 16px; vertical-align: -3px; margin-right: 5px; opacity: 0.9; }
+      .joinery .jpips { display: block; color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+      .lo-name { display: grid; gap: 5px; min-width: 0; }
+      .lo-virt { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 500 13px/1.2 var(--body); letter-spacing: 0; color: var(--muted); }
+      .lo-virt b, .vlegend b { font-weight: 700; font-variant-numeric: tabular-nums; }
+      .vblock { margin-bottom: 20px; }
+      .vhead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 9px; }
+      .vhead .h { color: #a6dcc0; font: 600 13px/1.2 var(--display); letter-spacing: 0.16em; text-transform: uppercase; text-shadow: 0 0 12px rgba(127, 181, 154, 0.35); }
+      .vhead .vtot { color: var(--faint); font-size: 13px; }
+      .vstrip { display: flex; gap: 2px; height: 7px; border-radius: 2px; overflow: hidden; background: var(--line); }
+      .vstrip i { display: block; opacity: 0.85; }
+      .vlegend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 8px; font-size: 14px; color: var(--muted); }
+      .vtable { margin-top: 12px; border-collapse: collapse; font-size: 14px; min-width: 320px; max-width: 520px; width: 100%; }
+      .vtable th { font: 600 11px/1.2 var(--body); letter-spacing: 0.12em; text-transform: uppercase; text-align: right; padding: 4px 10px; }
+      .vtable td { padding: 5px 10px; border-top: 1px solid var(--line); color: var(--muted); }
+      .vtable td:first-child { color: var(--text); }
+      .vtable td.num { text-align: right; font-variant-numeric: tabular-nums; }
+      .vtable tr.vsum td { color: var(--text); font-weight: 700; border-top-color: var(--line-2); }
       .jtype { color: var(--muted); }
       .lo-hint { color: var(--faint); font-size: 13px; margin-top: 16px; }
       .lo-import { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
@@ -656,6 +673,8 @@
       let TEMPER_DB = {};
       // Pact Art key ("Folder/Skill") -> { name, slot, max, virtue?, desc, detail } (pactarts.json).
       let PACT_ARTS = {};
+      // Talisman ItemType leaf -> { name, Courage, Spirit, Grace } (talismans.json).
+      let TALISMANS = {};
       // Full weapon roster (name -> {class, slot}) from weapons.json, for the
       // leveling tracker; and the last-seen owned weapons + the active filter.
       let WEAPON_ROSTER = {};
@@ -1175,7 +1194,7 @@
               : { type: t.type, rank: t.rank ?? null, slot: t.slot ?? null, virtue: t.virtue ?? null },
           ),
           joinery: x.joinery && typeof x.joinery === "object"
-            ? { name: x.joinery.name ?? null, virtue: x.joinery.virtue ?? null, code: x.joinery.code ?? "" }
+            ? { name: x.joinery.name ?? null, virtue: x.joinery.virtue ?? null, code: x.joinery.code ?? "", tier: x.joinery.tier ?? null, pips: x.joinery.pips ?? null }
             : null,
           craftwork: x.craftwork ?? null,
           tempers: Array.isArray(x.tempers) ? x.tempers : [],
@@ -1183,8 +1202,12 @@
         };
       }
       function normBuild(b) {
+        const vp = (v) => (v && typeof v === "object" ? { Courage: +v.Courage || 0, Spirit: +v.Spirit || 0, Grace: +v.Grace || 0 } : null);
         return {
           name: b.name, favorite: b.favorite === true,
+          virtues: vp(b.virtues),
+          talisman: typeof b.talisman === "string" ? b.talisman : null,
+          fables: vp(b.fables),
           soul: normSlot(b.soul), ranged: normSlot(b.ranged), melee: normSlot(b.melee),
         };
       }
@@ -1254,11 +1277,66 @@
       const joineryIconSrc = (j) => "img/joineries/" + (JOINERY_ICON[j && j.name] || "joinery") + ".png";
       const joineryName = (j) => j.name || (j.code || "reforge").replace(/([a-z])([A-Z])/g, "$1 $2");
       const virtueTag = (v) => (v ? ` · <span style="color:${VIRTUE_COLOR[v] || "var(--text)"}">${v}</span>` : "");
-      // Full joinery display (detail panel): product icon + name + virtue (text).
+      // The deity that blesses each Virtue, as in the game's Joinery names
+      // ("Verite: Twice Blessed by Saphene").
+      const VIRTUE_DEITY = { Courage: "Mora", Spirit: "Iridis", Grace: "Saphene" };
+      const joineryFullName = (j) =>
+        j.name && j.tier && j.virtue ? `${j.name}: ${j.tier} by ${VIRTUE_DEITY[j.virtue]}` : joineryName(j);
+      // Full joinery display (detail panel): icon, in-game name, and the pips it adds.
       function joineryLabel(j) {
         if (!j) return '<span class="muted">—</span>';
         const icon = `<img class="jicon" src="${joineryIconSrc(j)}" alt="" onerror="this.style.display='none'">`;
-        return `${icon}<span><span class="jname">${joineryName(j)}</span>${virtueTag(j.virtue)}</span>`;
+        const pips = j.pips && j.virtue
+          ? `<span class="jpips">+${j.pips} <span style="color:${VIRTUE_COLOR[j.virtue]}">${j.virtue}</span> Attunement</span>`
+          : j.tier ? "" : '<span class="jpips">Obsolete (pre-Preludes 14) reforge</span>';
+        return `${icon}<span><span class="jname">${joineryFullName(j)}</span>${pips}</span>`;
+      }
+      // A loadout's Virtues, totalled as the Arsenal shows them: its allocation
+      // of the 16 + Envoy Rank points, plus its Pact's Virtue arts, its
+      // Talisman, and Fable choices. (Temporary buffs - elixirs, Blessed
+      // Meetings - aren't included.)
+      const VIRTUE_ORDER = ["Courage", "Spirit", "Grace"];
+      function virtueSources(b) {
+        if (!b.virtues) return null;
+        const zero = () => ({ Courage: 0, Spirit: 0, Grace: 0 });
+        const arts = zero();
+        if (b.soul.arts && Object.keys(PACT_ARTS).length) {
+          for (const n of Object.values(artNodes(b.soul.arts))) {
+            if (n.def.virtue && n.rank > 0) arts[n.def.virtue] += VIRTUE_POINTS[n.rank] || 0;
+          }
+        }
+        const tal = b.talisman ? TALISMANS[b.talisman.split("/").pop()] : null;
+        const rows = [
+          { label: "Allocated", v: b.virtues, base: true },
+          { label: "Pact Arts", v: arts },
+          b.talisman ? { label: tal ? tal.name : shortName(b.talisman), v: tal || zero() } : null,
+          { label: "Fables", v: b.fables || zero() },
+        ].filter((r) => r && (r.base || VIRTUE_ORDER.some((k) => r.v[k])));
+        const total = zero();
+        for (const r of rows) for (const k of VIRTUE_ORDER) total[k] += r.v[k];
+        return { rows, total };
+      }
+      const VIRTUE_NOTE = "As the Arsenal totals them: this loadout's split of your 16 + Envoy Rank points, plus Pact Arts, Talisman and Fables. Temporary buffs aren't included.";
+      const virtueSpans = (v) => VIRTUE_ORDER.map((k) => `<span><b style="color:${VIRTUE_COLOR[k]}">${v[k]}</b> ${k}</span>`).join("");
+      function virtueLine(b) {
+        const src = virtueSources(b);
+        return src ? `<span class="lo-virt" title="${VIRTUE_NOTE}">${virtueSpans(src.total)}</span>` : "";
+      }
+      function virtueBlock(b) {
+        const src = virtueSources(b);
+        if (!src) return "";
+        const t = src.total;
+        const seg = VIRTUE_ORDER.map((k) => `<i style="flex:${t[k]};background:${VIRTUE_COLOR[k]}" title="${k} ${t[k]}"></i>`).join("");
+        const cell = (r, k) => (r.v[k] ? (r.base ? r.v[k] : `+${r.v[k]}`) : "—");
+        const table = `<table class="vtable"><tr><th></th>${VIRTUE_ORDER.map((k) => `<th style="color:${VIRTUE_COLOR[k]}">${k}</th>`).join("")}</tr>
+          ${src.rows.map((r) => `<tr><td>${r.label}</td>${VIRTUE_ORDER.map((k) => `<td class="num">${cell(r, k)}</td>`).join("")}</tr>`).join("")}
+          <tr class="vsum"><td>Total</td>${VIRTUE_ORDER.map((k) => `<td class="num">${t[k]}</td>`).join("")}</tr></table>`;
+        return `<div class="vblock">
+          <div class="vhead"><span class="h">Virtues</span><span class="vtot" title="${VIRTUE_NOTE}">as shown in the Arsenal</span></div>
+          <div class="vstrip">${seg}</div>
+          <div class="vlegend">${virtueSpans(t)}</div>
+          ${table}
+        </div>`;
       }
       // ---- Pact Arts tree ----------------------------------------------------
       // The account stores each Pact tree's arts as { "Folder/Skill": Level }.
@@ -1383,22 +1461,22 @@
         const slotCell = (label, s) => {
           const j = s.joinery;
           const jline = j
-            ? `<span class="j"><img class="jmini" src="${joineryIconSrc(j)}" alt="" onerror="this.style.display='none'"><span class="jtype">${joineryName(j)}</span>${virtueTag(j.virtue)}</span>`
+            ? `<span class="j" title="${joineryFullName(j)}"><img class="jmini" src="${joineryIconSrc(j)}" alt="" onerror="this.style.display='none'"><span class="jtype">${joineryName(j)}</span>${j.tier ? ` · ${j.tier}` : ""}${virtueTag(j.virtue)}</span>`
             : "";
           return `<div class="lo-slot"><span class="k">${label}</span><span class="v">${s.type ? shortName(s.type) : "—"}</span>${jline}</div>`;
         };
-        const payload = encodeURIComponent(JSON.stringify({ name: b.name, soul: b.soul, ranged: b.ranged, melee: b.melee }));
+        const payload = encodeURIComponent(JSON.stringify({ name: b.name, virtues: b.virtues, talisman: b.talisman, fables: b.fables, soul: b.soul, ranged: b.ranged, melee: b.melee }));
         const rm = imported ? `<button class="mini" data-remove="${encodeURIComponent(b.name)}">Remove</button>` : "";
         const badge = imported ? '<span class="tag">imported</span>' : "";
         const star = b.favorite ? '<span class="fav">★</span>' : "";
         const pact = slotDetail("Pact", b.soul);
         const weapons = slotDetail("Primary Weapon", b.melee) + slotDetail("Sidearm", b.ranged);
         const detail = pact || weapons
-          ? `${pact}${weapons ? `<div class="lo-grid">${weapons}</div>` : ""}`
+          ? `${virtueBlock(b)}${pact}${weapons ? `<div class="lo-grid">${weapons}</div>` : ""}`
           : '<span class="muted">No gear in this loadout.</span>';
         return `<article class="lo" id="lo-${key}">
           <div class="lo-head" data-toggle="${key}">
-            <div class="lo-title"><span class="chev"></span>${star}<span>${b.name}</span>${badge}</div>
+            <div class="lo-title"><span class="chev"></span>${star}<span class="lo-name"><span>${b.name}${badge ? ` ${badge}` : ""}</span>${virtueLine(b)}</span></div>
             ${slotCell("Pact", b.soul)}${slotCell("Primary Weapon", b.melee)}${slotCell("Sidearm", b.ranged)}
             <div class="lo-actions"><button class="mini" data-export="${payload}">Export</button>${rm}</div>
           </div>
@@ -1783,6 +1861,10 @@
         try {
           const res = await fetch("/pactarts.json");
           if (res.ok) PACT_ARTS = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/talismans.json");
+          if (res.ok) TALISMANS = await res.json();
         } catch {}
         try {
           const res = await fetch("/weapons.json");

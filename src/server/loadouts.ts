@@ -22,10 +22,23 @@
 export interface Joinery {
   /** "Verite" | "Quicksilver" | "Feybalt" | "Gildaur", or null if unknown. */
   name: string | null;
-  /** "Courage" | "Spirit" | "Grace", or null for plain/obsolete reforges. */
+  /** "Courage" | "Spirit" | "Grace", or null for obsolete reforges. */
   virtue: string | null;
   /** Cleaned upgrade code, e.g. "DefenseSRG" (kept for reference/export). */
   code: string;
+  /** Blessing: "Blessed" | "Twice Blessed" | "Thrice Blessed", or null for
+   *  obsolete (pre-Preludes 14) reforges. */
+  tier?: JoineryTier | null;
+  /** Attunement pips it adds (1-3), or null. */
+  pips?: number | null;
+}
+export type JoineryTier = "Blessed" | "Twice Blessed" | "Thrice Blessed";
+
+/** Points per Virtue in a loadout's allocation. */
+export interface VirtuePoints {
+  Courage: number;
+  Spirit: number;
+  Grace: number;
 }
 
 export interface TotemRef {
@@ -60,6 +73,12 @@ export interface SlotGear {
 export interface Build {
   name: string;
   favorite: boolean;
+  /** The loadout's allocation of the Envoy's intrinsic Virtue points. */
+  virtues?: VirtuePoints | null;
+  /** The Talisman worn with this loadout (its ItemType), which may add Virtues. */
+  talisman?: string | null;
+  /** Account-wide Virtue points from Fable choices (+1 each). */
+  fables?: VirtuePoints | null;
   soul: SlotGear;
   ranged: SlotGear;
   melee: SlotGear;
@@ -68,12 +87,16 @@ export interface Build {
 interface Slot {
   ItemId?: { $oid?: string };
   mod?: number;
+  /** Which config holds the appearance (armour, Talisman). */
+  cus?: number;
 }
 
 export interface GearInfo {
   type: string;
   /** Per-config lists of upgrade ItemIds (Configs[i].Upgrades). */
   configs: string[][];
+  /** Per-config appearance: armour/Talisman ItemIds or paths (Configs[i].Skins). */
+  skins: string[][];
   /** The weapon's installed Joinery id (UpgradeType), if any. */
   upgradeType: string | undefined;
   /** Craftwork quality (raw IQ_* value), if any. */
@@ -155,19 +178,72 @@ const JOINERY_BY_FAMILY: Record<string, string> = {
   Defense: "Gildaur",
 };
 
+// Blessing tier from the code after its family (the game's type tree lists
+// every code; its Joinery item names line up the same way):
+//   C / UC / R  Blessed by Mora / Iridis / Saphene: +1 Courage / Spirit / Grace
+//   SR<V>Two    Twice Blessed, +2 (Quicksilver and Feybalt)
+//   SR<V>       the family's top tier: Twice Blessed for Verite, which has no
+//               Thrice; Thrice Blessed (+3) for Gildaur, Quicksilver and Feybalt
+// Codes outside these families (e.g. "KintsugiUpgradeD") are pre-Preludes 14.
+const BLESSED_BY: Record<string, string> = { C: "Courage", UC: "Spirit", R: "Grace" };
+
 /** Decode a weapon's UpgradeType (Kintsugi reforge) into a Joinery. */
-function decodeJoinery(upgradeType: string | undefined): Joinery | null {
+export function decodeJoinery(upgradeType: string | undefined): Joinery | null {
   if (!upgradeType) return null;
   const leaf = upgradeType.split("/").pop() || upgradeType;
   const code = leaf.replace(/^Kintsugi(?:Weapon)?Upgrade/, "");
   const family = code.match(/^(Melee|Ranged|Caster|Defense)/)?.[1];
-  // Attuned reforges end in SR<Virtue> (optionally a higher "Two" tier).
-  const letter = leaf.match(/SR([CSG])(?:Two)?$/)?.[1];
-  return {
-    name: family ? (JOINERY_BY_FAMILY[family] ?? null) : null,
-    virtue: letter ? (VIRTUE[letter] ?? null) : null,
-    code,
-  };
+  let virtue: string | null = null;
+  let tier: JoineryTier | null = null;
+  let pips: number | null = null;
+  if (family) {
+    const rest = code.slice(family.length);
+    const top = rest.match(/^(?:Fey)?SR([CSG])(Two)?$/);
+    if (top) {
+      const twice = top[2] !== undefined || family === "Melee";
+      virtue = VIRTUE[top[1]!] ?? null;
+      tier = twice ? "Twice Blessed" : "Thrice Blessed";
+      pips = twice ? 2 : 3;
+    } else if (BLESSED_BY[rest]) {
+      virtue = BLESSED_BY[rest]!;
+      tier = "Blessed";
+      pips = 1;
+    }
+  }
+  return { name: family ? (JOINERY_BY_FAMILY[family] ?? null) : null, virtue, code, tier, pips };
+}
+
+/** Starting Virtue points; each Envoy Rank adds one. */
+const BASE_VIRTUE_POINTS = 16;
+
+/** A loadout's Virtue allocation. The preset stores each Virtue's share of the
+ *  Envoy's intrinsic points (16 + Envoy Rank) as a spot in the Arsenal's
+ *  triangle: vu = Spirit, vv = Grace, Courage the rest. (Mapped from presets
+ *  that sit in a corner: an all-Magick one has vu = 2/3.)
+ *  Whole points, as the Arsenal shows them: Spirit rounds down, Grace rounds
+ *  up, and Courage gets what's left. Checked against two loadouts whose
+ *  fractions rule out plain or largest-remainder rounding (shares x 33:
+ *  14.62 / 3.62 / 14.75 shows 14 Spirit, 4 Grace, 15 Courage; 5.31 / 15.27 /
+ *  12.42 shows 5 / 16 / 12). Points from talismans, Pact Art passives and
+ *  Fables come on top and aren't included here. */
+export function virtuePoints(vu: unknown, vv: unknown, envoyRank: unknown): VirtuePoints | null {
+  if (typeof vu !== "number" || typeof vv !== "number" || typeof envoyRank !== "number") return null;
+  const total = BASE_VIRTUE_POINTS + envoyRank;
+  const clamp = (n: number) => Math.min(total, Math.max(0, n));
+  const Spirit = clamp(Math.floor(vu * total));
+  const Grace = clamp(Math.min(total - Spirit, Math.ceil(vv * total)));
+  return { Courage: total - Spirit - Grace, Spirit, Grace };
+}
+
+/** Virtue points from Fable choices (BonusAttributes: AT_COURAGE etc., +1 each). */
+export function fableVirtues(raw: Record<string, unknown>): VirtuePoints {
+  const out: VirtuePoints = { Courage: 0, Spirit: 0, Grace: 0 };
+  const AT: Record<string, keyof VirtuePoints> = { AT_COURAGE: "Courage", AT_SPIRIT: "Spirit", AT_GRACE: "Grace" };
+  for (const b of Array.isArray(raw.BonusAttributes) ? raw.BonusAttributes : []) {
+    const k = AT[(b as { value?: string })?.value ?? ""];
+    if (k) out[k] += 1;
+  }
+  return out;
 }
 
 /** ItemId -> { ItemType, per-config upgrade id lists } for every gear item. */
@@ -180,10 +256,12 @@ export function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
       const e = entry as { ItemId?: { $oid?: string }; ItemType?: string; Configs?: unknown; UpgradeType?: unknown; Quality?: unknown; AspectFingerprint?: unknown };
       const oid = e?.ItemId?.$oid;
       if (!oid || typeof e.ItemType !== "string") continue;
-      const configs = (Array.isArray(e.Configs) ? e.Configs : []).map((c) => {
-        const ups = (c as { Upgrades?: unknown })?.Upgrades;
-        return Array.isArray(ups) ? ups.filter((u): u is string => typeof u === "string") : [];
-      });
+      const strings = (key: "Upgrades" | "Skins") =>
+        (Array.isArray(e.Configs) ? e.Configs : []).map((c) => {
+          const list = (c as Record<string, unknown>)?.[key];
+          return Array.isArray(list) ? list.filter((u): u is string => typeof u === "string") : [];
+        });
+      const configs = strings("Upgrades");
       const fp = e.AspectFingerprint as { buffs?: unknown } | undefined;
       const tempers = Array.isArray(fp?.buffs)
         ? fp!.buffs.map((b) => (b as { Tag?: unknown }).Tag).filter((t): t is string => typeof t === "string")
@@ -191,6 +269,7 @@ export function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
       idx.set(oid, {
         type: e.ItemType,
         configs,
+        skins: strings("Skins"),
         upgradeType: typeof e.UpgradeType === "string" ? e.UpgradeType : undefined,
         craftwork: typeof e.Quality === "string" ? e.Quality : null,
         tempers,
@@ -222,6 +301,22 @@ export function parseBuilds(raw: unknown): Build[] {
   const gear = gearIndex(record);
   const upgrades = upgradeIndex(record);
   const trees = parsePactArts(record);
+  const fables = fableVirtues(record);
+  // Appearance items (armour, Talismans) by ItemId.
+  const skinTypes = new Map<string, string>();
+  for (const e of Array.isArray(record.WeaponSkins) ? record.WeaponSkins : []) {
+    const w = e as { ItemId?: { $oid?: string }; ItemType?: unknown };
+    if (w?.ItemId?.$oid && typeof w.ItemType === "string") skinTypes.set(w.ItemId.$oid, w.ItemType);
+  }
+  // The Talisman worn with a loadout sits in its Pact's appearance config.
+  const talismanOf = (slot: unknown): string | null => {
+    const s = slot as Slot;
+    const info = s?.ItemId?.$oid ? gear.get(s.ItemId.$oid) : undefined;
+    if (!info) return null;
+    const pick = [s.cus, s.mod, 0].find((i): i is number => typeof i === "number" && i >= 0 && i < info.skins.length);
+    const skins = pick !== undefined ? info.skins[pick]! : [];
+    return skins.map((id) => skinTypes.get(id)).find((t) => t?.includes("/Skins/Totem/")) ?? null;
+  };
 
   const resolve = (slot: unknown): SlotGear => {
     const s = slot as Slot;
@@ -255,6 +350,9 @@ export function parseBuilds(raw: unknown): Build[] {
     return {
       name: typeof preset.n === "string" && preset.n ? preset.n : "Unnamed",
       favorite: preset.Favorite === true,
+      virtues: virtuePoints(preset.vu, preset.vv, record.PlayerLevel),
+      talisman: talismanOf(preset.s),
+      fables,
       soul: withArts(resolve(preset.s)),
       ranged: resolve(preset.l),
       melee: resolve(preset.m),
