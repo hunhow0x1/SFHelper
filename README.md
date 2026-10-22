@@ -1,107 +1,157 @@
 # SFHelper
 
 A desktop companion for **Soulframe**, in the spirit of
-[WFHelper](https://github.com/WFHelper/WFHelper).
+[WFHelper](https://github.com/WFHelper/WFHelper). It tracks your faction
+standing, mastery, loadouts, totems and weapon pickups while you play, using
+in-game names throughout.
 
-This repo currently contains the piece everything else depends on: the account
-data layer - how player data gets in, and the rules that keep getting it in
-from costing anyone their account.
+Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 
-## Run the dashboard
+## Features
 
-A local app you run alongside Soulframe. It fetches your public profile and
-shows faction standing, weapon/pact XP, and combat stats, refreshing every
-minute. No login, no game-memory access - just the public profile endpoint.
+| Tab | What it shows |
+|---|---|
+| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, faction tokens and currencies. |
+| **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*). Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Loadouts can be shared as short `SFH1:` codes. |
+| **Mastery** | Your Envoy Rank, an estimate of progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type. |
+| **Upgrades** | Tuvalkane temper learning, and your Totem inventory with search and grip / Virtue / type filters. |
+| **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. |
+| **Stats** | Your top weapons and enemies by kills, by in-game name. |
+
+## How it gets your data
+
+- **Public profile:** standing, level and combat stats come from Soulframe's
+  public profile endpoint. No login is involved. The page refreshes every 30
+  seconds, and requests are cached so the endpoint isn't hit more often.
+- **Inventory, read from the running game (desktop app, opt-in):** Soulframe
+  doesn't offer the full inventory any other way, so the desktop app reads a
+  session token from the game's memory and uses it to download your inventory.
+  - Access is **read-only**: memory is opened without write rights, and there is
+    no write path anywhere in the code.
+  - Nothing runs until you agree on the first-launch consent screen.
+  - While the game is running, the inventory is refreshed every 2 minutes. The
+    memory is only scanned when your session changes.
+- **Game log:** `EE.log` supplies the time each weapon was picked up.
+- **Reference data:** totem, rune, temper, weapon, pact and talisman details
+  come from the [Soulframe Wiki](https://wiki.avakot.org) and are refreshed
+  each time the app starts; a bundled copy is used if the wiki can't be
+  reached. In-game names come from the game's own text.
+- **Rate limits:** if Soulframe's servers ever refuse a request (403/429),
+  SFHelper stops all requests to them, for 15 minutes at first and up to an hour.
+
+## Install and run
+
+**Linux:** make the AppImage executable and run it.
+
+```bash
+chmod +x SFHelper-0.1.0.AppImage
+./SFHelper-0.1.0.AppImage
+```
+
+**Windows:** run `SFHelper-Setup-0.1.0.exe`, or unzip the portable build and
+run `SFHelper.exe`.
+
+Start Soulframe, log in to a character, then open SFHelper. It finds your
+account by itself; there's nothing to type in.
+
+### Your data and the log
+
+Everything stays on your machine:
+
+| | Folder |
+|---|---|
+| Linux | `~/.config/sfhelper/` |
+| Windows | `%APPDATA%\sfhelper\` |
+
+`sfhelper.log` in that folder records each session's imports and errors. It's
+the file to send when something isn't working.
+
+### Troubleshooting
+
+- **"Waiting for Soulframe…"**: the game isn't running, or you haven't logged
+  in to a character yet.
+- **Can't read the game's memory:**
+  - Run SFHelper as the same user as the game.
+  - On Windows, try **Run as administrator**.
+  - On Linux, `/proc/sys/kernel/yama/ptrace_scope` may need to be `0`.
+- **"Soulframe is refusing requests… Pausing until HH:MM"**: SFHelper is
+  backing off after a refusal from Soulframe's servers. It retries on its own.
+
+## Building from source
+
+Requires Node.js 22 or newer.
 
 ```bash
 npm install
-npm start           # serves http://localhost:4317
+npm run app            # build and launch the desktop app
+npm run dist:linux     # -> release/SFHelper-<version>.AppImage
 ```
 
-Open the URL, paste your 24-character account id, and click **Track**. The id
-is remembered in your browser for next time.
+### Windows installer from Linux
 
-## In-game names (hostable endpoint)
-
-The dashboard shows in-game names (e.g. `Igne Mora`, not `FennJotarSword`) from
-a name dictionary. The app pulls it from an endpoint you host, caches it for a
-day, and falls back to the small bundled seed when the endpoint is unset or
-down. Point it at your host with either:
+electron-builder needs **Wine** to build the Windows installer on Linux. On
+Bazzite and other atomic distros, the simplest way is a distrobox:
 
 ```bash
-export SFHELPER_NAMES_URL="https://your-host.example/soulframe-names.json"
-# or add {"namesUrl": "..."} to ~/.config/sfhelper/config.json
+distrobox create --name sfbuild --image registry.fedoraproject.org/fedora-toolbox:44
+distrobox enter sfbuild
+sudo dnf install -y wine nodejs npm
+
+# inside the box, from the project folder:
+WINEPREFIX="$HOME/.local/share/sfbuild-wine" WINEDEBUG=-all npm run dist:win
+# -> release/SFHelper-Setup-<version>.exe
 ```
 
-The file it serves is:
+The build must run **inside** the box: Wine installed there isn't visible to the
+host. To build the portable zip instead, which doesn't need Wine, run
+`npm run build:app && npx electron-builder --win zip`.
 
-```json
-{
-  "items":    { "FennJotarSword": "Igne Mora", "/SF/Souls/Ode/OdeSoul": "Ode" },
-  "factions": { "SilentRoseSyndicate": "Silent Rose" }
-}
-```
+### Browser-only dashboard
 
-`items` keys may be a full `ItemType` path (most precise) or the leaf token;
-lookups try full path, then leaf, then a cleaned-up guess.
-
-### Producing the names file
-
-The names come from the game's own localization (`Languages.bin` on DE's CDN),
-extracted with no proprietary dependency - Oodle decompression uses `ooz-wasm`
-(an open-source WASM Kraken decompressor pulled in by `npm install`, nothing to
-fetch by hand):
-
-```bash
-npm install
-node scripts/extract_names.mjs --out dict.en.json    # download + decompress the dict
-node scripts/build_names.mjs dict.en.json names.json  # -> { items, factions }
-```
-
-Host `names.json` at your `SFHELPER_NAMES_URL`. Re-run per patch. Factions map
-exactly; item names resolve by leaf where the localization key aligns with the
-profile's `ItemType`. The precise `ItemType -> name` bridge for the rest needs
-the item definitions (in the `Cache.Windows` packages, decompressible with the
-same `ooz-wasm`) - a follow-on step.
-
-`scripts/unpack_cache.py` / `extract_names.py` are the earlier ctypes-Oodle
-prototypes, kept for reference; the `.mjs` pipeline above is the integrated,
-dependency-free one.
-
-## Read this first
-
-[`docs/account-data.md`](docs/account-data.md) - the six ways to pull Soulframe
-account data, what each one risks, and why two of them are refused at
-registration time rather than discouraged in prose.
-
-## Layout
-
-```
-src/account/snapshot.ts        AccountSnapshot: the one shape features read
-src/account/provider.ts        Provider contract + registry that rejects unsafe sources
-src/account/identity.ts        Account ids are hashed at the boundary
-src/account/providers/         json-import, ee-log, public-web
-data/endpoints.json            Public endpoint candidates (nothing confirmed yet)
-data/ee-log-rules.json         EE.log line grammar, per-rule confidence
-scripts/probe-endpoints.mjs    Discover which public endpoints actually exist
-```
+`npm start` serves the dashboard at <http://localhost:4317> without Electron.
+It reads only the public profile, plus an `inventory.json` if one is in its
+data folder; there's no memory import.
 
 ## Development
 
 ```bash
-npm install
 npm run typecheck
 npm test
-npm run probe -- --displayName "YourName"   # run on your own machine
 ```
 
-`npm run probe` issues plain unauthenticated GETs to the candidate URLs in
-`data/endpoints.json`, one at a time, and stops on the first 403/429. Move
-anything that returns real data into that file's `confirmed` list - the
-`public-web` provider reports itself unavailable until something is there.
+**Refreshing bundled data:** the app refreshes most of this at launch.
+
+| Command | Source | Output |
+|---|---|---|
+| `npm run build-totems` / `build-totemdata` / `build-runes` / `build-tempers` / `build-pactarts` / `build-weapons` / `build-pacts` / `build-talismans` / `build-masteryrank` | Soulframe Wiki | `src/server/public/*.json` |
+| `npm run build-tempericons` | Soulframe Wiki (game art) | `src/server/public/img/tempers/` |
+| `npm run extract-names -- --out dict.en.json`, then `node scripts/build_names.mjs dict.en.json src/server/public/names.json` | Game localization (DE's CDN) | `names.json` |
+| `npm run build-enemies -- dict.en.json` | Game localization + cached game type tree | `src/server/public/enemies.json` |
+
+Decompression uses [`ooz-wasm`](https://www.npmjs.com/package/ooz-wasm), an
+open-source WASM decompressor installed by `npm install`.
+
+### Layout
+
+```
+electron/        Desktop app: window, consent screen, memory import loop, notifications
+src/server/      Local dashboard server and parsers (inventory, loadouts, mastery, standing, pickups)
+src/server/public/  The dashboard page and its bundled data
+src/account/     Account snapshot providers (public profile, file import, EE.log)
+helper/          Read-only memory reader (Linux /proc, Windows ReadProcessMemory) - see helper/README.md
+scripts/         Data builders and game-file extractors
+docs/            Background research on Soulframe's account data sources
+tests/           Vitest suites
+```
 
 ## Ground rules
 
-- No provider asks for a Soulframe or Digital Extremes credential.
-- No provider reads, writes to, or attaches to the game process.
-- Account data stays on the player's machine; account ids are stored hashed.
+- **Read-only.** SFHelper never writes to the game's memory, and is built so
+  that it can't.
+- **Opt-in.** The memory import doesn't run until you agree to it, and stops if
+  you clear SFHelper's data.
+- **No credentials.** SFHelper never asks for your Soulframe or Digital
+  Extremes login.
+- **Local.** Your data stays on your machine.
+- **Gentle on DE's servers.** Requests are cached, made one at a time, and
+  stopped as soon as the servers say no.
