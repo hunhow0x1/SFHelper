@@ -17,6 +17,7 @@ import { snapshotFromExport } from "../account/providers/jsonImport";
 import { parseBuilds, type Build } from "./loadouts";
 import { parseTotems, type OwnedTotem } from "./totems";
 import { parseWeapons, parsePacts, parseMastery, parseTemperProgress, parseWeaponInstances, parseAcquisitionContext, type AcquisitionContext, type OwnedWeapon, type OwnedPact, type TemperProgress, type WeaponInstance } from "./weapons";
+import { parseHoldings, type Holdings } from "./trades";
 import { appFile } from "./paths";
 
 /** Resolved per call: the app sets SFHELPER_INVENTORY after modules load. */
@@ -45,6 +46,8 @@ export interface InventoryView {
   daily: { affiliation: number | null; affiliationOde: number | null };
   weaponInstances: WeaponInstance[];
   acquisition: AcquisitionContext;
+  /** Tradable items and the trade counter, for the trade tracker. */
+  holdings: Holdings;
   source: string;
   /** File mtime, so the dashboard can say how fresh the inventory is. */
   updatedAt: string;
@@ -83,6 +86,7 @@ export async function getInventory(): Promise<InventoryView | null> {
         },
         weaponInstances: parseWeaponInstances(raw),
         acquisition: parseAcquisitionContext(raw),
+        holdings: parseHoldings(raw),
         source: path,
         updatedAt: new Date(mtimeMs).toISOString(),
       };

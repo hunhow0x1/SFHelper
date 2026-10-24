@@ -2,7 +2,7 @@
 
 A desktop companion for **Soulframe**, in the spirit of
 [WFHelper](https://github.com/WFHelper/WFHelper). It tracks your faction
-standing, mastery, loadouts, totems and weapon pickups while you play, using
+standing, mastery, loadouts, totems, weapon pickups and trades while you play, using
 in-game names throughout.
 
 Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
@@ -16,6 +16,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 | **Mastery** | Your Envoy Rank, an estimate of progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type. |
 | **Upgrades** | Tuvalkane temper learning, and your Totem inventory with search and grip / Virtue / type filters. |
 | **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. |
+| **Trades** | Your trade history: who you traded with, what you received and gave (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
 | **Stats** | Your top weapons and enemies by kills, by in-game name. |
 
 ## How it gets your data
@@ -31,7 +32,10 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   - Nothing runs until you agree on the first-launch consent screen.
   - While the game is running, the inventory is refreshed every 2 minutes. The
     memory is only scanned when your session changes.
-- **Game log:** `EE.log` supplies the time each weapon was picked up.
+- **Game log:** `EE.log` supplies the time each weapon was picked up, and each
+  trade's partner and time. Trades are detected by comparing inventory imports,
+  so the history starts once SFHelper is running; trades made earlier in the
+  same game session are recovered from the log.
 - **Reference data:** totem, rune, temper, weapon, pact and talisman details
   come from the [Soulframe Wiki](https://wiki.avakot.org) and are refreshed
   each time the app starts; a bundled copy is used if the wiki can't be

@@ -12,6 +12,7 @@
  *    - purchased: a vendor's NumPurchased went up (one weapon per purchase), or
  *                 Favour was spent at an Enclave (up to one weapon per 1,000
  *                 spent, the cheapest weapon offering);
+ *    - traded:    the trade tracker saw it arrive in a trade (see trades.ts);
  *    - pickup:    anything else.
  *  Only "pickup" entries belong in the Picked-up Weapons list.
  *
@@ -28,7 +29,7 @@ import type { AcquisitionContext, WeaponInstance } from "./weapons";
 import { logPickupTimes, objectIdTime } from "./gameLog";
 import { appFile } from "./paths";
 
-export type PickupSource = "pickup" | "crafted" | "purchased";
+export type PickupSource = "pickup" | "crafted" | "purchased" | "traded";
 
 export interface Pickup extends WeaponInstance {
   /** ISO time the weapon was first seen in the inventory. */
@@ -141,7 +142,11 @@ async function resolveTimes(history: Pickup[]): Promise<boolean> {
 
 /** Diff the current instances against what we've seen; record new ones. Returns
  *  the full history (newest first), every source included. */
-export async function recordPickups(instances: WeaponInstance[], ctx: AcquisitionContext): Promise<Pickup[]> {
+export async function recordPickups(
+  instances: WeaponInstance[],
+  ctx: AcquisitionContext,
+  traded: Set<string> = new Set(),
+): Promise<Pickup[]> {
   const s = await load();
   if (!s.seeded) {
     for (const w of instances) s.known[w.id] = true;
@@ -170,9 +175,9 @@ export async function recordPickups(instances: WeaponInstance[], ctx: Acquisitio
   for (const w of instances) {
     if (!w.id || s.known[w.id]) continue;
     s.known[w.id] = true;
-    let source: PickupSource = "pickup";
+    let source: PickupSource = traded.has(w.id) ? "traded" : "pickup";
     const bp = blueprintFor(w.key, bpNames);
-    if (bp && prev) {
+    if (source === "pickup" && bp && prev) {
       const before = prev.blueprints[bp] ?? 0;
       const after = ctx.blueprints[bp] ?? 0;
       const wasQueued = prev.pending.includes(bp) && !ctx.pending.includes(bp);

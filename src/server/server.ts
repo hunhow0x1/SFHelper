@@ -16,6 +16,7 @@ import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
 import { getInventory } from "./inventory";
 import { recordPickups } from "./pickups";
+import { recordTrades, tradedIds } from "./trades";
 import { getSettings, updateSettings } from "./settings";
 import { recordStanding, dailyCaps } from "./standing";
 import { getImportStatus } from "./importStatus";
@@ -191,9 +192,13 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         snap.items
           .filter((it) => it.category === "soul" && typeof it.rank === "number")
           .map((it) => ({ key: it.key, xp: it.rank ?? 0 }));
-      // Picked-up-weapon history (inventory diff by ItemId). Only when we have a
-      // real inventory to diff against.
-      const pickups = inventory ? await recordPickups(inventory.weaponInstances, inventory.acquisition) : [];
+      // Trade history and picked-up-weapon history (inventory diffs by ItemId).
+      // Only when we have a real inventory to diff against. Trades go first so
+      // a weapon received in a trade isn't counted as a pickup.
+      const trades = inventory ? await recordTrades(inventory.holdings, inventory.updatedAt) : null;
+      const pickups = inventory
+        ? await recordPickups(inventory.weaponInstances, inventory.acquisition, tradedIds(trades?.history ?? []))
+        : [];
       // Standing earned since the daily reset, per faction (tracked over time).
       const standingNow: Record<string, number> = {};
       for (const p of snap.progression) {
@@ -236,6 +241,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         envoyRank: PlayerLevel != null ? await getEnvoyRank(accountId, PlayerLevel, inventory?.mastery ?? null) : null,
         temperProgress: inventory?.temperProgress ?? [], // Tuvalkane temper learning
         pickups, // [{ key, craftwork, tempers, xp, at, when, whenSource }] weapon pickup history
+        trades, // { history: [{ at, after, count, received, given, dracs }], remaining, max }, or null
         builds: inventory?.builds ?? [],
         totems: inventory?.totems ?? null, // [{ id, type, rank, virtue, grip, equippedOn }] owned totems
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,

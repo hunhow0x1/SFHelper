@@ -144,6 +144,76 @@ async function readEvents(path: string): Promise<LogEvents | null> {
   return start === null ? null : { start, acquired, owner };
 }
 
+/** A completed trade, as the current game log records it. Accepting a trade
+ *  logs its confirmation dialog, which spans several lines:
+ *      Dialog::CreateOkCancel(description=Are you sure you want to accept this trade? You are offering:
+ *      Fire Fungus
+ *
+ *      and will receive from NordicGhost the following:
+ *      Wreath, leftItem=...)
+ *  and then "Dialog::CreateOk(description=The trade was successful!". Items are
+ *  in-game names without counts. */
+export interface LoggedTrade {
+  /** Epoch ms the game reported the trade successful. */
+  at: number;
+  partner: string | null;
+  offered: string[];
+  received: string[];
+}
+
+const CONFIRM_RE = /You are offering:\n([\s\S]*?)\n*and will receive from (.+?) the following:\n?([\s\S]*?), leftItem=/;
+const INVITE_RE = /description=(.+?) wants to trade with you/;
+const TIME_RE = /^(\d+\.\d+) /;
+const itemLines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
+/** Names carry a private-use glyph after them (the platform icon, U+E000). */
+const playerName = (s: string) => s.replace(/[\uE000-\uF8FF]/g, "").trim();
+
+/** Every trade completed in the current game session, oldest first. */
+export async function logTrades(): Promise<LoggedTrade[]> {
+  const path = await findLog();
+  if (!path) return [];
+  const out: LoggedTrade[] = [];
+  let start: number | null = null;
+  let collecting: string[] | null = null;
+  let confirm: Omit<LoggedTrade, "at"> | null = null;
+  let invitedBy: string | null = null;
+  const lines = createInterface({ input: createReadStream(path, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
+  try {
+    for await (const line of lines) {
+      if (start === null) {
+        const h = START_RE.exec(line);
+        if (h) start = parseUtc(h[1]!);
+        continue;
+      }
+      if (collecting) {
+        collecting.push(line);
+        if (!line.includes(", leftItem=") && collecting.length < 200) continue;
+        const m = CONFIRM_RE.exec(collecting.join("\n"));
+        collecting = null;
+        if (m) confirm = { partner: playerName(m[2]!), offered: itemLines(m[1]!), received: itemLines(m[3]!) };
+        continue;
+      }
+      if (!line.includes("Dialog::Create")) continue;
+      if (line.includes("You are offering:")) {
+        collecting = [line.slice(line.indexOf("You are offering:"))];
+      } else if (line.includes("description=The trade was successful!")) {
+        const t = TIME_RE.exec(line);
+        if (t) out.push({ at: start + Math.round(Number(t[1]) * 1000), ...(confirm ?? { partner: invitedBy, offered: [], received: [] }) });
+        confirm = null;
+        invitedBy = null;
+      } else {
+        const inv = INVITE_RE.exec(line);
+        if (inv) invitedBy = playerName(inv[1]!);
+      }
+    }
+  } catch {
+    return out;
+  } finally {
+    lines.close();
+  }
+  return out;
+}
+
 /** Server creation time embedded in a 24-hex ObjectId, or null. */
 export function objectIdTime(id: string | null | undefined): number | null {
   if (!id || !/^[0-9a-f]{24}$/i.test(id)) return null;
