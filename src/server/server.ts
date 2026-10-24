@@ -20,6 +20,7 @@ import { recordTrades, tradedIds } from "./trades";
 import { getSettings, updateSettings } from "./settings";
 import { recordStanding, dailyCaps } from "./standing";
 import { getImportStatus } from "./importStatus";
+import { getUpdateStatus, requestUpdateAction } from "./updateStatus";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
 import { dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
@@ -146,6 +147,37 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   // What the desktop app's memory import is doing (null outside the app).
   if (url.pathname === "/api/import-status") {
     sendJson(res, 200, getImportStatus());
+    return;
+  }
+
+  // The desktop app's self-update (null outside the app), and its buttons.
+  if (url.pathname === "/api/update" && req.method === "GET") {
+    sendJson(res, 200, getUpdateStatus());
+    return;
+  }
+  if (url.pathname === "/api/update" && req.method === "POST") {
+    // JSON only: another site can't send that cross-origin without a preflight
+    // this server never answers.
+    if (!String(req.headers["content-type"] ?? "").startsWith("application/json")) {
+      sendJson(res, 415, { error: "Expected JSON." });
+      return;
+    }
+    let body = "";
+    for await (const chunk of req) body += chunk;
+    try {
+      const { action } = JSON.parse(body || "{}") as { action?: unknown };
+      if (action !== "check" && action !== "install") {
+        sendJson(res, 400, { error: "Unknown action." });
+        return;
+      }
+      if (!requestUpdateAction(action)) {
+        sendJson(res, 409, { error: "Updates aren't available here." });
+        return;
+      }
+      sendJson(res, 200, getUpdateStatus());
+    } catch {
+      sendJson(res, 400, { error: "Invalid request." });
+    }
     return;
   }
 

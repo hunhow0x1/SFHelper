@@ -42,21 +42,37 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   reached. In-game names come from the game's own text.
 - **Rate limits:** if Soulframe's servers ever refuse a request (403/429),
   SFHelper stops all requests to them, for 15 minutes at first and up to an hour.
+- **Updates:** the app checks this repo's
+  [GitHub releases](https://github.com/hunhow0x1/SFHelper/releases) for a newer
+  version. The check sends nothing about you.
 
 ## Install and run
 
-**Linux:** make the AppImage executable and run it.
+Download the latest build from the
+[Releases page](https://github.com/hunhow0x1/SFHelper/releases/latest).
+
+**Linux:** make the AppImage executable and run it. Keep it in a folder you
+can write to, such as `~/Applications`, so it can update itself.
 
 ```bash
-chmod +x SFHelper-0.1.0.AppImage
-./SFHelper-0.1.0.AppImage
+chmod +x SFHelper-<version>.AppImage
+./SFHelper-<version>.AppImage
 ```
 
-**Windows:** run `SFHelper-Setup-0.1.0.exe`, or unzip the portable build and
-run `SFHelper.exe`.
+**Windows:** run `SFHelper-Setup-<version>.exe`.
 
 Start Soulframe, log in to a character, then open SFHelper. It finds your
 account by itself; there's nothing to type in.
+
+### Updates
+
+SFHelper checks for a new version at launch and every few hours, and
+downloads it in the background. When it's ready, a banner offers **Restart to
+update**; otherwise it installs the next time you quit. The footer shows your
+version and has a **Check for updates** button.
+
+The AppImage and the Windows installer update themselves. A portable (zip)
+build can't, so install with the Setup exe instead.
 
 ### Your data and the log
 
@@ -110,6 +126,26 @@ The build must run **inside** the box: Wine installed there isn't visible to the
 host. To build the portable zip instead, which doesn't need Wine, run
 `npm run build:app && npx electron-builder --win zip`.
 
+### Publishing a release
+
+The app updates from this repo's GitHub releases. Each release needs both
+builds plus the `latest.yml` / `latest-linux.yml` files electron-builder writes
+next to them; the release scripts upload all of it.
+
+1. Raise `version` in `package.json`. Apps only update to a higher version.
+2. Create a GitHub token that can write this repo's releases: a fine-grained
+   token with **Contents: Read and write** on `hunhow0x1/SFHelper`.
+3. Build and upload both platforms. They go to the same draft release:
+
+   ```bash
+   GH_TOKEN=<token> npm run release:linux     # on the host
+   GH_TOKEN=<token> npm run release:win       # inside the distrobox (see above)
+   ```
+
+4. On GitHub, open the draft release, add notes, and click **Publish
+   release**. Running apps pick it up within a few hours, or immediately with
+   **Check for updates**.
+
 ### Browser-only dashboard
 
 `npm start` serves the dashboard at <http://localhost:4317> without Electron.
@@ -156,6 +192,7 @@ tests/           Vitest suites
   you clear SFHelper's data.
 - **No credentials.** SFHelper never asks for your Soulframe or Digital
   Extremes login.
-- **Local.** Your data stays on your machine.
+- **Local.** Your data stays on your machine. Besides Soulframe's servers and
+  the wiki, the only connection is the update check to this repo's releases.
 - **Gentle on DE's servers.** Requests are cached, made one at a time, and
   stopped as soon as the servers say no.

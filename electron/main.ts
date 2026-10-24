@@ -12,7 +12,7 @@
  *  All per-user state lives under Electron's userData dir (SFHELPER_HOME).
  */
 
-import { app, BrowserWindow, ipcMain, Notification } from "electron";
+import { app, BrowserWindow, ipcMain, Notification, shell } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
@@ -22,6 +22,7 @@ import { startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
 import { setImportStatus } from "../src/server/importStatus";
+import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
 import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts, buildTalismans, buildMasteryRank } from "../scripts/build_data";
 
@@ -182,6 +183,11 @@ function createMainWindow(url: string): void {
     webPreferences: { contextIsolation: true },
   });
   void mainWindow.loadURL(url);
+  // Links out of the dashboard (the GitHub releases page) open in the browser.
+  mainWindow.webContents.setWindowOpenHandler(({ url: target }) => {
+    if (target.startsWith("https://github.com/hunhow0x1/SFHelper")) void shell.openExternal(target);
+    return { action: "deny" };
+  });
   mainWindow.on("closed", () => (mainWindow = null));
 }
 
@@ -197,6 +203,7 @@ async function proceed(): Promise<void> {
   // Background work: refresh effect data on launch, then import the inventory,
   // then keep re-importing so pickups/leveling stay near-current while playing.
   void refreshData();
+  startUpdater(log);
   void importFromMemory();
   setInterval(() => void importFromMemory(), REIMPORT_INTERVAL_MS);
 }

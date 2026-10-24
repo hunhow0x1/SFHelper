@@ -2,7 +2,8 @@
 //   - main.ts     -> dist/electron/main.js   (ESM, Node platform)
 //   - preload.ts  -> dist/electron/preload.cjs (CJS)
 //   - consent.html and the dashboard's public/ are copied alongside.
-// electron + koffi stay external (provided at runtime / bundled by electron-builder).
+// electron, koffi and electron-updater stay external (provided at runtime /
+// packed from node_modules by electron-builder).
 
 import { build } from "esbuild";
 import { cp, mkdir, rm } from "node:fs/promises";
@@ -11,7 +12,7 @@ const OUT = "dist/electron";
 await rm("dist", { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
 
-const external = ["electron", "koffi"];
+const external = ["electron", "koffi", "electron-updater"];
 
 await build({
   entryPoints: ["electron/main.ts"],
