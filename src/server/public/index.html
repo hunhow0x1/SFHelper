@@ -317,6 +317,8 @@
       #tempers .row .label { font-size: 15px; }
       #tempers { display: block; columns: 3 240px; column-gap: 40px; }
       #tempers .row { break-inside: avoid; margin-bottom: 12px; }
+      #tempers .temperrow { cursor: help; }
+      #tempers .temperrow:hover .label { color: var(--accent-hi); }
       .xpgroup h3.wclass {
         display: flex; align-items: baseline; gap: 10px;
         font: 600 18px/1.2 var(--display); letter-spacing: 0.08em; color: var(--accent-hi);
@@ -844,32 +846,53 @@
       // Back-compat alias used elsewhere; now returns the in-game name.
       const prettyTemper = (tag) => temperName(tag);
 
-      // Click a temper chip -> floating popover with its name + effect.
+      // Floating popover with a temper's name + effect (or a Pact Art's). A
+      // click on a temper chip, art node or Upgrades temper row pins it open;
+      // hovering an Upgrades temper row shows it until the pointer leaves.
       let temperPop = null;
       function closeTemperPop() { if (temperPop) { temperPop.remove(); temperPop = null; } }
-      document.addEventListener("click", (e) => {
-        const chip = e.target.closest && e.target.closest(".temper, .artnode");
+      function openTemperPop(el, hover = false) {
         closeTemperPop();
-        if (!chip) return;
-        e.stopPropagation();
         temperPop = document.createElement("div");
         temperPop.className = "temperpop";
-        if (chip.classList.contains("artnode")) {
-          temperPop.innerHTML = artPopHtml(chip.dataset.art, Number(chip.dataset.rank) || 0);
+        if (hover) temperPop.dataset.hover = "1";
+        if (el.classList.contains("artnode")) {
+          temperPop.innerHTML = artPopHtml(el.dataset.art, Number(el.dataset.rank) || 0);
         } else {
-          const tag = chip.dataset.tag;
-          const count = Number(chip.dataset.count) || 1;
+          const tag = el.dataset.tag;
+          const count = Number(el.dataset.count) || 1;
           const eff = temperEffect(tag);
           const dbl = count > 1 ? `<div class="tp-dbl">Double-stacked ×${count} — effect is doubled</div>` : "";
           const effHtml = eff ? `<div class="tp-eff">${eff}</div>` : `<div class="tp-eff muted">Effect not documented yet.</div>`;
           temperPop.innerHTML = `<div class="tp-head">${temperIcon(tag)}<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div></div>${dbl}${effHtml}`;
         }
         document.body.appendChild(temperPop);
-        const r = chip.getBoundingClientRect();
-        const top = r.bottom + 6;
+        // Below the element, or above it when there's no room below.
+        const r = (el.querySelector(".label") || el).getBoundingClientRect();
+        const h = temperPop.offsetHeight;
+        const top = r.bottom + 6 + h > window.innerHeight - 12 ? Math.max(12, r.top - 6 - h) : r.bottom + 6;
         temperPop.style.top = Math.round(top) + "px";
-        temperPop.style.left = Math.round(Math.min(r.left, window.innerWidth - temperPop.offsetWidth - 12)) + "px";
+        temperPop.style.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - temperPop.offsetWidth - 12))) + "px";
+      }
+      document.addEventListener("click", (e) => {
+        const el = e.target.closest && e.target.closest(".temper, .artnode, .temperrow");
+        closeTemperPop();
+        if (!el) return;
+        e.stopPropagation();
+        openTemperPop(el);
       });
+      let hoverRow = null;
+      document.addEventListener("mouseover", (e) => {
+        const row = e.target.closest && e.target.closest(".temperrow");
+        if (row === hoverRow) return;
+        hoverRow = row;
+        if (temperPop && temperPop.dataset.hover) closeTemperPop();
+        if (row) openTemperPop(row, true);
+      });
+      window.addEventListener("scroll", () => {
+        hoverRow = null;
+        if (temperPop && temperPop.dataset.hover) closeTemperPop();
+      }, { passive: true });
 
       // Envoy Rank tracker. The rank and the patch maximum are exact; progress to
       // the next rank is an estimate (the game doesn't expose its Mastery
@@ -1036,7 +1059,7 @@
           .map((t) => {
             const done = t.count >= TEMPER_GOAL;
             const status = done ? '<span class="mx">Learned</span>' : `${t.count}/${TEMPER_GOAL}`;
-            return `<div class="row wrow"><span class="label">${temperIcon(t.tag)}${prettyTemper(t.tag)}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(Math.min(1, t.count / TEMPER_GOAL) * 100)}%"></i></span></div>`;
+            return `<div class="row wrow temperrow" data-tag="${t.tag}"><span class="label">${temperIcon(t.tag)}${prettyTemper(t.tag)}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(Math.min(1, t.count / TEMPER_GOAL) * 100)}%"></i></span></div>`;
           })
           .join("");
         if (list.length) $("tempers").innerHTML = rows || '<span class="muted">No tempers match.</span>';
