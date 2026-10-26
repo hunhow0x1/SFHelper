@@ -1,6 +1,6 @@
 {
   "name": "sfhelper",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "description": "Desktop Soulframe companion - account snapshots, progression tracking and loadouts",
   "type": "module",
