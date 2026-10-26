@@ -13,7 +13,7 @@
   },
   "CassidDamageOnNearDeathMod": {
     "name": "Invader",
-    "effect": "Invader increases the Damage dealt to Foes with less than 30% Life by a TBD amount. When Double-Stacked, this bonus will be doubled."
+    "effect": "Invader increases the Damage dealt to Foes with less than 30% Life by a +20 damage. When Double-Stacked, this bonus will be doubled to +40 damage."
   },
   "CassidDamageOnUndamagedMod": {
     "name": "First Strike",
@@ -25,7 +25,7 @@
   },
   "CassidPoisonMod": {
     "name": "Sickness",
-    "effect": "Sickness grants all strikes a 10% chance to proc Poison status on hit. When Double-Stacked, this bonus will be doubled to 20%."
+    "effect": "Sickness grants all strikes a 10% chance to proc Poison status on hit. Poison deals 16.25% of the hits damage per second over 8 Seconds, for a total of of 130% Raw Hit Damage, unmitigated by Enemy Armour."
   },
   "ChargeRateMod": {
     "name": "Quick Draw",
@@ -33,7 +33,7 @@
   },
   "ConsecutiveAfterHeavyMod": {
     "name": "Follow Up",
-    "effect": "Consecutive light attacks following any Heavy Attack will accumulate bonus Damage by +7 Damage per hit, up to a maximum of +28 Damage on the final hit. For example, the first follow-up strike will deal +7 Damage, the second will deal +14, the third +21, and the fourth +28."
+    "effect": "Consecutive light attacks following any Heavy Attack will accumulate bonus Damage by +7 Damage per hit, up to a maximum of +28 Damage on the final hit. It is not necessary for any of the attacks to hit a Foe in order to build this bonus."
   },
   "CritChanceMod": {
     "name": "Sullying Force",
@@ -69,11 +69,11 @@
   },
   "DodgeAttackDamageMod": {
     "name": "Rejoinder",
-    "effect": "Rejoinder causes all Dodge Attacks, including Spectre Strikes, to deal 10 more base Damage before multipliers, and additional unknown stagger damage. When Double-Stacked, this bonus will be doubled to 20."
+    "effect": "Rejoinder causes all Dodge Attacks, including Spectre Strikes, to deal 10 more base Damage and 12 more Stagger before multipliers. When Double-Stacked, these bonuses will be doubled to 20 and 24."
   },
   "DodgeFocusMod": {
     "name": "Grounding Spell",
-    "effect": "Grounding Spell Allows the Envoy to dodge once in any direction whilst keeping the Grounded pact art active. When Double-Stacked The Envoy can dodge twice before disrupting Grounded."
+    "effect": "Grounding Spell allows the Envoy to dodge once in any direction whilst keeping the Grounded Combat Art active. When Double-Stacked, the Envoy can dodge twice before disrupting Grounded."
   },
   "FeyDuplicateProjMod": {
     "name": "Duplicate",
@@ -89,7 +89,7 @@
   },
   "FocusedHeavyAttackDamageMod": {
     "name": "Conjuration",
-    "effect": "Conjuration increases heavy cast by +30 Damage when fully Grounded. When Double-Stacked, this bonus will be doubled to +60 Damage."
+    "effect": "Conjuration increases Heavy Cast Damage by +30 when fully Grounded. When Double-Stacked, this bonus will be doubled to +60 Damage."
   },
   "HeavyAttackDamageAndStaggerMod": {
     "name": "Full Force",
@@ -105,7 +105,7 @@
   },
   "LegShotMod": {
     "name": "Severed Root",
-    "effect": "Severed Root increases leg shot stagger by X When Double-Stacked, this bonus will be doubled to 2X."
+    "effect": "Severed Root increases the Stagger dealt by leg shots by 20%. When Double-Stacked, this bonus will be doubled to 40%."
   },
   "MagickHeavyAttackDamageAndStaggerMod": {
     "name": "Arcane Barrage",
@@ -113,15 +113,15 @@
   },
   "MendicantBleedDamageMod": {
     "name": "Savagery",
-    "effect": "Savagery grants attacks a 10% chance to proc the Bleed status on hit. Bleeding Foes take Damage-over-time equal to 20% the attack's damage each tick, for 5 ticks."
+    "effect": "Savagery grants attacks a 10% chance to proc the Bleed status on hit. Bleeding Foes take Damage-over-time equal to 20% the attack's damage each tick, for 5 ticks, for a total of 100% Raw Hit Damage, unmitigated by Enemy Armour."
   },
   "MendicantFearMod": {
     "name": "Unnerving Blow",
-    "effect": "Unnerving Blow provides a X% chance on hit to inflict the Fear status. When Double-Stacked, this chance will be doubled."
+    "effect": "Unnerving Blow provides a 10% chance on hit to inflict the Fear status for 6 seconds. When Double-Stacked, this chance will be doubled to 20%."
   },
   "MendicantFearThrowMod": {
     "name": "Sinister Volley",
-    "effect": "Sinister Volley provides a X% chance to inflict the Fear status on a Foe struck by a Thrown attack. When Double-Stacked, this chance will be doubled."
+    "effect": "Sinister Volley provides a 10% chance to inflict the Fear status for 6 seconds on a Foe struck by a Thrown attack. When Double-Stacked, this chance will be doubled to 20%."
   },
   "MendicantWeaknessMod": {
     "name": "Hollowed",

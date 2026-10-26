@@ -12,9 +12,10 @@
 //
 // Usage:  node scripts/extract_names.mjs [--lang en] [--out dict.en.json]
 //
-// Long, flagged strings (descriptions) are zstd-with-dictionary; item/faction
-// NAMES are short and stored uncompressed, so names work even where Node's zstd
-// cannot apply a custom dictionary (those few entries are skipped with a note).
+// Long, flagged strings (descriptions) are zstd frames compressed against a
+// dictionary stored in Languages.bin; Node's built-in zstd decodes them (on
+// Node versions without zstd they're skipped with a note). Item/faction NAMES
+// are short and stored uncompressed, so names work either way.
 
 import { decompress as oozDecompress } from "ooz-wasm";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -132,10 +133,18 @@ function u32DynLe(buf, i) {
   return [(value | (buf[i] << shift)) >>> 0, i + 1];
 }
 
-function zstdDictDecompress(data) {
-  // Node's zstd has no custom-dictionary API; these are long descriptions, not
-  // names. Return null so the caller can skip without failing the names run.
-  return null;
+const ZSTD_MAGIC = Buffer.from([0x28, 0xb5, 0x2f, 0xfd]);
+
+// A flagged entry is its decompressed size (LEB128), then a zstd frame with the
+// magic number stripped. Null if this Node can't decode it.
+function zstdDictDecompress(data, dictionary) {
+  if (typeof zlib.zstdDecompressSync !== "function") return null;
+  const [, start] = u32DynLe(data, 0);
+  try {
+    return zlib.zstdDecompressSync(Buffer.concat([ZSTD_MAGIC, data.subarray(start)]), { dictionary });
+  } catch {
+    return null;
+  }
 }
 
 function languagesUnpack(buf) {
@@ -147,7 +156,8 @@ function languagesUnpack(buf) {
     i += 4 + slen;
   }
   const dictLen = buf.readUInt32LE(i);
-  i += 4 + dictLen; // the zstd dictionary (used only by flagged entries)
+  const dictionary = buf.subarray(i + 4, i + 4 + dictLen); // used only by flagged entries
+  i += 4 + dictLen;
   const numPaths = buf.readUInt32LE(i);
   i += 4;
 
@@ -175,7 +185,7 @@ function languagesUnpack(buf) {
       i += 8;
       let data = chunk.subarray(offset, offset + size);
       if (flags & 0x200) {
-        const decoded = zstdDictDecompress(data);
+        const decoded = zstdDictDecompress(data, dictionary);
         if (decoded === null) {
           skippedCompressed++;
           continue;
@@ -186,7 +196,7 @@ function languagesUnpack(buf) {
     }
   }
   if (skippedCompressed) {
-    console.error(`(skipped ${skippedCompressed} dictionary-compressed entries - long text, not names)`);
+    console.error(`(skipped ${skippedCompressed} dictionary-compressed entries - long text, not names; needs Node with zstd)`);
   }
   return entries;
 }

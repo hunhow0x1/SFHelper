@@ -257,6 +257,36 @@ function temperEffect(extract: string): string | null {
   return t && t.length > 6 ? t : null;
 }
 
+/** Effects for tempers whose wiki page doesn't give the numbers yet ("by X",
+ *  "a TBD amount"), with values read from the game's own data (Packages.bin):
+ *    - LegShotMod: WEAPON_STABILITY_DAMAGE_LEGSHOT, STACKING_MULTIPLY 0.2
+ *    - MendicantFearMod / MendicantFearThrowMod: FearOnHit.lua, _fearChance 0.1,
+ *      _fearDuration 6 (the throw one filtered to MELEE_THROW hits)
+ *    - CassidDamageOnNearDeathMod: WEAPON_VICTIM_DAMAGE_AMOUNT, ADD_BASE 20
+ *    - DodgeAttackDamageMod: ADD_BASE 10 damage and 12 stability on dodge attacks
+ *  ADD_BASE is flat base damage: From Above's 10 and Rejoinder's 10 match the
+ *  wiki's confirmed values. Used only while the wiki text has a placeholder. */
+const GAME_EFFECT: Record<string, string> = {
+  LegShotMod:
+    "Severed Root increases the Stagger dealt by leg shots by 20%. When Double-Stacked, this bonus will be doubled to 40%.",
+  MendicantFearMod:
+    "Unnerving Blow provides a 10% chance on hit to inflict the Fear status for 6 seconds. When Double-Stacked, this chance will be doubled to 20%.",
+  MendicantFearThrowMod:
+    "Sinister Volley provides a 10% chance to inflict the Fear status for 6 seconds on a Foe struck by a Thrown attack. When Double-Stacked, this chance will be doubled to 20%.",
+  CassidDamageOnNearDeathMod:
+    "Invader causes attacks on Foes with less than 30% Life to deal 20 more base Damage before multipliers. When Double-Stacked, this bonus will be doubled to 40.",
+  DodgeAttackDamageMod:
+    "Rejoinder causes all Dodge Attacks, including Spectre Strikes, to deal 10 more base Damage and 12 more Stagger before multipliers. When Double-Stacked, these bonuses will be doubled to 20 and 24.",
+};
+/** The wiki's markers for a value nobody has measured yet. */
+const PLACEHOLDER_RE = /\b2?X\b|\bTBD\b|\b[Uu]nknown\b|\b[Uu]ndocumented\b/;
+
+/** The wiki's effect, unless it's missing a value the game data has. */
+export function withGameValues(tag: string, effect: string | null): string | null {
+  const fallback = GAME_EFFECT[tag];
+  return fallback && (!effect || PLACEHOLDER_RE.test(effect)) ? fallback : effect;
+}
+
 /** Build tempers.json { "<Tag>": { name, effect } } from the curated Tag->name
  *  map plus each temper's wiki effect. */
 export async function buildTempers(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
@@ -272,10 +302,10 @@ export async function buildTempers(outPath: string, onProgress?: ProgressFn): Pr
       const r = await j(`${API}?action=query&format=json&prop=extracts&explaintext=1&titles=${encodeURIComponent(name)}`);
       const pages = r.query?.pages ?? {};
       const extract = pages[Object.keys(pages)[0] ?? ""]?.extract ?? "";
-      out[tag] = { name, effect: temperEffect(extract) };
+      out[tag] = { name, effect: withGameValues(tag, temperEffect(extract)) };
       if (out[tag].effect) ok++; else unparsed.push(name);
     } catch {
-      out[tag] = { name, effect: null };
+      out[tag] = { name, effect: withGameValues(tag, null) };
       unparsed.push(name);
     }
   }
