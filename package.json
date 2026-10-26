@@ -24,6 +24,7 @@
     "build-totemdata": "tsx scripts/build_data.ts totemdata",
     "build-tempericons": "tsx scripts/build_data.ts tempericons",
     "build-enemies": "node scripts/build_enemies.mjs",
+    "build-avakot": "node scripts/build_avakot.mjs",
     "build-talismans": "tsx scripts/build_data.ts talismans",
     "build-armour": "tsx scripts/build_data.ts armour",
     "build-masteryrank": "tsx scripts/build_data.ts masteryrank",
@@ -54,7 +55,8 @@
     "appId": "com.hunhow0x1.sfhelper",
     "productName": "SFHelper",
     "directories": {
-      "output": "release"
+      "output": "release",
+      "buildResources": "build"
     },
     "files": [
       "dist/**/*",
@@ -68,14 +70,15 @@
         "AppImage"
       ],
       "category": "Game",
+      "icon": "build/icon.png",
       "artifactName": "SFHelper-${version}.${ext}"
     },
     "win": {
       "target": [
         "nsis"
       ],
-      "artifactName": "SFHelper-Setup-${version}.${ext}",
-      "signAndEditExecutable": false
+      "icon": "build/icon.ico",
+      "artifactName": "SFHelper-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,

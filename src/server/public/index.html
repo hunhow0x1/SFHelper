@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SFHelper</title>
+    <link rel="icon" type="image/svg+xml" href="img/icon.svg" />
     <style>
       /* ---- Fonts (bundled, SIL OFL - see fonts/LICENSE.txt) ------------------ */
       @font-face { font-family: "Cinzel"; src: url(fonts/Cinzel.woff2) format("woff2"); font-weight: 400 900; font-display: swap; }
@@ -33,6 +34,7 @@
         --grace: #6f9edb;
         --bar-bg: #16110d;
         --page-w: 1720px;        /* widest the content gets on big screens */
+        --gutter: 38px;          /* side padding; the edge vines live in it */
         --display: "Cinzel", "Trajan Pro", Georgia, serif;
         --body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
       }
@@ -54,15 +56,30 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       }
       ::selection { background: rgba(201, 165, 92, 0.35); }
+
+      /* ---- Vines: window edges and corners (behind everything) ----------- */
+      .vines { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+      .vines i { position: absolute; display: block; opacity: 0.55; }
+      .vines .c { top: 0; width: 380px; height: 260px; background: url(img/ornaments/vine-corner.svg) no-repeat; }
+      .vines .e {
+        top: 258px; bottom: 0; width: 34px; background: url(img/ornaments/vine-edge.svg) 0 0 / 34px auto repeat-y;
+        /* Lush at the top, thinning out down the sides. */
+        -webkit-mask-image: linear-gradient(to bottom, #000, #000 30%, transparent 85%);
+        mask-image: linear-gradient(to bottom, #000, #000 30%, transparent 85%);
+      }
+      .vines .l { left: 0; }
+      .vines .r { right: 0; transform: scaleX(-1); }
+      header.top, .updbar, main, .foot { position: relative; z-index: 1; }
+      @media (max-width: 640px) { .vines { display: none; } :root { --gutter: 16px; } }
       b, strong { font-weight: 600; }
 
       /* ---- Header ---------------------------------------------------------- */
       header.top {
         display: flex; flex-wrap: wrap; align-items: center; gap: 14px 34px;
-        max-width: var(--page-w); margin: 0 auto; padding: 26px 28px 18px;
+        max-width: var(--page-w); margin: 0 auto; padding: 26px var(--gutter) 18px;
       }
       .brand { display: flex; align-items: center; gap: 12px; }
-      .brand img, .brand svg { height: 30px; width: auto; flex: none; } /* slot for the app logo */
+      .brand img { height: 42px; width: auto; flex: none; margin: -6px 0; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.55)); }
       h1 {
         margin: 0; font: 600 22px/1 var(--display); letter-spacing: 0.14em; color: var(--accent-hi);
         text-shadow: 0 0 18px rgba(201, 165, 92, 0.25);
@@ -72,12 +89,12 @@
       .kpi { display: flex; flex-direction: column; color: var(--muted); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
       .kpi b { color: var(--text); font: 500 16px/1.3 var(--body); letter-spacing: 0; text-transform: none; font-variant-numeric: tabular-nums; }
       .kpi.upd { justify-content: flex-end; text-transform: none; letter-spacing: 0.02em; font-size: 12.5px; color: var(--faint); }
-      main { max-width: var(--page-w); margin: 0 auto; padding: 0 28px 48px; }
+      main { max-width: var(--page-w); margin: 0 auto; padding: 0 var(--gutter) 48px; }
 
       /* ---- Updates (desktop app) ------------------------------------------- */
       .updbar {
         display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px; box-sizing: border-box;
-        width: min(calc(var(--page-w) - 56px), calc(100% - 32px)); margin: 0 auto 18px; padding: 12px 18px;
+        width: min(calc(var(--page-w) - 2 * var(--gutter)), calc(100% - 2 * var(--gutter))); margin: 0 auto 18px; padding: 12px 18px;
         border: 1px solid rgba(201, 165, 92, 0.45); border-radius: 3px; background: rgba(201, 165, 92, 0.08);
         color: var(--text); font-size: 14.5px;
       }
@@ -87,7 +104,7 @@
       .updbar button { margin-left: auto; }
       .foot {
         display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px;
-        max-width: var(--page-w); margin: 0 auto; padding: 0 28px 28px; color: var(--faint); font-size: 13px;
+        max-width: var(--page-w); margin: 0 auto; padding: 0 var(--gutter) 28px; color: var(--faint); font-size: 13px;
       }
       .foot button:disabled { opacity: 0.5; cursor: default; }
       .foot a { color: var(--muted); }
@@ -136,9 +153,13 @@
         border: 1px solid var(--frame);
         box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(232, 201, 126, 0.08), 0 14px 40px rgba(0, 0, 0, 0.4);
       }
-      section::before { /* inner hairline, for the double-frame look */
+      section::before { /* inner hairline, for the double-frame look, with vines on two corners */
         content: ""; position: absolute; inset: 5px; border: 1px solid rgba(201, 165, 92, 0.07);
         border-radius: 2px; pointer-events: none;
+        background:
+          url(img/ornaments/panel-corner-tl.svg) left -2px top -2px / 128px 68px no-repeat,
+          url(img/ornaments/panel-corner-br.svg) right -2px bottom -2px / 128px 68px no-repeat;
+        opacity: 0.85;
       }
       section::after { /* diamond on the top edge */
         content: ""; position: absolute; top: -4px; left: 50%; width: 7px; height: 7px;
@@ -148,7 +169,12 @@
         display: flex; align-items: center; gap: 14px; margin: 0 0 22px;
         font: 600 15px/1.2 var(--display); letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-hi);
       }
-      h2::after { content: ""; flex: 1; order: 1; height: 1px; background: linear-gradient(90deg, var(--frame), transparent); }
+      h2::after { /* leaf fleuron, then a rule fading out */
+        content: ""; flex: 1; order: 1; height: 16px; min-width: 60px;
+        background:
+          url(img/ornaments/fleuron.svg) left center / 44px 16px no-repeat,
+          linear-gradient(90deg, var(--frame), transparent) 44px center / calc(100% - 44px) 1px no-repeat;
+      }
       h2.hdr .mini { order: 2; }
       h3.sub { font: 600 13px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2); margin: 0 0 12px; }
 
@@ -389,6 +415,53 @@
         box-shadow: 0 0 12px rgba(200, 220, 245, 0.25);
       }
 
+      /* ---- Avakot's Gots ---------------------------------------------------- */
+      @media (min-width: 1320px) {
+        #panel-avakot { grid-template-columns: minmax(0, 1.55fr) minmax(420px, 1fr); align-items: start; }
+      }
+      #panel-avakot h3.sub { margin-top: 4px; }
+      .avgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; margin-bottom: 28px; }
+      .avcard {
+        display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 3px 14px; align-items: center;
+        padding: 14px 16px 14px 14px; background: var(--well); border: 1px solid var(--line); border-radius: 3px;
+      }
+      .avcard.starred { --tick: rgba(232, 201, 126, 0.7); border-color: rgba(232, 201, 126, 0.5); box-shadow: inset 0 0 18px rgba(201, 165, 92, 0.08); }
+      .avcard .avicn { grid-row: span 2; width: 56px; height: 56px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6)); }
+      .avname { font: 600 16px/1.25 var(--display); letter-spacing: 0.03em; color: var(--text); min-width: 0; }
+      .avmeta { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 13.5px; color: var(--muted); }
+      .avgrp { color: var(--faint); font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; }
+      .avprice { display: inline-flex; align-items: center; gap: 5px; color: var(--accent-hi); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .avprice img { width: 17px; height: 17px; object-fit: contain; }
+      .avtime { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin-top: 9px; font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+      .avtime.soon { color: var(--courage); }
+      .avbar { height: 3px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
+      .avbar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi)); }
+      /* Star toggle: outline when off, glowing gold when on. */
+      button.star { background: none; border: 0; box-shadow: none; padding: 5px; margin: -5px; line-height: 0; cursor: pointer; }
+      button.star:hover { filter: none; }
+      button.star svg { width: 22px; height: 22px; fill: none; stroke: var(--faint); stroke-width: 1.5; stroke-linejoin: round; transition: stroke 0.15s, fill 0.15s; }
+      button.star:hover svg { stroke: var(--accent-hi); }
+      button.star.on svg { fill: var(--accent-hi); stroke: var(--accent-hi); filter: drop-shadow(0 0 5px rgba(232, 201, 126, 0.55)); }
+      button.star:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+      /* Weekly / always-stocked lists and the wishlist rows. */
+      .avlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); column-gap: 32px; margin-bottom: 28px; }
+      .avrow { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+      .avrow.starrable { grid-template-columns: auto 30px minmax(0, 1fr) auto; }
+      .avrow .avicn { width: 30px; height: 30px; object-fit: contain; }
+      .avrow .avn { min-width: 0; }
+      .avrow .avn small { display: block; color: var(--faint); font-size: 12.5px; line-height: 1.35; }
+      .avrow .avr { text-align: right; font-size: 13.5px; color: var(--muted); }
+      .avrow .avr small { display: block; color: var(--faint); font-size: 12px; }
+      .instock { color: var(--accent-2); font-weight: 600; }
+      .avgroups { columns: 2 300px; column-gap: 20px; }
+      .avgroup { break-inside: avoid; margin-bottom: 18px; padding: 12px 18px 8px; background: var(--well); border: 1px solid var(--line); border-radius: 3px; }
+      .avgroup h3 {
+        display: flex; align-items: baseline; gap: 10px; margin: 0 0 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line);
+        font: 600 15px/1.2 var(--display); letter-spacing: 0.08em; color: var(--accent-hi);
+      }
+      .avgroup h3 .count { font: 400 13px/1 var(--body); color: var(--faint); letter-spacing: 0; }
+      .avgroup .avrow:last-child { border-bottom: 0; }
+
       /* ---- Totems ---------------------------------------------------------- */
       .tfilters { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; align-items: center; margin-bottom: 18px; }
       .tfilters .fl { color: var(--muted); font: 600 11px/1 var(--display); letter-spacing: 0.16em; text-transform: uppercase; }
@@ -586,11 +659,30 @@
       .pacttree .artnode.off .artlabel { fill: #7d7263; }
       .pacttree .artrank { font-family: var(--body); font-size: 12px; fill: var(--accent); }
       .pacttree .artnode.off .artrank { fill: #6a6155; }
+
+      /* ---- Card corner brackets: small gold ticks, like the game's item frames.
+         Last in the sheet so it adds to each card's own background colour. */
+      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup {
+        --tick: rgba(201, 165, 92, 0.42);
+        background-image:
+          linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
+          linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
+          linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
+          linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick));
+        background-size: 10px 1px, 1px 10px, 10px 1px, 1px 10px, 10px 1px, 1px 10px, 10px 1px, 1px 10px;
+        background-position:
+          left 3px top 3px, left 3px top 3px, right 3px top 3px, right 3px top 3px,
+          left 3px bottom 3px, left 3px bottom 3px, right 3px bottom 3px, right 3px bottom 3px;
+        background-repeat: no-repeat;
+      }
+      .lo.open { --tick: rgba(232, 201, 126, 0.6); }
     </style>
   </head>
   <body>
+    <div class="vines" aria-hidden="true"><i class="c l"></i><i class="c r"></i><i class="e l"></i><i class="e r"></i></div>
     <header class="top">
       <div class="brand">
+        <img src="img/icon.svg" alt="" />
         <h1>SFHelper</h1>
       </div>
       <span class="who" id="displayName">—</span>
@@ -610,6 +702,7 @@
         <button class="tab" data-tab="upgrades">Upgrades</button>
         <button class="tab" data-tab="pickups">Pickups</button>
         <button class="tab" data-tab="trades">Trades</button>
+        <button class="tab" data-tab="avakot">Avakot</button>
         <button class="tab" data-tab="stats">Stats</button>
       </nav>
 
@@ -723,6 +816,27 @@
           <h2>Trades</h2>
           <div class="grid" id="tradeTiles"></div>
           <div id="trades"><span class="muted">Import your inventory to track your trades.</span></div>
+        </section>
+      </div>
+
+      <!-- AVAKOT: his shop's stock, and the wishlist that notifies -->
+      <div class="panel" id="panel-avakot">
+        <section>
+          <div class="picktop">
+            <h2>Avakot's Gots</h2>
+            <label class="notifytoggle" id="avNotifyWrap" hidden title="Desktop notification with sound when Avakot stocks an item you starred">
+              <input type="checkbox" id="avNotify" />
+              <span class="sw"></span>
+              Notify me about starred items
+            </label>
+          </div>
+          <div class="daily" id="avSummary"></div>
+          <div id="avStock"><span class="muted">—</span></div>
+        </section>
+        <section>
+          <h2>Wishlist</h2>
+          <div class="daily" id="avWishSummary"></div>
+          <div id="avPool"><span class="muted">—</span></div>
         </section>
       </div>
 
@@ -1260,6 +1374,155 @@
           }
         });
       })();
+
+      // ---- Avakot's Gots ---------------------------------------------------
+      // The stock comes from /api/avakot: the desktop app fetches it while the
+      // game runs. /avakot.json is everything he can offer (from the game's
+      // data), so items can be starred before they turn up.
+      let AV_POOL = new Map();
+      let AV = null; // { stock, seen, watch, notify }
+      const AV_GROUPS = ["Materials", "Lures", "Lampyrite", "Joineries", "Pact Fragments", "Supplies", "Other"];
+      const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg>';
+      const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+      const avItem = (storeItem) =>
+        AV_POOL.get(storeItem) || { storeItem, name: shortName(storeItem.replace("/SF/StoreItems/", "/SF/")), group: "Other", icon: null, hours: null, price: null };
+      function avLeft(ms) {
+        const m = Math.max(1, Math.round(ms / 60000));
+        if (m < 60) return m + "m";
+        const h = Math.floor(m / 60);
+        return h < 24 ? h + "h " + (m % 60) + "m" : Math.floor(h / 24) + "d " + (h % 24) + "h";
+      }
+      const avClock = (ms) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      const avDay = (ms) => new Date(ms).toLocaleDateString([], { month: "short", day: "numeric" });
+      function avPrice(currency, amount) {
+        if (!currency || amount == null) return "";
+        const text = Array.isArray(amount)
+          ? amount[0] === amount[1] ? amount[0].toLocaleString() : amount[0].toLocaleString() + "–" + amount[1].toLocaleString()
+          : amount.toLocaleString();
+        return `<span class="avprice" title="${currency}"><img src="img/avakot/${currency === "Arcs" ? "arcs" : "dracs"}.png" alt="${currency}">${text}</span>`;
+      }
+      const avIcon = (it, cls = "avicn") => (it.icon ? `<img class="${cls}" src="${escHtml(it.icon)}" alt="">` : `<span class="${cls}"></span>`);
+      function avStar(it) {
+        const on = AV.watch.includes(it.storeItem);
+        const tip = on ? "Starred: you'll be notified when Avakot stocks this" : "Star to be notified when Avakot stocks this";
+        return `<button class="star${on ? " on" : ""}" data-star="${escHtml(it.storeItem)}" aria-pressed="${on}" title="${tip}" aria-label="${escHtml(it.name)}">${STAR_SVG}</button>`;
+      }
+
+      function renderAvakot() {
+        if (!AV) return;
+        const now = Date.now();
+        const stock = AV.stock;
+        const offers = stock ? stock.offers.filter((o) => o.expiry === null || o.expiry > now) : [];
+        const rotating = offers.filter((o) => o.expiry !== null).sort((a, b) => a.expiry - b.expiry);
+        const inStock = new Map(rotating.map((o) => [o.storeItem, o]));
+
+        $("avSummary").innerHTML = !stock
+          ? "SFHelper checks Avakot's stock while Soulframe is running, and shows it here after the first check."
+          : stock.nextChange > now
+            ? `Stock changes in <b>${avLeft(stock.nextChange - now)}</b> · checked ${avClock(stock.fetchedAt)}`
+            : `Stock as of ${avDay(stock.fetchedAt)}, ${avClock(stock.fetchedAt)} · SFHelper checks again while Soulframe is running`;
+
+        const card = (o) => {
+          const it = avItem(o.storeItem);
+          const left = o.expiry - now;
+          const total = it.hours ? it.hours[1] * 3600000 : null;
+          const pct = total ? Math.max(2, Math.min(100, (left / total) * 100)) : null;
+          const starred = AV.watch.includes(o.storeItem);
+          return `<div class="avcard${starred ? " starred" : ""}">
+            ${avIcon(it)}
+            <div class="avname">${escHtml(it.name)}</div>
+            ${avStar(it)}
+            <div class="avmeta"><span class="avgrp">${escHtml(it.group)}</span>${avPrice(o.currency, o.price)}${o.limit ? `<span>Limit ${o.limit}</span>` : ""}</div>
+            <div class="avtime${left < 30 * 60000 ? " soon" : ""}">${pct != null ? `<div class="avbar"><i style="width:${pct.toFixed(1)}%"></i></div>` : "<span></span>"}<span>${avLeft(left)} left · until ${avClock(o.expiry)}</span></div>
+          </div>`;
+        };
+        const row = (o, note) => {
+          const it = avItem(o.storeItem);
+          return `<div class="avrow">${avIcon(it)}<div class="avn">${escHtml(it.name)}${note ? `<small>${note}</small>` : ""}</div><div class="avr">${avPrice(o.currency, o.price)}</div></div>`;
+        };
+        const weekly = offers.filter((o) => o.expiry === null && o.weekly);
+        const always = offers.filter((o) => o.expiry === null && !o.weekly);
+        $("avStock").innerHTML = !stock
+          ? '<span class="muted">No stock checked yet.</span>'
+          : (rotating.length
+              ? `<h3 class="sub">In stock now</h3><div class="avgrid">${rotating.map(card).join("")}</div>`
+              : '<p class="muted">Nothing rotating is in stock. SFHelper checks again while Soulframe is running.</p>') +
+            (weekly.length
+              ? `<h3 class="sub">Weekly</h3><div class="avlist">${weekly.map((o) => row(o, o.limit ? `Limit ${o.limit} a week` : "")).join("")}</div>`
+              : "") +
+            (always.length
+              ? `<h3 class="sub">Always in stock</h3><div class="avlist">${always.map((o) => row(o, avItem(o.storeItem).group === "Pact Fragments" ? "Pact Fragment" : "")).join("")}</div>`
+              : "");
+
+        // Wishlist: everything that rotates in and out, starred or not.
+        const pool = [...AV_POOL.values()].filter((it) => it.kind === "rotating");
+        for (const o of rotating) if (!AV_POOL.has(o.storeItem)) pool.push(avItem(o.storeItem));
+        const starredCount = pool.filter((it) => AV.watch.includes(it.storeItem)).length;
+        $("avWishSummary").innerHTML =
+          "Star what you're after. While Soulframe and SFHelper are running, you get a desktop notification when Avakot stocks it." +
+          (starredCount ? ` · <b>${starredCount}</b> starred` : "");
+        const status = (it) => {
+          const o = inStock.get(it.storeItem);
+          if (o) return `<span class="instock">In stock</span> · ${avLeft(o.expiry - now)} left`;
+          const seen = AV.seen[it.storeItem];
+          if (!seen) return "Not seen yet";
+          return `Last in stock ${avDay(seen.last)}${seen.count > 1 ? ` · seen ${seen.count}×` : ""}`;
+        };
+        const groups = AV_GROUPS.map((g) => [g, pool.filter((it) => it.group === g)]).filter(([, items]) => items.length);
+        $("avPool").innerHTML = groups.length
+          ? `<div class="avgroups">${groups
+              .map(([g, items]) => `<div class="avgroup"><h3>${escHtml(g)} <span class="count">${items.length}</span></h3>${items
+                .map((it) => `<div class="avrow starrable">${avStar(it)}${avIcon(it)}<div class="avn">${escHtml(it.name)}<small>${status(it)}</small></div><div class="avr">${avPrice(it.currency, it.price)}${it.hours ? `<small>${it.hours[1] >= 23 ? "24h" : it.hours[1] + "h"} offer</small>` : ""}</div></div>`)
+                .join("")}</div>`)
+              .join("")}</div>`
+          : '<span class="muted">Avakot\'s item list didn\'t load.</span>';
+      }
+
+      async function loadAvakot() {
+        try {
+          const r = await fetch("/api/avakot");
+          if (!r.ok) return;
+          AV = await r.json();
+          renderAvakot();
+          const box = $("avNotify");
+          if (document.activeElement !== box) box.checked = AV.notify !== false;
+        } catch {}
+      }
+      async function saveAvakotSettings(patch) {
+        const r = await fetch("/api/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(patch) });
+        if (!r.ok) throw new Error("save failed");
+        return r.json();
+      }
+      $("panel-avakot").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button.star");
+        if (!btn || !AV) return;
+        const item = btn.dataset.star;
+        const before = AV.watch;
+        AV.watch = before.includes(item) ? before.filter((x) => x !== item) : [...before, item];
+        renderAvakot();
+        try {
+          AV.watch = (await saveAvakotSettings({ avakotWatch: AV.watch })).avakotWatch;
+        } catch {
+          AV.watch = before; // the change didn't save
+        }
+        renderAvakot();
+      });
+      // The notification toggle only means something in the desktop app.
+      if (navigator.userAgent.includes("Electron")) {
+        $("avNotifyWrap").hidden = false;
+        $("avNotify").addEventListener("change", async (e) => {
+          const box = e.target;
+          try {
+            box.checked = (await saveAvakotSettings({ avakotNotify: box.checked })).avakotNotify;
+          } catch {
+            box.checked = !box.checked;
+          }
+        });
+      }
+      document.querySelector('.tab[data-tab="avakot"]').addEventListener("click", loadAvakot);
+      setInterval(loadAvakot, 60000);
+      setInterval(renderAvakot, 30000); // countdowns
+
       document.getElementById("pickupSearch").addEventListener("input", (e) => {
         PICKUP_SEARCH = e.target.value;
         renderPickups();
@@ -2227,6 +2490,11 @@
           const res = await fetch("/pacts.json");
           if (res.ok) PACT_ROSTER = await res.json();
         } catch {}
+        try {
+          const res = await fetch("/avakot.json");
+          if (res.ok) AV_POOL = new Map((await res.json()).items.map((it) => [it.storeItem, it]));
+        } catch {}
+        loadAvakot();
       }
 
       // On load, try to discover the id automatically before asking for it.

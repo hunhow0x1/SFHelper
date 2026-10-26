@@ -24,9 +24,14 @@ import { getSettings } from "../src/server/settings";
 import { setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
+import { AVAKOT_VENDOR, avakotDue, noteAvakotAttempt, parseVendorInfo, recordAvakot, type AvakotOffer } from "../src/server/avakot";
+import { fetchVendorInfo } from "../helper/fetchVendor";
+import { EndpointRefusedError } from "../helper/fetchInventory";
 import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts, buildTalismans, buildArmour, buildMasteryRank } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+// Window and notification icon (the installers embed build/icon.*).
+const ICON_PATH = join(HERE, "public", "img", "icon-256.png");
 
 const USER_DATA = app.getPath("userData");
 const CONSENT_PATH = join(USER_DATA, "consent.json");
@@ -116,6 +121,7 @@ async function importFromMemory(): Promise<void> {
         ? { state: "ok", message: "Inventory imported." }
         : { state: "error", code: result.code, message },
     );
+    if (result.ok) void refreshAvakot();
   } catch (err) {
     // Unexpected failure (e.g. the native memory module failed to load).
     log(`Inventory import failed: ${(err as Error).stack ?? String(err)}`);
@@ -126,6 +132,73 @@ async function importFromMemory(): Promise<void> {
 }
 
 const REIMPORT_INTERVAL_MS = 120_000; // re-scan for new pickups / progress every 2 min
+
+/** Avakot's shop stock, asked for with the import's session once the last copy
+ *  has run out (see src/server/avakot.ts), then notify about starred items. */
+let avakotBusy = false;
+async function refreshAvakot(): Promise<void> {
+  const s = session;
+  if (!s || avakotBusy || apiPausedUntil() || !(await avakotDue())) return;
+  avakotBusy = true;
+  try {
+    await noteAvakotAttempt();
+    const stock = parseVendorInfo(await fetchVendorInfo(s.accountId, s.nonce, AVAKOT_VENDOR));
+    noteApiAccepted();
+    const settings = await getSettings();
+    const fresh = await recordAvakot(stock, settings.avakotWatch);
+    const rotating = stock.offers.filter((o) => o.expiry !== null).length;
+    log(`Avakot's stock updated: ${rotating} rotating offers, next change at ${new Date(stock.nextChange).toLocaleTimeString()}.`);
+    if (fresh.length && settings.avakotNotify) await notifyAvakot(fresh);
+  } catch (err) {
+    if (err instanceof EndpointRefusedError) log(`Avakot's stock: ${pausedMessage(noteApiRefused(), err.status)}`);
+    else log(`Avakot's stock check failed: ${(err as Error).message}`);
+  } finally {
+    avakotBusy = false;
+  }
+}
+
+/** Names for Avakot's items, from the bundled pool (public/avakot.json). */
+let avakotNames: Map<string, string> | null = null;
+async function avakotItemName(storeItem: string): Promise<string> {
+  if (!avakotNames) {
+    try {
+      const pool = JSON.parse(await readFile(join(HERE, "public", "avakot.json"), "utf8")) as { items?: { storeItem: string; name: string }[] };
+      avakotNames = new Map((pool.items ?? []).map((i) => [i.storeItem, i.name]));
+    } catch {
+      avakotNames = new Map();
+    }
+  }
+  return avakotNames.get(storeItem) ?? (await displayName(storeItem.replace("/SF/StoreItems/", "/SF/")));
+}
+
+/** Bring SFHelper forward on one of its tabs (a notification was clicked). */
+function showTab(tab: string): void {
+  if (!mainWindow) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+  void mainWindow.webContents.executeJavaScript(`typeof activateTab === "function" && activateTab(${JSON.stringify(tab)})`);
+}
+
+/** Desktop notification for starred items Avakot has just stocked. Clicking it
+ *  opens the Avakot tab. Off when the toggle on that tab is off. */
+async function notifyAvakot(offers: AvakotOffer[]): Promise<void> {
+  if (!Notification.isSupported()) return;
+  const names = await Promise.all(offers.map((o) => avakotItemName(o.storeItem)));
+  const until = (ms: number | null) => (ms ? new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "");
+  const lines = offers.map((o, i) =>
+    [names[i], o.price ? `${o.price.toLocaleString()} ${o.currency}` : "", o.expiry ? `until ${until(o.expiry)}` : ""].filter(Boolean).join(" · "),
+  );
+  const n = new Notification({
+    title: offers.length === 1 ? `Avakot has ${names[0]}!` : `Avakot has ${offers.length} of your starred items!`,
+    body: lines.join("\n"),
+    icon: ICON_PATH,
+    silent: false,
+  });
+  n.on("click", () => showTab("avakot"));
+  n.show();
+  log(`Avakot notification: ${names.join(", ")}.`);
+}
 
 /** In-game display name for an ItemType, from the bundled names.json (keyed by
  *  full path or leaf); falls back to a cleaned-up leaf. */
@@ -160,17 +233,10 @@ async function notifyMoonsteel(p: Pickup): Promise<void> {
   const n = new Notification({
     title: `✦ Moonsteel ${name}!`,
     body: `You ${how} a Moonsteel ${name}${craft ? ` (${craft})` : ""}.`,
+    icon: ICON_PATH,
     silent: false,
   });
-  n.on("click", () => {
-    if (!mainWindow) return;
-    if (mainWindow.isMinimized()) mainWindow.restore();
-    mainWindow.show();
-    mainWindow.focus();
-    void mainWindow.webContents.executeJavaScript(
-      `typeof activateTab === "function" && activateTab("pickups")`,
-    );
-  });
+  n.on("click", () => showTab("pickups"));
   n.show();
   log(`Moonsteel ${name} acquired (${p.source ?? "pickup"}).`);
 }
@@ -183,6 +249,7 @@ function createMainWindow(url: string): void {
     height: Math.min(980, area.height),
     backgroundColor: "#14110f",
     title: "SFHelper",
+    icon: ICON_PATH,
     webPreferences: { contextIsolation: true },
   });
   void mainWindow.loadURL(url);
@@ -220,6 +287,7 @@ function askConsent(): Promise<boolean> {
       resizable: false,
       backgroundColor: "#14110f",
       title: "SFHelper — before you begin",
+      icon: ICON_PATH,
       webPreferences: { contextIsolation: true, preload: join(HERE, "preload.cjs") },
     });
     void win.loadFile(join(HERE, "consent.html"));

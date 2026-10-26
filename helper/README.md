@@ -43,6 +43,10 @@ to surface it among a short list. Once a nonce works, the app reuses it for the
 rest of the session and only scans again if the game rejects it, for example
 after a re-login.
 
+The desktop app also uses the session for Avakot's shop stock
+(`fetchVendor.ts`): one request each time his stock changes, which is about
+every 3 hours while the game is running.
+
 ## Command line
 
 ```bash

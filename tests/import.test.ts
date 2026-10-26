@@ -81,7 +81,7 @@ describe("data paths", () => {
       expect(appFile("inventory.json")).toBe(join(home, "inventory.json"));
       // A module imported before the variable was set still writes there.
       await updateSettings({ moonsteelNotify: false });
-      expect(JSON.parse(await readFile(join(home, "settings.json"), "utf8"))).toEqual({ moonsteelNotify: false });
+      expect(JSON.parse(await readFile(join(home, "settings.json"), "utf8"))).toMatchObject({ moonsteelNotify: false });
     } finally {
       if (before === undefined) delete process.env.SFHELPER_HOME;
       else process.env.SFHELPER_HOME = before;

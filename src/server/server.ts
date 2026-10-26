@@ -25,6 +25,7 @@ import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "
 import { dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
 import { getEnvoyRank } from "./envoyRank";
+import { acknowledgeAvakot, getAvakot } from "./avakot";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -190,10 +191,21 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     let body = "";
     for await (const chunk of req) body += chunk;
     try {
-      sendJson(res, 200, await updateSettings(JSON.parse(body || "{}") as Record<string, unknown>));
+      const patch = JSON.parse(body || "{}") as Record<string, unknown>;
+      const settings = await updateSettings(patch);
+      if ("avakotWatch" in patch) await acknowledgeAvakot(settings.avakotWatch);
+      sendJson(res, 200, settings);
     } catch {
       sendJson(res, 400, { error: "Invalid request." });
     }
+    return;
+  }
+
+  // Avakot's last known stock (fetched by the desktop app), the offer history
+  // and the user's stars.
+  if (url.pathname === "/api/avakot" && req.method === "GET") {
+    const { avakotWatch, avakotNotify } = await getSettings();
+    sendJson(res, 200, { ...(await getAvakot()), watch: avakotWatch, notify: avakotNotify });
     return;
   }
 

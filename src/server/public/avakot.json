@@ -1,0 +1,690 @@
+{
+  "vendor": "/SF/Types/Game/AvakotVendorManifest",
+  "slots": 5,
+  "items": [
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Consumables/HealingPotion",
+      "name": "Life Elixir",
+      "group": "Supplies",
+      "kind": "always",
+      "currency": "Dracs",
+      "price": [
+        200,
+        200
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.3,
+      "limit": 100,
+      "icon": "img/avakot/healingpotion.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/CricketLureRare",
+      "name": "Spindled Bugger",
+      "group": "Lures",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        250,
+        350
+      ],
+      "hours": [
+        23,
+        24
+      ],
+      "weight": 0.2,
+      "limit": 3,
+      "icon": "img/avakot/spindledbugger.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/TurtleLureRare",
+      "name": "Scuter",
+      "group": "Lures",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        250,
+        350
+      ],
+      "hours": [
+        23,
+        24
+      ],
+      "weight": 0.2,
+      "limit": 3,
+      "icon": "img/avakot/scuter.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/LobsterLureRare",
+      "name": "Locustax Streamer",
+      "group": "Lures",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        250,
+        350
+      ],
+      "hours": [
+        23,
+        24
+      ],
+      "weight": 0.2,
+      "limit": 3,
+      "icon": "img/avakot/locustaxstreamer.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/FrogLureUncommon",
+      "name": "Sirin's Hopper",
+      "group": "Lures",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        150,
+        200
+      ],
+      "hours": [
+        23,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 5,
+      "icon": "img/avakot/sirinshopper.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/FishLureUncommon",
+      "name": "Snelled Swimmer",
+      "group": "Lures",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        150,
+        200
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.35,
+      "limit": 5,
+      "icon": "img/avakot/snelledswimmer.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/CarpLureUncommon",
+      "name": "Pluckfin Skimmer",
+      "group": "Lures",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        150,
+        200
+      ],
+      "hours": [
+        23,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 5,
+      "icon": "img/avakot/pluckfinskimmer.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+      "name": "Sproutfolk Frond",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        50,
+        50
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.3,
+      "limit": 100,
+      "icon": "img/avakot/textile04.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+      "name": "Knotwood",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        50,
+        50
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.3,
+      "limit": 100,
+      "icon": "img/avakot/organic05.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Textiles/WornLeatherResource",
+      "name": "Patch Leather",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        50,
+        50
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.3,
+      "limit": 100,
+      "icon": "img/avakot/textile05.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+      "name": "Dendrit Weave",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        50,
+        50
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.3,
+      "limit": 100,
+      "icon": "img/avakot/textile02.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+      "name": "Gossamer Quartz",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        150,
+        150
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.2,
+      "limit": 10,
+      "icon": "img/avakot/organic03.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+      "name": "Scrap Steel",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        150,
+        150
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.2,
+      "limit": 10,
+      "icon": "img/avakot/scrapmetal02.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+      "name": "Scrap Iron",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        150,
+        150
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.2,
+      "limit": 10,
+      "icon": "img/avakot/scrapmetal01.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+      "name": "Scrap Brass",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        150,
+        150
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.2,
+      "limit": 10,
+      "icon": "img/avakot/scrapmetal.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/RiverPearlResource",
+      "name": "River Pearl",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        1500,
+        1500
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.1,
+      "limit": 2,
+      "icon": "img/avakot/riverpearl.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/SapphelineResource",
+      "name": "Sappheline",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        1500,
+        1500
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.1,
+      "limit": 2,
+      "icon": "img/avakot/organic08.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/MoraniteResource",
+      "name": "Moranite",
+      "group": "Materials",
+      "kind": "rotating",
+      "currency": "Dracs",
+      "price": [
+        1500,
+        1500
+      ],
+      "hours": [
+        3,
+        3
+      ],
+      "weight": 0.1,
+      "limit": 2,
+      "icon": "img/avakot/organic06.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRC",
+      "name": "Gildaur: Thrice Blessed by Mora",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.4,
+      "limit": 1,
+      "icon": "img/joineries/gildaur.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRG",
+      "name": "Gildaur: Thrice Blessed by Saphene",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/gildaur.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRS",
+      "name": "Gildaur: Thrice Blessed by Iridis",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/gildaur.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRC",
+      "name": "Verite: Twice Blessed by Mora",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/verite.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRG",
+      "name": "Verite: Twice Blessed by Saphene",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/verite.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRS",
+      "name": "Verite: Twice Blessed by Iridis",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/verite.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRC",
+      "name": "Quicksilver: Thrice Blessed by Mora",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/quicksilver.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRG",
+      "name": "Quicksilver: Thrice Blessed by Saphene",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/quicksilver.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRS",
+      "name": "Quicksilver: Thrice Blessed by Iridis",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/quicksilver.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRC",
+      "name": "Feybalt: Thrice Blessed by Mora",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/feybalt.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRS",
+      "name": "Feybalt: Thrice Blessed by Iridis",
+      "group": "Joineries",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 1,
+      "icon": "img/joineries/feybalt.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/GarrenPactBlueprint",
+      "name": "Garren Rood",
+      "group": "Pact Fragments",
+      "kind": "always",
+      "currency": "Dracs",
+      "price": [
+        3000,
+        3000
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.8,
+      "limit": null,
+      "icon": "img/avakot/garrenrood.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/BromiusPactBlueprint",
+      "name": "Bromius",
+      "group": "Pact Fragments",
+      "kind": "always",
+      "currency": "Dracs",
+      "price": [
+        3000,
+        3000
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.8,
+      "limit": null,
+      "icon": "img/avakot/bromiuspact.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/FencerPactBlueprint",
+      "name": "Duelo",
+      "group": "Pact Fragments",
+      "kind": "always",
+      "currency": "Dracs",
+      "price": [
+        3000,
+        3000
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.8,
+      "limit": null,
+      "icon": "img/avakot/fencerpact.png"
+    },
+    {
+      "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystAMediumBundle",
+      "name": "Purseworth of Glow Lampyrite",
+      "group": "Lampyrite",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        25,
+        35
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.35,
+      "limit": 2,
+      "icon": "img/avakot/glowlampyrite.png"
+    },
+    {
+      "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystBMediumBundle",
+      "name": "Purseworth of Amber Lampyrite",
+      "group": "Lampyrite",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        30,
+        45
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.25,
+      "limit": 2,
+      "icon": "img/avakot/amberlampyrite.png"
+    },
+    {
+      "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystCMediumBundle",
+      "name": "Purseworth of Faer Lampyrite",
+      "group": "Lampyrite",
+      "kind": "weekly",
+      "currency": "Arcs",
+      "price": [
+        40,
+        55
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.15,
+      "limit": 2,
+      "icon": "img/avakot/faerlampyrite.png"
+    },
+    {
+      "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystALargeBundle",
+      "name": "Cratesworth of Glow Lampyrite",
+      "group": "Lampyrite",
+      "kind": "rotating",
+      "currency": "Arcs",
+      "price": [
+        50,
+        60
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.15,
+      "limit": null,
+      "icon": "img/avakot/glowlampyrite.png"
+    },
+    {
+      "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystBLargeBundle",
+      "name": "Cratesworth of Amber Lampyrite",
+      "group": "Lampyrite",
+      "kind": "rotating",
+      "currency": "Arcs",
+      "price": [
+        60,
+        70
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.1,
+      "limit": null,
+      "icon": "img/avakot/amberlampyrite.png"
+    },
+    {
+      "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystCLargeBundle",
+      "name": "Cratesworth of Faer Lampyrite",
+      "group": "Lampyrite",
+      "kind": "rotating",
+      "currency": "Arcs",
+      "price": [
+        70,
+        80
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.05,
+      "limit": null,
+      "icon": "img/avakot/faerlampyrite.png"
+    }
+  ]
+}
