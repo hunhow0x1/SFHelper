@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { decodeJoinery, fableVirtues, virtuePoints } from "../src/server/loadouts";
-import { parseTalismans } from "../scripts/build_data";
+import { decodeJoinery, fableVirtues, parseBuilds, virtuePoints } from "../src/server/loadouts";
+import { parseArmour, parseTalismans } from "../scripts/build_data";
+// @ts-expect-error - plain JS build script, no type declarations
+import { matchArmourStem } from "../scripts/armour_names.mjs";
 
 const K = "/SF/Types/Items/Kintsugi/Weapons/";
 
@@ -54,5 +56,56 @@ describe("loadout Virtues", () => {
   it("reads Talisman Virtues from the wiki's armour data, by ItemType", () => {
     const lua = `return {\n\t["Paragon Periapt"] = {\n\t\t\tSlot = "Talisman",\n\t\t\tStats = {\n\t\t\t\t\tCourage = 3, Grace = 3, Spirit = 3\n\t\t\t}\n\t},\n\t["Bascinet"] = {\n\t\t\tSlot = "Helm",\n\t\t\tStats = { PhysicalDefence = 3 }\n\t},\n}`;
     expect(parseTalismans(lua)).toEqual({ PrimordialTotem: { name: "Paragon Periapt", Courage: 3, Spirit: 3, Grace: 3 } });
+  });
+});
+
+describe("loadout armour", () => {
+  it("reads each loadout's Helm, Cuirass, Leggings and Talisman from its Pact's appearance", () => {
+    const oid = (n: number) => ({ $oid: n.toString(16).padStart(24, "0") });
+    const id = (n: number) => oid(n).$oid;
+    const raw = {
+      WeaponSkins: [
+        { ItemType: "/SF/Upgrades/Skins/Helmets/MendicantKingHelmet", ItemId: oid(1) },
+        { ItemType: "/SF/Upgrades/Skins/Body/MendicantKingBody", ItemId: oid(2) },
+        { ItemType: "/SF/Upgrades/Skins/Totem/PrimordialTotem", ItemId: oid(3) },
+      ],
+      Suits: [{
+        ItemType: "/SF/Souls/Fencer/FencerSoul",
+        ItemId: oid(10),
+        // Config 1 is this loadout's appearance (cus); a default piece is stored by path.
+        Configs: [{ Skins: [] }, { Skins: [id(1), "", id(2), "/SF/Upgrades/Skins/Legs/StarterLegs", "/SF/Upgrades/Skins/Hair/FemaleShortHairA", id(3)] }],
+      }],
+      LoadOutPresets: { NORMAL: [{ n: "Duelo", s: { ItemId: oid(10), mod: 0, cus: 1 } }] },
+    };
+    const [b] = parseBuilds(raw);
+    expect(b!.armour).toEqual({
+      helm: "/SF/Upgrades/Skins/Helmets/MendicantKingHelmet",
+      cuirass: "/SF/Upgrades/Skins/Body/MendicantKingBody",
+      leggings: "/SF/Upgrades/Skins/Legs/StarterLegs",
+    });
+    expect(b!.talisman).toBe("/SF/Upgrades/Skins/Totem/PrimordialTotem");
+  });
+
+  it("reads armour stats from the wiki's armour data, by in-game name", () => {
+    const lua = `return {\n\t["Bascinet of The Mendicant King"] = {\n\t\t\tSlot = "Helm",\n\t\t\tArmorSet = "Mendicant King",\n\t\t\tRarity = "Rare",\n\t\t\tStats = {\n\t\t\t\t\tPhysicalDefence = 3,\n\t\t\t\t\tMagickDefence = 1,\n\t\t\t\t\tStabilityIncrease = 3,\n\t\t\t\t\tVirtueReq = "17 C"\n\t\t\t}\n\t},\n\t["Paragon Periapt"] = {\n\t\t\tSlot = "Talisman",\n\t\t\tStats = { Courage = 3 }\n\t},\n}`;
+    expect(parseArmour(lua)).toEqual({
+      "Bascinet of The Mendicant King": {
+        slot: "Helm", set: "Mendicant King", rarity: "Rare", physical: 3, magick: 1, stability: 3,
+        requires: { virtue: "Courage", value: 17 },
+      },
+    });
+  });
+
+  it("matches armour leaves to their names despite DE's naming differences", () => {
+    const stems = ["ForgetFireBody", "ForgetFireBodyAlt", "CircadeHelm", "TuvalkaneLegs", "TuvalkanetBody", "ThawTideSinecureHelmet", "BromiusHelmet", "NoHelmet", "WazzardBody"];
+    expect(matchArmourStem("ForgetFireAltBody", "Body", stems)).toBe("ForgetFireBodyAlt");
+    expect(matchArmourStem("CircadeHelmet", "Helmets", stems)).toBe("CircadeHelm");
+    expect(matchArmourStem("TuvalkanelLegs", "Legs", stems)).toBe("TuvalkaneLegs");
+    expect(matchArmourStem("TuvalkaneBody", "Body", stems)).toBe("TuvalkanetBody");
+    expect(matchArmourStem("ThawtideHelmet", "Helmets", stems)).toBe("ThawTideSinecureHelmet");
+    expect(matchArmourStem("BromiusClosedHelmet", "Helmets", stems)).toBe("BromiusHelmet");
+    // Internal types with no player-facing name stay unmatched.
+    expect(matchArmourStem("BaseHelmetVisionNoHair", "Helmets", stems)).toBeNull();
+    expect(matchArmourStem("GrandfatherBody", "Body", stems)).toBeNull();
   });
 });

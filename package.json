@@ -1,6 +1,6 @@
 {
   "name": "sfhelper",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "private": true,
   "description": "Desktop Soulframe companion - account snapshots, progression tracking and loadouts",
   "type": "module",
@@ -25,6 +25,7 @@
     "build-tempericons": "tsx scripts/build_data.ts tempericons",
     "build-enemies": "node scripts/build_enemies.mjs",
     "build-talismans": "tsx scripts/build_data.ts talismans",
+    "build-armour": "tsx scripts/build_data.ts armour",
     "build-masteryrank": "tsx scripts/build_data.ts masteryrank",
     "watch-log": "node scripts/watch_log.mjs",
     "build:app": "node scripts/build_app.mjs",

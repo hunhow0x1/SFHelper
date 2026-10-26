@@ -1,7 +1,7 @@
 // Turn the extracted localization dict into the app's names file.
 //
 //   node scripts/extract_names.mjs --out dict.en.json      # pull the dict
-//   node scripts/build_names.mjs dict.en.json names.json   # -> { items, factions }
+//   node scripts/build_names.mjs dict.en.json names.json [Packages.bin_H]   # -> { items, factions }
 //
 // Host the resulting names.json at your SFHELPER_NAMES_URL endpoint.
 //
@@ -15,12 +15,18 @@
 //   * souls: /SF/Souls/<Char>/<Char>Soul takes its name from
 //     /SF/Language/Pacts/<Char>Name, so every Pacts "<X>Name" also aliases
 //     "<X>Soul".
+//   * armour: leaves that differ from their name's stem (ForgetFireAltBody vs
+//     ForgetFireBodyAlt, CircadeHelmet vs CircadeHelm, typos) are matched by
+//     armour_names.mjs, for every armour type in the game's type tree
+//     (Packages.bin, as cached by extract_names; skipped if it isn't there).
 // Aliases never overwrite an exact stem match. A handful of items are simply
 // unnamed in the dict (e.g. StagSoul) and fall back to the cleaned leaf.
 
 import { readFile, writeFile } from "node:fs/promises";
+import { DEFAULT_PACKAGES_PATH, readTypeTree } from "./type_tree.mjs";
+import { matchArmourStem } from "./armour_names.mjs";
 
-const [dictPath = "dict.en.json", outPath = "names.json"] = process.argv.slice(2);
+const [dictPath = "dict.en.json", outPath = "names.json", pkgPath = DEFAULT_PACKAGES_PATH] = process.argv.slice(2);
 const dict = JSON.parse(await readFile(dictPath, "utf8"));
 
 const FACTION_TAGS = ["ChampionSyndicate", "FeySyndicate", "OdeSyndicate", "SilentRoseSyndicate"];
@@ -100,6 +106,33 @@ for (const [key, value] of Object.entries(dict)) {
   }
 }
 
+// Pass 3 - armour whose ItemType leaf differs from its name's stem.
+const armourStems = Object.keys(dict)
+  .filter((k) => k.startsWith("/SF/Language/Armour/") && k.endsWith("Name"))
+  .map((k) => k.slice("/SF/Language/Armour/".length, -"Name".length));
+let tree = null;
+try {
+  tree = readTypeTree(await readFile(pkgPath));
+} catch {
+  console.error(`(no type tree at ${pkgPath}: armour aliases skipped)`);
+}
+let armourAliases = 0;
+for (const path of tree?.keys() ?? []) {
+  const m = path.match(/^\/SF\/Upgrades\/Skins\/(Helmets|Body|Legs)\/(\w+)$/);
+  if (!m || m[2] in items) continue;
+  const stem = matchArmourStem(m[2], m[1], armourStems);
+  const name = stem && dict[`/SF/Language/Armour/${stem}Name`];
+  if (name && !name.startsWith("[PH]")) {
+    setAlias(m[2], name);
+    armourAliases++;
+  }
+}
+// The hair "helmets" (Hair1AHelmet...) are the helmet-off look: the game's "Helmless".
+for (const path of tree?.keys() ?? []) {
+  const leaf = path.match(/^\/SF\/Upgrades\/Skins\/Helmets\/(Hair\d+AHelmet)$/)?.[1];
+  if (leaf) setAlias(leaf, dict["/SF/Language/Armour/NoHelmetName"]);
+}
+
 // Manual overrides win over everything (skip any that were not in the dict).
 for (const [key, value] of Object.entries(MANUAL_OVERRIDES)) {
   if (value) items[key] = value;
@@ -108,5 +141,5 @@ for (const [key, value] of Object.entries(MANUAL_OVERRIDES)) {
 const out = { items, factions, factionTokens, currencies };
 await writeFile(outPath, JSON.stringify(out, null, 2));
 console.error(
-  `Wrote ${outPath}: ${Object.keys(items).length} item names, ${Object.keys(factions).length} factions, ${Object.keys(factionTokens).length} tokens, ${Object.keys(currencies).length} currencies.`,
+  `Wrote ${outPath}: ${Object.keys(items).length} item names (${armourAliases} armour aliases), ${Object.keys(factions).length} factions, ${Object.keys(factionTokens).length} tokens, ${Object.keys(currencies).length} currencies.`,
 );

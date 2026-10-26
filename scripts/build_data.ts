@@ -585,6 +585,57 @@ export async function buildTalismans(outPath: string, onProgress?: ProgressFn): 
   return { ok: Object.keys(out).length, unparsed: Object.keys(TALISMAN_NAMES).filter((k) => !out[k]) };
 }
 
+export interface ArmourData {
+  slot: "Helm" | "Cuirass" | "Leggings";
+  set: string | null;
+  rarity: string | null;
+  physical: number;
+  magick: number;
+  stability: number;
+  /** The Virtue the piece asks for: "17 C" -> { virtue: "Courage", value: 17 }. */
+  requires: { virtue: "Courage" | "Spirit" | "Grace"; value: number } | null;
+}
+
+const VIRTUE_LETTER: Record<string, "Courage" | "Spirit" | "Grace"> = {
+  C: "Courage",
+  S: "Spirit",
+  G: "Grace",
+};
+
+/** Helms, Cuirasses and Leggings from the wiki (Module:Data/Armour), keyed by
+ *  in-game name (the game's own armour names; see build_names.mjs). */
+export function parseArmour(lua: string): Record<string, ArmourData> {
+  const out: Record<string, ArmourData> = {};
+  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\t\},/g)) {
+    const body = m[2]!;
+    const slot = body.match(/Slot\s*=\s*"(Helm|Cuirass|Leggings)"/)?.[1] as ArmourData["slot"] | undefined;
+    if (!slot) continue;
+    const str = (key: string) => body.match(new RegExp(`\\b${key}\\s*=\\s*"([^"]*)"`))?.[1]?.trim() || null;
+    const num = (key: string) => Number(body.match(new RegExp(`\\b${key}\\s*=\\s*(-?[\\d.]+)`))?.[1] ?? 0);
+    const req = str("VirtueReq")?.match(/^(\d+)\s*([CSG])$/);
+    out[m[1]!.trim()] = {
+      slot,
+      set: str("ArmorSet"),
+      rarity: str("Rarity"),
+      physical: num("PhysicalDefence"),
+      magick: num("MagickDefence"),
+      stability: num("StabilityIncrease"),
+      requires: req ? { virtue: VIRTUE_LETTER[req[2]!]!, value: Number(req[1]) } : null,
+    };
+  }
+  return out;
+}
+export async function buildArmour(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
+  onProgress?.(0, 1, "Module:Data/Armour");
+  const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Armour")}&prop=wikitext&format=json`);
+  const out = parseArmour(r.parse?.wikitext?.["*"] ?? "");
+  onProgress?.(1, 1, "done");
+  // Never replace good data with nothing if the module's format changes.
+  if (Object.keys(out).length < 30) throw new Error(`Module:Data/Armour gave only ${Object.keys(out).length} armour pieces`);
+  await writeSorted(outPath, out as Record<string, unknown>);
+  return { ok: Object.keys(out).length, unparsed: [] };
+}
+
 /** The highest Envoy (Mastery) Rank reachable in the current patch, from the
  *  wiki's Envoy Rank page: "Maximum Mastery as of {{VerShort|P16}} is ~19.1".
  *  Written as { maxMastery: 19.1, patch: "P16" }. */
@@ -700,6 +751,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/talismans.json";
       const r = await buildTalismans(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} talismans (${r.unparsed.length} not on the wiki: ${r.unparsed.join(", ")}).\n`);
+    } else if (kind === "armour") {
+      const out = process.argv[3] ?? "src/server/public/armour.json";
+      const r = await buildArmour(out, bar);
+      process.stderr.write(`\nWrote ${out}: ${r.ok} armour pieces.\n`);
     } else if (kind === "masteryrank") {
       const out = process.argv[3] ?? "src/server/public/masteryrank.json";
       await buildMasteryRank(out, bar);
@@ -709,7 +764,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const r = await buildPactArts(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} pact arts with text (${r.unparsed.length} without: ${r.unparsed.join(", ")}).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|runes|weapons|pacts|tempers|pactarts|talismans|masteryrank> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|runes|weapons|pacts|tempers|pactarts|talismans|armour|masteryrank> [outPath]\n");
       process.exit(2);
     }
   };

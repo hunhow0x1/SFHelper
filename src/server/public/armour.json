@@ -1,0 +1,833 @@
+{
+  "Arbearer's Braes": {
+    "slot": "Leggings",
+    "set": "Arbearer",
+    "rarity": "Rare",
+    "physical": 5,
+    "magick": 1,
+    "stability": 4,
+    "requires": {
+      "virtue": "Courage",
+      "value": 19
+    }
+  },
+  "Arbearer's Mask": {
+    "slot": "Helm",
+    "set": "Arbearer",
+    "rarity": "Rare",
+    "physical": 4,
+    "magick": 1,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 19
+    }
+  },
+  "Arbearer's Pauncher": {
+    "slot": "Cuirass",
+    "set": "Arbearer",
+    "rarity": "Rare",
+    "physical": 7,
+    "magick": 2,
+    "stability": 4,
+    "requires": {
+      "virtue": "Courage",
+      "value": 19
+    }
+  },
+  "Armet of Orengall": {
+    "slot": "Helm",
+    "set": "Orengall",
+    "rarity": "Rare",
+    "physical": 3,
+    "magick": 2,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 17
+    }
+  },
+  "Bascinet of The Mendicant King": {
+    "slot": "Helm",
+    "set": "Mendicant King",
+    "rarity": "Rare",
+    "physical": 3,
+    "magick": 1,
+    "stability": 3,
+    "requires": {
+      "virtue": "Courage",
+      "value": 17
+    }
+  },
+  "Brazen Lung": {
+    "slot": "Helm",
+    "set": "Forgetfire",
+    "rarity": "Common",
+    "physical": 2,
+    "magick": 4,
+    "stability": 0,
+    "requires": null
+  },
+  "Buskins of The Sleeve": {
+    "slot": "Leggings",
+    "set": "The Sleeve",
+    "rarity": "Uncommon",
+    "physical": 4,
+    "magick": 2,
+    "stability": 2,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 15
+    }
+  },
+  "Circade's Greaves": {
+    "slot": "Leggings",
+    "set": "Circade",
+    "rarity": "Rare",
+    "physical": 5,
+    "magick": 0,
+    "stability": 3,
+    "requires": {
+      "virtue": "Courage",
+      "value": 11
+    }
+  },
+  "Circade's Gutguard": {
+    "slot": "Cuirass",
+    "set": "Circade",
+    "rarity": "Rare",
+    "physical": 6,
+    "magick": 0,
+    "stability": 4,
+    "requires": {
+      "virtue": "Courage",
+      "value": 11
+    }
+  },
+  "Circade's Helm of Deceit": {
+    "slot": "Helm",
+    "set": "Circade",
+    "rarity": "Rare",
+    "physical": 4,
+    "magick": 0,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 11
+    }
+  },
+  "Coronal of The Sleeve": {
+    "slot": "Helm",
+    "set": "The Sleeve",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 1,
+    "stability": 1,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 15
+    }
+  },
+  "Crone Cucurbita Mask": {
+    "slot": "Helm",
+    "set": "Cucurbita",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 3,
+    "stability": 1,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 9
+    }
+  },
+  "Duelo Ribbon": {
+    "slot": "Helm",
+    "set": "Mestra",
+    "rarity": "Uncommon",
+    "physical": 0,
+    "magick": 0,
+    "stability": 0,
+    "requires": null
+  },
+  "Fire King's Kilt": {
+    "slot": "Leggings",
+    "set": "Fire King",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 2,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 12
+    }
+  },
+  "Fire King's Plackart": {
+    "slot": "Cuirass",
+    "set": "Fire King",
+    "rarity": "Uncommon",
+    "physical": 5,
+    "magick": 2,
+    "stability": 3,
+    "requires": {
+      "virtue": "Courage",
+      "value": 12
+    }
+  },
+  "Forgetfire Braes": {
+    "slot": "Leggings",
+    "set": "Forgetfire",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 0,
+    "stability": 3,
+    "requires": {
+      "virtue": "Courage",
+      "value": 9
+    }
+  },
+  "Forgetfire Leathers": {
+    "slot": "Cuirass",
+    "set": "Forgetfire",
+    "rarity": "Common",
+    "physical": 4,
+    "magick": 0,
+    "stability": 3,
+    "requires": {
+      "virtue": "Courage",
+      "value": 9
+    }
+  },
+  "Forgetfire Visard": {
+    "slot": "Helm",
+    "set": "Forgetfire",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 0,
+    "stability": 3,
+    "requires": {
+      "virtue": "Courage",
+      "value": 9
+    }
+  },
+  "Forsaken Rags": {
+    "slot": "Leggings",
+    "set": "Underwear",
+    "rarity": "Common",
+    "physical": 0,
+    "magick": 0,
+    "stability": 0,
+    "requires": null
+  },
+  "Garren's Cloven Hosen": {
+    "slot": "Leggings",
+    "set": "Garren",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 2,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 12
+    }
+  },
+  "Garren's Crown of Grace": {
+    "slot": "Helm",
+    "set": "Garren",
+    "rarity": "Uncommon",
+    "physical": 2,
+    "magick": 2,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 12
+    }
+  },
+  "Gilet of The Sleeve": {
+    "slot": "Cuirass",
+    "set": "The Sleeve",
+    "rarity": "Uncommon",
+    "physical": 5,
+    "magick": 4,
+    "stability": 2,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 15
+    }
+  },
+  "Great Helm of The Fire King": {
+    "slot": "Helm",
+    "set": "Fire King",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 2,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 12
+    }
+  },
+  "Helmless": {
+    "slot": "Helm",
+    "set": "Underwear",
+    "rarity": "Common",
+    "physical": 0,
+    "magick": 0,
+    "stability": 0,
+    "requires": null
+  },
+  "Laid Bare": {
+    "slot": "Cuirass",
+    "set": "Underwear",
+    "rarity": "Common",
+    "physical": 0,
+    "magick": 0,
+    "stability": 0,
+    "requires": null
+  },
+  "Lil' Zook Mask": {
+    "slot": "Helm",
+    "set": "Cucurbita",
+    "rarity": "Common",
+    "physical": 4,
+    "magick": 1,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 9
+    }
+  },
+  "Mendicant King's Sabatons": {
+    "slot": "Leggings",
+    "set": "Mendicant King",
+    "rarity": "Rare",
+    "physical": 4,
+    "magick": 2,
+    "stability": 4,
+    "requires": {
+      "virtue": "Courage",
+      "value": 17
+    }
+  },
+  "Mendicant King's Suit of Rancor": {
+    "slot": "Cuirass",
+    "set": "Mendicant King",
+    "rarity": "Rare",
+    "physical": 6,
+    "magick": 3,
+    "stability": 4,
+    "requires": {
+      "virtue": "Courage",
+      "value": 17
+    }
+  },
+  "Mestra's Breeches": {
+    "slot": "Leggings",
+    "set": "Mestra",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 2,
+    "stability": 2,
+    "requires": {
+      "virtue": "Grace",
+      "value": 12
+    }
+  },
+  "Mestra's Furbelow": {
+    "slot": "Cuirass",
+    "set": "Mestra",
+    "rarity": "Uncommon",
+    "physical": 4,
+    "magick": 3,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 12
+    }
+  },
+  "Mestra's Helm": {
+    "slot": "Helm",
+    "set": "Mestra",
+    "rarity": "Uncommon",
+    "physical": 1,
+    "magick": 2,
+    "stability": 2,
+    "requires": {
+      "virtue": "Grace",
+      "value": 12
+    }
+  },
+  "Mockery Binds": {
+    "slot": "Cuirass",
+    "set": "Mockery",
+    "rarity": "Rare",
+    "physical": 4,
+    "magick": 4,
+    "stability": 4,
+    "requires": {
+      "virtue": "Grace",
+      "value": 17
+    }
+  },
+  "Mockery Douthrot": {
+    "slot": "Leggings",
+    "set": "Mockery",
+    "rarity": "Rare",
+    "physical": 4,
+    "magick": 4,
+    "stability": 2,
+    "requires": {
+      "virtue": "Grace",
+      "value": 17
+    }
+  },
+  "Mockery Ilk": {
+    "slot": "Helm",
+    "set": "Mockery",
+    "rarity": "Rare",
+    "physical": 3,
+    "magick": 3,
+    "stability": 2,
+    "requires": {
+      "virtue": "Grace",
+      "value": 17
+    }
+  },
+  "Orengall's Cuirass": {
+    "slot": "Cuirass",
+    "set": "Orengall",
+    "rarity": "Rare",
+    "physical": 5,
+    "magick": 3,
+    "stability": 4,
+    "requires": {
+      "virtue": "Grace",
+      "value": 17
+    }
+  },
+  "Orengall's Greaves": {
+    "slot": "Leggings",
+    "set": "Orengall",
+    "rarity": "Rare",
+    "physical": 4,
+    "magick": 3,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 17
+    }
+  },
+  "Oscelda's Blues": {
+    "slot": "Cuirass",
+    "set": "Oscelda",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 5,
+    "stability": 0,
+    "requires": null
+  },
+  "Oscelda's Diadem": {
+    "slot": "Helm",
+    "set": "Oscelda",
+    "rarity": "Common",
+    "physical": 1,
+    "magick": 3,
+    "stability": 0,
+    "requires": null
+  },
+  "Oscelda's Featherbinds": {
+    "slot": "Leggings",
+    "set": "Oscelda",
+    "rarity": "Common",
+    "physical": 2,
+    "magick": 4,
+    "stability": 0,
+    "requires": null
+  },
+  "Pensive's Bonnet": {
+    "slot": "Helm",
+    "set": "Pensive",
+    "rarity": "Uncommon",
+    "physical": 2,
+    "magick": 2,
+    "stability": 1,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 6
+    }
+  },
+  "Pensive's Cloak": {
+    "slot": "Cuirass",
+    "set": "Pensive",
+    "rarity": "Uncommon",
+    "physical": 4,
+    "magick": 4,
+    "stability": 3,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 6
+    }
+  },
+  "Pensive's Pantaloons": {
+    "slot": "Leggings",
+    "set": "Pensive",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 3,
+    "stability": 2,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 6
+    }
+  },
+  "Poppa Pepo Mask": {
+    "slot": "Helm",
+    "set": "Cucurbita",
+    "rarity": "Common",
+    "physical": 2,
+    "magick": 2,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 9
+    }
+  },
+  "Regalia of Garren Rood": {
+    "slot": "Cuirass",
+    "set": "Garren",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 3,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 12
+    }
+  },
+  "Regent's Drapery": {
+    "slot": "Leggings",
+    "set": "Regent",
+    "rarity": "Uncommon",
+    "physical": 4,
+    "magick": 2,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 12
+    }
+  },
+  "Regent's Shell": {
+    "slot": "Cuirass",
+    "set": "Regent",
+    "rarity": "Uncommon",
+    "physical": 6,
+    "magick": 3,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 12
+    }
+  },
+  "Regent's Veil": {
+    "slot": "Helm",
+    "set": "Regent",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 1,
+    "stability": 1,
+    "requires": {
+      "virtue": "Courage",
+      "value": 12
+    }
+  },
+  "Sirin's Plainhide": {
+    "slot": "Cuirass",
+    "set": "Sirin",
+    "rarity": "Common",
+    "physical": 4,
+    "magick": 0,
+    "stability": 4,
+    "requires": null
+  },
+  "Sirin's Shroud": {
+    "slot": "Helm",
+    "set": "Sirin",
+    "rarity": "Common",
+    "physical": 2,
+    "magick": 0,
+    "stability": 3,
+    "requires": null
+  },
+  "Sirin's Stalks": {
+    "slot": "Leggings",
+    "set": "Sirin",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 0,
+    "stability": 2,
+    "requires": null
+  },
+  "Steelsinger's Circlet": {
+    "slot": "Helm",
+    "set": "Steelsinger",
+    "rarity": "Uncommon",
+    "physical": 2,
+    "magick": 2,
+    "stability": 1,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 11
+    }
+  },
+  "Steelsinger's Shreds": {
+    "slot": "Leggings",
+    "set": "Steelsinger",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 3,
+    "stability": 2,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 11
+    }
+  },
+  "Steelsinger's Stithywicks": {
+    "slot": "Cuirass",
+    "set": "Steelsinger",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 5,
+    "stability": 3,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 11
+    }
+  },
+  "Tempest Braes": {
+    "slot": "Leggings",
+    "set": "Tempest",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 0,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 7
+    }
+  },
+  "Tempest Leathers": {
+    "slot": "Cuirass",
+    "set": "Tempest",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 0,
+    "stability": 4,
+    "requires": {
+      "virtue": "Grace",
+      "value": 7
+    }
+  },
+  "Tempest Visard": {
+    "slot": "Helm",
+    "set": "Tempest",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 0,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 7
+    }
+  },
+  "Tethren's Cap": {
+    "slot": "Helm",
+    "set": "Tethren",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 0,
+    "stability": 2,
+    "requires": null
+  },
+  "Tethren's Roots": {
+    "slot": "Leggings",
+    "set": "Tethren",
+    "rarity": "Common",
+    "physical": 4,
+    "magick": 0,
+    "stability": 1,
+    "requires": null
+  },
+  "Tethren's Tunic": {
+    "slot": "Cuirass",
+    "set": "Tethren",
+    "rarity": "Common",
+    "physical": 5,
+    "magick": 0,
+    "stability": 3,
+    "requires": null
+  },
+  "Thawtide Grimguise": {
+    "slot": "Helm",
+    "set": "Thawtide",
+    "rarity": "Common",
+    "physical": 4,
+    "magick": 2,
+    "stability": 1,
+    "requires": {
+      "virtue": "Courage",
+      "value": 13
+    }
+  },
+  "Thawtide Meltcap": {
+    "slot": "Helm",
+    "set": "Thawtide",
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 0,
+    "stability": 2,
+    "requires": {
+      "virtue": "Grace",
+      "value": 14
+    }
+  },
+  "Thawtide Shingles": {
+    "slot": "Leggings",
+    "set": "Thawtide",
+    "rarity": "Common",
+    "physical": 4,
+    "magick": 0,
+    "stability": 3,
+    "requires": {
+      "virtue": "Grace",
+      "value": 14
+    }
+  },
+  "Thawtide Thermals": {
+    "slot": "Cuirass",
+    "set": "Thawtide",
+    "rarity": "Common",
+    "physical": 5,
+    "magick": 0,
+    "stability": 4,
+    "requires": {
+      "virtue": "Grace",
+      "value": 14
+    }
+  },
+  "Wazzard's Bycoket": {
+    "slot": "Helm",
+    "set": "Wazzard",
+    "rarity": "Uncommon",
+    "physical": 2,
+    "magick": 3,
+    "stability": 2,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 19
+    }
+  },
+  "Wazzard's Robes": {
+    "slot": "Cuirass",
+    "set": "Wazzard",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 5,
+    "stability": 4,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 19
+    }
+  },
+  "Wazzard's Trunks": {
+    "slot": "Leggings",
+    "set": "Wazzard",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 4,
+    "stability": 4,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 19
+    }
+  },
+  "Wyld Oscelda Beltolls": {
+    "slot": "Leggings",
+    "set": "Wyld Oscelda",
+    "rarity": "Uncommon",
+    "physical": 2,
+    "magick": 4,
+    "stability": 0,
+    "requires": null
+  },
+  "Wyld Oscelda Pendelveil": {
+    "slot": "Cuirass",
+    "set": "Wyld Oscelda",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 5,
+    "stability": 0,
+    "requires": null
+  },
+  "Wyld Oscelda's Exhalt": {
+    "slot": "Helm",
+    "set": "Wyld Oscelda",
+    "rarity": "Uncommon",
+    "physical": 1,
+    "magick": 3,
+    "stability": 0,
+    "requires": null
+  },
+  "Wyld Sirin Finery": {
+    "slot": "Cuirass",
+    "set": "Wyld Sirin",
+    "rarity": "Uncommon",
+    "physical": 4,
+    "magick": 0,
+    "stability": 4,
+    "requires": null
+  },
+  "Wyld Sirin Wevetbelt": {
+    "slot": "Leggings",
+    "set": "Wyld Sirin",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 0,
+    "stability": 2,
+    "requires": null
+  },
+  "Wyld Sirin's Feignmask": {
+    "slot": "Helm",
+    "set": "Wyld Sirin",
+    "rarity": "Uncommon",
+    "physical": 2,
+    "magick": 0,
+    "stability": 3,
+    "requires": null
+  },
+  "Wyld Tethren Flamefoot": {
+    "slot": "Leggings",
+    "set": "Wyld Tethren",
+    "rarity": "Uncommon",
+    "physical": 4,
+    "magick": 0,
+    "stability": 1,
+    "requires": null
+  },
+  "Wyld Tethren Solist Shield": {
+    "slot": "Cuirass",
+    "set": "Wyld Tethren",
+    "rarity": "Uncommon",
+    "physical": 5,
+    "magick": 0,
+    "stability": 3,
+    "requires": null
+  },
+  "Wyld Tethren's Hornhelm": {
+    "slot": "Helm",
+    "set": "Wyld Tethren",
+    "rarity": "Uncommon",
+    "physical": 3,
+    "magick": 0,
+    "stability": 2,
+    "requires": null
+  }
+}

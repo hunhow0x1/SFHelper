@@ -12,7 +12,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 | Tab | What it shows |
 |---|---|
 | **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, faction tokens and currencies. |
-| **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*). Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Loadouts can be shared as short `SFH1:` codes. |
+| **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*), plus its armour (Helm, Cuirass, Leggings, with defence and Virtue requirements) and Talisman. Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Loadouts can be shared as short `SFH1:` codes. |
 | **Mastery** | Your Envoy Rank, an estimate of progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type. |
 | **Upgrades** | Tuvalkane temper learning, and your Totem inventory with search and grip / Virtue / type filters. |
 | **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. |
@@ -36,7 +36,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   trade's partner and time. Trades are detected by comparing inventory imports,
   so the history starts once SFHelper is running; trades made earlier in the
   same game session are recovered from the log.
-- **Reference data:** totem, rune, temper, weapon, pact and talisman details
+- **Reference data:** totem, rune, temper, weapon, pact, talisman and armour details
   come from the [Soulframe Wiki](https://wiki.avakot.org) and are refreshed
   each time the app starts; a bundled copy is used if the wiki can't be
   reached. In-game names come from the game's own text.
@@ -163,9 +163,9 @@ npm test
 
 | Command | Source | Output |
 |---|---|---|
-| `npm run build-totems` / `build-totemdata` / `build-runes` / `build-tempers` / `build-pactarts` / `build-weapons` / `build-pacts` / `build-talismans` / `build-masteryrank` | Soulframe Wiki | `src/server/public/*.json` |
+| `npm run build-totems` / `build-totemdata` / `build-runes` / `build-tempers` / `build-pactarts` / `build-weapons` / `build-pacts` / `build-talismans` / `build-armour` / `build-masteryrank` | Soulframe Wiki | `src/server/public/*.json` |
 | `npm run build-tempericons` | Soulframe Wiki (game art) | `src/server/public/img/tempers/` |
-| `npm run extract-names -- --out dict.en.json`, then `node scripts/build_names.mjs dict.en.json src/server/public/names.json` | Game localization (DE's CDN) | `names.json` |
+| `npm run extract-names -- --out dict.en.json`, then `node scripts/build_names.mjs dict.en.json src/server/public/names.json` | Game localization (DE's CDN), plus the cached type tree for armour names | `names.json` |
 | `npm run build-enemies -- dict.en.json` | Game localization + cached game type tree | `src/server/public/enemies.json` |
 
 Decompression uses [`ooz-wasm`](https://www.npmjs.com/package/ooz-wasm), an

@@ -70,6 +70,13 @@ export interface SlotGear {
   arts?: Record<string, number> | null;
 }
 
+/** The armour worn with a loadout (ItemTypes; null for an empty slot). */
+export interface ArmourSet {
+  helm: string | null;
+  cuirass: string | null;
+  leggings: string | null;
+}
+
 export interface Build {
   name: string;
   favorite: boolean;
@@ -77,6 +84,8 @@ export interface Build {
   virtues?: VirtuePoints | null;
   /** The Talisman worn with this loadout (its ItemType), which may add Virtues. */
   talisman?: string | null;
+  /** The Helm, Cuirass and Leggings worn with this loadout. */
+  armour?: ArmourSet | null;
   /** Account-wide Virtue points from Fable choices (+1 each). */
   fables?: VirtuePoints | null;
   soul: SlotGear;
@@ -322,15 +331,17 @@ export function parseBuilds(raw: unknown): Build[] {
     const w = e as { ItemId?: { $oid?: string }; ItemType?: unknown };
     if (w?.ItemId?.$oid && typeof w.ItemType === "string") skinTypes.set(w.ItemId.$oid, w.ItemType);
   }
-  // The Talisman worn with a loadout sits in its Pact's appearance config.
-  const talismanOf = (slot: unknown): string | null => {
+  // The armour and Talisman worn with a loadout sit in its Pact's appearance
+  // config: owned pieces by ItemId, default ones by ItemType path.
+  const appearanceOf = (slot: unknown): string[] => {
     const s = slot as Slot;
     const info = s?.ItemId?.$oid ? gear.get(s.ItemId.$oid) : undefined;
-    if (!info) return null;
+    if (!info) return [];
     const pick = [s.cus, s.mod, 0].find((i): i is number => typeof i === "number" && i >= 0 && i < info.skins.length);
     const skins = pick !== undefined ? info.skins[pick]! : [];
-    return skins.map((id) => skinTypes.get(id)).find((t) => t?.includes("/Skins/Totem/")) ?? null;
+    return skins.map((id) => skinTypes.get(id) ?? (id.startsWith("/") ? id : "")).filter(Boolean);
   };
+  const inFolder = (types: string[], folder: string) => types.find((t) => t.includes(`/Skins/${folder}/`)) ?? null;
 
   const resolve = (slot: unknown): SlotGear => {
     const s = slot as Slot;
@@ -361,11 +372,15 @@ export function parseBuilds(raw: unknown): Build[] {
 
   return presets.map((p) => {
     const preset = p as Record<string, unknown>;
+    const worn = appearanceOf(preset.s);
     return {
       name: typeof preset.n === "string" && preset.n ? preset.n : "Unnamed",
       favorite: preset.Favorite === true,
       virtues: virtuePoints(preset.vu, preset.vv, record.PlayerLevel),
-      talisman: talismanOf(preset.s),
+      talisman: inFolder(worn, "Totem"),
+      armour: worn.length
+        ? { helm: inFolder(worn, "Helmets"), cuirass: inFolder(worn, "Body"), leggings: inFolder(worn, "Legs") }
+        : null,
       fables,
       soul: withArts(resolve(preset.s)),
       ranged: resolve(preset.l),

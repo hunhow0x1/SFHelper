@@ -34,6 +34,8 @@ describe("enemy names", () => {
     const name = await getEnemyNamer();
     expect(name("/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntAvatar")).toBe("Sinecure Soldier");
     expect(name("/SF/Types/Enemies/Wildlife/Mockeries/MockeryManAvatar")).toBe("Deadwood Mockery");
-    expect(name("/SF/Types/Enemies/Sinecure/Hunter/RangedHunterEliteAvatar")).toBe("Sinecure Scout");
+    // Elites have their own Codex names (newer game text).
+    expect(name("/SF/Types/Enemies/Sinecure/Hunter/RangedHunterEliteAvatar")).toBe("Sinecure Gruulseeker");
+    expect(name("/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntEliteAvatar")).toBe("Sinecure Elite Soldier");
   });
 });
