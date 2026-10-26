@@ -16,11 +16,18 @@ describe("Envoy Rank", () => {
   });
 
   it("counts weapon and pact ranks from the mastery record, capped at 30", () => {
-    expect(itemMastery({ [W(1)]: 2_000_000, [W(2)]: 500 * 10 * 10, [P(1)]: XP30, "/SF/Other/X": 9e9 })).toEqual({
+    expect(itemMastery({ [W(1)]: 2_000_000, [W(2)]: 250 * 10 * 10, [P(1)]: XP30, "/SF/Other/X": 9e9 })).toEqual({
       weaponRanks: 40,
       pactRanks: 30,
-      units: 40 + 3.5 * 30,
+      units: 40 + 2.5 * 30,
     });
+  });
+
+  it("ranks weapons at 250 * r^2 and pacts at 500 * r^2", () => {
+    // A Paragon at 232,074 XP is rank 30 in game; a pact needs twice that.
+    expect(itemMastery({ [W(1)]: 232_074 })).toMatchObject({ weaponRanks: 30 });
+    expect(itemMastery({ [P(1)]: 232_074 })).toMatchObject({ pactRanks: 21 });
+    expect(itemMastery({ [W(1)]: 224_999 })).toMatchObject({ weaponRanks: 29 });
   });
 
   const base = { weaponCount: 10, pactCount: 2, maxMastery: 19.1, patch: "P16" };
@@ -42,6 +49,7 @@ describe("Envoy Rank", () => {
     expect(s.anchors).toEqual({}); // first sighting: no rank-up seen
     s = observe(s, 18, 2300);
     expect(s.anchors).toEqual({ "18": 2250 });
+    expect(s.v).toBe(2); // older states (units on the old curve) are ignored on load
     const r = estimateEnvoyRank({ ...base, rank: 18, mastery: {}, anchor: 2250 });
     expect(r.calibrated).toBe(true);
     expect(r.progress).toBe(0); // no items: below the anchor, clamped to the start

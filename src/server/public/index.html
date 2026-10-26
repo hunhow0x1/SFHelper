@@ -838,11 +838,12 @@
         return `${p(Math.floor(s / 3600))}:${p(Math.floor((s % 3600) / 60))}:${p(s % 60)}`;
       }
 
-      // Leveling: cumulative affinity to reach rank r is C*r^2, max 30. Weapons and
-      // Pacts both use C=500 (the wiki's 1000 for Pacts is out of date: in game a
-      // pact at 450,859 XP is maxed). pct is a smooth 0..1 bar that reaches r/30
-      // exactly as each rank completes.
-      function levelOf(xp, C = 500) {
+      // Leveling: cumulative affinity to reach rank r is C*r^2, max 30. Weapons
+      // use C=250 (225,000 at rank 30) and Pacts C=500 (the wiki's 1000 for Pacts
+      // is out of date: in game a pact at 450,859 XP is maxed). pct is a smooth
+      // 0..1 bar that reaches r/30 exactly as each rank completes.
+      const WEAPON_RANK_C = 250, PACT_RANK_C = 500;
+      function levelOf(xp, C) {
         const MAX = 30;
         if (!(xp > 0)) return { rank: 0, pct: 0, maxed: false };
         let r = Math.floor(Math.sqrt(xp / C));
@@ -977,8 +978,8 @@
       // own rank. Without an inventory, the held copy's XP is all we have.
       function renderMastery() {
         const sections = [
-          { roster: WEAPON_ROSTER, owned: LAST_WEAPONS, prefix: "/SF/Weapons/", groupOf: (n) => (WEAPON_ROSTER[n] && WEAPON_ROSTER[n].class) || "Other" },
-          { roster: PACT_ROSTER, owned: LAST_PACTS, prefix: "/SF/Souls/", groupOf: () => "Pacts" },
+          { roster: WEAPON_ROSTER, owned: LAST_WEAPONS, prefix: "/SF/Weapons/", C: WEAPON_RANK_C, groupOf: (n) => (WEAPON_ROSTER[n] && WEAPON_ROSTER[n].class) || "Other" },
+          { roster: PACT_ROSTER, owned: LAST_PACTS, prefix: "/SF/Souls/", C: PACT_RANK_C, groupOf: () => "Pacts" },
         ];
         const items = []; // { name, group, w, lvl (mastery earned), copy (held copy's rank) }
         for (const sec of sections) {
@@ -996,8 +997,8 @@
               name,
               group: sec.groupOf(name),
               w,
-              lvl: w || earned > 0 ? levelOf(earned) : null,
-              copy: w ? levelOf(w.xp) : null,
+              lvl: w || earned > 0 ? levelOf(earned, sec.C) : null,
+              copy: w ? levelOf(w.xp, sec.C) : null,
             });
           }
         }

@@ -1,12 +1,17 @@
 /** Owned weapons with their affinity (XP), parsed from a raw inventory dump.
  *
- *  The profile/inventory stores per-weapon XP (affinity), not a rank. Weapons
- *  level 0-30; on DE's Evolution engine the cumulative affinity to reach rank r
- *  is 500 * r^2 (450,000 at rank 30, after which affinity keeps accruing). The
- *  dashboard turns XP into a rank and a progress bar with the same formula.
+ *  The profile/inventory stores per-item XP (affinity), not a rank. Items level
+ *  0-30, and the cumulative affinity to reach rank r is C * r^2, with affinity
+ *  accruing past rank 30:
+ *    - weapons: C = 250 (225,000 at rank 30). Weapon XP piles up just above
+ *      225,000 (where players move on), and a Paragon at 232,074 shows rank 30
+ *      in game (checked 2026-10-26). The game rules' XPMultiplier is 250.
+ *    - pacts:   C = 500 (450,000 at rank 30); see OwnedPact.
+ *  The dashboard turns XP into a rank and a progress bar with the same curves.
  */
 
-const RANK_CONST = 500;
+export const WEAPON_RANK_CONST = 250;
+export const PACT_RANK_CONST = 500;
 export const MAX_RANK = 30;
 
 export interface OwnedWeapon {
@@ -36,20 +41,21 @@ function tempersOf(e: { AspectFingerprint?: unknown }): string[] {
     .filter((t): t is string => typeof t === "string");
 }
 
-/** Cumulative affinity needed to reach a given rank. */
-export function affinityForRank(rank: number): number {
-  return RANK_CONST * rank * rank;
+/** Cumulative affinity needed to reach a given rank (weapons by default). */
+export function affinityForRank(rank: number, perRank = WEAPON_RANK_CONST): number {
+  return perRank * rank * rank;
 }
 
-/** Rank 0-30 for a total-affinity value. */
-export function xpToRank(xp: number): number {
+/** Rank 0-30 for a total-affinity value (weapons by default). */
+export function xpToRank(xp: number, perRank = WEAPON_RANK_CONST): number {
   if (!(xp > 0)) return 0;
-  return Math.max(0, Math.min(MAX_RANK, Math.floor(Math.sqrt(xp / RANK_CONST))));
+  return Math.max(0, Math.min(MAX_RANK, Math.floor(Math.sqrt(xp / perRank))));
 }
 
-/** A Pact (Soul). Pacts level 0-30 on the same curve as weapons (cumulative
+/** A Pact (Soul). Pacts level 0-30 at twice a weapon's affinity (cumulative
  *  affinity = 500 * r^2). The wiki still says 1000 * r^2, but in game every pact
- *  past 450,000 XP is maxed (checked 2026-10-11: one at 450,859 shows Bond 30). */
+ *  past 450,000 XP is maxed (checked 2026-10-11: one at 450,859 shows Bond 30),
+ *  and pact XP piles up just above 450,000. */
 export interface OwnedPact {
   key: string;
   xp: number;

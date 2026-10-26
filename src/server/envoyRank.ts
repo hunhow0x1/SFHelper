@@ -9,23 +9,22 @@
  *     discoveries also grant Mastery but have no known values; left out.
  *   - Cumulative Mastery for rank r grows as K * r^EXPONENT, with K set so that
  *     every weapon and pact at rank 30 lands on the wiki's patch maximum.
- *  PACT_WEIGHT and EXPONENT fit what's observable: the wiki's Preludes 13
- *  screenshots (one maxed pact, the Fey, lifted the max from ~17.9 to ~18.15),
- *  the Preludes 16 max of ~19.1, and a rank-17 account with all pacts and 57%
- *  of weapon ranks. Rough, so once SFHelper sees the rank go up it anchors that
- *  rank's start at the item Mastery seen then (stored per account).
+ *  PACT_WEIGHT and EXPONENT fit what's observable, with K the same across
+ *  patches: the wiki's Preludes 13 screenshots (one maxed pact, the Fey, lifted
+ *  the max from ~17.9 to ~18.15), the Preludes 16 max of ~19.1, and a rank-17
+ *  account with all pacts and ~70% of weapon ranks whose badge is about a third
+ *  full. Rough, so once SFHelper sees the rank go up it anchors that rank's
+ *  start at the item Mastery seen then (stored per account).
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { appFile, dataDir } from "./paths";
+import { MAX_RANK as MAX_ITEM_RANK, PACT_RANK_CONST, xpToRank } from "./weapons";
 
-const PACT_WEIGHT = 3.5;
-const EXPONENT = 3;
-const MAX_ITEM_RANK = 30;
-/** Weapons and pacts share the curve: rank r needs 500 * r^2 XP. */
-const itemRank = (xp: number): number => Math.min(MAX_ITEM_RANK, Math.floor(Math.sqrt(Math.max(0, xp) / 500)));
+const PACT_WEIGHT = 2.5;
+const EXPONENT = 2.3;
 
 export interface EnvoyRank {
   /** Current Envoy Rank (exact). */
@@ -61,8 +60,8 @@ export function itemMastery(mastery: Record<string, number>): { weaponRanks: num
   let weaponRanks = 0;
   let pactRanks = 0;
   for (const [type, xp] of Object.entries(mastery)) {
-    if (type.startsWith("/SF/Weapons/")) weaponRanks += itemRank(xp);
-    else if (type.startsWith("/SF/Souls/")) pactRanks += itemRank(xp);
+    if (type.startsWith("/SF/Weapons/")) weaponRanks += xpToRank(xp);
+    else if (type.startsWith("/SF/Souls/")) pactRanks += xpToRank(xp, PACT_RANK_CONST);
   }
   return { weaponRanks, pactRanks, units: weaponRanks + PACT_WEIGHT * pactRanks };
 }
@@ -96,7 +95,12 @@ export function estimateEnvoyRank(i: MasteryInputs): EnvoyRank {
 
 // --- per-account rank-up anchors ---------------------------------------------
 
+/** Bumped when item Mastery is counted differently (v2: weapons on their own
+ *  250 * r^2 curve), so units stored by an older version are ignored. */
+const STATE_VERSION = 2;
+
 interface AnchorState {
+  v?: number;
   /** Last observation, to spot a rank-up between two imports. */
   last?: { rank: number; units: number };
   /** Rank -> item Mastery when it was reached. */
@@ -108,7 +112,7 @@ const statePath = (accountId: string) => appFile(`envoy-rank-${accountId}.json`)
 async function loadState(accountId: string): Promise<AnchorState> {
   try {
     const s = JSON.parse(await readFile(statePath(accountId), "utf8")) as AnchorState;
-    return s && typeof s.anchors === "object" ? s : { anchors: {} };
+    return s && s.v === STATE_VERSION && typeof s.anchors === "object" ? s : { anchors: {} };
   } catch {
     return { anchors: {} };
   }
@@ -117,7 +121,7 @@ async function loadState(accountId: string): Promise<AnchorState> {
 /** Record this observation; on a one-rank rise, anchor the new rank midway
  *  between the item Mastery before and after (imports are minutes apart). */
 export function observe(state: AnchorState, rank: number, units: number): AnchorState {
-  const next: AnchorState = { anchors: { ...state.anchors }, last: { rank, units } };
+  const next: AnchorState = { v: STATE_VERSION, anchors: { ...state.anchors }, last: { rank, units } };
   if (state.last && rank === state.last.rank + 1 && units >= state.last.units) {
     next.anchors[String(rank)] = (state.last.units + units) / 2;
   }
