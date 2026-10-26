@@ -168,6 +168,103 @@ const itemLines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boole
 /** Names carry a private-use glyph after them (the platform icon, U+E000). */
 const playerName = (s: string) => s.replace(/[\uE000-\uF8FF]/g, "").trim();
 
+/** DE's servers turning the game itself away. Each refused request logs
+ *      HTTP/1.1 403 Forbidden
+ *  followed by the response headers, among them the server's
+ *      Date: Mon, 26 Oct 2026 21:06:09 GMT
+ *  (when it happened on 2026-10-26, every request was refused by Akamai, DE's
+ *  CDN, even the unauthenticated world state, and the game couldn't save
+ *  progress). While the game is being refused, anything SFHelper sends from
+ *  the same network would be refused too, and only prolong the block. */
+export interface GameRefusals {
+  count: number;
+  /** First and latest refusal this game session (epoch ms). */
+  first: number;
+  last: number;
+}
+
+/** Refusals this recent mean the game is still being turned away (it retries
+ *  failed saves every 10 seconds or so). */
+const STILL_REFUSED_MS = 5 * 60_000;
+const REFUSED_RE = /^(\d+\.\d+) .*HTTP\/1\.[01] (?:403|429)\b/;
+const HTTP_DATE_RE = /Date: (\w{3}, \d{1,2} \w{3} \d{4} \d{2}:\d{2}:\d{2} GMT)/;
+
+let refusalCache: { key: string; value: GameRefusals | null } | null = null;
+
+/** Every refusal in the current game log, or null if there are none. */
+export async function gameRefusals(path?: string): Promise<GameRefusals | null> {
+  const log = path ?? (await findLog());
+  if (!log) return null;
+  let key: string;
+  try {
+    const s = await stat(log);
+    key = `${log}:${s.size}:${s.mtimeMs}`;
+  } catch {
+    return null;
+  }
+  if (refusalCache?.key === key) return refusalCache.value;
+
+  let start: number | null = null;
+  let count = 0;
+  let first = 0;
+  let last = 0;
+  const note = (t: number) => {
+    count += 1;
+    if (!first) first = t;
+    last = Math.max(last, t);
+  };
+  // A refusal waiting for its Date header (its log time, used if none follows).
+  let pending: number | null = null;
+  let headerLines = 0;
+  const lines = createInterface({ input: createReadStream(log, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
+  try {
+    for await (const line of lines) {
+      if (start === null) {
+        const h = START_RE.exec(line);
+        if (h) start = parseUtc(h[1]!);
+        continue;
+      }
+      if (pending !== null) {
+        const d = line.includes("Date: ") ? HTTP_DATE_RE.exec(line) : null;
+        if (d) {
+          note(Date.parse(d[1]!));
+          pending = null;
+          continue;
+        }
+        if (++headerLines > 10) {
+          note(pending);
+          pending = null;
+        }
+      }
+      if (!line.includes("HTTP/1.")) continue;
+      const m = REFUSED_RE.exec(line);
+      if (!m) continue;
+      if (pending !== null) note(pending);
+      pending = start + Math.round(Number(m[1]) * 1000);
+      headerLines = 0;
+    }
+    if (pending !== null) note(pending);
+  } catch {
+    return null;
+  } finally {
+    lines.close();
+  }
+  const value = count ? { count, first, last } : null;
+  refusalCache = { key, value };
+  return value;
+}
+
+/** The game's refusals if it's still being refused right now, else null. */
+export async function gameBeingRefused(now = Date.now(), path?: string): Promise<GameRefusals | null> {
+  const r = await gameRefusals(path);
+  return r && now - r.last < STILL_REFUSED_MS ? r : null;
+}
+
+export function gameRefusedMessage(r: GameRefusals): string {
+  const since = new Date(r.first).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return `Soulframe's servers are refusing your game's requests (since ${since}), so SFHelper is waiting.`;
+}
+
 /** Every trade completed in the current game session, oldest first. */
 export async function logTrades(): Promise<LoggedTrade[]> {
   const path = await findLog();

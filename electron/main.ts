@@ -27,6 +27,7 @@ import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "
 import { AVAKOT_VENDOR, avakotDue, noteAvakotAttempt, parseVendorInfo, recordAvakot, type AvakotOffer } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
+import { gameBeingRefused, gameRefusedMessage } from "../src/server/gameLog";
 import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts, buildTalismans, buildArmour, buildMasteryRank } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -86,6 +87,8 @@ let importing = false;
 /** The last import's game session (pid, account, nonce), so the next import can
  *  reuse its nonce instead of re-scanning memory. In memory only - never saved. */
 let session: ImportSession | undefined;
+/** Whether the game was being refused at the last check (to log changes once). */
+let gameWasRefused = false;
 async function importFromMemory(): Promise<void> {
   if (importing) return; // don't overlap scans
   // DE refused us recently: don't scan or send anything until the pause ends.
@@ -94,6 +97,18 @@ async function importFromMemory(): Promise<void> {
     setImportStatus({ state: "error", code: 8, message: pausedMessage(paused) });
     return;
   }
+  // DE is refusing the game's own requests: ours would be refused too, and
+  // would only prolong the block. Wait until the game gets through again.
+  const refused = await gameBeingRefused();
+  if (refused) {
+    const message = gameRefusedMessage(refused);
+    if (!gameWasRefused) log(`Holding off: ${message} (${refused.count} refusals in the game log so far.)`);
+    gameWasRefused = true;
+    setImportStatus({ state: "error", code: 9, message });
+    return;
+  }
+  if (gameWasRefused) log("The game's requests are getting through again; resuming imports.");
+  gameWasRefused = false;
   importing = true;
   setImportStatus({ state: "scanning", message: "Looking for Soulframe…" });
   try {

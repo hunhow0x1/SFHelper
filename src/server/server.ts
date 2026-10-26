@@ -8,7 +8,7 @@
  */
 
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join, normalize } from "node:path";
 import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/profilePayload";
@@ -22,8 +22,9 @@ import { recordStanding, dailyCaps } from "./standing";
 import { getImportStatus } from "./importStatus";
 import { getUpdateStatus, requestUpdateAction } from "./updateStatus";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
-import { dataDir } from "./paths";
+import { appFile, dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
+import { gameBeingRefused, gameRefusedMessage } from "./gameLog";
 import { getEnvoyRank } from "./envoyRank";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
 
@@ -32,7 +33,9 @@ const PUBLIC_DIR = join(HERE, "public");
 const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=";
 const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
-const MIN_FETCH_INTERVAL_MS = 15_000;
+/** Ask DE for the public profile at most this often (the page polls this
+ *  server every 30 s; standing doesn't change faster than this matters). */
+const MIN_FETCH_INTERVAL_MS = 120_000;
 
 const CONTENT_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -52,8 +55,30 @@ const CONTENT_TYPES: Record<string, string> = {
 interface CacheEntry {
   at: number;
   snapshot: ProfileSnapshot;
+  /** Why the last attempt couldn't get a fresh copy, if it couldn't. */
+  error: string | null;
 }
 const cache = new Map<string, CacheEntry>();
+
+/** The last profile is also kept on disk, so a fresh start while DE can't be
+ *  asked still shows something (marked as an older copy). */
+const savedProfilePath = (accountId: string) => appFile(`profile-${accountId}.json`);
+
+async function loadSavedProfile(accountId: string): Promise<CacheEntry | null> {
+  try {
+    const saved = JSON.parse(await readFile(savedProfilePath(accountId), "utf8")) as { snapshot?: ProfileSnapshot };
+    // at 0: stale, so the next request still tries DE first.
+    return saved.snapshot ? { at: 0, snapshot: saved.snapshot, error: null } : null;
+  } catch {
+    return null;
+  }
+}
+
+async function saveProfile(accountId: string, snapshot: ProfileSnapshot): Promise<void> {
+  const path = savedProfilePath(accountId);
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, `${JSON.stringify({ snapshot })}\n`);
+}
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
   const text = JSON.stringify(body);
@@ -61,14 +86,32 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(text);
 }
 
-/** Fetch and parse a profile, with a short cache so rapid polling from the page
- *  does not hammer DE's server. On 403/429 every request to DE pauses (see
- *  apiBackoff) - the page keeps polling, but nothing reaches DE until then. */
-async function getProfile(accountId: string): Promise<ProfileSnapshot> {
-  const cached = cache.get(accountId);
-  if (cached && Date.now() - cached.at < MIN_FETCH_INTERVAL_MS) return cached.snapshot;
+/** The public profile, fetched at most every MIN_FETCH_INTERVAL_MS. When DE
+ *  can't be asked (requests paused after a refusal, or the game itself being
+ *  refused) or the lookup fails, the last copy is served with the reason, so
+ *  the rest of the dashboard keeps updating from local data. */
+async function getProfile(accountId: string): Promise<{ snapshot: ProfileSnapshot; error: string | null }> {
+  const cached = cache.get(accountId) ?? (await loadSavedProfile(accountId));
+  if (cached && Date.now() - cached.at < MIN_FETCH_INTERVAL_MS) return { snapshot: cached.snapshot, error: cached.error };
+  try {
+    const snapshot = await fetchProfile(accountId);
+    cache.set(accountId, { at: Date.now(), snapshot, error: null });
+    await saveProfile(accountId, snapshot).catch(() => {});
+    return { snapshot, error: null };
+  } catch (err) {
+    if (!cached) throw err;
+    // Wait a full interval before trying again, whatever went wrong.
+    const error = (err as Error).message;
+    cache.set(accountId, { at: Date.now(), snapshot: cached.snapshot, error });
+    return { snapshot: cached.snapshot, error };
+  }
+}
+
+async function fetchProfile(accountId: string): Promise<ProfileSnapshot> {
   const paused = apiPausedUntil();
   if (paused) throw new Error(pausedMessage(paused));
+  const refused = await gameBeingRefused();
+  if (refused) throw new Error(gameRefusedMessage(refused));
 
   const response = await fetch(PROFILE_ENDPOINT + encodeURIComponent(accountId), {
     headers: { "user-agent": USER_AGENT },
@@ -81,9 +124,7 @@ async function getProfile(accountId: string): Promise<ProfileSnapshot> {
 
   const text = await response.text();
   if (text.trim() === "") throw new Error("No profile for that account id.");
-  const snapshot = snapshotFromProfile(JSON.parse(text) as unknown, new Date().toISOString());
-  cache.set(accountId, { at: Date.now(), snapshot });
-  return snapshot;
+  return snapshotFromProfile(JSON.parse(text) as unknown, new Date().toISOString());
 }
 
 async function readFromDir(base: string, rel: string): Promise<Buffer | null> {
@@ -148,6 +189,13 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   // What the desktop app's memory import is doing (null outside the app).
   if (url.pathname === "/api/import-status") {
     sendJson(res, 200, getImportStatus());
+    return;
+  }
+
+  // Whether DE is refusing requests: SFHelper's (paused after a 403/429) or
+  // the game's own (from its log). The page shows a banner while either holds.
+  if (url.pathname === "/api/connection") {
+    sendJson(res, 200, { pausedUntil: apiPausedUntil(), gameRefused: await gameBeingRefused() });
     return;
   }
 
@@ -216,7 +264,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
       return;
     }
     try {
-      const snap = await getProfile(accountId);
+      const { snapshot: snap, error: profileError } = await getProfile(accountId);
       const enemyName = await getEnemyNamer();
       const { PlayerLevel, ...profileCurrencies } = snap.currencies;
       // Overlay a local inventory (memory helper / DE data request) when present:
@@ -290,6 +338,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         totems: inventory?.totems ?? null, // [{ id, type, rank, virtue, grip, equippedOn }] owned totems
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,
+        profileError, // why the profile above is an older copy, or null
       });
     } catch (err) {
       sendJson(res, 502, { error: (err as Error).message });

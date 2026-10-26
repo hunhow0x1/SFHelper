@@ -23,8 +23,8 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 ## How it gets your data
 
 - **Public profile:** standing, level and combat stats come from Soulframe's
-  public profile endpoint. No login is involved. The page refreshes every 30
-  seconds, and requests are cached so the endpoint isn't hit more often.
+  public profile endpoint. No login is involved. SFHelper asks for it at most
+  every 2 minutes, and keeps the last copy to show when it can't.
 - **Inventory, read from the running game (desktop app, opt-in):** Soulframe
   doesn't offer the full inventory any other way, so the desktop app reads a
   session token from the game's memory and uses it to download your inventory.
@@ -47,6 +47,8 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   reached. In-game names come from the game's own text.
 - **Rate limits:** if Soulframe's servers ever refuse a request (403/429),
   SFHelper stops all requests to them, for 15 minutes at first and up to an hour.
+  If the game's own requests are being refused (its log shows the 403s),
+  SFHelper sends nothing until the game gets through again.
 - **Updates:** the app checks this repo's
   [GitHub releases](https://github.com/hunhow0x1/SFHelper/releases) for a newer
   version. The check sends nothing about you.
@@ -101,6 +103,10 @@ the file to send when something isn't working.
   - On Linux, `/proc/sys/kernel/yama/ptrace_scope` may need to be `0`.
 - **"Soulframe is refusing requests… Pausing until HH:MM"**: SFHelper is
   backing off after a refusal from Soulframe's servers. It retries on its own.
+- **Red banner: "Soulframe's servers are refusing your game's requests"**:
+  DE's servers are turning away requests from your network, the game's
+  included, so the game can't save progress until it clears. SFHelper pauses
+  its own requests and resumes by itself. If it lasts, contact DE support.
 
 ## Building from source
 

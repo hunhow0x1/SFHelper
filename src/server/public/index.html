@@ -34,7 +34,6 @@
         --grace: #6f9edb;
         --bar-bg: #16110d;
         --page-w: 1720px;        /* widest the content gets on big screens */
-        --gutter: 38px;          /* side padding; the edge vines live in it */
         --display: "Cinzel", "Trajan Pro", Georgia, serif;
         --body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
       }
@@ -57,26 +56,12 @@
       }
       ::selection { background: rgba(201, 165, 92, 0.35); }
 
-      /* ---- Vines: window edges and corners (behind everything) ----------- */
-      .vines { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-      .vines i { position: absolute; display: block; opacity: 0.55; }
-      .vines .c { top: 0; width: 380px; height: 260px; background: url(img/ornaments/vine-corner.svg) no-repeat; }
-      .vines .e {
-        top: 258px; bottom: 0; width: 34px; background: url(img/ornaments/vine-edge.svg) 0 0 / 34px auto repeat-y;
-        /* Lush at the top, thinning out down the sides. */
-        -webkit-mask-image: linear-gradient(to bottom, #000, #000 30%, transparent 85%);
-        mask-image: linear-gradient(to bottom, #000, #000 30%, transparent 85%);
-      }
-      .vines .l { left: 0; }
-      .vines .r { right: 0; transform: scaleX(-1); }
-      header.top, .updbar, main, .foot { position: relative; z-index: 1; }
-      @media (max-width: 640px) { .vines { display: none; } :root { --gutter: 16px; } }
       b, strong { font-weight: 600; }
 
       /* ---- Header ---------------------------------------------------------- */
       header.top {
         display: flex; flex-wrap: wrap; align-items: center; gap: 14px 34px;
-        max-width: var(--page-w); margin: 0 auto; padding: 26px var(--gutter) 18px;
+        max-width: var(--page-w); margin: 0 auto; padding: 26px 28px 18px;
       }
       .brand { display: flex; align-items: center; gap: 12px; }
       .brand img { height: 42px; width: auto; flex: none; margin: -6px 0; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.55)); }
@@ -89,22 +74,25 @@
       .kpi { display: flex; flex-direction: column; color: var(--muted); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
       .kpi b { color: var(--text); font: 500 16px/1.3 var(--body); letter-spacing: 0; text-transform: none; font-variant-numeric: tabular-nums; }
       .kpi.upd { justify-content: flex-end; text-transform: none; letter-spacing: 0.02em; font-size: 12.5px; color: var(--faint); }
-      main { max-width: var(--page-w); margin: 0 auto; padding: 0 var(--gutter) 48px; }
+      main { max-width: var(--page-w); margin: 0 auto; padding: 0 28px 48px; }
 
       /* ---- Updates (desktop app) ------------------------------------------- */
       .updbar {
         display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px; box-sizing: border-box;
-        width: min(calc(var(--page-w) - 2 * var(--gutter)), calc(100% - 2 * var(--gutter))); margin: 0 auto 18px; padding: 12px 18px;
+        width: min(calc(var(--page-w) - 56px), calc(100% - 32px)); margin: 0 auto 18px; padding: 12px 18px;
         border: 1px solid rgba(201, 165, 92, 0.45); border-radius: 3px; background: rgba(201, 165, 92, 0.08);
         color: var(--text); font-size: 14.5px;
       }
       .updbar[hidden], .foot[hidden] { display: none; }
+      /* DE refusing requests: same bar, in the warning colour. */
+      .updbar.alertbar { border-color: rgba(217, 138, 106, 0.55); background: rgba(217, 138, 106, 0.08); }
+      .updbar.alertbar b { color: var(--courage); }
       .updbar .ubar { flex: 1; min-width: 120px; max-width: 260px; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
       .updbar .ubar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi)); }
       .updbar button { margin-left: auto; }
       .foot {
         display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px;
-        max-width: var(--page-w); margin: 0 auto; padding: 0 var(--gutter) 28px; color: var(--faint); font-size: 13px;
+        max-width: var(--page-w); margin: 0 auto; padding: 0 28px 28px; color: var(--faint); font-size: 13px;
       }
       .foot button:disabled { opacity: 0.5; cursor: default; }
       .foot a { color: var(--muted); }
@@ -138,11 +126,18 @@
       .panel { display: none; }
       .panel.active { display: grid; gap: 28px; }
       .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+      /* Overview: a main column (standing, trades) and a side column (account,
+         tokens, currencies) on wide windows; below that, one column in this order. */
+      .ov-col { display: contents; }
+      .ov-account { order: 1; }
+      .ov-standing { order: 2; }
+      .ov-wallet { order: 3; }
+      .ov-trades { order: 4; }
+      #overviewTradeTiles { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
       @media (min-width: 1320px) {
         #panel-overview { grid-template-columns: minmax(0, 1.75fr) minmax(360px, 1fr); align-items: start; }
-        #panel-overview > section:nth-child(1) { grid-column: 2; grid-row: 1; } /* Account */
-        #panel-overview > section:nth-child(2) { grid-column: 1; grid-row: 1 / span 2; } /* Faction Standing */
-        #panel-overview > .cols { grid-column: 2; grid-row: 2; grid-template-columns: 1fr; }
+        #panel-overview .ov-col { display: grid; gap: 28px; align-content: start; min-width: 0; }
+        #panel-overview .ov-wallet { grid-template-columns: 1fr; }
       }
       @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
 
@@ -153,13 +148,9 @@
         border: 1px solid var(--frame);
         box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(232, 201, 126, 0.08), 0 14px 40px rgba(0, 0, 0, 0.4);
       }
-      section::before { /* inner hairline, for the double-frame look, with vines on two corners */
+      section::before { /* inner hairline, for the double-frame look */
         content: ""; position: absolute; inset: 5px; border: 1px solid rgba(201, 165, 92, 0.07);
         border-radius: 2px; pointer-events: none;
-        background:
-          url(img/ornaments/panel-corner-tl.svg) left -2px top -2px / 128px 68px no-repeat,
-          url(img/ornaments/panel-corner-br.svg) right -2px bottom -2px / 128px 68px no-repeat;
-        opacity: 0.85;
       }
       section::after { /* diamond on the top edge */
         content: ""; position: absolute; top: -4px; left: 50%; width: 7px; height: 7px;
@@ -169,12 +160,7 @@
         display: flex; align-items: center; gap: 14px; margin: 0 0 22px;
         font: 600 15px/1.2 var(--display); letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-hi);
       }
-      h2::after { /* leaf fleuron, then a rule fading out */
-        content: ""; flex: 1; order: 1; height: 16px; min-width: 60px;
-        background:
-          url(img/ornaments/fleuron.svg) left center / 44px 16px no-repeat,
-          linear-gradient(90deg, var(--frame), transparent) 44px center / calc(100% - 44px) 1px no-repeat;
-      }
+      h2::after { content: ""; flex: 1; order: 1; height: 1px; background: linear-gradient(90deg, var(--frame), transparent); }
       h2.hdr .mini { order: 2; }
       h3.sub { font: 600 13px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2); margin: 0 0 12px; }
 
@@ -679,7 +665,6 @@
     </style>
   </head>
   <body>
-    <div class="vines" aria-hidden="true"><i class="c l"></i><i class="c r"></i><i class="e l"></i><i class="e r"></i></div>
     <header class="top">
       <div class="brand">
         <img src="img/icon.svg" alt="" />
@@ -694,6 +679,7 @@
       </div>
     </header>
     <div class="updbar" id="updateBar" hidden></div>
+    <div class="updbar alertbar" id="alertBar" role="status" hidden></div>
     <main>
       <nav class="tabs">
         <button class="tab active" data-tab="overview">Overview</button>
@@ -708,36 +694,45 @@
 
       <!-- OVERVIEW -->
       <div class="panel active" id="panel-overview">
-        <section>
-          <h2 class="hdr">Account
-            <button id="accountToggle" class="mini" aria-expanded="false">Edit ID</button>
-          </h2>
-          <span class="status" id="status">Enter your account id to begin.</span>
-          <div class="setup" id="accountSetup" hidden style="margin-top: 12px">
-            <input id="accountId" placeholder="24-character account id" spellcheck="false" />
-            <button id="save">Track</button>
-          </div>
-        </section>
-
-        <section>
-          <h2>Faction Standing</h2>
-          <div class="grid standtiles" id="dailyStanding"></div>
-          <div class="rows" id="factions"><span class="muted">—</span></div>
-        </section>
-
-        <div class="cols">
-          <section>
-            <h2>Faction Tokens</h2>
-            <div class="grid" id="factionTokens"></div>
+        <div class="ov-col">
+          <section class="ov-standing">
+            <h2>Faction Standing</h2>
+            <div class="grid standtiles" id="dailyStanding"></div>
+            <div class="rows" id="factions"><span class="muted">—</span></div>
           </section>
 
-          <section>
-            <h2>Currencies</h2>
-            <div class="grid" id="currencies"></div>
-            <div class="invstatus" id="invStatus"></div>
+          <!-- The Trades tab's stats, repeated here. -->
+          <section class="ov-trades" id="overviewTrades" hidden>
+            <h2>Trades</h2>
+            <div class="grid" id="overviewTradeTiles"></div>
           </section>
         </div>
 
+        <div class="ov-col">
+          <section class="ov-account">
+            <h2 class="hdr">Account
+              <button id="accountToggle" class="mini" aria-expanded="false">Edit ID</button>
+            </h2>
+            <span class="status" id="status">Enter your account id to begin.</span>
+            <div class="setup" id="accountSetup" hidden style="margin-top: 12px">
+              <input id="accountId" placeholder="24-character account id" spellcheck="false" />
+              <button id="save">Track</button>
+            </div>
+          </section>
+
+          <div class="cols ov-wallet">
+            <section>
+              <h2>Faction Tokens</h2>
+              <div class="grid" id="factionTokens"></div>
+            </section>
+
+            <section>
+              <h2>Currencies</h2>
+              <div class="grid" id="currencies"></div>
+              <div class="invstatus" id="invStatus"></div>
+            </section>
+          </div>
+        </div>
       </div>
 
       <!-- LOADOUTS -->
@@ -1325,9 +1320,12 @@
           ["Today", fmt(history.filter((x) => x.at.slice(0, 10) === today).reduce((n, x) => n + (x.count || 1), 0)), "Trades recorded since 00:00 UTC"],
           ["Dracs spent", fmt(scutage), "Dracs spent during recorded trades, mostly Scutage (paid on what you offer)"],
         ];
-        $("tradeTiles").innerHTML = tiles
+        const tileHtml = tiles
           .map(([l, v, tip]) => `<div class="stat" title="${tip}"><div class="n">${v}</div><div class="l">${l}</div></div>`)
           .join("");
+        $("tradeTiles").innerHTML = tileHtml;
+        $("overviewTradeTiles").innerHTML = tileHtml;
+        $("overviewTrades").hidden = false;
         $("trades").innerHTML = history.length
           ? history
               .map((x) => {
@@ -2399,10 +2397,27 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || "Request failed");
           render(data);
-          setStatus("Live · refreshes every 30s");
+          setStatus(data.profileError || "Live · updates every 2 min", !!data.profileError);
         } catch (e) {
           setStatus(e.message, true);
         }
+        checkConnection();
+      }
+
+      // A banner while DE is refusing requests: the game's own (read from its
+      // log), or SFHelper's (paused after a 403/429). Otherwise the dashboard
+      // would just keep showing the last data it got.
+      async function checkConnection() {
+        let c = null;
+        try { c = await (await fetch("/api/connection")).json(); } catch {}
+        const bar = $("alertBar");
+        const clock = (ms) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        if (c && c.gameRefused) {
+          bar.innerHTML = `<span><b>Soulframe's servers are refusing your game's requests</b> (since ${clock(c.gameRefused.first)}), so the game's saves are failing until this clears. SFHelper has paused its own requests until the game gets through again.</span>`;
+        } else if (c && c.pausedUntil) {
+          bar.innerHTML = `<span><b>Soulframe's servers refused SFHelper's requests.</b> SFHelper is pausing until ${clock(c.pausedUntil)}, then tries again.</span>`;
+        }
+        bar.hidden = !(c && (c.gameRefused || c.pausedUntil));
       }
       function setStatus(msg, err) {
         const el = $("status");
