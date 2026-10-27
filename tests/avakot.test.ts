@@ -6,6 +6,7 @@ import {
   AVAKOT_VENDOR,
   acknowledgeAvakot,
   avakotDue,
+  avakotDueAt,
   getAvakot,
   noteAvakotAttempt,
   parseVendorInfo,
@@ -99,7 +100,15 @@ describe("Avakot's stock history and notifications", () => {
     expect(await avakotDue(FETCHED + 5 * 60_000)).toBe(false);
     await recordAvakot(parseVendorInfo(await sample(), FETCHED), []);
     expect(await avakotDue(FETCHED + 30 * 60_000)).toBe(false); // stock changes at 23:00
+    expect(await avakotDueAt()).toBe(Date.parse("2026-10-26T23:00:30Z")); // the app's timer for the next check
     expect(await avakotDue(Date.parse("2026-10-26T23:01:00Z"))).toBe(true);
+  });
+
+  it("asks again ten minutes later if DE hadn't rotated the stock yet", async () => {
+    const late = Date.parse("2026-10-26T23:00:30Z"); // River Pearl's offer ended at 23:00
+    await noteAvakotAttempt(late);
+    await recordAvakot(parseVendorInfo(await sample(), late), []);
+    expect(await avakotDueAt()).toBe(late + 10 * 60_000);
   });
 
   it("hides offers that have ended since the last check", async () => {

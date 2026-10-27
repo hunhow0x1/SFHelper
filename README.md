@@ -35,8 +35,8 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
     memory is only scanned when your session changes.
 - **Avakot's shop (desktop app):** with the same session, the app asks
   Soulframe's server for Avakot's stock, the same request the game makes for his
-  shop. It only asks once his stock has changed, which is about every 3 hours
-  while the game is running.
+  shop. It only asks when his stock changes (about every 3 hours), within a
+  minute of the change, while the game is running.
 - **Game log:** `EE.log` supplies the time each weapon was picked up, and each
   trade's partner and time. Trades are detected by comparing inventory imports,
   so the history starts once SFHelper is running; trades made earlier in the

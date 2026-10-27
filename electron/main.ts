@@ -24,7 +24,7 @@ import { getSettings } from "../src/server/settings";
 import { setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
-import { AVAKOT_VENDOR, avakotDue, noteAvakotAttempt, parseVendorInfo, recordAvakot, type AvakotOffer } from "../src/server/avakot";
+import { AVAKOT_VENDOR, avakotDue, avakotDueAt, noteAvakotAttempt, parseVendorInfo, recordAvakot, type AvakotOffer } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
 import { gameBeingRefused, gameRefusedMessage } from "../src/server/gameLog";
@@ -87,6 +87,8 @@ let importing = false;
 /** The last import's game session (pid, account, nonce), so the next import can
  *  reuse its nonce instead of re-scanning memory. In memory only - never saved. */
 let session: ImportSession | undefined;
+/** When an import last succeeded (ms epoch). */
+let lastImportOk = 0;
 /** Whether the game was being refused at the last check (to log changes once). */
 let gameWasRefused = false;
 async function importFromMemory(): Promise<void> {
@@ -123,7 +125,10 @@ async function importFromMemory(): Promise<void> {
         setImportStatus({ state: "scanning", message: `Reading game memory for the ${label}… ${pct}%` });
       },
     });
-    if (result.ok) noteApiAccepted();
+    if (result.ok) {
+      noteApiAccepted();
+      lastImportOk = Date.now();
+    }
     // Keep the session through a refusal (8): the nonce may still work once
     // DE lets requests through again. Any other failure means it's gone stale.
     if (result.ok) session = result.session;
@@ -153,7 +158,8 @@ const REIMPORT_INTERVAL_MS = 120_000; // re-scan for new pickups / progress ever
 let avakotBusy = false;
 async function refreshAvakot(): Promise<void> {
   const s = session;
-  if (!s || avakotBusy || apiPausedUntil() || !(await avakotDue())) return;
+  if (!s || avakotBusy || apiPausedUntil()) return;
+  if (!(await avakotDue())) return scheduleAvakot();
   avakotBusy = true;
   try {
     await noteAvakotAttempt();
@@ -170,6 +176,22 @@ async function refreshAvakot(): Promise<void> {
   } finally {
     avakotBusy = false;
   }
+  await scheduleAvakot();
+}
+
+/** Ask for Avakot's next stock when it changes, rather than at the next import
+ *  pass (up to 2 minutes later). Still one request per change, and only with
+ *  the session of an import that succeeded in the last pass, so the game is
+ *  running and DE is answering; otherwise the next import pass asks instead. */
+let avakotTimer: ReturnType<typeof setTimeout> | undefined;
+async function scheduleAvakot(): Promise<void> {
+  clearTimeout(avakotTimer);
+  const wait = Math.max(0, (await avakotDueAt()) - Date.now());
+  avakotTimer = setTimeout(async () => {
+    if (importing || Date.now() - lastImportOk > REIMPORT_INTERVAL_MS + 30_000) return;
+    if (await gameBeingRefused()) return;
+    await refreshAvakot();
+  }, wait);
 }
 
 /** Names for Avakot's items, from the bundled pool (public/avakot.json). */

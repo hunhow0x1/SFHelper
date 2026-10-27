@@ -123,17 +123,24 @@ export function parseVendorInfo(body: string, now = Date.now()): AvakotStock {
       expiry: expiry === null || expiry - now > PERMANENT_AFTER_MS ? null : expiry,
     });
   }
+  // An offer that has already ended means DE hadn't rotated the stock yet:
+  // ask again (MIN_INTERVAL_MS later) instead of waiting for the next change.
+  if (offers.some((o) => o.expiry !== null && o.expiry <= now)) return { fetchedAt: now, nextChange: now, offers };
   const changes = offers.map((o) => o.expiry).filter((e): e is number => e !== null && e > now);
   const top = dateOf(info.Expiry);
   if (top !== null && top > now && top - now <= PERMANENT_AFTER_MS) changes.push(top);
   return { fetchedAt: now, nextChange: changes.length ? Math.min(...changes) : now + 3 * 3600_000, offers };
 }
 
+/** When it's next time to ask for the stock (ms epoch; in the past if it's due now). */
+export async function avakotDueAt(): Promise<number> {
+  const s = await loadState();
+  return Math.max(s.lastAttempt + MIN_INTERVAL_MS, s.stock ? s.stock.nextChange + REFRESH_GRACE_MS : 0);
+}
+
 /** Whether it's time to ask for the stock again. */
 export async function avakotDue(now = Date.now()): Promise<boolean> {
-  const s = await loadState();
-  if (now - s.lastAttempt < MIN_INTERVAL_MS) return false;
-  return !s.stock || now >= s.stock.nextChange + REFRESH_GRACE_MS;
+  return now >= (await avakotDueAt());
 }
 
 /** Note an attempt before sending it, so a failure doesn't retry straight away. */
