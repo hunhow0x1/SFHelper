@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { readConsent, recordConsent, ACK_PHRASE } from "../helper/consent";
 import { importInventory, type ImportSession } from "../helper/run";
-import { startServer, type RunningServer } from "../src/server/server";
+import { recordHistory, startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
 import { setImportStatus } from "../src/server/importStatus";
@@ -136,6 +136,15 @@ async function importFromMemory(): Promise<void> {
     // 8 = DE refused (403/429): pause every request to DE, profile included.
     const message = result.code === 8 ? pausedMessage(noteApiRefused()) : result.message;
     log(result.ok ? result.message : `Inventory import skipped (${result.code}): ${result.message}`);
+    // Record new pickups and trades now rather than at the page's next refresh
+    // (which a minimized window may delay), before reporting the import done.
+    if (result.ok) {
+      try {
+        await recordHistory();
+      } catch (err) {
+        log(`Recording pickups/trades failed: ${(err as Error).message}`);
+      }
+    }
     setImportStatus(
       result.ok
         ? { state: "ok", message: "Inventory imported." }

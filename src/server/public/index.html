@@ -353,11 +353,19 @@
       .wtempers { grid-column: 1 / -1; margin-top: 8px; }
 
       /* ---- Pickups --------------------------------------------------------- */
-      #pickups { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); column-gap: 44px; align-content: start; }
+      /* One weapon per row, newest first, scrolling down: name, tempers, time. */
       #trades { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); column-gap: 44px; align-content: start; }
-      @media (max-width: 640px) { #pickups, #trades { grid-template-columns: 1fr; } }
+      @media (max-width: 640px) { #trades { grid-template-columns: 1fr; } }
       .pickrow { padding: 14px 0; border-bottom: 1px solid var(--line); }
       .pickrow:last-child { border-bottom: 0; }
+      #pickups .pickrow { display: grid; grid-template-columns: minmax(240px, 22%) 1fr auto; align-items: center; gap: 8px 28px; padding: 12px 0; }
+      #pickups .pickrow .wtempers { grid-column: auto; margin-top: 0; }
+      #pickups .pickrow > .pickwhen { color: var(--faint); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+      @media (max-width: 900px) {
+        #pickups .pickrow { grid-template-columns: 1fr auto; }
+        #pickups .pickrow .wtempers { grid-column: 1 / -1; grid-row: 2; }
+        #pickups .pickrow .wtempers:empty { display: none; }
+      }
       .pickhead { display: flex; align-items: center; gap: 4px; }
       .pickhead .pickname { font: 600 16px/1.3 var(--display); letter-spacing: 0.04em; }
       .pickhead .pickwhen { margin-left: auto; color: var(--faint); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -1259,8 +1267,9 @@
             const cwBadge = cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : "";
             const chips = temperChips(p.tempers);
             return `<div class="pickrow">
-              <div class="pickhead"><span class="pickname">${shortName(p.key)}</span> ${cwBadge}${p.moonsteel ? '<span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : ""}${pickWhen(p)}</div>
-              ${chips ? `<div class="wtempers">${chips}</div>` : ""}
+              <div class="pickhead"><span class="pickname">${shortName(p.key)}</span> ${cwBadge}${p.moonsteel ? '<span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : ""}</div>
+              <div class="wtempers">${chips}</div>
+              ${pickWhen(p)}
             </div>`;
           })
           .join("");
@@ -1318,7 +1327,7 @@
           ["Trades left today", t.remaining != null ? `${t.remaining} / ${t.max ?? "—"}` : "—", "Resets at 00:00 UTC. You get Envoy Rank + 1 trades a day."],
           ["Trades recorded", fmt(history.reduce((n, x) => n + (x.count || 1), 0)), "Since SFHelper started tracking"],
           ["Today", fmt(history.filter((x) => x.at.slice(0, 10) === today).reduce((n, x) => n + (x.count || 1), 0)), "Trades recorded since 00:00 UTC"],
-          ["Dracs spent", fmt(scutage), "Dracs spent during recorded trades, mostly Scutage (paid on what you offer)"],
+          ["Dracs spent", fmt(scutage), "Dracs spent during recorded trades, mostly Scutage (paid on what you receive)"],
         ];
         const tileHtml = tiles
           .map(([l, v, tip]) => `<div class="stat" title="${tip}"><div class="n">${v}</div><div class="l">${l}</div></div>`)
@@ -2181,7 +2190,7 @@
       function cleanName(itemType) {
         const parts = String(itemType).split("/").filter(Boolean);
         const leaf = parts[parts.length - 1] || itemType;
-        const stripped = leaf.replace(/(RangedMeleeWeapon|MeleeWeapon|RangedWeapon|Weapon|Soul|Gun|Resource)$/, "");
+        const stripped = leaf.replace(/(RangedMeleeWeapon|MeleeWeapon|RangedWeapon|Weapon|Soul|Gun|ResourceItem|Resource|Item)$/, "");
         if (stripped) return stripped.replace(/([a-z])([A-Z])/g, "$1 $2");
         return parts[parts.length - 2] || leaf;
       }
@@ -2211,9 +2220,11 @@
           }
         }
         if (leaf && DICT_LC[leaf.toLowerCase()]) return DICT_LC[leaf.toLowerCase()];
-        // Materials key by their bare name (FireFungusResource -> FireFungus).
-        const bare = leaf && leaf.replace(/Resource$/, "");
-        if (bare && bare !== leaf && DICT_LC[bare.toLowerCase()]) return DICT_LC[bare.toLowerCase()];
+        // Materials key by their bare name (FireFungusResource -> FireFungus,
+        // CatalystBResourceItem -> CatalystBResource, BrassIngotResourceItem -> BrassIngot).
+        for (const bare of leaf ? [leaf.replace(/Item$/, ""), leaf.replace(/(Resource)?(Item)?$/, "")] : []) {
+          if (bare && bare !== leaf && DICT_LC[bare.toLowerCase()]) return DICT_LC[bare.toLowerCase()];
+        }
         return cleanName(itemType);
       }
       function factionName(tag) {
@@ -2443,6 +2454,19 @@
       }
 
       $("save").addEventListener("click", start);
+      // The desktop app imports every 2 min: refresh as soon as one lands, so new
+      // pickups and trades show within seconds rather than at the next refresh.
+      let lastImportAt = null;
+      setInterval(async () => {
+        if (!timer) return;
+        try {
+          const st = await (await fetch("/api/import-status")).json();
+          if (!st || st.state !== "ok" || st.at === lastImportAt) return;
+          const seen = lastImportAt !== null;
+          lastImportAt = st.at;
+          if (seen) refresh();
+        } catch {}
+      }, 5000);
       $("accountId").addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
 
       // Account ID entry is collapsed by default; this toggles it for manual entry.

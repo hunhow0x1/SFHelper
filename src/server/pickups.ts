@@ -140,13 +140,23 @@ async function resolveTimes(history: Pickup[]): Promise<boolean> {
   return true;
 }
 
+// Page requests and the desktop app's imports both diff, and can overlap; run
+// one at a time so a new weapon is recorded (and announced) once.
+let queue: Promise<unknown> = Promise.resolve();
+
 /** Diff the current instances against what we've seen; record new ones. Returns
  *  the full history (newest first), every source included. */
-export async function recordPickups(
+export function recordPickups(
   instances: WeaponInstance[],
   ctx: AcquisitionContext,
   traded: Set<string> = new Set(),
 ): Promise<Pickup[]> {
+  const run = queue.then(() => record(instances, ctx, traded));
+  queue = run.catch(() => undefined);
+  return run;
+}
+
+async function record(instances: WeaponInstance[], ctx: AcquisitionContext, traded: Set<string>): Promise<Pickup[]> {
   const s = await load();
   if (!s.seeded) {
     for (const w of instances) s.known[w.id] = true;

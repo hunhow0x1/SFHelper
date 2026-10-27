@@ -14,7 +14,7 @@ import { dirname, join, normalize } from "node:path";
 import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/profilePayload";
 import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
-import { getInventory } from "./inventory";
+import { getInventory, type InventoryView } from "./inventory";
 import { recordPickups } from "./pickups";
 import { recordTrades, tradedIds } from "./trades";
 import { getSettings, updateSettings } from "./settings";
@@ -284,13 +284,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         snap.items
           .filter((it) => it.category === "soul" && typeof it.rank === "number")
           .map((it) => ({ key: it.key, xp: it.rank ?? 0 }));
-      // Trade history and picked-up-weapon history (inventory diffs by ItemId).
-      // Only when we have a real inventory to diff against. Trades go first so
-      // a weapon received in a trade isn't counted as a pickup.
-      const trades = inventory ? await recordTrades(inventory.holdings, inventory.updatedAt) : null;
-      const pickups = inventory
-        ? await recordPickups(inventory.weaponInstances, inventory.acquisition, tradedIds(trades?.history ?? []))
-        : [];
+      const { trades, pickups } = await recordHistory(inventory);
       // Standing earned since the daily reset, per faction (tracked over time).
       const standingNow: Record<string, number> = {};
       for (const p of snap.progression) {
@@ -347,6 +341,19 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   }
 
   await serveStatic(res, url.pathname);
+}
+
+/** Trade history and picked-up-weapon history (inventory diffs by ItemId),
+ *  only when there's a real inventory to diff against. Runs on each dashboard
+ *  refresh, and in the desktop app right after each import, so pickups and
+ *  Moonsteel notifications don't wait for the page. Trades go first so a
+ *  weapon received in a trade isn't counted as a pickup. */
+export async function recordHistory(inventory?: InventoryView | null) {
+  if (inventory === undefined) inventory = await getInventory();
+  if (!inventory) return { trades: null, pickups: [] };
+  const trades = await recordTrades(inventory.holdings, inventory.updatedAt);
+  const pickups = await recordPickups(inventory.weaponInstances, inventory.acquisition, tradedIds(trades.history));
+  return { trades, pickups };
 }
 
 export interface RunningServer {

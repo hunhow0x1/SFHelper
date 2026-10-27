@@ -64,6 +64,8 @@ const MANUAL_OVERRIDES = {
   // Totem whose inventory ItemType leaf ("HealRip") differs from its
   // localization stem ("HealAoeRip").
   HealRip: dict["/SF/Language/Motes/HealAoeRipName"], // -> Dabble Dredge
+  // The dict misspells this one's key ("IronIgot"); IronIngotResourceItem looks up "IronIngot".
+  IronIngot: dict["/SF/Language/Materials/IronIgotName"], // -> Hushed Chordstone
 };
 
 const items = {};

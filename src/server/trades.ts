@@ -8,8 +8,9 @@
  *      which an item keeps through a trade: new ids were received, vanished
  *      ids were given;
  *    - stacked items (materials, Joineries) by count.
- *  Each side pays Scutage in Dracs on what it offers (220 / 440 / 880 per item
- *  by rarity), so the Dracs change is recorded too.
+ *  Each side pays Scutage in Dracs on what it receives (220 / 440 / 880 per item
+ *  by rarity, for every unit of a stack: 95 Lampyrite cost 83,600), so the
+ *  Dracs change is recorded too.
  *
  *  The game log adds the partner's name and the exact time (see logTrades in
  *  gameLog.ts). It also covers trades made earlier in the same game session,

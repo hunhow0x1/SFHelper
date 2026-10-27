@@ -3,7 +3,7 @@ import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { attachDeals, detectTrade, parseHoldings, recordTrades, remainingToday, tradedIds, tradesBetween, type Trade } from "../src/server/trades";
-import { recordPickups } from "../src/server/pickups";
+import { onMoonsteelAcquired, recordPickups } from "../src/server/pickups";
 
 const SWORD = "/SF/Weapons/Melee/OneHand/Sword/SwordMeleeWeapon";
 const ONYX = "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource";
@@ -117,5 +117,22 @@ describe("trade history", () => {
     await recordPickups([weapon(1), weapon(2)], ctx);
     const pickups = await recordPickups([weapon(1), weapon(2), weapon(3)], ctx, tradedIds(view.history));
     expect(pickups[0]).toMatchObject({ id: oid(3).$oid, source: "traded" });
+  });
+
+  it("records and announces a pickup once when the page and an import diff at the same time", async () => {
+    const ctx = { blueprints: {}, pending: [], vendorPurchases: 0, favour: {} };
+    const weapon = (n: number, moonsteel = false) => ({ id: oid(n).$oid, key: SWORD, craftwork: null, tempers: [], xp: 0, moonsteel });
+    const announced: string[] = [];
+    const stop = onMoonsteelAcquired((p) => announced.push(String(p.id)));
+    try {
+      await recordPickups([weapon(1)], ctx);
+      const now = [weapon(1), weapon(2, true)];
+      const [a, b] = await Promise.all([recordPickups(now, ctx), recordPickups(now, ctx)]);
+      expect(a).toHaveLength(1);
+      expect(b).toHaveLength(1);
+      expect(announced).toEqual([oid(2).$oid]);
+    } finally {
+      stop();
+    }
   });
 });
