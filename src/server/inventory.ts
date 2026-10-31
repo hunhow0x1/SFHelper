@@ -18,6 +18,8 @@ import { parseBuilds, type Build } from "./loadouts";
 import { parseTotems, type OwnedTotem } from "./totems";
 import { parseWeapons, parsePacts, parseMastery, parseTemperProgress, parseWeaponInstances, parseAcquisitionContext, type AcquisitionContext, type OwnedWeapon, type OwnedPact, type TemperProgress, type WeaponInstance } from "./weapons";
 import { parseHoldings, type Holdings } from "./trades";
+import { parseTimers, type GameTimer } from "./timers";
+import { parseLoreScans, type LoreScan } from "./discoveries";
 import { appFile } from "./paths";
 
 /** Resolved per call: the app sets SFHELPER_INVENTORY after modules load. */
@@ -48,6 +50,10 @@ export interface InventoryView {
   acquisition: AcquisitionContext;
   /** Tradable items and the trade counter, for the trade tracker. */
   holdings: Holdings;
+  /** The game's self-expiring timers (sub-boss respawns and the like). */
+  timers: GameTimer[];
+  /** Locations discovered (type leaf -> Memories found there). */
+  loreScans: Record<string, LoreScan>;
   source: string;
   /** File mtime, so the dashboard can say how fresh the inventory is. */
   updatedAt: string;
@@ -87,6 +93,8 @@ export async function getInventory(): Promise<InventoryView | null> {
         weaponInstances: parseWeaponInstances(raw),
         acquisition: parseAcquisitionContext(raw),
         holdings: parseHoldings(raw),
+        timers: parseTimers(raw),
+        loreScans: parseLoreScans(raw),
         source: path,
         updatedAt: new Date(mtimeMs).toISOString(),
       };

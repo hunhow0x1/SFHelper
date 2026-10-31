@@ -15,12 +15,14 @@
 import { app, BrowserWindow, ipcMain, Notification, screen, shell } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { readConsent, recordConsent, ACK_PHRASE } from "../helper/consent";
 import { importInventory, type ImportSession } from "../helper/run";
 import { recordHistory, startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
+import { getInventory } from "../src/server/inventory";
+import type { GameTimer } from "../src/server/timers";
 import { setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
@@ -42,6 +44,7 @@ const DATA_DIR = join(USER_DATA, "data");
 // Session log, so a tester can send it when something goes wrong
 // (Windows: %APPDATA%\SFHelper\sfhelper.log). Started fresh each launch.
 const LOG_PATH = join(USER_DATA, "sfhelper.log");
+const PREV_LOG_PATH = join(USER_DATA, "sfhelper.prev.log");
 
 let server: RunningServer | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -49,7 +52,10 @@ let mainWindow: BrowserWindow | null = null;
 let logReady: Promise<void> | null = null;
 function log(msg: string): void {
   console.log(`[sfhelper] ${msg}`);
+  // Each start begins a new log; the previous session's is kept beside it, so
+  // what happened before a restart (say, DE refusing requests) isn't lost.
   logReady ??= mkdir(USER_DATA, { recursive: true })
+    .then(() => rename(LOG_PATH, PREV_LOG_PATH).catch(() => {}))
     .then(() => writeFile(LOG_PATH, `SFHelper ${app.getVersion()} on ${process.platform} ${process.arch}\n`))
     .catch(() => {});
   logReady = logReady.then(() => appendFile(LOG_PATH, `${new Date().toISOString()} ${msg}\n`)).catch(() => {});
@@ -137,10 +143,13 @@ async function importFromMemory(): Promise<void> {
     const message = result.code === 8 ? pausedMessage(noteApiRefused()) : result.message;
     log(result.ok ? result.message : `Inventory import skipped (${result.code}): ${result.message}`);
     // Record new pickups and trades now rather than at the page's next refresh
-    // (which a minimized window may delay), before reporting the import done.
+    // (which a minimized window may delay), before reporting the import done,
+    // and set alarms for the game's timers.
     if (result.ok) {
       try {
-        await recordHistory();
+        const inventory = await getInventory();
+        await recordHistory(inventory);
+        scheduleTimerAlarms(inventory?.timers ?? []);
       } catch (err) {
         log(`Recording pickups/trades failed: ${(err as Error).message}`);
       }
@@ -244,6 +253,47 @@ async function notifyAvakot(offers: AvakotOffer[]): Promise<void> {
   n.on("click", () => showTab("avakot"));
   n.show();
   log(`Avakot notification: ${names.join(", ")}.`);
+}
+
+/** One alarm per running game timer (tag@expiry), set from each import. A
+ *  timer that's gone or changed loses its alarm; one that ends while SFHelper
+ *  is open raises a notification, even if the game has closed by then. */
+const timerAlarms = new Map<string, ReturnType<typeof setTimeout>>();
+/** setTimeout's limit; a longer wait is set by a later import instead. */
+const MAX_ALARM_MS = 2 ** 31 - 1;
+function scheduleTimerAlarms(timers: GameTimer[]): void {
+  const now = Date.now();
+  const keep = new Set<string>();
+  for (const t of timers) {
+    const key = `${t.tag}@${t.expiry}`;
+    if (t.expiry <= now || t.expiry - now > MAX_ALARM_MS) continue;
+    keep.add(key);
+    if (timerAlarms.has(key)) continue;
+    timerAlarms.set(key, setTimeout(() => {
+      timerAlarms.delete(key);
+      void notifyTimer(t);
+    }, t.expiry - now));
+  }
+  for (const [key, alarm] of timerAlarms) {
+    if (keep.has(key)) continue;
+    clearTimeout(alarm);
+    timerAlarms.delete(key);
+  }
+}
+
+/** Desktop notification for a game timer that just ran out. Clicking it opens
+ *  the Overview, where the Cooldowns list is. Off when its toggle is off. */
+async function notifyTimer(t: GameTimer): Promise<void> {
+  if (!Notification.isSupported() || !(await getSettings()).timerNotify) return;
+  const n = new Notification({
+    title: t.ready,
+    body: t.kind ? `${t.name} · ${t.kind}` : "A cooldown in Soulframe has ended.",
+    icon: ICON_PATH,
+    silent: false,
+  });
+  n.on("click", () => showTab("overview"));
+  n.show();
+  log(`Cooldown notification: ${t.tag}.`);
 }
 
 /** In-game display name for an ItemType, from the bundled names.json (keyed by

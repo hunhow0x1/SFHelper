@@ -227,19 +227,20 @@ const BASE_VIRTUE_POINTS = 16;
 
 /** A loadout's Virtue allocation. The preset stores each Virtue's share of the
  *  Envoy's intrinsic points (16 + Envoy Rank) as a spot in the Arsenal's
- *  triangle: vu = Spirit, vv = Grace, Courage the rest. (Mapped from presets
- *  that sit in a corner: an all-Magick one has vu = 2/3.)
- *  Whole points, as the Arsenal shows them: each Virtue rounds to nearest, and
- *  if that leaves the total a point off, the Virtue with the most points takes
- *  the difference (on a tie, the first in stored order: Spirit, Grace,
- *  Courage). Checked against four loadouts in game, e.g. Spirit / Grace /
- *  Courage x 33 = 14.62 / 3.62 / 14.75 rounds to 15 / 4 / 15 (34), shown as
- *  14 / 4 / 15. The shares are stored in 1/255 steps, so the math runs on those
- *  whole units (170/255 of 33 is exactly 22). Points from talismans, Pact Art
- *  passives and Fables come on top. */
+ *  triangle: vu = Spirit, vv = Grace, Courage the rest, in 1/255 steps.
+ *  Whole points, as the Arsenal shows them: every Virtue starts with 1 (the
+ *  DynamicVirtues item's base Distribution), the other points are split by the
+ *  shares and rounded down, and the Virtue with the largest share takes what's
+ *  left (on a tie, the first in stored order: Spirit, Grace, Courage). Checked
+ *  against eight loadouts in game, e.g. shares of 66 / 56 / 133 (Spirit / Grace
+ *  / Courage) at 33 points: 1 + 7.76, 1 + 6.59 and 1 + 15.65 round down to
+ *  8 / 7 / 16, and Courage takes the 2 left over: 8 / 7 / 18. A Virtue with no
+ *  share still gets its 1. The math runs on whole 1/255 units, so exact cases
+ *  stay exact. Points from talismans, Pact Art passives and Fables come on top. */
 export function virtuePoints(vu: unknown, vv: unknown, envoyRank: unknown): VirtuePoints | null {
   if (typeof vu !== "number" || typeof vv !== "number" || typeof envoyRank !== "number") return null;
   const total = BASE_VIRTUE_POINTS + envoyRank;
+  const split = total - 3;
   const u = Math.min(255, Math.max(0, Math.round(vu * 255)));
   const v = Math.min(255 - u, Math.max(0, Math.round(vv * 255)));
   const order: [keyof VirtuePoints, number][] = [
@@ -248,13 +249,12 @@ export function virtuePoints(vu: unknown, vv: unknown, envoyRank: unknown): Virt
     ["Courage", 255 - u - v],
   ];
   const out: VirtuePoints = { Courage: 0, Spirit: 0, Grace: 0 };
-  for (const [k, x] of order) out[k] = Math.round((x * total) / 255);
-  const off = total - (out.Courage + out.Spirit + out.Grace);
-  if (off !== 0) {
-    let top = order[0]![0];
-    for (const [k] of order) if (out[k] > out[top]) top = k;
-    out[top] += off;
+  let top = order[0]!;
+  for (const entry of order) {
+    out[entry[0]] = 1 + Math.floor((entry[1] * split) / 255);
+    if (entry[1] > top[1]) top = entry;
   }
+  out[top[0]] += total - (out.Courage + out.Spirit + out.Grace);
   return out;
 }
 

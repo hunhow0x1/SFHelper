@@ -1,30 +1,32 @@
 /** Envoy Rank (the game's Mastery Rank): the exact rank, the patch's maximum,
- *  and an ESTIMATE of progress toward the next rank.
+ *  and progress toward the next rank.
  *
- *  The rank itself is exact (PlayerLevel). Progress isn't: the game shows only
- *  a filling badge, sends no Mastery total, and its Mastery values aren't
- *  published. So we model it:
- *   - Item Mastery, in weapon-rank units: each weapon rank earned (from the
- *     XPInfo mastery record) is 1, each pact rank PACT_WEIGHT. Histories and
- *     discoveries also grant Mastery but have no known values; left out.
- *   - Cumulative Mastery for rank r grows as K * r^EXPONENT, with K set so that
- *     every weapon and pact at rank 30 lands on the wiki's patch maximum.
- *  PACT_WEIGHT and EXPONENT fit what's observable, with K the same across
- *  patches: the wiki's Preludes 13 screenshots (one maxed pact, the Fey, lifted
- *  the max from ~17.9 to ~18.15), the Preludes 16 max of ~19.1, and a rank-17
- *  account with all pacts and ~70% of weapon ranks whose badge is about a third
- *  full. Rough, so once SFHelper sees the rank go up it anchors that rank's
- *  start at the item Mastery seen then (stored per account).
+ *  The rank itself is PlayerLevel. For progress, the game adds up Mastery from
+ *  two parts and logs both at login (EE.log):
+ *   - "Player has N (item based) XP": 100 per weapon rank and 200 per Pact rank
+ *     earned (from the XPInfo mastery record). SFHelper computes this itself.
+ *   - "Total calculated MissionProgressXP is N": discoveries, histories and the
+ *     like. Only the log has it, so SFHelper keeps the last value it saw.
+ *  Rank r starts at RANK_XP * r^2 Mastery. That fits what the game shows: a
+ *  rank-17 account at 375,400 (195,400 + 180,000) has its badge a third full
+ *  (17.33), and everything maxed in Preludes 16 comes to about the wiki's 19.1.
+ *  Without the log's part there's no progress figure.
  */
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { appFile, dataDir } from "./paths";
+import { loggedMastery } from "./gameLog";
 import { MAX_RANK as MAX_ITEM_RANK, PACT_RANK_CONST, xpToRank } from "./weapons";
 
-const PACT_WEIGHT = 2.5;
-const EXPONENT = 2.3;
+/** Mastery per weapon rank and per Pact rank. */
+const WEAPON_RANK_XP = 100;
+const PACT_RANK_XP = 200;
+/** Envoy Rank r starts at RANK_XP * r^2 Mastery. */
+const RANK_XP = 1250;
+
+export const rankStart = (rank: number): number => RANK_XP * rank * rank;
 
 export interface EnvoyRank {
   /** Current Envoy Rank (exact). */
@@ -34,10 +36,10 @@ export interface EnvoyRank {
   patch: string | null;
   /** Highest whole rank reachable this patch (floor of maxMastery). */
   maxRank: number | null;
-  /** Estimated 0..1 progress toward rank + 1; null at the patch's top rank. */
+  /** 0..1 progress toward rank + 1; null at the patch's top rank, or without the game log's part. */
   progress: number | null;
-  /** True once the current rank's start is anchored by an observed rank-up. */
-  calibrated: boolean;
+  /** Mastery so far (items + everything else) and where the next rank starts; null without the log's part. */
+  mastery: { total: number; items: number; other: number; next: number } | null;
   /** Weapon and pact ranks earned, out of everything available (null without an inventory). */
   items: { weaponRanks: number; weaponMax: number; pactRanks: number; pactMax: number } | null;
 }
@@ -51,22 +53,22 @@ export interface MasteryInputs {
   pactCount: number;
   maxMastery: number | null;
   patch: string | null;
-  /** Item Mastery observed when the current rank was reached, if seen. */
-  anchor?: number | undefined;
+  /** Mastery from outside item ranks (the log's MissionProgressXP), if known. */
+  other?: number | null;
 }
 
-/** Weapon and pact ranks earned, and the item Mastery they add up to. */
-export function itemMastery(mastery: Record<string, number>): { weaponRanks: number; pactRanks: number; units: number } {
+/** Weapon and pact ranks earned, and the Mastery they add up to. */
+export function itemMastery(mastery: Record<string, number>): { weaponRanks: number; pactRanks: number; xp: number } {
   let weaponRanks = 0;
   let pactRanks = 0;
   for (const [type, xp] of Object.entries(mastery)) {
     if (type.startsWith("/SF/Weapons/")) weaponRanks += xpToRank(xp);
     else if (type.startsWith("/SF/Souls/")) pactRanks += xpToRank(xp, PACT_RANK_CONST);
   }
-  return { weaponRanks, pactRanks, units: weaponRanks + PACT_WEIGHT * pactRanks };
+  return { weaponRanks, pactRanks, xp: weaponRanks * WEAPON_RANK_XP + pactRanks * PACT_RANK_XP };
 }
 
-/** The estimate itself (pure; the stored anchor comes in through `anchor`). */
+/** The tracker's figures (pure; the log's part comes in through `other`). */
 export function estimateEnvoyRank(i: MasteryInputs): EnvoyRank {
   const earned = itemMastery(i.mastery);
   const weaponCount = Math.max(i.weaponCount, Object.keys(i.mastery).filter((t) => t.startsWith("/SF/Weapons/")).length);
@@ -79,53 +81,49 @@ export function estimateEnvoyRank(i: MasteryInputs): EnvoyRank {
   };
   const maxRank = i.maxMastery ? Math.floor(i.maxMastery) : null;
   const base = { rank: i.rank, maxMastery: i.maxMastery, patch: i.patch, maxRank, items };
-  if (!i.maxMastery || (maxRank !== null && i.rank >= maxRank)) return { ...base, progress: null, calibrated: false };
+  if (i.other == null) return { ...base, progress: null, mastery: null };
 
-  const allUnits = items.weaponMax + PACT_WEIGHT * items.pactMax;
-  const k = allUnits / i.maxMastery ** EXPONENT;
-  const at = (r: number) => k * r ** EXPONENT;
-  // An observed rank-up pins where this rank started; shift the curve to it.
-  const shift = i.anchor !== undefined ? i.anchor - at(i.rank) : 0;
-  const lo = at(i.rank) + shift;
-  const hi = at(i.rank + 1) + shift;
-  // The rank is known exactly, so the estimate stays inside it.
-  const progress = Math.min(0.99, Math.max(0, (earned.units - lo) / (hi - lo)));
-  return { ...base, progress, calibrated: i.anchor !== undefined };
+  const total = earned.xp + i.other;
+  const next = rankStart(i.rank + 1);
+  const mastery = { total, items: earned.xp, other: i.other, next };
+  if (maxRank !== null && i.rank >= maxRank) return { ...base, progress: null, mastery };
+  const start = rankStart(i.rank);
+  // The rank is exact, so a total below its start means the log's part is out
+  // of date: show no figure rather than a wrong one. Past the next rank's start
+  // (ranked up since the last import) it stays just short of full.
+  const progress = total >= start ? Math.min(0.99, (total - start) / (next - start)) : null;
+  return { ...base, progress, mastery };
 }
 
-// --- per-account rank-up anchors ---------------------------------------------
+// --- the log's part, kept per account ------------------------------------------
 
-/** Bumped when item Mastery is counted differently (v2: weapons on their own
- *  250 * r^2 curve), so units stored by an older version are ignored. */
-const STATE_VERSION = 2;
+/** v3: the log's MissionProgressXP. (v1-v2 held rank-up anchors for the old estimate.) */
+const STATE_VERSION = 3;
 
-interface AnchorState {
-  v?: number;
-  /** Last observation, to spot a rank-up between two imports. */
-  last?: { rank: number; units: number };
-  /** Rank -> item Mastery when it was reached. */
-  anchors: Record<string, number>;
+interface MasteryState {
+  v: number;
+  /** The last MissionProgressXP seen in the game log. */
+  other: number;
 }
 
 const statePath = (accountId: string) => appFile(`envoy-rank-${accountId}.json`);
 
-async function loadState(accountId: string): Promise<AnchorState> {
+async function loadOther(accountId: string): Promise<number | null> {
   try {
-    const s = JSON.parse(await readFile(statePath(accountId), "utf8")) as AnchorState;
-    return s && s.v === STATE_VERSION && typeof s.anchors === "object" ? s : { anchors: {} };
+    const s = JSON.parse(await readFile(statePath(accountId), "utf8")) as Partial<MasteryState>;
+    return s.v === STATE_VERSION && typeof s.other === "number" ? s.other : null;
   } catch {
-    return { anchors: {} };
+    return null;
   }
 }
 
-/** Record this observation; on a one-rank rise, anchor the new rank midway
- *  between the item Mastery before and after (imports are minutes apart). */
-export function observe(state: AnchorState, rank: number, units: number): AnchorState {
-  const next: AnchorState = { v: STATE_VERSION, anchors: { ...state.anchors }, last: { rank, units } };
-  if (state.last && rank === state.last.rank + 1 && units >= state.last.units) {
-    next.anchors[String(rank)] = (state.last.units + units) / 2;
+async function saveOther(accountId: string, other: number): Promise<void> {
+  try {
+    await mkdir(dirname(statePath(accountId)), { recursive: true });
+    await writeFile(statePath(accountId), JSON.stringify({ v: STATE_VERSION, other } satisfies MasteryState));
+  } catch {
+    // Only matters once the game log is gone; the next login logs it again.
   }
-  return next;
 }
 
 // --- data files ----------------------------------------------------------------
@@ -147,7 +145,7 @@ async function readData<T>(name: string): Promise<T | null> {
 }
 
 /** Everything the Mastery tab's tracker needs, for one account. Without a
- *  mastery record (no inventory) there's no estimate: just rank and maximum. */
+ *  mastery record (no inventory) there's no progress: just rank and maximum. */
 export async function getEnvoyRank(
   accountId: string,
   rank: number,
@@ -161,16 +159,11 @@ export async function getEnvoyRank(
   const maxMastery = typeof max?.maxMastery === "number" ? max.maxMastery : null;
   const patch = typeof max?.patch === "string" ? max.patch : null;
   if (!mastery) {
-    return { rank, maxMastery, patch, maxRank: maxMastery ? Math.floor(maxMastery) : null, progress: null, calibrated: false, items: null };
+    return { rank, maxMastery, patch, maxRank: maxMastery ? Math.floor(maxMastery) : null, progress: null, mastery: null, items: null };
   }
-  const units = itemMastery(mastery).units;
-  const state = observe(await loadState(accountId), rank, units);
-  try {
-    await mkdir(dirname(statePath(accountId)), { recursive: true });
-    await writeFile(statePath(accountId), JSON.stringify(state));
-  } catch {
-    // Calibration is a nicety; the estimate works without it.
-  }
+  const logged = await loggedMastery();
+  const saved = await loadOther(accountId);
+  if (logged && logged.other !== saved) await saveOther(accountId, logged.other);
   return estimateEnvoyRank({
     rank,
     mastery,
@@ -178,6 +171,6 @@ export async function getEnvoyRank(
     pactCount: pacts ? Object.keys(pacts).length : 0,
     maxMastery,
     patch,
-    anchor: state.anchors[String(rank)],
+    other: logged?.other ?? saved,
   });
 }

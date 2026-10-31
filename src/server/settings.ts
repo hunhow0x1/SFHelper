@@ -11,9 +11,11 @@ export interface Settings {
   avakotNotify: boolean;
   /** Avakot's store items (StoreItem paths) the user starred. */
   avakotWatch: string[];
+  /** Raise one when one of the game's timers (a sub-boss respawn and the like) runs out. */
+  timerNotify: boolean;
 }
 
-const DEFAULTS: Settings = { moonsteelNotify: true, avakotNotify: true, avakotWatch: [] };
+const DEFAULTS: Settings = { moonsteelNotify: true, avakotNotify: true, avakotWatch: [], timerNotify: true };
 
 /** A list of store item paths, deduplicated; null if it isn't one. */
 function storeItems(v: unknown): string[] | null {
@@ -31,6 +33,7 @@ export async function getSettings(): Promise<Settings> {
       moonsteelNotify: typeof s.moonsteelNotify === "boolean" ? s.moonsteelNotify : DEFAULTS.moonsteelNotify,
       avakotNotify: typeof s.avakotNotify === "boolean" ? s.avakotNotify : DEFAULTS.avakotNotify,
       avakotWatch: storeItems(s.avakotWatch) ?? [],
+      timerNotify: typeof s.timerNotify === "boolean" ? s.timerNotify : DEFAULTS.timerNotify,
     };
   } catch {
     return { ...DEFAULTS, avakotWatch: [] };
@@ -42,6 +45,7 @@ export async function updateSettings(patch: Record<string, unknown>): Promise<Se
   const s = await getSettings();
   if (typeof patch.moonsteelNotify === "boolean") s.moonsteelNotify = patch.moonsteelNotify;
   if (typeof patch.avakotNotify === "boolean") s.avakotNotify = patch.avakotNotify;
+  if (typeof patch.timerNotify === "boolean") s.timerNotify = patch.timerNotify;
   const watch = storeItems(patch.avakotWatch);
   if (watch) s.avakotWatch = watch;
   const path = settingsPath();

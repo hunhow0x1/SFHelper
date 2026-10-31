@@ -131,6 +131,7 @@
       .ov-col { display: contents; }
       .ov-account { order: 1; }
       .ov-standing { order: 2; }
+      .ov-timers { order: 3; }
       .ov-wallet { order: 3; }
       .ov-trades { order: 4; }
       #overviewTradeTiles { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
@@ -162,6 +163,7 @@
       }
       h2::after { content: ""; flex: 1; order: 1; height: 1px; background: linear-gradient(90deg, var(--frame), transparent); }
       h2.hdr .mini { order: 2; }
+      h2.hdr .notifytoggle { order: 2; font: 400 13.5px/1 var(--body); letter-spacing: 0; text-transform: none; }
       h3.sub { font: 600 13px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2); margin: 0 0 12px; }
 
       /* ---- Controls -------------------------------------------------------- */
@@ -354,7 +356,7 @@
 
       /* ---- Pickups --------------------------------------------------------- */
       /* One weapon per row, newest first, scrolling down: name, tempers, time. */
-      #trades { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); column-gap: 44px; align-content: start; }
+      #trades { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 22px; align-content: start; }
       @media (max-width: 640px) { #trades { grid-template-columns: 1fr; } }
       .pickrow { padding: 14px 0; border-bottom: 1px solid var(--line); }
       .pickrow:last-child { border-bottom: 0; }
@@ -373,17 +375,24 @@
       .picktop h2 { flex: 1; min-width: 220px; margin-bottom: 0; }
       /* ---- Trades ---------------------------------------------------------- */
       #tradeTiles { margin-bottom: 26px; }
-      .tradecols { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px; margin-top: 10px; }
-      .tradecols .tlabel { color: var(--faint); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 4px; }
-      .tradecols ul { list-style: none; margin: 0; padding: 0; }
-      .tradecols li { color: var(--text); font-size: 14.5px; line-height: 1.6; }
+      /* One framed card per trade: who and when, then what came in and went out,
+         each item with its in-game icon, and the Scutage paid. */
+      .tradecard { background-color: var(--well); border: 1px solid var(--line); padding: 16px 20px 14px; }
+      .tradecard .pickname .partner { color: var(--accent-hi); }
+      .tradecols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; margin-top: 14px; }
+      .tradecols .tlabel { font: 600 12px/1.2 var(--display); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 9px; }
+      .tradecols .recv .tlabel { color: #a6dcc0; text-shadow: 0 0 12px rgba(127, 181, 154, 0.35); }
+      .tradecols .gave .tlabel { color: var(--accent); }
+      .tradecols ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+      .tradecols li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; color: var(--text); font-size: 14.5px; line-height: 1.35; }
+      .tradecols li .ticon { width: 30px; height: 30px; object-fit: contain; }
       .tradecols li .tcount { color: var(--muted); font-variant-numeric: tabular-nums; }
-      .tradecols li.tweapon { margin-bottom: 6px; }
+      .tradecols li.tweapon { align-items: start; }
       .tradecols li.tweapon .cw { margin-left: 6px; }
-      .tradecols li.tweapon .wtempers { margin-top: 4px; }
+      .tradecols li.tweapon .wtempers { margin-top: 6px; }
       .tradecols .none { color: var(--faint); font-size: 14px; }
-      .tradesub { color: var(--faint); font-size: 13px; margin-top: 8px; font-variant-numeric: tabular-nums; }
-      .tradesub b { color: var(--muted); font-weight: 600; }
+      .tradesub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; color: var(--faint); font-size: 13px; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+      .tradesub .avprice { margin-right: 5px; }
       @media (max-width: 640px) { .tradecols { grid-template-columns: 1fr; } }
       .notifytoggle { position: relative; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--muted); font-size: 14px; user-select: none; }
       .notifytoggle[hidden] { display: none; }
@@ -455,6 +464,16 @@
       }
       .avgroup h3 .count { font: 400 13px/1 var(--body); color: var(--faint); letter-spacing: 0; }
       .avgroup .avrow:last-child { border-bottom: 0; }
+      /* Discoveries (Mastery): compact rows, one diamond per Memory. */
+      #discoveries .avrow { grid-template-columns: minmax(0, 1fr) auto; }
+      #discoveries .avrow.undiscovered .avn { color: var(--faint); }
+      .mempips { display: inline-flex; gap: 7px; padding-right: 2px; }
+      .mempips i { width: 7px; height: 7px; border: 1px solid var(--line-2); transform: rotate(45deg); }
+      .mempips i.on { background: var(--accent-2); border-color: var(--accent-2); box-shadow: 0 0 6px rgba(127, 181, 154, 0.45); }
+      /* Cooldowns (Overview): the compact list's rows without an icon. */
+      #timers .avrow { grid-template-columns: minmax(0, 1fr) auto; }
+      #timers .avrow:last-child { border-bottom: 0; }
+      #timers .avr b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
 
       /* ---- Totems ---------------------------------------------------------- */
       .tfilters { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; align-items: center; margin-bottom: 18px; }
@@ -656,7 +675,7 @@
 
       /* ---- Card corner brackets: small gold ticks, like the game's item frames.
          Last in the sheet so it adds to each card's own background colour. */
-      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup {
+      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard {
         --tick: rgba(201, 165, 92, 0.42);
         background-image:
           linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
@@ -728,6 +747,18 @@
             </div>
           </section>
 
+          <!-- The game's own timers: Agari respawns, Blessed Meetings and the like. -->
+          <section class="ov-timers" id="timersSection" hidden>
+            <h2 class="hdr">Cooldowns
+              <label class="notifytoggle" id="timerNotifyWrap" hidden title="Desktop notification when a cooldown ends">
+                <input type="checkbox" id="timerNotify" />
+                <span class="sw"></span>
+                Notify
+              </label>
+            </h2>
+            <div id="timers"></div>
+          </section>
+
           <div class="cols ov-wallet">
             <section>
               <h2>Faction Tokens</h2>
@@ -765,6 +796,13 @@
           <div class="tfilters" id="masteryFilters"></div>
           <div class="daily" id="masterySummary"></div>
           <div id="mastery"><span class="muted">Import your inventory to track weapon and pact mastery.</span></div>
+        </section>
+        <!-- Places and Memories: they count toward Envoy Rank too. -->
+        <section id="discoveriesSection" hidden>
+          <h2>Discoveries</h2>
+          <div class="daily" id="discSummary"></div>
+          <div class="tfilters" id="discFilters"></div>
+          <div id="discoveries"></div>
         </section>
       </div>
 
@@ -906,6 +944,10 @@
       let TEMPER_DB = {};
       // Pact Art key ("Folder/Skill") -> { name, slot, max, virtue?, desc, detail } (pactarts.json).
       let PACT_ARTS = {};
+      // Pact Art key -> its stats per point from the game's data [{ n, unit, sign, label }] (pactartvalues.json).
+      let PACT_ART_VALUES = {};
+      // In-game item name -> icon path (itemicons.json), for the Trades tab.
+      let ITEM_ICONS = {};
       // Talisman ItemType leaf -> { name, Courage, Spirit, Grace } (talismans.json).
       let TALISMANS = {};
       // Full weapon roster (name -> {class, slot}) from weapons.json, for the
@@ -922,7 +964,7 @@
       // The game's mastery record: ItemType -> most XP ever reached (XPInfo), kept
       // through dismantling/selling. Null without an inventory.
       let LAST_MASTERY = null;
-      // Envoy Rank: { rank, maxRank, maxMastery, patch, progress (estimate), calibrated, items }.
+      // Envoy Rank: { rank, maxRank, maxMastery, patch, progress, mastery: { total, items, other, next }, items }.
       let LAST_ENVOY = null;
       // Tuvalkane temper-learning progress [{tag, count}]; learned at 10.
       let LAST_TEMPERS = [];
@@ -1053,22 +1095,25 @@
         if (temperPop && temperPop.dataset.hover) closeTemperPop();
       }, { passive: true });
 
-      // Envoy Rank tracker. The rank and the patch maximum are exact; progress to
-      // the next rank is an estimate (the game doesn't expose its Mastery
-      // total), so it's labelled as one.
+      // Envoy Rank tracker. The rank and the patch maximum are exact; progress
+      // adds your weapon and Pact ranks to the Mastery from discoveries and the
+      // like, which Soulframe writes to its log at login (see envoyRank.ts).
       const PATCH_NAME = (p) => (/^P(\d+(?:\.\d+)?)$/.test(p || "") ? `Preludes ${p.slice(1)}` : p || "");
       function renderEnvoyRank() {
         const e = LAST_ENVOY;
         if (!e) { $("envoyRank").innerHTML = ""; return; }
         const atMax = e.maxRank != null && e.rank >= e.maxRank;
-        const pct = e.progress != null ? Math.round(e.progress * 100) : null;
+        const pct = e.progress != null ? Math.floor(e.progress * 100) : null;
         const fill = atMax ? 100 : pct ?? 0;
+        const m = e.mastery;
         let sub;
         if (atMax) sub = "Highest rank reachable this patch";
         else if (pct != null) {
-          const how = e.calibrated ? "estimate, anchored to your last rank-up" : "estimate";
-          sub = `<b>~${pct}%</b> to rank ${e.rank + 1} <span title="Soulframe doesn't share Mastery totals. This is modelled from your weapon and pact ranks; histories and discoveries aren't counted.">· ${how}</span>`;
-        } else sub = "Import your inventory to estimate progress";
+          const how = `Mastery ${m.total.toLocaleString()} of ${m.next.toLocaleString()} for rank ${e.rank + 1}: ${m.items.toLocaleString()} from weapon and Pact ranks, ${m.other.toLocaleString()} from discoveries, histories and the like (from the game's log)`;
+          sub = `<b>${pct}%</b> to rank ${e.rank + 1} <span title="${how}">· ${m.total.toLocaleString()} / ${m.next.toLocaleString()} Mastery</span>`;
+        } else if (!e.items) sub = "Import your inventory to see progress";
+        else if (!m) sub = "Progress shows once SFHelper has seen Soulframe start (it reads part of your Mastery from the game's log)";
+        else sub = "Progress unavailable: Soulframe's log is older than your inventory. It updates at your next login";
         const items = e.items
           ? `<div class="esub">Weapon ranks <b>${e.items.weaponRanks.toLocaleString()} / ${e.items.weaponMax.toLocaleString()}</b> · Pact ranks <b>${e.items.pactRanks} / ${e.items.pactMax}</b></div>`
           : "";
@@ -1198,6 +1243,49 @@
         renderMastery();
       });
 
+      // Discoveries: every place the game tracks, by its in-game name, with the
+      // Memories found there (from the inventory) out of how many it holds (from
+      // the game's data). Dungeon maps have no Memories, so they're just counted.
+      let LAST_DISCOVERIES = null;
+      let DISC_FILTER = "all";
+      try { DISC_FILTER = localStorage.getItem("sfhelper.discoveries") || "all"; } catch {}
+      const placeDone = (p) => p.discovered && p.found >= p.memories;
+      function renderDiscoveries() {
+        const d = LAST_DISCOVERIES;
+        if (!d) return;
+        const places = d.places;
+        const found = places.filter((p) => p.discovered).length;
+        const memories = places.reduce((n, p) => n + p.memories, 0);
+        const memFound = places.reduce((n, p) => n + p.found, 0);
+        $("discSummary").innerHTML =
+          `Discovered <b>${found}</b> of ${places.length} places &nbsp;·&nbsp; <b>${memFound}</b> of ${memories} Memories found` +
+          (d.maps.total ? ` &nbsp;·&nbsp; <b>${d.maps.found}</b> of ${d.maps.total} dungeon maps` : "");
+        const pass = { all: () => true, open: (p) => !placeDone(p), done: placeDone };
+        if (!pass[DISC_FILTER]) DISC_FILTER = "all";
+        const chip = (v, label, n) =>
+          `<button class="fchip${DISC_FILTER === v ? " active" : ""}" data-v="${v}">${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
+        $("discFilters").innerHTML =
+          `<span class="fl">Show</span><div class="wfilter">` +
+          chip("all", "All") + chip("open", "Not finished", places.filter(pass.open).length) + chip("done", "Finished", places.filter(pass.done).length) +
+          `</div>`;
+        const row = (p) => {
+          const pips = p.memories ? `<span class="mempips" title="${p.found} of ${p.memories} Memories">${"<i class=\"on\"></i>".repeat(p.found)}${"<i></i>".repeat(p.memories - p.found)}</span>` : "";
+          const sub = !p.discovered ? "Not discovered" : p.memories ? `${p.found} of ${p.memories} Memories` : "Discovered · no Memories";
+          return `<div class="avrow${p.discovered ? "" : " undiscovered"}"><div class="avn">${escHtml(p.name)}<small>${sub}</small></div><div class="avr">${pips}</div></div>`;
+        };
+        const shown = places.filter(pass[DISC_FILTER]);
+        $("discoveries").innerHTML = shown.length
+          ? `<div class="avlist">${shown.map(row).join("")}</div>`
+          : '<span class="muted">Nothing here.</span>';
+      }
+      $("discFilters").addEventListener("click", (e) => {
+        const b = e.target.closest(".fchip");
+        if (!b) return;
+        DISC_FILTER = b.dataset.v;
+        try { localStorage.setItem("sfhelper.discoveries", DISC_FILTER); } catch {}
+        renderDiscoveries();
+      });
+
       // Tuvalkane temper learning: each temper is learned at 10 progress (earned
       // by dismantling weapons bearing it). ~43 tempers exist in-game (Preludes 16).
       const TEMPER_GOAL = 10;
@@ -1282,14 +1370,27 @@
         const tal = key.includes("/Skins/Totem/") ? TALISMANS[key.split("/").pop()] : null;
         return tal ? tal.name : shortName(key);
       }
+      // A traded item's icon: the game's art for it (itemicons.json, by name),
+      // else its weapon type's grip or its Joinery's icon.
+      const CLASS_GRIP = {
+        "Long Blades": "Long Blade", "Short Blades": "Short Blade", "Magick Weapons": "Magick", Bows: "Bow", Polearms: "Polearm",
+        Cleavers: "Heavy", Greatswords: "Heavy", "Heavy Maces": "Heavy", Shields: "Shield", Flyblades: "Flyblade",
+      };
+      function tradeIcon(name) {
+        const joinery = /^(Verite|Quicksilver|Feybalt|Gildaur)\b/.exec(name);
+        const grip = CLASS_GRIP[(WEAPON_ROSTER[name] || {}).class];
+        const src = ITEM_ICONS[name] || (joinery ? `img/joineries/${joinery[1].toLowerCase()}.png` : grip ? gripIcon(grip) : null);
+        return src ? `<img class="ticon" src="${src}" alt="" onerror="this.style.visibility='hidden'">` : '<span class="ticon"></span>';
+      }
       // Items from the inventory diff: weapons one by one with their craftwork
       // and tempers, everything else by name and count.
       function tradeItem(i) {
-        const count = i.count > 1 ? ` <span class="tcount">×${fmt(i.count)}</span>` : "";
-        if (!i.weapon) return `<li>${tradeItemName(i.key)}${count}</li>`;
+        const name = tradeItemName(i.key);
+        const count = i.count > 1 ? `<span class="tcount">×${fmt(i.count)}</span>` : "<span></span>";
+        if (!i.weapon) return `<li>${tradeIcon(name)}<span>${escHtml(name)}</span>${count}</li>`;
         const cw = craftworkInfo(i.weapon.craftwork);
         const chips = temperChips(i.weapon.tempers);
-        return `<li class="tweapon"><div>${tradeItemName(i.key)} ${cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : ""}${i.weapon.moonsteel ? '<span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : ""}</div>${chips ? `<div class="wtempers">${chips}</div>` : ""}</li>`;
+        return `<li class="tweapon">${tradeIcon(name)}<div><div>${escHtml(name)} ${cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : ""}${i.weapon.moonsteel ? '<span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : ""}</div>${chips ? `<div class="wtempers">${chips}</div>` : ""}</div></li>`;
       }
       function tradeList(items) {
         if (!items.length) return '<div class="none">Nothing</div>';
@@ -1301,7 +1402,7 @@
       }
       // Names only, as the game log lists them (no counts).
       function tradeNames(names) {
-        return names.length ? `<ul>${names.map((n) => `<li>${n}</li>`).join("")}</ul>` : '<div class="none">Nothing</div>';
+        return names.length ? `<ul>${names.map((n) => `<li>${tradeIcon(n)}<span>${escHtml(n)}</span><span></span></li>`).join("")}</ul>` : '<div class="none">Nothing</div>';
       }
       function tradeWhen(t) {
         const deals = t.deals || [];
@@ -1315,7 +1416,7 @@
         const partners = [...new Set((t.deals || []).map((d) => d.partner).filter(Boolean))];
         const n = Math.max(t.count || 1, (t.deals || []).length);
         const what = n > 1 ? `${n} trades` : "Trade";
-        return partners.length ? `${what} with ${partners.join(" and ")}` : what;
+        return partners.length ? `${what} with <span class="partner">${partners.map(escHtml).join(" and ")}</span>` : what;
       }
       function renderTrades() {
         const t = LAST_TRADES;
@@ -1339,23 +1440,64 @@
           ? history
               .map((x) => {
                 const deals = x.deals || [];
-                const dracs = x.dracs < 0 ? `<b>${fmt(-x.dracs)}</b> Dracs spent (Scutage)` : x.dracs > 0 ? `<b>${fmt(x.dracs)}</b> Dracs gained` : "";
+                const dracsIcon = (n) => `<span class="avprice" title="Dracs"><img src="img/avakot/dracs.png" alt="">${fmt(n)}</span>`;
+                const dracs = x.dracs < 0 ? `${dracsIcon(-x.dracs)}spent on Scutage` : x.dracs > 0 ? `${dracsIcon(x.dracs)}gained` : "";
                 const merged = Math.max(x.count || 1, deals.length) > 1 ? "Made between the same two inventory refreshes, so they're shown together" : "";
                 const note = x.logOnly ? "From the game log, before SFHelper saw your inventory: no counts or Dracs" : "";
                 const received = x.logOnly ? tradeNames(deals.flatMap((d) => d.received)) : tradeList(x.received || []);
                 const given = x.logOnly ? tradeNames(deals.flatMap((d) => d.offered)) : tradeList(x.given || []);
-                return `<div class="pickrow">
+                const subs = [dracs, merged, note].filter(Boolean);
+                return `<div class="tradecard">
                   <div class="pickhead"><span class="pickname">${tradeTitle(x)}</span>${tradeWhen(x)}</div>
                   <div class="tradecols">
-                    <div><div class="tlabel">Received</div>${received}</div>
-                    <div><div class="tlabel">Given</div>${given}</div>
+                    <div class="recv"><div class="tlabel">Received</div>${received}</div>
+                    <div class="gave"><div class="tlabel">Given</div>${given}</div>
                   </div>
-                  ${dracs || merged || note ? `<div class="tradesub">${[dracs, merged, note].filter(Boolean).join(" · ")}</div>` : ""}
+                  ${subs.length ? `<div class="tradesub">${subs.map((s) => `<span>${s}</span>`).join("")}</div>` : ""}
                 </div>`;
               })
               .join("")
           : '<span class="muted">No trades yet. Trades you make will appear here as your inventory refreshes; history starts once SFHelper is running.</span>';
       }
+
+      // ---- Cooldowns -------------------------------------------------------
+      // The game's own timers from the inventory (Agari respawns, the gap
+      // between Blessed Meetings...), soonest first. See src/server/timers.ts.
+      let LAST_TIMERS = null;
+      function renderTimers() {
+        if (!LAST_TIMERS) return;
+        const now = Date.now();
+        const running = LAST_TIMERS.filter((t) => t.expiry > now);
+        $("timers").innerHTML = running.length
+          ? `<div>${running
+              .map((t) => `<div class="avrow" title="${escHtml(t.tag)}"><div class="avn">${escHtml(t.name)}${t.kind ? `<small>${escHtml(t.kind)}</small>` : ""}</div><div class="avr"><b>${avLeft(t.expiry - now)}</b><small>until ${avClock(t.expiry)}</small></div></div>`)
+              .join("")}</div>`
+          : '<span class="muted">No cooldowns running.</span>';
+      }
+      setInterval(renderTimers, 30000);
+      // Notify toggle - only meaningful in the desktop app.
+      (async () => {
+        if (!navigator.userAgent.includes("Electron")) return;
+        const box = $("timerNotify");
+        try {
+          box.checked = (await (await fetch("/api/settings")).json()).timerNotify !== false;
+        } catch {
+          box.checked = true;
+        }
+        $("timerNotifyWrap").hidden = false;
+        box.addEventListener("change", async () => {
+          try {
+            const r = await fetch("/api/settings", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ timerNotify: box.checked }),
+            });
+            box.checked = (await r.json()).timerNotify;
+          } catch {
+            box.checked = !box.checked; // revert: the change didn't save
+          }
+        });
+      })();
 
       // Moonsteel notification toggle - only meaningful in the desktop app.
       (async () => {
@@ -2035,7 +2177,21 @@
           ? `Grants <b>+${VIRTUE_POINTS[rank]} ${def.virtue}</b> <span class="muted">(1 / 3 / 6)</span>.`
           : artDetailAtRank(def.detail, rank, def.max);
         const eff = detail ? `<div class="tp-eff">${detail}</div>` : "";
-        return `<div class="tp-name">${def.name}</div><div class="tp-rank">${rankLine}</div>${quote}${eff}`;
+        return `<div class="tp-name">${def.name}</div><div class="tp-rank">${rankLine}</div>${quote}${eff}${artNumbers(key, rank)}`;
+      }
+      // The game's own numbers for an art, per point, and in total at the
+      // current rank (each point adds the same amount).
+      function artNumbers(key, rank) {
+        const stats = PACT_ART_VALUES[key];
+        if (!stats || !stats.length) return "";
+        const amount = (s, points) => {
+          const v = Number((s.n * points).toFixed(2));
+          return `${s.sign ? (v < 0 ? "−" : "+") : ""}${Math.abs(v).toLocaleString()}${s.unit}`;
+        };
+        const html = rank > 0
+          ? `${stats.map((s) => `<b>${amount(s, rank)}</b> ${s.label}`).join(", ")} <span class="muted">(${stats.map((s) => amount(s, 1)).join(" and ")} per point)</span>`
+          : `Per point: ${stats.map((s) => `${amount(s, 1)} ${s.label}`).join(", ")}`;
+        return `<div class="tp-eff" title="From the game's data">${html}</div>`;
       }
 
       // One labelled property block inside a gear card.
@@ -2167,6 +2323,10 @@
         } catch (err) {
           $("importStatus").textContent = "That doesn't look like a loadout code.";
         }
+      });
+      // Enter in the code field imports too.
+      $("importBuild").addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.isComposing && e.target.value.trim()) $("importBtn").click();
       });
 
       // The header shows a live countdown to the daily reset (00:00 UTC).
@@ -2349,6 +2509,17 @@
           LAST_PICKUPS = data.pickups || [];
           renderPickups();
         }
+        $("discoveriesSection").hidden = !data.discoveries;
+        if (sectionChanged("discoveries", data.discoveries)) {
+          LAST_DISCOVERIES = data.discoveries || null;
+          renderDiscoveries();
+        }
+        // Cooldowns come from the inventory, so the section waits for one.
+        $("timersSection").hidden = !data.inventory;
+        if (sectionChanged("timers", data.timers)) {
+          LAST_TIMERS = data.timers || [];
+          renderTimers();
+        }
         if (sectionChanged("trades", data.trades)) {
           LAST_TRADES = data.trades || null;
           renderTrades();
@@ -2512,6 +2683,14 @@
         try {
           const res = await fetch("/pactarts.json");
           if (res.ok) PACT_ARTS = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/itemicons.json");
+          if (res.ok) ITEM_ICONS = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/pactartvalues.json");
+          if (res.ok) PACT_ART_VALUES = await res.json();
         } catch {}
         try {
           const res = await fetch("/talismans.json");

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { estimateEnvoyRank, itemMastery, observe } from "../src/server/envoyRank";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { estimateEnvoyRank, itemMastery, rankStart } from "../src/server/envoyRank";
+import { loggedMastery } from "../src/server/gameLog";
 import { parseMaxMastery } from "../scripts/build_data";
 
 const W = (n: number) => `/SF/Weapons/Melee/W${n}`;
@@ -15,11 +19,11 @@ describe("Envoy Rank", () => {
     expect(parseMaxMastery("no figure here")).toBeNull();
   });
 
-  it("counts weapon and pact ranks from the mastery record, capped at 30", () => {
+  it("counts 100 Mastery per weapon rank and 200 per pact rank, capped at 30", () => {
     expect(itemMastery({ [W(1)]: 2_000_000, [W(2)]: 250 * 10 * 10, [P(1)]: XP30, "/SF/Other/X": 9e9 })).toEqual({
       weaponRanks: 40,
       pactRanks: 30,
-      units: 40 + 2.5 * 30,
+      xp: 40 * 100 + 30 * 200,
     });
   });
 
@@ -30,28 +34,48 @@ describe("Envoy Rank", () => {
     expect(itemMastery({ [W(1)]: 224_999 })).toMatchObject({ weaponRanks: 29 });
   });
 
-  const base = { weaponCount: 10, pactCount: 2, maxMastery: 19.1, patch: "P16" };
+  const base = { weaponCount: 62, pactCount: 13, maxMastery: 19.1, patch: "P16" };
+  // The account the formula was checked on: 1,234 weapon ranks, 360 pact ranks
+  // (the game logged 195,400) and 180,000 MissionProgressXP, badge a third full.
+  const checked = Object.fromEntries([
+    ...Array.from({ length: 41 }, (_, i) => [W(i), XP30]),
+    [W(41), 250 * 4 * 4],
+    ...Array.from({ length: 12 }, (_, i) => [P(i), XP30]),
+  ]);
 
-  it("estimates progress inside the known rank, and none at the patch's top rank", () => {
-    const all = Object.fromEntries([...Array.from({ length: 10 }, (_, i) => [W(i), XP30]), [P(0), XP30], [P(1), XP30]]);
-    const half = Object.fromEntries([...Array.from({ length: 5 }, (_, i) => [W(i), XP30]), [P(0), XP30], [P(1), XP30]]);
-    const r = estimateEnvoyRank({ ...base, rank: 17, mastery: half });
+  it("matches the game's figures for a rank-17 account", () => {
+    expect(itemMastery(checked)).toMatchObject({ weaponRanks: 1234, pactRanks: 360, xp: 195_400 });
+    const r = estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 180_000 });
+    expect(r.mastery).toEqual({ total: 375_400, items: 195_400, other: 180_000, next: rankStart(18) });
+    expect(rankStart(17)).toBe(361_250);
+    expect(r.progress).toBeCloseTo(0.323, 3);
     expect(r.maxRank).toBe(19);
-    expect(r.progress).toBeGreaterThanOrEqual(0);
-    expect(r.progress).toBeLessThan(1);
-    // Inconsistent data (more items than rank 17 should allow) is clamped, not overflowed.
-    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: all }).progress).toBe(0.99);
-    expect(estimateEnvoyRank({ ...base, rank: 19, mastery: all }).progress).toBeNull();
   });
 
-  it("anchors a rank at the item Mastery seen when it was reached", () => {
-    let s = observe({ anchors: {} }, 17, 2200);
-    expect(s.anchors).toEqual({}); // first sighting: no rank-up seen
-    s = observe(s, 18, 2300);
-    expect(s.anchors).toEqual({ "18": 2250 });
-    expect(s.v).toBe(2); // older states (units on the old curve) are ignored on load
-    const r = estimateEnvoyRank({ ...base, rank: 18, mastery: {}, anchor: 2250 });
-    expect(r.calibrated).toBe(true);
-    expect(r.progress).toBe(0); // no items: below the anchor, clamped to the start
+  it("shows no progress without the log's part, below the rank's start, or at the top rank", () => {
+    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked }).progress).toBeNull();
+    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked }).mastery).toBeNull();
+    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 100_000 }).progress).toBeNull();
+    expect(estimateEnvoyRank({ ...base, rank: 16, mastery: checked, other: 180_000 }).progress).toBe(0.99);
+    expect(estimateEnvoyRank({ ...base, rank: 19, mastery: checked, other: 180_000 }).progress).toBeNull();
+  });
+
+  it("reads the latest Mastery figures from the game log", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "sfh-mastery-"));
+    const log = join(dir, "EE.log");
+    await writeFile(
+      log,
+      [
+        "0.041 Sys [Diag]: Current time: Sat Oct 31 08:43:53 2026 [UTC: Sat Oct 31 12:43:53 2026]",
+        "23.329 Sys [Info]: Player has 0 (item based) XP",
+        "32.680 Sys [Warning]: Total calculated MissionProgressXP is 175000!",
+        "32.762 Sys [Info]: Player has 195400 (item based) XP",
+        "57.039 Sys [Warning]: Total calculated MissionProgressXP is 180000!",
+        "",
+      ].join("\n"),
+    );
+    expect(await loggedMastery(log)).toEqual({ other: 180_000, items: 195_400 });
+    await writeFile(log, "0.041 Sys [Diag]: nothing about Mastery yet\n");
+    expect(await loggedMastery(log)).toBeNull();
   });
 });

@@ -11,12 +11,12 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, faction tokens and currencies. |
-| **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*), plus its armour (Helm, Cuirass, Leggings, with defence and Virtue requirements) and Talisman. Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Loadouts can be shared as short `SFH1:` codes. |
-| **Mastery** | Your Envoy Rank, an estimate of progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type. |
+| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, faction tokens and currencies. Cooldowns: the game's own timers counting down, such as an Agari (sub-boss) respawning 30 minutes after you slay it and the 24 hours between Blessed Meetings, with optional desktop notifications when one ends. |
+| **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*), plus its armour (Helm, Cuirass, Leggings, with defence and Virtue requirements) and Talisman. Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Pact Arts show the game's own numbers (e.g. Forestall's chance to survive). Loadouts can be shared as short `SFH1:` codes; paste one and press Enter or Import. |
+| **Mastery** | Your Envoy Rank, your Mastery and progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type. Discoveries lists every place by its in-game name, whether you've found it, and the Memories found there. |
 | **Upgrades** | Tuvalkane temper learning, and your Totem inventory with search and grip / Virtue / type filters. |
 | **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. |
-| **Trades** | Your trade history: who you traded with, what you received and gave (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
+| **Trades** | Your trade history: who you traded with, what you received and gave, with in-game icons (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
 | **Avakot** | What Avakot's Gots has in stock right now, with prices, purchase limits and how long each item stays, plus his weekly and always-stocked wares. Star anything he can sell to get a desktop notification when he stocks it. |
 | **Stats** | Your top weapons and enemies by kills, by in-game name. |
 
@@ -38,7 +38,9 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   shop. It only asks when his stock changes (about every 3 hours), within a
   minute of the change, while the game is running.
 - **Game log:** `EE.log` supplies the time each weapon was picked up, and each
-  trade's partner and time. Trades are detected by comparing inventory imports,
+  trade's partner and time. It also has the part of your Mastery that isn't
+  weapon and Pact ranks (discoveries, histories and the like), which the game
+  writes at login; SFHelper keeps the last figure it saw. Trades are detected by comparing inventory imports,
   so the history starts once SFHelper is running; trades made earlier in the
   same game session are recovered from the log.
 - **Reference data:** totem, rune, temper, weapon, pact, talisman and armour details
@@ -90,8 +92,9 @@ Everything stays on your machine:
 | Linux | `~/.config/sfhelper/` |
 | Windows | `%APPDATA%\sfhelper\` |
 
-`sfhelper.log` in that folder records each session's imports and errors. It's
-the file to send when something isn't working.
+`sfhelper.log` in that folder records each session's imports and errors, and
+`sfhelper.prev.log` the session before. They're the files to send when
+something isn't working.
 
 ### Troubleshooting
 
@@ -184,6 +187,14 @@ npm test
 | `npm run extract-names -- --out dict.en.json`, then `node scripts/build_names.mjs dict.en.json src/server/public/names.json` | Game localization (DE's CDN), plus the cached type tree for armour names | `names.json` |
 | `npm run build-enemies -- dict.en.json` | Game localization + cached game type tree | `src/server/public/enemies.json` |
 | `npm run build-avakot -- dict.en.json <Packages.bin>` | Avakot's shop definition and item names from the game's data, icons from the Soulframe Wiki | `src/server/public/avakot.json`, `img/avakot/` |
+| `npm run build-locations -- dict.en.json <Packages.bin>` | Every location, its in-game name and Memories, from the game's data | `src/server/public/locations.json` |
+| `npm run build-pactart-values -- dict.en.json <Packages.bin>` | The numbers behind Pact Arts, from the game's data | `src/server/public/pactartvalues.json` |
+| `npm run build-item-icons` | Item and weapon icons (game art) from the Soulframe Wiki | `src/server/public/itemicons.json`, `img/items/` |
+
+`dict.en.json` can also be made offline from the installed game: extract
+`Languages.bin` from `Cache.Windows/H.Misc_en.toc` with `node scripts/local_cache.mjs extract`,
+then run `node scripts/extract_lang_local.mjs <Languages.bin> --out dict.en.json`.
+`Packages.bin` comes from `H.Misc.toc` the same way.
 
 Decompression uses [`ooz-wasm`](https://www.npmjs.com/package/ooz-wasm), an
 open-source WASM decompressor installed by `npm install`.

@@ -1,0 +1,439 @@
+{
+  "locations": {
+    "AuldPrioriLocationLoreFragment": {
+      "name": "Auld Priori",
+      "memories": 3,
+      "map": false
+    },
+    "BirdiesBogLocationLoreFragment": {
+      "name": "Birdie's Bog",
+      "memories": 3,
+      "map": false
+    },
+    "BrackenBraeLocationLoreFragment": {
+      "name": "Pigwen Skerry",
+      "memories": 3,
+      "map": false
+    },
+    "ChampionHubLocationLoreFragment": {
+      "name": "Kith Of Kings Enclave",
+      "memories": 0,
+      "map": false
+    },
+    "CombersLeveLocationLoreFragment": {
+      "name": "Comber's Leve",
+      "memories": 3,
+      "map": false
+    },
+    "CreedanceHighTowerLocationLoreFragment": {
+      "name": "Creedance High",
+      "memories": 3,
+      "map": false
+    },
+    "CryptCastleMapLoreFragment": {
+      "name": "Crypt of The Circade",
+      "memories": 0,
+      "map": true
+    },
+    "CryptCircadeTombLocationLoreFragment": {
+      "name": "The Tomb of The Circade",
+      "memories": 0,
+      "map": false
+    },
+    "CryptFuirlandsMapLoreFragment": {
+      "name": "Crypt of The Circade",
+      "memories": 0,
+      "map": true
+    },
+    "CryptKearnholdMapLoreFragment": {
+      "name": "Crypt of The Circade",
+      "memories": 0,
+      "map": true
+    },
+    "CurlailTowerLocationLoreFragment": {
+      "name": "Astrologer's Watch",
+      "memories": 3,
+      "map": false
+    },
+    "FFNewVisciiMapLoreFragment": {
+      "name": "Rovgot Ruins",
+      "memories": 0,
+      "map": true
+    },
+    "FallenSkycastleDungeonLoreFragment": {
+      "name": "Rovgot Ruins",
+      "memories": 9,
+      "map": false
+    },
+    "FeyHubLocationLoreFragment": {
+      "name": "Alca's Children Enclave",
+      "memories": 0,
+      "map": false
+    },
+    "FonnishFortLocationLoreFragment": {
+      "name": "Fonnish Fort Ruins",
+      "memories": 3,
+      "map": false
+    },
+    "FortCurlailCampLoreFragment": {
+      "name": "Fort Curlail",
+      "memories": 3,
+      "map": false
+    },
+    "GladeEntranceCampLoreFragment": {
+      "name": "Garren Shrine",
+      "memories": 4,
+      "map": false
+    },
+    "GladesDounMapLoreFragment": {
+      "name": "Glades of Andurin",
+      "memories": 0,
+      "map": true
+    },
+    "GladesGarrenMapLoreFragment": {
+      "name": "Glades of Andurin",
+      "memories": 0,
+      "map": true
+    },
+    "GladesGroveLocationLoreFragment": {
+      "name": "Folksgrove",
+      "memories": 0,
+      "map": false
+    },
+    "GladesKearnholdMapLoreFragment": {
+      "name": "Glades of Andurin",
+      "memories": 0,
+      "map": true
+    },
+    "GladesSpawnLocationLoreFragment": {
+      "name": "Glades of Andurin",
+      "memories": 0,
+      "map": false
+    },
+    "GladesThicketLocationLoreFragment": {
+      "name": "Picktrix Thicket",
+      "memories": 0,
+      "map": false
+    },
+    "GladesTreeRootsMapLoreFragment": {
+      "name": "Glades of Andurin",
+      "memories": 0,
+      "map": true
+    },
+    "GladesVerminiaMapLoreFragment": {
+      "name": "Glades of Andurin",
+      "memories": 0,
+      "map": true
+    },
+    "GladesWevetRidgeMapLoreFragment": {
+      "name": "Glades of Andurin",
+      "memories": 0,
+      "map": true
+    },
+    "GladesWyndMapLoreFragment": {
+      "name": "Glades of Andurin",
+      "memories": 0,
+      "map": true
+    },
+    "HamletCampLoreFragment": {
+      "name": "Curlail",
+      "memories": 5,
+      "map": false
+    },
+    "HeedowayTowerLocationLoreFragment": {
+      "name": "Heedoway",
+      "memories": 3,
+      "map": false
+    },
+    "HewsVillageLocationLoreFragment": {
+      "name": "Oo-Mull",
+      "memories": 3,
+      "map": false
+    },
+    "KairnessLocationLoreFragment": {
+      "name": "Kairness",
+      "memories": 3,
+      "map": false
+    },
+    "KearnholdCastleLocationLoreFragment": {
+      "name": "Castle Kearnhold",
+      "memories": 3,
+      "map": false
+    },
+    "KearnholdFortLocationLoreFragment": {
+      "name": "Fort Kearnhold",
+      "memories": 3,
+      "map": false
+    },
+    "KearnholdVillageLocationLoreFragment": {
+      "name": "Bradan Bank",
+      "memories": 3,
+      "map": false
+    },
+    "LuminnsVillageLocationLoreFragment": {
+      "name": "Luminns",
+      "memories": 3,
+      "map": false
+    },
+    "MinesCampLoreFragment": {
+      "name": "Mines of Borro",
+      "memories": 4,
+      "map": false
+    },
+    "MirifuirLocationLoreFragment": {
+      "name": "Mirifuir",
+      "memories": 3,
+      "map": false
+    },
+    "MoonsWatchTowerLocationLoreFragment": {
+      "name": "Moon's Watch",
+      "memories": 3,
+      "map": false
+    },
+    "MorayVillageLocationLoreFragment": {
+      "name": "Moray",
+      "memories": 3,
+      "map": false
+    },
+    "NeathunsKearnholdMapLoreFragment": {
+      "name": "Neath'uns",
+      "memories": 0,
+      "map": true
+    },
+    "NeathunsLocationLoreFragment": {
+      "name": "Neath'uns",
+      "memories": 0,
+      "map": false
+    },
+    "NeathunsMorayMapLoreFragment": {
+      "name": "Neath'uns",
+      "memories": 0,
+      "map": true
+    },
+    "NeathunsSinkholeMapLoreFragment": {
+      "name": "Neath'uns",
+      "memories": 0,
+      "map": true
+    },
+    "NeathunsWevetwoodMapLoreFragment": {
+      "name": "Neath'uns",
+      "memories": 0,
+      "map": true
+    },
+    "NellynochLocationLoreFragment": {
+      "name": "Nellynoch",
+      "memories": 3,
+      "map": false
+    },
+    "NewVisciiLocationLoreFragment": {
+      "name": "New Viscii",
+      "memories": 3,
+      "map": false
+    },
+    "OomullLocationLoreFragment": {
+      "name": "Hews",
+      "memories": 3,
+      "map": false
+    },
+    "RoodsLocationLoreFragment": {
+      "name": "Roods",
+      "memories": 3,
+      "map": false
+    },
+    "RorasHyneLocationLoreFragment": {
+      "name": "Othavess",
+      "memories": 3,
+      "map": false
+    },
+    "SawneyWayLocationLoreFragment": {
+      "name": "Sawney Way",
+      "memories": 3,
+      "map": false
+    },
+    "SidaesStakeLocationLoreFragment": {
+      "name": "Sidae's Stake",
+      "memories": 3,
+      "map": false
+    },
+    "SilentRoseHubLocationLoreFragment": {
+      "name": "Silent Rose Enclave",
+      "memories": 0,
+      "map": false
+    },
+    "SkelfiesLocationLoreFragment": {
+      "name": "Skelfies",
+      "memories": 3,
+      "map": false
+    },
+    "SkycastleLocationLoreFragment": {
+      "name": "Fallen Skytower",
+      "memories": 3,
+      "map": false
+    },
+    "SproutCaveLocationLoreFragment": {
+      "name": "Hilly-Den",
+      "memories": 3,
+      "map": false
+    },
+    "StroaicLocationLoreFragment": {
+      "name": "Stroaic",
+      "memories": 3,
+      "map": false
+    },
+    "TaughslaneLocationLoreFragment": {
+      "name": "Taughslane",
+      "memories": 3,
+      "map": false
+    },
+    "TowerCampLoreFragment": {
+      "name": "College of Pensives",
+      "memories": 5,
+      "map": false
+    },
+    "TurretJotarLocationLoreFragment": {
+      "name": "Turret Jotar",
+      "memories": 3,
+      "map": false
+    },
+    "UCCurlailNorthMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCHeedowayMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCHillyDenMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCKairnessMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCLowlandsMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCLuminnsRuinsMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCMinesMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCRoodHillsMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCRuinsMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCSinkholeMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCTurretJotarMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCWellMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCWevetMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UCWyndMapLoreFragment": {
+      "name": "Dermak Undercity",
+      "memories": 0,
+      "map": true
+    },
+    "UnderCityBastionLocationLoreFragment": {
+      "name": "Bastion",
+      "memories": 0,
+      "map": false
+    },
+    "UnderCityCliffCaveLocationLoreFragment": {
+      "name": "Fenn's Sanctuary",
+      "memories": 0,
+      "map": false
+    },
+    "UnderCityCliffTownLocationLoreFragment": {
+      "name": "Terpeth District",
+      "memories": 0,
+      "map": false
+    },
+    "UnderCityCryptLocationLoreFragment": {
+      "name": "Crypt of Auld Jotar",
+      "memories": 0,
+      "map": false
+    },
+    "UnderCityMillLocationLoreFragment": {
+      "name": "Pegroot Mill",
+      "memories": 0,
+      "map": false
+    },
+    "UnderCityNeighborhoodLocationLoreFragment": {
+      "name": "Dermak Market",
+      "memories": 0,
+      "map": false
+    },
+    "UnderCityPortCityLocationLoreFragment": {
+      "name": "Brackport",
+      "memories": 0,
+      "map": false
+    },
+    "UnderCityRefugeLocationLoreFragment": {
+      "name": "Forgotten Refuge",
+      "memories": 0,
+      "map": false
+    },
+    "VertonnlLocationLoreFragment": {
+      "name": "Vertonn",
+      "memories": 3,
+      "map": false
+    },
+    "VillageCampLoreFragment": {
+      "name": "Salzbrim",
+      "memories": 4,
+      "map": false
+    },
+    "WazzardAreaLocationLoreFragment": {
+      "name": "Galvinar Wastes",
+      "memories": 3,
+      "map": false
+    },
+    "WevetwoodLocationLoreFragment": {
+      "name": "Wevetwood",
+      "memories": 3,
+      "map": false
+    },
+    "WishingWellLocationLoreFragment": {
+      "name": "Oro's Well",
+      "memories": 3,
+      "map": false
+    },
+    "WyndounLocationLoreFragment": {
+      "name": "Wyndoun",
+      "memories": 3,
+      "map": false
+    }
+  }
+}

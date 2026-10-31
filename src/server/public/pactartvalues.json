@@ -1,0 +1,48 @@
+{
+  "Fencer/HealthPotionMaxStackUpgradeSkill": [
+    {
+      "n": 1,
+      "unit": "",
+      "sign": true,
+      "label": "Life Elixir capacity"
+    }
+  ],
+  "Fey/BirdTimeUpgradeSkill": [
+    {
+      "n": 25,
+      "unit": "%",
+      "sign": true,
+      "label": "time before you're revived at a Revive Shrine"
+    }
+  ],
+  "Fey/PreventDeathUpgradeSkill": [
+    {
+      "n": 10,
+      "unit": "%",
+      "sign": false,
+      "label": "chance to survive a killing blow"
+    },
+    {
+      "n": 50,
+      "unit": "",
+      "sign": false,
+      "label": "Health restored when it saves you"
+    }
+  ],
+  "Fey/PreventStabilityBreakUpgradeSkill": [
+    {
+      "n": 20,
+      "unit": "%",
+      "sign": false,
+      "label": "chance to resist being knocked down"
+    }
+  ],
+  "Fey/StabilityUpgradeSkill": [
+    {
+      "n": 10,
+      "unit": "",
+      "sign": true,
+      "label": "max Stability"
+    }
+  ]
+}

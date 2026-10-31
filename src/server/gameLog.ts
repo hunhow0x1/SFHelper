@@ -265,6 +265,60 @@ export function gameRefusedMessage(r: GameRefusals): string {
   return `Soulframe's servers are refusing your game's requests (since ${since}), so SFHelper is waiting.`;
 }
 
+// --- Mastery the game logs at login ----------------------------------------------
+
+/** The two parts of Mastery the game logs (see envoyRank.ts). */
+export interface LoggedMastery {
+  /** "Total calculated MissionProgressXP is N": discoveries, histories and the like. */
+  other: number;
+  /** "Player has N (item based) XP": weapon and Pact ranks; null if not logged yet. */
+  items: number | null;
+}
+
+const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
+const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
+
+let masteryCache: { key: string; value: LoggedMastery | null } | null = null;
+
+/** The latest Mastery figures in the game log, or null if it has none yet.
+ *  Cached until the log changes. */
+export async function loggedMastery(path?: string): Promise<LoggedMastery | null> {
+  const log = path ?? (await findLog());
+  if (!log) return null;
+  let key: string;
+  try {
+    const s = await stat(log);
+    key = `${log}:${s.size}:${s.mtimeMs}`;
+  } catch {
+    return null;
+  }
+  if (masteryCache?.key === key) return masteryCache.value;
+
+  let other: number | null = null;
+  let items: number | null = null;
+  const lines = createInterface({ input: createReadStream(log, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
+  try {
+    for await (const line of lines) {
+      if (!line.includes("XP")) continue;
+      const o = OTHER_XP_RE.exec(line);
+      if (o) {
+        other = Number(o[1]);
+        continue;
+      }
+      // Logged as 0 until the inventory has loaded.
+      const it = ITEM_XP_RE.exec(line);
+      if (it && Number(it[1]) > 0) items = Number(it[1]);
+    }
+  } catch {
+    return null;
+  } finally {
+    lines.close();
+  }
+  const value = other === null ? null : { other, items };
+  masteryCache = { key, value };
+  return value;
+}
+
 /** Every trade completed in the current game session, oldest first. */
 export async function logTrades(): Promise<LoggedTrade[]> {
   const path = await findLog();

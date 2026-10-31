@@ -31,15 +31,18 @@ describe("Joinery tiers", () => {
 
 describe("loadout Virtues", () => {
   it("splits 16 + Envoy Rank points by the preset's shares, rounded as the Arsenal does", () => {
-    // In-game, less Pact Arts, Talisman and Fable bonuses:
-    expect(virtuePoints(0.44313726, 0.10980392, 17)).toEqual({ Courage: 15, Spirit: 14, Grace: 4 }); // Duelo
-    expect(virtuePoints(0.16078432, 0.4627451, 17)).toEqual({ Courage: 12, Spirit: 5, Grace: 16 }); // Bromius
-    expect(virtuePoints(0.16862746, 0.66666669, 17)).toEqual({ Courage: 5, Spirit: 6, Grace: 22 }); // Sirin: exactly 22, not 23
+    // In-game, less Pact Arts, Talisman and Fable bonuses (eight loadouts):
+    expect(virtuePoints(0.25882354, 0.21960784, 17)).toEqual({ Courage: 18, Spirit: 8, Grace: 7 }); // Duelo: Courage takes 2
+    expect(virtuePoints(0.21568628, 0, 17)).toEqual({ Courage: 25, Spirit: 7, Grace: 1 }); // Bromius: no Grace share, still 1
+    expect(virtuePoints(0.7647059, 0.10196079, 17)).toEqual({ Courage: 5, Spirit: 24, Grace: 4 }); // Oscelda
     expect(virtuePoints(0.16862746, 0.16862746, 17)).toEqual({ Courage: 21, Spirit: 6, Grace: 6 }); // Tethren
-    // Edges stay whole and add up.
-    expect(virtuePoints(0, 1, 0)).toEqual({ Courage: 0, Spirit: 0, Grace: 16 });
-    expect(virtuePoints(1, 0, 0)).toEqual({ Courage: 0, Spirit: 16, Grace: 0 });
-    expect(virtuePoints(0, 0, 0)).toEqual({ Courage: 16, Spirit: 0, Grace: 0 });
+    expect(virtuePoints(0.44313726, 0.10980392, 17)).toEqual({ Courage: 15, Spirit: 14, Grace: 4 }); // Duelo, earlier
+    expect(virtuePoints(0.16078432, 0.4627451, 17)).toEqual({ Courage: 12, Spirit: 5, Grace: 16 }); // Bromius, earlier
+    expect(virtuePoints(0.16862746, 0.66666669, 17)).toEqual({ Courage: 5, Spirit: 6, Grace: 22 }); // Sirin: exactly 21 + 1
+    // Corners keep 1 in each other Virtue, and the total adds up.
+    expect(virtuePoints(0, 1, 0)).toEqual({ Courage: 1, Spirit: 1, Grace: 14 });
+    expect(virtuePoints(1, 0, 0)).toEqual({ Courage: 1, Spirit: 14, Grace: 1 });
+    expect(virtuePoints(0, 0, 0)).toEqual({ Courage: 14, Spirit: 1, Grace: 1 });
   });
 
   it("is null without a stored allocation", () => {
