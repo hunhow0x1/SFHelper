@@ -7,8 +7,13 @@
  *     ends, 30 minutes after the kill (SubBossEncounter.lua).
  *   - "UPGRADEGIVEN_GODANDGHOST": a Blessed Meeting's boon was taken; no other
  *     Ancestor or Omen Beast offers one for 24 hours (BoonGiver.lua).
- *  The game has no display names for the tags, so names come from them.
+ *  The game has no display names for the tags, so names come from them, and
+ *  an Agari timer takes the name of the Agari that spawned at its spot when the
+ *  game log has it ("Knell Knight").
  */
+
+import { loggedAgari } from "./gameLog";
+import { getAgentNamer } from "./enemies";
 
 export interface GameTimer {
   tag: string;
@@ -18,6 +23,8 @@ export interface GameTimer {
   name: string;
   /** What's back when it ends, for the notification. */
   ready: string;
+  /** An Agari timer's spawn spot, as the game names it ("StoneHengeA"). */
+  spot?: string;
   /** When it ends (ms epoch). */
   expiry: number;
 }
@@ -38,8 +45,8 @@ type Label = Omit<GameTimer, "tag" | "expiry">;
 const KNOWN: [RegExp, (m: RegExpExecArray) => Label][] = [
   [/^UPGRADEGIVEN_GODANDGHOST$/, () => ({ kind: "Once a day, after a boon", name: "Blessed Meeting", ready: "Blessed Meetings can happen again" })],
   [/^(.+)-SubBoss$/i, (m) => {
-    const spot = words(m[1]!);
-    return { kind: "Agari respawn", name: spot, ready: `The Agari at ${spot} can return` };
+    const place = words(m[1]!);
+    return { kind: "Agari respawn", name: place, ready: `The Agari at ${place} can return`, spot: m[1]! };
   }],
 ];
 
@@ -50,6 +57,29 @@ export function timerLabel(tag: string): Label {
   }
   const name = words(tag.replace(/-/g, " "));
   return { kind: null, name, ready: `${name} is over` };
+}
+
+/** Agari timers named after the Agari last spawned at their spot (spot ->
+ *  agent type, from the game log), where its name is known; the rest as they
+ *  are. Only sub-boss agent types count: some spots (a siege's officers) spawn
+ *  an ordinary enemy type whose in-game name as an Agari isn't in the data. */
+export function nameAgari(
+  timers: GameTimer[],
+  spawned: Record<string, string>,
+  agentName: (agent: string) => string | null,
+): GameTimer[] {
+  return timers.map((t) => {
+    const agent = t.spot ? spawned[t.spot] : undefined;
+    const name = agent && /sub ?boss/i.test(agent) ? agentName(agent) : null;
+    return name ? { ...t, name, ready: `${name} can return` } : t;
+  });
+}
+
+/** nameAgari with the current game log and the bundled enemy names. */
+export async function withAgariNames(timers: GameTimer[]): Promise<GameTimer[]> {
+  if (!timers.some((t) => t.spot)) return timers;
+  const [spawned, agentName] = await Promise.all([loggedAgari(), getAgentNamer()]);
+  return nameAgari(timers, spawned, agentName);
 }
 
 /** Every self-expiring timer in the inventory, soonest first. */

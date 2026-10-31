@@ -22,7 +22,7 @@ import { recordHistory, startServer, type RunningServer } from "../src/server/se
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
 import { getInventory } from "../src/server/inventory";
-import type { GameTimer } from "../src/server/timers";
+import { withAgariNames, type GameTimer } from "../src/server/timers";
 import { setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
@@ -149,7 +149,7 @@ async function importFromMemory(): Promise<void> {
       try {
         const inventory = await getInventory();
         await recordHistory(inventory);
-        scheduleTimerAlarms(inventory?.timers ?? []);
+        scheduleTimerAlarms(await withAgariNames(inventory?.timers ?? []));
       } catch (err) {
         log(`Recording pickups/trades failed: ${(err as Error).message}`);
       }

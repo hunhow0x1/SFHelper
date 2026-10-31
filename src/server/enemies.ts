@@ -79,13 +79,40 @@ export function enemyName(type: string, d: EnemyData): string {
   return byLeaf(leaf, d, 0) ?? cleaned(leaf);
 }
 
+/** The in-game name for an NPC agent type, as the game log names spawns
+ *  ("RangedHunterBowSubBossAgent"). Agents and avatars aren't named alike, so
+ *  it's the named avatar whose words are the most of the agent's
+ *  (RangedHunterSubBossAvatar: "Gruulseeker Ruthos"). A sub-boss agent only
+ *  takes a sub-boss avatar's name. Null if nothing fits. */
+export function agentName(agent: string, d: EnemyData): string | null {
+  const norm = (leaf: string) => wordsOf(leaf.replace(/Agent$/, "Avatar").replace(/subboss/i, "SubBoss")).map((w) => w.toLowerCase());
+  const words = new Set(norm(agent));
+  const subBoss = words.has("sub") && words.has("boss");
+  let best: { name: string; n: number } | null = null;
+  for (const leaf of Object.keys(d.parents)) {
+    if (!leaf.endsWith("Avatar")) continue;
+    const w = norm(leaf);
+    if (!w.length || !w.every((x) => words.has(x)) || (subBoss && !(w.includes("sub") && w.includes("boss")))) continue;
+    const name = viaParents(leaf, d);
+    if (name && (!best || w.length > best.n)) best = { name, n: w.length };
+  }
+  return best?.name ?? null;
+}
+
 let loaded: Promise<EnemyData> | null = null;
+const enemyData = (): Promise<EnemyData> =>
+  (loaded ??= readFile(DATA_PATH, "utf8")
+    .then((t) => JSON.parse(t) as EnemyData)
+    .catch(() => ({ names: {}, parents: {} })));
 
 /** Name lookup backed by the bundled data (a no-name fallback if it's missing). */
 export async function getEnemyNamer(): Promise<(type: string) => string> {
-  loaded ??= readFile(DATA_PATH, "utf8")
-    .then((t) => JSON.parse(t) as EnemyData)
-    .catch(() => ({ names: {}, parents: {} }));
-  const d = await loaded;
+  const d = await enemyData();
   return (type) => enemyName(type, d);
+}
+
+/** Agent-type name lookup (see agentName), backed by the bundled data. */
+export async function getAgentNamer(): Promise<(agent: string) => string | null> {
+  const d = await enemyData();
+  return (agent) => agentName(agent, d);
 }

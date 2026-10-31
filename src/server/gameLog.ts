@@ -265,6 +265,63 @@ export function gameRefusedMessage(r: GameRefusals): string {
   return `Soulframe's servers are refusing your game's requests (since ${since}), so SFHelper is waiting.`;
 }
 
+// --- Agari (sub-boss) spawns ---------------------------------------------------------
+
+// "SubBossEncounter.lua: [CombatEncounterHint0-StoneHengeA] Spawning sub-boss",
+// then within a line or two "OnAgentCreated /Npc/RangedHunterBowSubBossAgent52".
+const AGARI_SPAWN_RE = /SubBossEncounter\.lua: \[[^\]-]*-([^\]]+)\] Spawning sub-boss/;
+const AGENT_RE = /OnAgentCreated \/Npc\/(\w+?Agent)\d*\s/;
+/** How many lines after the spawn line its agent may appear. */
+const AGENT_WITHIN = 5;
+
+let agariCache: { key: string; value: Record<string, string> } | null = null;
+
+/** Agari spawn spot ("StoneHengeA", as in its "StoneHengeA-SubBoss" timer) ->
+ *  the agent type last spawned there ("RangedHunterBowSubBossAgent"), from the
+ *  current game session's log. Cached until the log changes. */
+export async function loggedAgari(path?: string): Promise<Record<string, string>> {
+  const log = path ?? (await findLog());
+  if (!log) return {};
+  let key: string;
+  try {
+    const s = await stat(log);
+    key = `${log}:${s.size}:${s.mtimeMs}`;
+  } catch {
+    return {};
+  }
+  if (agariCache?.key === key) return agariCache.value;
+
+  const spawned: Record<string, string> = {};
+  let spot: string | null = null;
+  let since = 0;
+  const lines = createInterface({ input: createReadStream(log, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
+  try {
+    for await (const line of lines) {
+      if (spot !== null) {
+        const a = line.includes("OnAgentCreated") ? AGENT_RE.exec(line) : null;
+        if (a) {
+          spawned[spot] = a[1]!;
+          spot = null;
+          continue;
+        }
+        if (++since > AGENT_WITHIN) spot = null;
+      }
+      if (!line.includes("Spawning sub-boss")) continue;
+      const m = AGARI_SPAWN_RE.exec(line);
+      if (m) {
+        spot = m[1]!;
+        since = 0;
+      }
+    }
+  } catch {
+    return {};
+  } finally {
+    lines.close();
+  }
+  agariCache = { key, value: spawned };
+  return spawned;
+}
+
 // --- Mastery the game logs at login ----------------------------------------------
 
 /** The two parts of Mastery the game logs (see envoyRank.ts). */

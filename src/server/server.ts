@@ -28,6 +28,7 @@ import { gameBeingRefused, gameRefusedMessage } from "./gameLog";
 import { getEnvoyRank } from "./envoyRank";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
 import { getDiscoveries } from "./discoveries";
+import { withAgariNames } from "./timers";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -326,7 +327,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         mastery: inventory?.mastery ?? null, // ItemType -> most XP ever reached (XPInfo), or null without an inventory
         // Envoy (Mastery) Rank: exact rank, the patch's max, and progress (part of it from the game log).
         envoyRank: PlayerLevel != null ? await getEnvoyRank(accountId, PlayerLevel, inventory?.mastery ?? null) : null,
-        timers: inventory?.timers ?? [], // [{ tag, kind, name, expiry }] the game's own timers (sub-boss respawns...)
+        timers: inventory ? await withAgariNames(inventory.timers) : [], // [{ tag, kind, name, ready, expiry }] the game's own timers (Agari respawns...)
         discoveries: inventory ? await getDiscoveries(inventory.loreScans) : null, // { places: [{ key, name, memories, found, discovered }], maps }
         temperProgress: inventory?.temperProgress ?? [], // Tuvalkane temper learning
         pickups, // [{ key, craftwork, tempers, xp, at, when, whenSource }] weapon pickup history
