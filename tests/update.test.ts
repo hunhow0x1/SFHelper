@@ -24,7 +24,6 @@ describe("update endpoints", () => {
 
     expect(await (await fetch(`${server.url}/api/update`)).json()).toMatchObject({ state: "ready", version: "0.2.1" });
     expect((await post({ action: "install" })).status).toBe(200);
-    // A form post from another site can't set a JSON content type.
     expect((await post({ action: "install" }, "text/plain")).status).toBe(415);
     expect((await post({ action: "uninstall" })).status).toBe(400);
     expect(actions).toEqual(["install"]);

@@ -1,11 +1,3 @@
-/** Programmatic entry point for the memory helper.
- *
- *  Same gated pipeline as the CLI - consent -> find process -> open read-only ->
- *  recover/verify account id -> find & verify nonce -> save inventory - but as a
- *  function returning a structured result, so both cli.ts and the Electron app
- *  can drive it. Paths are injected (the app points them at its userData dir).
- */
-
 import { join, dirname } from "node:path";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { requireConsent } from "./consent";
@@ -17,21 +9,14 @@ import { verifyNonce, saveInventory, EndpointRefusedError } from "./fetchInvento
 
 export interface ImportOptions {
   account?: string | undefined;
-  /** Where to write inventory.json. */
   out: string;
-  /** Where the account id is cached ({accountId}). */
   configPath: string;
-  /** Consent record path. */
   consentPath: string;
   onLog?: ((msg: string) => void) | undefined;
   onProgress?: ((label: string, pct: number) => void) | undefined;
-  /** The session from an earlier successful import. Its nonce is tried first,
-   *  so repeat imports skip the memory scan while the login session lasts. */
   session?: ImportSession | undefined;
 }
 
-/** What a successful import used. The nonce is a live session credential: the
- *  caller keeps this in memory only and never writes it to disk or the log. */
 export interface ImportSession {
   pid: number;
   accountId: string;
@@ -44,7 +29,6 @@ export interface ImportResult {
   message: string;
   accountId?: string;
   outPath?: string;
-  /** On success: pass back as `session` next time. */
   session?: ImportSession;
 }
 
@@ -62,7 +46,6 @@ async function readSavedAccountId(configPath: string): Promise<string | undefine
   }
 }
 
-/** Run the full import. Never throws for expected failures - returns a code. */
 export async function importInventory(opts: ImportOptions): Promise<ImportResult> {
   const log = (m: string) => opts.onLog?.(m);
   const progress = (label: string) => {
@@ -94,9 +77,6 @@ export async function importInventory(opts: ImportOptions): Promise<ImportResult
   let account = opts.account ?? (await readSavedAccountId(opts.configPath));
   if (account) log(`Using account id ${account}.`);
 
-  // Same game process, same account: try the nonce that worked last time. It
-  // holds for the whole login session, so this skips re-reading gigabytes of
-  // memory; only a rejection (re-login) falls through to a fresh scan.
   const prev = opts.session;
   if (account && prev && prev.accountId === account && procs.some((p) => p.pid === prev.pid)) {
     log("Reusing this session's nonce (no memory scan).");
@@ -195,7 +175,6 @@ export async function importInventory(opts: ImportOptions): Promise<ImportResult
   }
 }
 
-/** Default per-user paths (used by the CLI; the app overrides these). */
 export function defaultPaths(homeDir: string) {
   const dir = join(homeDir, ".config", "sfhelper");
   return {

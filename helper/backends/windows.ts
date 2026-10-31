@@ -1,42 +1,20 @@
-/** Windows read-only memory backend via kernel32 (koffi FFI).
- *
- *  The process is opened with PROCESS_VM_READ | PROCESS_QUERY_INFORMATION only -
- *  NOT PROCESS_VM_WRITE or PROCESS_VM_OPERATION - so this handle is physically
- *  incapable of writing to the target. Reads go through ReadProcessMemory; region
- *  enumeration through VirtualQueryEx. No write API is imported anywhere here.
- *
- *  koffi ships prebuilt binaries (no node-gyp), so this needs no build toolchain
- *  on the user's machine. x64 only (Soulframe is a 64-bit title).
- *
- *  NOTE: written to the Win32 spec; validate on a Windows host.
- */
-
 import { createRequire } from "node:module";
 import type { MemBackend, MemoryRegion } from "./types";
 
-// koffi is a CommonJS native module; load it through createRequire so this works
-// whether the app runs as ESM or is bundled. Only ever reached on Windows.
 const nodeRequire = createRequire(import.meta.url);
 
-// Access rights (winnt.h)
 const PROCESS_QUERY_INFORMATION = 0x0400;
 const PROCESS_VM_READ = 0x0010;
-// Memory state / protection (winnt.h)
 const MEM_COMMIT = 0x1000;
 const MEM_PRIVATE = 0x20000;
 const PAGE_GUARD = 0x100;
 const PAGE_NOACCESS = 0x01;
-// Uncached / write-combined pages are device (GPU) memory: reading them is
-// extremely slow and they never hold the session strings we look for.
 const PAGE_NOCACHE = 0x200;
 const PAGE_WRITECOMBINE = 0x400;
-// Protections that permit reading (any of these, unless guarded/noaccess).
-const READABLE = new Set([0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]); // R, RW, WC, XR, XRW, X? see below
-const WRITABLE = new Set([0x04, 0x08, 0x40, 0x80]); // RW, WC, EX_RW, EX_WC
-// PAGE_READONLY=0x02 PAGE_READWRITE=0x04 PAGE_WRITECOPY=0x08
-// PAGE_EXECUTE=0x10 PAGE_EXECUTE_READ=0x20 PAGE_EXECUTE_READWRITE=0x40 PAGE_EXECUTE_WRITECOPY=0x80
+const READABLE = new Set([0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]);
+const WRITABLE = new Set([0x04, 0x08, 0x40, 0x80]);
 
-const MAX_USER_ADDR = 0x7fffffff0000; // top of x64 user address space
+const MAX_USER_ADDR = 0x7fffffff0000;
 
 interface K32 {
   OpenProcess: (access: number, inherit: boolean, pid: number) => unknown;
@@ -50,7 +28,6 @@ let cached: K32 | null = null;
 
 function loadKernel32(): K32 {
   if (cached) return cached;
-  // Lazy require so non-Windows platforms never load koffi.
   const koffi = nodeRequire("koffi") as typeof import("koffi");
   const k32 = koffi.load("kernel32.dll");
   const MBI = koffi.struct("MEMORY_BASIC_INFORMATION", {
@@ -92,8 +69,6 @@ class WindowsBackend implements MemBackend {
     const read = [0];
     const ok = this.k32.ReadProcessMemory(this.handle, address, buf, length, read);
     const n = Number(read[0] ?? 0);
-    // A read that crosses into an inaccessible page fails with
-    // ERROR_PARTIAL_COPY but may still report the bytes it did copy.
     if (!ok && n === 0) throw new Error(`ReadProcessMemory failed at 0x${address.toString(16)}`);
     return n > 0 && n < length ? buf.subarray(0, n) : buf;
   }
@@ -123,12 +98,7 @@ function enumerateRegions(k32: K32, handle: unknown): MemoryRegion[] {
       regions.push({
         start: base,
         end: base + size,
-        // Synthesize a Linux-style perm string so shared scan filters work.
         perms: `r${w ? "w" : "-"}-${priv ? "p" : "s"}`,
-        // Only private memory (the heaps) counts as "anonymous" for the scan
-        // filter. Mapped/image memory gets a non-bracketed tag so it's skipped
-        // like a Linux file mapping (a "[...]" tag would read as [heap]/[stack]
-        // and pull in gigabytes of shared GPU/driver mappings).
         path: priv ? null : "mapped",
       });
     }

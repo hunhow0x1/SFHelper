@@ -1,27 +1,9 @@
-/** Fetch the public profile endpoint.
- *
- *  Confirmed: GET api.soulframe.com/cdn/getProfileViewingData.php?playerId=<oid>
- *  returns the player's public profile as JSON with no login, no token - the
- *  same data the in-game profile viewer shows. The ?n=<displayName> form that
- *  Warframe supports returns empty here, so this provider keys on the account
- *  id (a 24-hex Mongo ObjectId) alone.
- *
- *  Nothing on disk hands a player their own id, so the caller supplies it once
- *  (see docs/account-data.md). It is a public identifier - other players' ids
- *  appear in EE.log - but we still hash it before it lands in a snapshot.
- *
- *  Etiquette is enforced here, not left to callers: one request at a time, a
- *  floor on spacing, an identifying User-Agent, and a hard stop on 403/429
- *  rather than a retry loop - DE has firewalled people for hammering these hosts.
- */
-
 import type { AccountDataProvider, Availability, CaptureContext, ProviderMeta } from "../provider";
 import { type AccountSnapshot } from "../snapshot";
 import { snapshotFromProfile, type ProfileSnapshot } from "./profilePayload";
 
 const PROVIDER_ID = "public-web";
 const DEFAULT_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId={accountId}";
-/** A 24-hex Mongo ObjectId. Reject anything else before it reaches the wire. */
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
 
 export interface EndpointConfig {
@@ -117,7 +99,6 @@ export function createPublicWebProvider(deps: PublicWebDeps): AccountDataProvide
       if (!response.ok) throw new Error(`Profile lookup failed (${response.status})`);
 
       const text = await response.text();
-      // An unknown id answers 200 with an empty body.
       if (text.trim() === "") throw new Error(`No profile for account id ${accountId}`);
       return snapshotFromProfile(JSON.parse(text) as unknown, new Date().toISOString());
     },

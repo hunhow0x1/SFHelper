@@ -1,15 +1,3 @@
-// Scrape per-faction, per-rank standing caps from wiki.avakot.org.
-//
-//   node scripts/build_faction_ranks.mjs [names.json] [faction-ranks.json]
-//
-// Each faction's wiki page has a "== Ranks ==" table with a "Favour Cap" column:
-// the standing earned WITHIN that rank to advance to the next (and the holding
-// cap at max rank). The dashboard turns these into cumulative thresholds so a
-// faction's bar fills toward its current rank's cap.
-//
-// Output: { "<Tag>": [cap0, cap1, ...], "default": [...] }. Page titles come
-// from names.json's factions map (tag -> in-game name = wiki page title).
-
 import { readFile, writeFile } from "node:fs/promises";
 
 const [namesPath = "src/server/public/names.json", outPath = "src/server/public/faction-ranks.json"] =
@@ -25,7 +13,6 @@ async function wikitext(page) {
   return data?.parse?.wikitext?.["*"] ?? "";
 }
 
-// Rows look like: | 0 || Neutral || <rewards> || [[File:FactionStanding.png|...]] '''5,000'''
 function extractCaps(text) {
   const caps = [];
   const re = /^\|\s*(\d)\s*\|\|.*?FactionStanding\.png[^\]]*\]\]\s*'*([\d,]+)/gm;
@@ -47,7 +34,6 @@ for (const [tag, page] of Object.entries(factions)) {
     console.error(`${tag} (${page}): no rank table found`);
   }
 }
-// A fallback curve for factions whose page has no table (e.g. Ode).
 out.default = out.SilentRoseSyndicate ?? [5000, 5000, 20000, 20000, 30000, 30000];
 
 await writeFile(outPath, JSON.stringify(out, null, 2));

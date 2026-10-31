@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { decodeJoinery, fableVirtues, parseBuilds, virtuePoints } from "../src/server/loadouts";
 import { parseArmour, parseTalismans } from "../scripts/build_data";
-// @ts-expect-error - plain JS build script, no type declarations
+// @ts-expect-error
 import { matchArmourStem } from "../scripts/armour_names.mjs";
 
 const K = "/SF/Types/Items/Kintsugi/Weapons/";
@@ -15,7 +15,7 @@ describe("Joinery tiers", () => {
     expect(d("KintsugiUpgradeMeleeC")).toEqual(["Verite", "Blessed", "Courage", 1]);
     expect(d("KintsugiUpgradeDefenseUC")).toEqual(["Gildaur", "Blessed", "Spirit", 1]);
     expect(d("KintsugiUpgradeMeleeR")).toEqual(["Verite", "Blessed", "Grace", 1]);
-    expect(d("KintsugiUpgradeMeleeSRG")).toEqual(["Verite", "Twice Blessed", "Grace", 2]); // Verite tops out at Twice
+    expect(d("KintsugiUpgradeMeleeSRG")).toEqual(["Verite", "Twice Blessed", "Grace", 2]);
     expect(d("KintsugiUpgradeRangedSRCTwo")).toEqual(["Quicksilver", "Twice Blessed", "Courage", 2]);
     expect(d("KintsugiUpgradeRangedSRC")).toEqual(["Quicksilver", "Thrice Blessed", "Courage", 3]);
     expect(d("KintsugiWeaponUpgradeCasterFeySRS")).toEqual(["Feybalt", "Thrice Blessed", "Spirit", 3]);
@@ -31,15 +31,13 @@ describe("Joinery tiers", () => {
 
 describe("loadout Virtues", () => {
   it("splits 16 + Envoy Rank points by the preset's shares, rounded as the Arsenal does", () => {
-    // In-game, less Pact Arts, Talisman and Fable bonuses (eight loadouts):
-    expect(virtuePoints(0.25882354, 0.21960784, 17)).toEqual({ Courage: 18, Spirit: 8, Grace: 7 }); // Duelo: Courage takes 2
-    expect(virtuePoints(0.21568628, 0, 17)).toEqual({ Courage: 25, Spirit: 7, Grace: 1 }); // Bromius: no Grace share, still 1
-    expect(virtuePoints(0.7647059, 0.10196079, 17)).toEqual({ Courage: 5, Spirit: 24, Grace: 4 }); // Oscelda
-    expect(virtuePoints(0.16862746, 0.16862746, 17)).toEqual({ Courage: 21, Spirit: 6, Grace: 6 }); // Tethren
-    expect(virtuePoints(0.44313726, 0.10980392, 17)).toEqual({ Courage: 15, Spirit: 14, Grace: 4 }); // Duelo, earlier
-    expect(virtuePoints(0.16078432, 0.4627451, 17)).toEqual({ Courage: 12, Spirit: 5, Grace: 16 }); // Bromius, earlier
-    expect(virtuePoints(0.16862746, 0.66666669, 17)).toEqual({ Courage: 5, Spirit: 6, Grace: 22 }); // Sirin: exactly 21 + 1
-    // Corners keep 1 in each other Virtue, and the total adds up.
+    expect(virtuePoints(0.25882354, 0.21960784, 17)).toEqual({ Courage: 18, Spirit: 8, Grace: 7 });
+    expect(virtuePoints(0.21568628, 0, 17)).toEqual({ Courage: 25, Spirit: 7, Grace: 1 });
+    expect(virtuePoints(0.7647059, 0.10196079, 17)).toEqual({ Courage: 5, Spirit: 24, Grace: 4 });
+    expect(virtuePoints(0.16862746, 0.16862746, 17)).toEqual({ Courage: 21, Spirit: 6, Grace: 6 });
+    expect(virtuePoints(0.44313726, 0.10980392, 17)).toEqual({ Courage: 15, Spirit: 14, Grace: 4 });
+    expect(virtuePoints(0.16078432, 0.4627451, 17)).toEqual({ Courage: 12, Spirit: 5, Grace: 16 });
+    expect(virtuePoints(0.16862746, 0.66666669, 17)).toEqual({ Courage: 5, Spirit: 6, Grace: 22 });
     expect(virtuePoints(0, 1, 0)).toEqual({ Courage: 1, Spirit: 1, Grace: 14 });
     expect(virtuePoints(1, 0, 0)).toEqual({ Courage: 1, Spirit: 14, Grace: 1 });
     expect(virtuePoints(0, 0, 0)).toEqual({ Courage: 14, Spirit: 1, Grace: 1 });
@@ -75,7 +73,6 @@ describe("loadout armour", () => {
       Suits: [{
         ItemType: "/SF/Souls/Fencer/FencerSoul",
         ItemId: oid(10),
-        // Config 1 is this loadout's appearance (cus); a default piece is stored by path.
         Configs: [{ Skins: [] }, { Skins: [id(1), "", id(2), "/SF/Upgrades/Skins/Legs/StarterLegs", "/SF/Upgrades/Skins/Hair/FemaleShortHairA", id(3)] }],
       }],
       LoadOutPresets: { NORMAL: [{ n: "Duelo", s: { ItemId: oid(10), mod: 0, cus: 1 } }] },
@@ -107,7 +104,6 @@ describe("loadout armour", () => {
     expect(matchArmourStem("TuvalkaneBody", "Body", stems)).toBe("TuvalkanetBody");
     expect(matchArmourStem("ThawtideHelmet", "Helmets", stems)).toBe("ThawTideSinecureHelmet");
     expect(matchArmourStem("BromiusClosedHelmet", "Helmets", stems)).toBe("BromiusHelmet");
-    // Internal types with no player-facing name stay unmatched.
     expect(matchArmourStem("BaseHelmetVisionNoHair", "Helmets", stems)).toBeNull();
     expect(matchArmourStem("GrandfatherBody", "Body", stems)).toBeNull();
   });

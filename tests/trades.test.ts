@@ -10,7 +10,6 @@ const ONYX = "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource";
 const TALISMAN = "/SF/Upgrades/Skins/Totem/CardinalTotem";
 const oid = (n: number) => ({ $oid: n.toString(16).padStart(24, "0") });
 
-/** A minimal inventory: `weapons` instance ids, plus Onyx, Dracs and the counter. */
 function inventory(o: { weapons: number[]; onyx: number; dracs: number; trades: number; rank?: number; extra?: object[] }) {
   return {
     Melee: o.weapons.map((n) => ({ ItemType: SWORD, ItemId: oid(n), Quality: "IQ_WORN", AspectFingerprint: { buffs: [{ Tag: "AerialAttackDamageAMod" }] } })),
@@ -38,7 +37,6 @@ describe("trade detection", () => {
     const h = (trades: number) => parseHoldings(inventory({ weapons: [], onyx: 0, dracs: 0, trades }));
     expect(tradesBetween(h(18), "2026-10-24T10:00:00Z", h(17), "2026-10-24T10:02:00Z")).toBe(1);
     expect(tradesBetween(h(17), "2026-10-24T10:00:00Z", h(17), "2026-10-24T10:02:00Z")).toBe(0);
-    // 15 left before midnight, a full 18 after it, then one trade: 17.
     expect(tradesBetween(h(15), "2026-10-24T23:59:00Z", h(17), "2026-10-25T00:01:00Z")).toBe(1);
     expect(tradesBetween(h(15), "2026-10-24T23:59:00Z", h(18), "2026-10-25T00:01:00Z")).toBe(0);
   });
@@ -74,9 +72,7 @@ describe("trade detection", () => {
     expect(history[0]!.deals).toEqual([
       { when: "2026-10-24T18:36:22.326Z", partner: "NordicGhost", offered: ["Fire Fungus"], received: ["Wreath"] },
     ]);
-    // Before SFHelper saw the inventory: kept from the log alone.
     expect(history[1]).toMatchObject({ at: "2026-10-24T18:20:00.000Z", logOnly: true, deals: [{ partner: "Early" }] });
-    // After the latest import ("Later") waits for the next import; nothing is added twice.
     expect(attachDeals(history, log, entry.at)).toEqual(history);
   });
 
@@ -109,7 +105,6 @@ describe("trade history", () => {
     const view = await recordTrades(parseHoldings(after), t1, noLog);
     expect(view.history).toHaveLength(1);
     expect(view).toMatchObject({ remaining: 17, max: 18 });
-    // The same import again (the page polls) adds nothing.
     expect((await recordTrades(parseHoldings(after), t1, noLog)).history).toHaveLength(1);
 
     const ctx = { blueprints: {}, pending: [], vendorPurchases: 0, favour: {} };

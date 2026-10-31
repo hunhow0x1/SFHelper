@@ -1,17 +1,3 @@
-/** SFHelper desktop shell (Electron main process).
- *
- *  Flow on launch:
- *    1. First run only: show the consent popup. Reading the game's memory is how
- *       every Soulframe companion obtains the session data; it is safe ONLY while
- *       it stays read-only, which this app guarantees. Nothing scans until the
- *       user agrees; declining quits.
- *    2. After consent: start the local dashboard server, open the window, and in
- *       the background (a) refresh the wiki-sourced totem/rune effect data, and
- *       (b) run the read-only memory helper to import the live inventory.
- *
- *  All per-user state lives under Electron's userData dir (SFHELPER_HOME).
- */
-
 import { app, BrowserWindow, ipcMain, Notification, screen, shell } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -22,7 +8,7 @@ import { recordHistory, startServer, type RunningServer } from "../src/server/se
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
 import { getInventory } from "../src/server/inventory";
-import { withAgariNames, type GameTimer } from "../src/server/timers";
+import { TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
 import { setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
@@ -33,7 +19,6 @@ import { gameBeingRefused, gameRefusedMessage } from "../src/server/gameLog";
 import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts, buildTalismans, buildArmour, buildMasteryRank } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-// Window and notification icon (the installers embed build/icon.*).
 const ICON_PATH = join(HERE, "public", "img", "icon-256.png");
 
 const USER_DATA = app.getPath("userData");
@@ -41,8 +26,6 @@ const CONSENT_PATH = join(USER_DATA, "consent.json");
 const CONFIG_PATH = join(USER_DATA, "config.json");
 const INVENTORY_PATH = join(USER_DATA, "inventory.json");
 const DATA_DIR = join(USER_DATA, "data");
-// Session log, so a tester can send it when something goes wrong
-// (Windows: %APPDATA%\SFHelper\sfhelper.log). Started fresh each launch.
 const LOG_PATH = join(USER_DATA, "sfhelper.log");
 const PREV_LOG_PATH = join(USER_DATA, "sfhelper.prev.log");
 
@@ -52,8 +35,6 @@ let mainWindow: BrowserWindow | null = null;
 let logReady: Promise<void> | null = null;
 function log(msg: string): void {
   console.log(`[sfhelper] ${msg}`);
-  // Each start begins a new log; the previous session's is kept beside it, so
-  // what happened before a restart (say, DE refusing requests) isn't lost.
   logReady ??= mkdir(USER_DATA, { recursive: true })
     .then(() => rename(LOG_PATH, PREV_LOG_PATH).catch(() => {}))
     .then(() => writeFile(LOG_PATH, `SFHelper ${app.getVersion()} on ${process.platform} ${process.arch}\n`))
@@ -61,7 +42,6 @@ function log(msg: string): void {
   logReady = logReady.then(() => appendFile(LOG_PATH, `${new Date().toISOString()} ${msg}\n`)).catch(() => {});
 }
 
-/** Refresh totem/rune effect data from the wiki into the writable data dir. */
 async function refreshData(): Promise<void> {
   try {
     await mkdir(DATA_DIR, { recursive: true });
@@ -75,7 +55,6 @@ async function refreshData(): Promise<void> {
       buildPactArts(join(DATA_DIR, "pactarts.json")),
       buildTotemData(join(DATA_DIR, "totemdata.json")),
       buildTalismans(join(DATA_DIR, "talismans.json")),
-      // Optional: a wording change on the wiki shouldn't fail the whole refresh.
       buildArmour(join(DATA_DIR, "armour.json")).catch(() => ({ ok: 0 })),
       buildMasteryRank(join(DATA_DIR, "masteryrank.json")).catch(() => ({ ok: 0 })),
     ]);
@@ -85,28 +64,17 @@ async function refreshData(): Promise<void> {
   }
 }
 
-/** Run the read-only memory helper to import the live inventory. The dashboard
- *  polls the server on its own, and the server re-reads inventory.json when it
- *  changes, so there's no need to reload the window (which would reset UI state).
- *  We re-import periodically so pickups and progress stay near-current. */
 let importing = false;
-/** The last import's game session (pid, account, nonce), so the next import can
- *  reuse its nonce instead of re-scanning memory. In memory only - never saved. */
 let session: ImportSession | undefined;
-/** When an import last succeeded (ms epoch). */
 let lastImportOk = 0;
-/** Whether the game was being refused at the last check (to log changes once). */
 let gameWasRefused = false;
 async function importFromMemory(): Promise<void> {
-  if (importing) return; // don't overlap scans
-  // DE refused us recently: don't scan or send anything until the pause ends.
+  if (importing) return;
   const paused = apiPausedUntil();
   if (paused) {
     setImportStatus({ state: "error", code: 8, message: pausedMessage(paused) });
     return;
   }
-  // DE is refusing the game's own requests: ours would be refused too, and
-  // would only prolong the block. Wait until the game gets through again.
   const refused = await gameBeingRefused();
   if (refused) {
     const message = gameRefusedMessage(refused);
@@ -135,21 +103,15 @@ async function importFromMemory(): Promise<void> {
       noteApiAccepted();
       lastImportOk = Date.now();
     }
-    // Keep the session through a refusal (8): the nonce may still work once
-    // DE lets requests through again. Any other failure means it's gone stale.
     if (result.ok) session = result.session;
     else if (result.code !== 8) session = undefined;
-    // 8 = DE refused (403/429): pause every request to DE, profile included.
     const message = result.code === 8 ? pausedMessage(noteApiRefused()) : result.message;
     log(result.ok ? result.message : `Inventory import skipped (${result.code}): ${result.message}`);
-    // Record new pickups and trades now rather than at the page's next refresh
-    // (which a minimized window may delay), before reporting the import done,
-    // and set alarms for the game's timers.
     if (result.ok) {
       try {
         const inventory = await getInventory();
         await recordHistory(inventory);
-        scheduleTimerAlarms(await withAgariNames(inventory?.timers ?? []));
+        timerAlarms.set(await withAgariNames(inventory?.timers ?? []));
       } catch (err) {
         log(`Recording pickups/trades failed: ${(err as Error).message}`);
       }
@@ -161,7 +123,6 @@ async function importFromMemory(): Promise<void> {
     );
     if (result.ok) void refreshAvakot();
   } catch (err) {
-    // Unexpected failure (e.g. the native memory module failed to load).
     log(`Inventory import failed: ${(err as Error).stack ?? String(err)}`);
     setImportStatus({ state: "error", message: `Import failed: ${(err as Error).message}` });
   } finally {
@@ -169,10 +130,8 @@ async function importFromMemory(): Promise<void> {
   }
 }
 
-const REIMPORT_INTERVAL_MS = 120_000; // re-scan for new pickups / progress every 2 min
+const REIMPORT_INTERVAL_MS = 120_000;
 
-/** Avakot's shop stock, asked for with the import's session once the last copy
- *  has run out (see src/server/avakot.ts), then notify about starred items. */
 let avakotBusy = false;
 async function refreshAvakot(): Promise<void> {
   const s = session;
@@ -197,10 +156,6 @@ async function refreshAvakot(): Promise<void> {
   await scheduleAvakot();
 }
 
-/** Ask for Avakot's next stock when it changes, rather than at the next import
- *  pass (up to 2 minutes later). Still one request per change, and only with
- *  the session of an import that succeeded in the last pass, so the game is
- *  running and DE is answering; otherwise the next import pass asks instead. */
 let avakotTimer: ReturnType<typeof setTimeout> | undefined;
 async function scheduleAvakot(): Promise<void> {
   clearTimeout(avakotTimer);
@@ -212,7 +167,6 @@ async function scheduleAvakot(): Promise<void> {
   }, wait);
 }
 
-/** Names for Avakot's items, from the bundled pool (public/avakot.json). */
 let avakotNames: Map<string, string> | null = null;
 async function avakotItemName(storeItem: string): Promise<string> {
   if (!avakotNames) {
@@ -226,7 +180,6 @@ async function avakotItemName(storeItem: string): Promise<string> {
   return avakotNames.get(storeItem) ?? (await displayName(storeItem.replace("/SF/StoreItems/", "/SF/")));
 }
 
-/** Bring SFHelper forward on one of its tabs (a notification was clicked). */
 function showTab(tab: string): void {
   if (!mainWindow) return;
   if (mainWindow.isMinimized()) mainWindow.restore();
@@ -235,8 +188,6 @@ function showTab(tab: string): void {
   void mainWindow.webContents.executeJavaScript(`typeof activateTab === "function" && activateTab(${JSON.stringify(tab)})`);
 }
 
-/** Desktop notification for starred items Avakot has just stocked. Clicking it
- *  opens the Avakot tab. Off when the toggle on that tab is off. */
 async function notifyAvakot(offers: AvakotOffer[]): Promise<void> {
   if (!Notification.isSupported()) return;
   const names = await Promise.all(offers.map((o) => avakotItemName(o.storeItem)));
@@ -255,36 +206,20 @@ async function notifyAvakot(offers: AvakotOffer[]): Promise<void> {
   log(`Avakot notification: ${names.join(", ")}.`);
 }
 
-/** One alarm per running game timer (tag@expiry), set from each import. A
- *  timer that's gone or changed loses its alarm; one that ends while SFHelper
- *  is open raises a notification, even if the game has closed by then. */
-const timerAlarms = new Map<string, ReturnType<typeof setTimeout>>();
-/** setTimeout's limit; a longer wait is set by a later import instead. */
-const MAX_ALARM_MS = 2 ** 31 - 1;
-function scheduleTimerAlarms(timers: GameTimer[]): void {
-  const now = Date.now();
-  const keep = new Set<string>();
-  for (const t of timers) {
-    const key = `${t.tag}@${t.expiry}`;
-    if (t.expiry <= now || t.expiry - now > MAX_ALARM_MS) continue;
-    keep.add(key);
-    if (timerAlarms.has(key)) continue;
-    timerAlarms.set(key, setTimeout(() => {
-      timerAlarms.delete(key);
-      void notifyTimer(t);
-    }, t.expiry - now));
-  }
-  for (const [key, alarm] of timerAlarms) {
-    if (keep.has(key)) continue;
-    clearTimeout(alarm);
-    timerAlarms.delete(key);
+const timerAlarms = new TimerAlarms();
+const TIMER_CHECK_MS = 10_000;
+async function armSavedTimers(): Promise<void> {
+  try {
+    timerAlarms.set(await withAgariNames((await getInventory())?.timers ?? []));
+  } catch (err) {
+    log(`Setting cooldown alarms failed: ${(err as Error).message}`);
   }
 }
 
-/** Desktop notification for a game timer that just ran out. Clicking it opens
- *  the Overview, where the Cooldowns list is. Off when its toggle is off. */
 async function notifyTimer(t: GameTimer): Promise<void> {
-  if (!Notification.isSupported() || !(await getSettings()).timerNotify) return;
+  if (!Notification.isSupported()) return;
+  const settings = await getSettings();
+  if (!settings.timerNotify || !settings.timerWatch.includes(t.tag)) return;
   const n = new Notification({
     title: t.ready,
     body: t.kind ? `${t.name} · ${t.kind}` : "A cooldown in Soulframe has ended.",
@@ -296,8 +231,6 @@ async function notifyTimer(t: GameTimer): Promise<void> {
   log(`Cooldown notification: ${t.tag}.`);
 }
 
-/** In-game display name for an ItemType, from the bundled names.json (keyed by
- *  full path or leaf); falls back to a cleaned-up leaf. */
 let itemNames: Record<string, string> | null = null;
 async function displayName(itemType: string): Promise<string> {
   if (!itemNames) {
@@ -317,9 +250,6 @@ const CRAFTWORK_NAME: Record<string, string> = {
   IQ_NOBLE: "Noble", IQ_MASTERWORK: "Sovereign", IQ_LEGENDARY: "Legendary",
 };
 
-/** Desktop notification (with the system sound) for a new Moonsteel weapon.
- *  Clicking it brings SFHelper forward on the Pickups tab. Off when the user
- *  has turned the toggle on the Pickups tab off. */
 async function notifyMoonsteel(p: Pickup): Promise<void> {
   if (!Notification.isSupported()) return;
   if (!(await getSettings()).moonsteelNotify) return;
@@ -338,7 +268,6 @@ async function notifyMoonsteel(p: Pickup): Promise<void> {
 }
 
 function createMainWindow(url: string): void {
-  // Wide enough for the dashboard's multi-column layout, within the screen.
   const area = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new BrowserWindow({
     width: Math.min(1560, area.width),
@@ -349,7 +278,6 @@ function createMainWindow(url: string): void {
     webPreferences: { contextIsolation: true },
   });
   void mainWindow.loadURL(url);
-  // Links out of the dashboard (the GitHub releases page) open in the browser.
   mainWindow.webContents.setWindowOpenHandler(({ url: target }) => {
     if (target.startsWith("https://github.com/hunhow0x1/SFHelper")) void shell.openExternal(target);
     return { action: "deny" };
@@ -363,18 +291,19 @@ async function proceed(): Promise<void> {
   process.env.SFHELPER_INVENTORY = INVENTORY_PATH;
 
   onMoonsteelAcquired((p) => void notifyMoonsteel(p));
-  server = await startServer(0); // 0 = an OS-assigned free port
+  server = await startServer(0);
   createMainWindow(server.url);
 
-  // Background work: refresh effect data on launch, then import the inventory,
-  // then keep re-importing so pickups/leveling stay near-current while playing.
   void refreshData();
   startUpdater(log);
+  void armSavedTimers();
+  setInterval(() => {
+    for (const t of timerAlarms.due()) void notifyTimer(t);
+  }, TIMER_CHECK_MS);
   void importFromMemory();
   setInterval(() => void importFromMemory(), REIMPORT_INTERVAL_MS);
 }
 
-/** The consent popup. Resolves true if the user agrees, false if they decline. */
 function askConsent(): Promise<boolean> {
   return new Promise((resolve) => {
     const win = new BrowserWindow({
@@ -401,7 +330,7 @@ function askConsent(): Promise<boolean> {
       resolve(false);
     });
     win.on("closed", () => {
-      if (!decided) resolve(false); // window closed without choosing = decline
+      if (!decided) resolve(false);
     });
   });
 }
@@ -418,8 +347,6 @@ app.on("window-all-closed", () => {
 });
 
 async function boot(): Promise<void> {
-  // Windows only shows toasts for apps with an App User Model ID (matches the
-  // installer's appId).
   if (process.platform === "win32") app.setAppUserModelId("com.hunhow0x1.sfhelper");
   await app.whenReady();
   log(`Starting (data folder: ${USER_DATA})`);

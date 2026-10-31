@@ -1,13 +1,3 @@
-// Diagnostic: tail Soulframe's EE.log and print lines that look like item/weapon
-// events, so we can learn the exact format the game logs a weapon PICKUP in
-// (and whether it logs Moonsteel / tempers). Run this, then pick up a weapon
-// in-game (ideally a Moonsteel one) and share the lines it prints.
-//
-//   npm run watch-log            # auto-find EE.log
-//   SFHELPER_EELOG=/path/EE.log npm run watch-log
-//
-// This is READ-ONLY: it only reads the log file.
-
 import { watch, statSync, openSync, readSync, closeSync, existsSync } from "node:fs";
 import { readdirSync } from "node:fs";
 import { homedir } from "node:os";
@@ -22,7 +12,6 @@ function autoFind() {
       if (existsSync(p)) return p;
     }
   } catch {}
-  // Native Windows location
   if (process.env.LOCALAPPDATA) {
     const p = join(process.env.LOCALAPPDATA, "Soulframe", "EE.log");
     if (existsSync(p)) return p;
@@ -37,18 +26,16 @@ if (!path) {
 }
 console.error(`Watching ${path}\nPick up a weapon in-game; matching lines print below.\n`);
 
-// Lines worth surfacing while hunting for the pickup format.
 const RE = /weapon|pick.?up|loot|acquir|granted|reward|inventory|temper|moonsteel|OnItem|added|drop|Foundry|craft|dismantl/i;
-// Skip the constant "Could not find object" Warframe load errors.
 const SKIP = /Could not find object|Spot-loading|Cached header|Used shared/i;
 
-let pos = statSync(path).size; // start at end; only show NEW lines
+let pos = statSync(path).size;
 let carry = "";
 
 function drain() {
   let size;
   try { size = statSync(path).size; } catch { return; }
-  if (size < pos) pos = 0; // file rotated/truncated
+  if (size < pos) pos = 0;
   if (size === pos) return;
   const fd = openSync(path, "r");
   const buf = Buffer.alloc(size - pos);
@@ -64,4 +51,4 @@ function drain() {
 }
 
 watch(path, { persistent: true }, drain);
-setInterval(drain, 1000); // fallback poll (some FS don't fire watch events)
+setInterval(drain, 1000);

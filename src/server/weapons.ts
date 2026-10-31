@@ -1,35 +1,16 @@
-/** Owned weapons with their affinity (XP), parsed from a raw inventory dump.
- *
- *  The profile/inventory stores per-item XP (affinity), not a rank. Items level
- *  0-30, and the cumulative affinity to reach rank r is C * r^2, with affinity
- *  accruing past rank 30:
- *    - weapons: C = 250 (225,000 at rank 30). Weapon XP piles up just above
- *      225,000 (where players move on), and a Paragon at 232,074 shows rank 30
- *      in game (checked 2026-10-26). The game rules' XPMultiplier is 250.
- *    - pacts:   C = 500 (450,000 at rank 30); see OwnedPact.
- *  The dashboard turns XP into a rank and a progress bar with the same curves.
- */
-
 export const WEAPON_RANK_CONST = 250;
 export const PACT_RANK_CONST = 500;
 export const MAX_RANK = 30;
 
 export interface OwnedWeapon {
-  /** ItemType, resolved to a display name by the dashboard. */
   key: string;
-  /** Total affinity earned (can exceed the rank-30 threshold). */
   xp: number;
-  /** Which inventory bucket it came from. */
   slot: "Melee" | "LongGuns" | "Pistols";
-  /** Craftwork quality (the raw IQ_* value; dashboard maps to a tier name). */
   craftwork: string | null;
-  /** Temper mod tags (AspectFingerprint.buffs); dashboard prettifies them. */
   tempers: string[];
-  /** Weapon instance id, so pickups/duplicates can be told apart. */
   id: string | null;
 }
 
-/** Craftwork + tempers from a raw weapon entry. */
 function craftworkOf(e: { Quality?: unknown }): string | null {
   return typeof e.Quality === "string" ? e.Quality : null;
 }
@@ -41,21 +22,15 @@ function tempersOf(e: { AspectFingerprint?: unknown }): string[] {
     .filter((t): t is string => typeof t === "string");
 }
 
-/** Cumulative affinity needed to reach a given rank (weapons by default). */
 export function affinityForRank(rank: number, perRank = WEAPON_RANK_CONST): number {
   return perRank * rank * rank;
 }
 
-/** Rank 0-30 for a total-affinity value (weapons by default). */
 export function xpToRank(xp: number, perRank = WEAPON_RANK_CONST): number {
   if (!(xp > 0)) return 0;
   return Math.max(0, Math.min(MAX_RANK, Math.floor(Math.sqrt(xp / perRank))));
 }
 
-/** A Pact (Soul). Pacts level 0-30 at twice a weapon's affinity (cumulative
- *  affinity = 500 * r^2). The wiki still says 1000 * r^2, but in game every pact
- *  past 450,000 XP is maxed (checked 2026-10-11: one at 450,859 shows Bond 30),
- *  and pact XP piles up just above 450,000. */
 export interface OwnedPact {
   key: string;
   xp: number;
@@ -63,7 +38,7 @@ export interface OwnedPact {
 
 export function parsePacts(raw: unknown): OwnedPact[] {
   if (!raw || typeof raw !== "object") return [];
-  const list = (raw as Record<string, unknown>).Suits; // souls live under Suits
+  const list = (raw as Record<string, unknown>).Suits;
   if (!Array.isArray(list)) return [];
   const byKey = new Map<string, OwnedPact>();
   for (const entry of list) {
@@ -76,10 +51,6 @@ export function parsePacts(raw: unknown): OwnedPact[] {
   return [...byKey.values()];
 }
 
-/** The mastery record (XPInfo): the most XP each item type has ever reached.
- *  The game keeps it when a copy is dismantled, sold or re-crafted, so it - not
- *  a copy's current XP - says how much Mastery an item has granted (all of it
- *  once it reaches the rank-30 XP). */
 export function parseMastery(raw: unknown): Record<string, number> {
   if (!raw || typeof raw !== "object") return {};
   const list = (raw as Record<string, unknown>).XPInfo;
@@ -93,9 +64,6 @@ export function parseMastery(raw: unknown): Record<string, number> {
   return out;
 }
 
-/** Tuvalkane temper-learning progress (Preludes 16): dismantling weapons grants
- *  progress toward learning each temper they bear; a temper is learned at 10.
- *  RawUpgrades holds one entry per encountered temper, ItemCount = progress. */
 export const TEMPER_LEARN_GOAL = 10;
 export interface TemperProgress {
   tag: string;
@@ -116,28 +84,21 @@ export function parseTemperProgress(raw: unknown): TemperProgress[] {
   return out;
 }
 
-/** One physical weapon instance (not deduped), for pickup detection by ItemId. */
 export interface WeaponInstance {
   id: string;
   key: string;
   craftwork: string | null;
   tempers: string[];
   xp: number;
-  /** Rare Moonsteel cosmetic roll (the game calls it "Shiny" internally). */
   moonsteel: boolean;
-  /** Unrecognised raw fields on this entry (diagnostics for new flags). */
   extra?: Record<string, unknown>;
 }
 
-// Fields every weapon entry is known to carry. Anything else on a new pickup is
-// kept for diagnosis - that's how an unseen flag (e.g. Moonsteel) would surface.
 const KNOWN_WEAPON_KEYS = new Set([
   "ItemType", "ItemId", "Configs", "XP", "Quality", "AspectType", "AspectFingerprint",
   "UpgradeType", "UpgradeFingerprint", "UpgradeVer", "IgnoreBinCount", "TitleType", "Features",
 ]);
 
-/** Moonsteel: the game's item field is "Shiny" (mShiny in the client). Accept
- *  any truthy shiny/moonsteel-named field, on the item or its fingerprint. */
 function moonsteelOf(e: Record<string, unknown>): boolean {
   const truthy = (o: unknown) =>
     !!o && typeof o === "object" &&
@@ -147,7 +108,6 @@ function moonsteelOf(e: Record<string, unknown>): boolean {
 
 const WEAPON_BUCKETS: OwnedWeapon["slot"][] = ["Melee", "LongGuns", "Pistols"];
 
-/** Every owned weapon instance with a stable id (duplicates kept distinct). */
 export function parseWeaponInstances(raw: unknown): WeaponInstance[] {
   if (!raw || typeof raw !== "object") return [];
   const record = raw as Record<string, unknown>;
@@ -174,19 +134,10 @@ export function parseWeaponInstances(raw: unknown): WeaponInstance[] {
   return out;
 }
 
-/** What the account could have spent to make or buy a weapon, so the pickup
- *  tracker can tell crafted / purchased weapons from ones picked up off the
- *  ground. Weapon fragments are blueprint counts in Recipes; crafting spends
- *  them (and may queue in PendingRecipes). Vendor buys bump NumPurchased. */
 export interface AcquisitionContext {
-  /** Weapon blueprint leaf -> fragment count. */
   blueprints: Record<string, number>;
-  /** Weapon blueprint leaves currently queued for crafting. */
   pending: string[];
-  /** Sum of NumPurchased across vendors that can sell weapons. */
   vendorPurchases: number;
-  /** Enclave tag -> Favour (Standing). Enclave purchases don't appear in
-   *  RecentVendorPurchases, but they do spend Favour. Absent in older state. */
   favour?: Record<string, number>;
 }
 export function parseAcquisitionContext(raw: unknown): AcquisitionContext {
@@ -204,8 +155,6 @@ export function parseAcquisitionContext(raw: unknown): AcquisitionContext {
     .map(leaf);
   let vendorPurchases = 0;
   for (const v of Array.isArray(r.RecentVendorPurchases) ? r.RecentVendorPurchases : []) {
-    // Avakot sells premium goods (Moonsteel Thread, Chordstones...), never
-    // weapons; counting it would misfile a real pickup made in the same window.
     const vt = (v as { VendorType?: unknown }).VendorType;
     if (typeof vt === "string" && /Avakot/i.test(vt)) continue;
     for (const h of (v as { PurchaseHistory?: unknown }).PurchaseHistory as unknown[] ?? []) {
@@ -232,7 +181,6 @@ export function parseWeapons(raw: unknown): OwnedWeapon[] {
       const e = entry as { ItemType?: string; XP?: unknown; Quality?: unknown; AspectFingerprint?: unknown; ItemId?: { $oid?: string } };
       if (typeof e.ItemType !== "string") continue;
       const xp = typeof e.XP === "number" && Number.isFinite(e.XP) ? e.XP : 0;
-      // Keep the highest-XP copy if the same weapon appears more than once.
       const prev = byKey.get(e.ItemType);
       if (!prev || xp > prev.xp) {
         byKey.set(e.ItemType, {

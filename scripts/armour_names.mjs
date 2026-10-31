@@ -1,15 +1,3 @@
-// Match an armour ItemType leaf to its localization stem when the two differ.
-//
-// Most armour leaves equal their name's stem (/SF/Upgrades/Skins/Body/WazzardBody
-// <-> /SF/Language/Armour/WazzardBodyName). The rest differ in small ways:
-//   ForgetFireAltBody  <-> ForgetFireBodyAlt        (word order)
-//   CircadeHelmet      <-> CircadeHelm              (Helm/Helmet)
-//   BromiusClosedHelmet <-> BromiusHelmet           (a variant word)
-//   ThawtideHelmet     <-> ThawTideSinecureHelmet   (an extra word)
-//   TuvalkanelLegs     <-> TuvalkaneLegs            (a typo, on either side)
-// So both sides are reduced to their words minus the slot word, and the closest
-// stem for the same slot wins - if it's close and nothing else is as close.
-
 const SLOT_WORD = { Helmets: "helm", Body: "body", Legs: "legs" };
 const VARIANT_WORDS = new Set(["closed", "open"]);
 
@@ -22,8 +10,6 @@ const words = (s) =>
     .map((w) => (w === "helmet" ? "helm" : w))
     .filter((w) => w && !VARIANT_WORDS.has(w));
 
-/** The name without its slot word ("ForgetFireAltBody" -> "forgetfirealt"), or
- *  null if it isn't for that slot. */
 function core(name, slot) {
   const ws = words(name);
   const i = ws.lastIndexOf(slot);
@@ -44,8 +30,6 @@ function editDistance(a, b) {
   return prev[b.length];
 }
 
-/** The stem among `stems` that names this armour leaf, or null.
- *  `folder` is the ItemType's folder: "Helmets", "Body" or "Legs". */
 export function matchArmourStem(leaf, folder, stems) {
   const slot = SLOT_WORD[folder];
   const want = slot ? core(leaf, slot) : null;
@@ -56,8 +40,6 @@ export function matchArmourStem(leaf, folder, stems) {
   for (const stem of stems) {
     const have = core(stem, slot);
     if (have === null) continue;
-    // Exact beats "one contains the other" (an extra word, at least 5 letters
-    // in common) beats a small edit distance.
     const contains = Math.min(have.length, want.length) >= 5 && (have.includes(want) || want.includes(have));
     const score = have === want ? 0 : contains ? 1 : 1 + editDistance(have, want);
     if (score < bestScore) [best, bestScore, tied] = [stem, score, false];

@@ -1,7 +1,3 @@
-/** Wire the safe providers together. Nothing else in the app constructs a
- *  provider directly - going through the registry is what keeps a
- *  credential-taking or process-reading source from ever reaching the UI. */
-
 import { join } from "node:path";
 import { ProviderRegistry } from "./provider";
 import { createJsonImportProvider } from "./providers/jsonImport";

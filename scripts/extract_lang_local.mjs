@@ -1,12 +1,3 @@
-// Parse a local Languages.bin (already decompressed from the cache entry) into
-// { path+name: string }. Short strings are stored uncompressed; the rest are
-// zstd-with-custom-dictionary, stored like Packages.bin's texts: a ULEB128
-// decoded length, then a zstd frame without its magic. Node 26's zstd supports
-// a raw dictionary, so we can decode those too (unlike the CDN extractor,
-// which skipped them).
-//
-// Usage: node scripts/extract_lang_local.mjs <Languages.bin> [--out dict.json] [--grep substr]
-
 import { readFileSync, writeFileSync } from "node:fs";
 import { zstdDecompressSync } from "node:zlib";
 import { parseArgs } from "node:util";
@@ -18,7 +9,7 @@ const { values, positionals } = parseArgs({
 const buf = readFileSync(positionals[0]);
 const ZSTD_MAGIC = Buffer.from([0x28, 0xb5, 0x2f, 0xfd]);
 
-let i = 16 + 4 + 4 + 4; // hash, 0x14, 0x2B/0x2C, 0x01
+let i = 16 + 4 + 4 + 4;
 const numSuffixes = buf.readUInt32LE(i); i += 4;
 for (let s = 0; s < numSuffixes; s++) { const slen = buf.readUInt32LE(i); i += 4 + slen; }
 const dictLen = buf.readUInt32LE(i); i += 4;
@@ -44,7 +35,7 @@ for (let p = 0; p < numPaths; p++) {
     if (flags & 0x200) {
       try {
         let j = 0;
-        while (data[j] & 0x80) j++; // skip the ULEB128 decoded length
+        while (data[j] & 0x80) j++;
         data = zstdDecompressSync(Buffer.concat([ZSTD_MAGIC, data.subarray(j + 1)]), { dictionary });
         decoded++;
       } catch { failed++; continue; }

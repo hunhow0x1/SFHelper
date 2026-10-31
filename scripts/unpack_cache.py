@@ -1,32 +1,5 @@
 #!/usr/bin/env python3
-"""Unpack Soulframe Cache.Windows packages (DE Evolution engine format).
-
-Run this against the LOCAL installed cache - no multi-GB downloads:
-
-    Cache.Windows/  contains paired files per package:
-        <P>.<Name>.toc     index (directory tree + entry table)
-        <P>.<Name>.cache    concatenated entry data
-      where <P> is B/F/H (and _en/_xx/... for localized packages).
-
-Format (fully reverse-engineered, confirmed against build 2026.08):
-  TOC: uint32 magic 0x1867C64E, uint32 version (20), then 96-byte entries:
-        int64  cacheOffset      (-1 for a directory)
-        int64  timeStamp        (Windows FILETIME)
-        int32  compressedSize
-        int32  decompressedSize
-        int32  flags
-        int32  compressionType  (0 raw; 6/59/... = DE block-LZ; per entry)
-        char   name[64]         (leaf name, NUL-padded)
-  The .toc/.cache on the CDN are wrapped in whole-file LZMA (".lzma"); some
-  .cache are served raw (".bulk"). On disk the launcher stores them
-  decompressed, so this tool auto-detects an LZMA wrapper and unwraps it.
-
-Entry payload: an entry with compressedSize == decompressedSize is stored raw
-and is returned as-is. Otherwise it is compressed with DE's block-LZ codec -
-see decompress_de_block(), the one piece left to port (Sainan's Warframe/
-Soulframe cache tools implement exactly this).
-
-Usage:
+"""Usage:
     unpack_cache.py list   <pkg.toc>
     unpack_cache.py search <pkg.toc> <pkg.cache> <text>   # raw entries + any decodable
     unpack_cache.py extract <pkg.toc> <pkg.cache> <name-substr> <outdir>
@@ -44,7 +17,6 @@ ENTRY = 96
 
 
 def _unwrap_lzma(data: bytes) -> bytes:
-    """CDN files are whole-file LZMA-wrapped; on-disk files are already raw."""
     if len(data) >= 4 and struct.unpack_from("<I", data, 0)[0] == MAGIC:
         return data
     for fmt in (lzma.FORMAT_ALONE, lzma.FORMAT_AUTO):
@@ -100,8 +72,6 @@ _OODLE = None
 
 
 def _load_oodle() -> "ctypes.CDLL":
-    """Load Oodle (oo2core_9), which ships with the game. Point OODLE_LIB at it
-    (e.g. the oo2core_9.so / oo2core_9_win64.dll in the Soulframe install)."""
     global _OODLE
     if _OODLE is not None:
         return _OODLE
@@ -112,8 +82,6 @@ def _load_oodle() -> "ctypes.CDLL":
             continue
         try:
             _OODLE = ctypes.CDLL(cand)
-            # int OodleLZ_Decompress(const char* in, size_t inLen, void* out,
-            #   size_t outLen, i,i,i, size,size,size,size,size,size, int) -> from Sainan
             _OODLE.OodleLZ_Decompress.restype = ctypes.c_int
             return _OODLE
         except OSError:
@@ -137,13 +105,6 @@ def _oodle_decompress(chunk: bytes, dec_size: int) -> bytes:
 
 
 def decompress_de_block(blob: bytes, dec_size: int) -> bytes:
-    """Decompress a DE cache entry (Oodle inside 8-byte block headers).
-
-    Ported from Sainan's warframe-cache-tools (shcc_decompress_chunk_oodle):
-    the entry is a sequence of blocks, each an 8-byte big-endian header
-    (byte0 == 0x80, byte7 & 0x0F == 0x01) carrying the block's compressed and
-    decompressed sizes, followed by an Oodle stream (starts 0x8C).
-    """
     out = bytearray()
     i = 0
     while len(out) < dec_size:

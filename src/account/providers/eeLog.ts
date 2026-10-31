@@ -1,17 +1,3 @@
-/** Read the game's own log file.
- *
- *  EE.log is a plain text file the game writes to disk; reading it is no
- *  different from opening it in a text editor, needs no credentials, and
- *  never touches the running process. That makes it the best passive source
- *  available - but it only ever reports what happened while we were
- *  watching, so everything it produces is fidelity "observed" and can only
- *  add to a snapshot, never contradict a full export.
- *
- *  The line grammar lives in data/ee-log-rules.json because Soulframe's log
- *  format is undocumented and shifts between Preludes builds; a wrong regex
- *  should be a data fix, not a release.
- */
-
 import { readFile, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -19,7 +5,6 @@ import type { AccountDataProvider, Availability, CaptureContext, ProviderMeta } 
 import { emptySnapshot, type AccountSnapshot, type SourceRef } from "../snapshot";
 
 const PROVIDER_ID = "ee-log";
-/** Only the tail matters; the file can reach tens of megabytes in a session. */
 const MAX_TAIL_BYTES = 4 * 1024 * 1024;
 
 export type RuleConfidence = "verified" | "likely" | "unverified";
@@ -37,7 +22,6 @@ export interface LogRules {
 }
 
 export interface ParseOptions {
-  /** Rules below this confidence are skipped. Defaults to "likely". */
   minConfidence?: RuleConfidence;
   observedAt?: string;
 }
@@ -48,13 +32,11 @@ const CONFIDENCE_RANK: Record<RuleConfidence, number> = {
   verified: 2,
 };
 
-/** Default install locations. The user can always point us elsewhere. */
 export function defaultLogPaths(platform: NodeJS.Platform = process.platform): string[] {
   if (platform === "win32") {
     const local = process.env.LOCALAPPDATA ?? join(homedir(), "AppData", "Local");
     return [join(local, "Soulframe", "EE.log")];
   }
-  // Proton/Wine keeps the same layout under the Steam compatdata prefix.
   const home = homedir();
   return [
     join(home, ".steam", "steam", "steamapps", "compatdata"),
@@ -131,7 +113,6 @@ export function createEeLogProvider(deps: EeLogProviderDeps): AccountDataProvide
         const info = await stat(candidate);
         if (info.isFile()) return candidate;
       } catch {
-        // Not present on this machine; try the next candidate.
       }
     }
     return null;

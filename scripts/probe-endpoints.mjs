@@ -1,17 +1,4 @@
 #!/usr/bin/env node
-/** Find out which public Soulframe endpoints actually exist.
- *
- *  Run this on your own machine - it does nothing but plain GETs to the
- *  candidate URLs in data/endpoints.json, one at a time, with an identifying
- *  User-Agent. No credentials, no auth headers, no retries: a 403 or 429
- *  aborts the run, because DE firewalls hosts that hammer these servers.
- *
- *    node scripts/probe-endpoints.mjs --displayName "YourName"
- *
- *  Results land in data/endpoints.discovered.json. Anything that answers
- *  with real data belongs in the "confirmed" list of data/endpoints.json.
- */
-
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

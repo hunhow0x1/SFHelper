@@ -1,14 +1,3 @@
-/** Build the wiki-sourced effect data files: totems.json and runes.json.
- *
- *  Exposed as functions so both the CLI (`tsx scripts/build_data.ts totems|runes`)
- *  and the Electron app (on launch) can run them. The app writes to its writable
- *  data dir; the CLI writes into src/server/public for development.
- *
- *  Totem effects come from each totem page's "Base Effect" line (or a prose
- *  fallback); rune effects from the page's "Overview" via the TextExtracts API.
- *  Archived/removed entries are skipped.
- */
-
 import { mkdir, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
@@ -21,7 +10,6 @@ export type ProgressFn = (done: number, total: number, label: string) => void;
 const j = async (url: string): Promise<any> =>
   (await fetch(url, { headers: { "user-agent": UA } })).json();
 
-/** Write an object as JSON with keys sorted (stable diffs), values intact. */
 async function writeSorted(path: string, obj: Record<string, unknown>): Promise<void> {
   const sorted: Record<string, unknown> = {};
   for (const k of Object.keys(obj).sort()) sorted[k] = obj[k];
@@ -103,8 +91,6 @@ export async function buildTotems(outPath: string, onProgress?: ProgressFn): Pro
   return { ok, archived, unparsed };
 }
 
-// The actual weapon-type categories (a page also carries virtue/faction/damage
-// categories, so we match this whitelist rather than "first non-meta category").
 const WEAPON_TYPES = new Set([
   "Bows", "Long Blades", "Short Blades", "Daggers", "Greatswords", "Great Swords", "Cleavers",
   "Polearms", "Spears", "Flyblades", "Magick Weapons", "Casters", "Staves", "Heavy Maces", "Maces",
@@ -126,8 +112,6 @@ async function pageCategories(name: string): Promise<string[]> {
 
 export interface WeaponInfo { class: string; slot: string; }
 
-/** Build weapons.json { "<Weapon Name>": { class, slot } } from the wiki, so the
- *  app can show the full roster (including weapons the player doesn't own). */
 export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
   const names = await categoryMembers("Weapons");
   const out: Record<string, WeaponInfo> = {};
@@ -137,7 +121,6 @@ export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Pr
     onProgress?.(i, names.length, names[i]!);
     try {
       const cats = await pageCategories(names[i]!);
-      // Skip removed (Archived) and not-yet-released (Upcoming/Unreleased) items.
       if (cats.some((c) => /^Archived|^Upcoming$|^Unreleased$/i.test(c))) { archived++; continue; }
       let slot = "";
       let klass = "";
@@ -154,9 +137,6 @@ export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Pr
   return { ok, archived, unparsed };
 }
 
-/** Build pacts.json { "<Pact Name>": {} } — the full roster of Pacts (souls).
- *  Category:Pacts mixes real Pacts with Pact abilities/arts; a real Pact page
- *  carries the "Items" category and lacks "Abilities". */
 export async function buildPacts(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
   const names = await categoryMembers("Pacts");
   const out: Record<string, Record<string, never>> = {};
@@ -166,7 +146,6 @@ export async function buildPacts(outPath: string, onProgress?: ProgressFn): Prom
     onProgress?.(i, names.length, names[i]!);
     try {
       const cats = await pageCategories(names[i]!);
-      // A real, released Pact has "Items", isn't an "Abilities" page, and isn't "Upcoming".
       if (cats.includes("Abilities") || !cats.includes("Items")) continue;
       if (cats.includes("Upcoming") || cats.includes("Unreleased")) { archived++; continue; }
       out[names[i]!] = {};
@@ -178,9 +157,6 @@ export async function buildPacts(outPath: string, onProgress?: ProgressFn): Prom
   return { ok, archived, unparsed };
 }
 
-// Temper Tag (AspectFingerprint.buff) -> in-game name. Derived from the game's
-// own localization strings (Aspect*Name / Skills/*Name), which are authoritative;
-// only the Tag->name pairing is curated here. ChargeRateMod has no localized name.
 const TEMPER_NAME: Record<string, string> = {
   AerialAttackDamageAMod: "From Above",
   AttackSpeedMod: "Swift Strike",
@@ -189,9 +165,9 @@ const TEMPER_NAME: Record<string, string> = {
   CassidDamageOnUndamagedMod: "First Strike",
   CassidParryStaggerMod: "Clam's Foot",
   CassidPoisonMod: "Sickness",
-  ChargeRateMod: "Quick Draw", // bow charge rate
+  ChargeRateMod: "Quick Draw",
   ConsecutiveAfterHeavyMod: "Follow Up",
-  CritChanceMod: "Sullying Force", // Smite chance (Soulframe's crit mechanic)
+  CritChanceMod: "Sullying Force",
   DamageNoSidearmMod: "Unencumbered",
   DamageWhenFullHealthMod: "Hale and Hearty",
   DeflectDamageMod: "Arcane Rebound",
@@ -226,46 +202,29 @@ const TEMPER_NAME: Record<string, string> = {
   ThrowSpeedMod: "Streamlined",
 };
 
-/** Pull a temper's effect from its wiki page (Mechanics section, else Overview). */
 function temperEffect(extract: string): string | null {
   let m = extract.match(/==+\s*Mechanics\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i);
   let t = m ? m[1]! : "";
   if (!t) {
-    // Fall back to the Overview, dropping the "<Name> is a ... Temper ..." lead-in.
     const ov = extract.match(/==+\s*Overview\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i);
     t = ov ? ov[1]!.replace(/^[\s\S]*?Temper[^.]*\.\s*/i, "") : "";
   }
   t = t
     .replace(/\s+/g, " ")
     .replace(/\s+%/g, "%")
-    // Drop the wiki's unknown-value placeholders ("unknown amount", "???") so
-    // they don't surface in the app.
     .replace(/\s+by an unknown amount/gi, "")
     .replace(/\s+by an unspecified amount/gi, "")
     .replace(/,?\s*and\s+\?\?\?[^.,]*/gi, "")
     .replace(/\s*\?\?\?[^.,]*/g, "")
-    // Drop editorial parentheticals the wiki sometimes leaves in.
     .replace(/\s*\([^)]*\b(?:need|needs|seem|confirm|approx|unconfirm|citation|TODO|unknown|assum)\w*[^)]*\)/gi, "")
     .replace(/\s+,/g, ",")
     .replace(/\s{2,}/g, " ")
     .trim();
-  // Keep it concise: first 1-2 sentences.
-  // A "." only ends a sentence when followed by whitespace/end, so decimals
-  // like "~12.5%" aren't split mid-number.
   const sentences = t.match(/(?:[^.]|\.(?!\s|$))*\.(?=\s|$)/g);
   if (sentences) t = sentences.slice(0, 2).map((x) => x.trim()).join(" ").trim();
   return t && t.length > 6 ? t : null;
 }
 
-/** Effects for tempers whose wiki page doesn't give the numbers yet ("by X",
- *  "a TBD amount"), with values read from the game's own data (Packages.bin):
- *    - LegShotMod: WEAPON_STABILITY_DAMAGE_LEGSHOT, STACKING_MULTIPLY 0.2
- *    - MendicantFearMod / MendicantFearThrowMod: FearOnHit.lua, _fearChance 0.1,
- *      _fearDuration 6 (the throw one filtered to MELEE_THROW hits)
- *    - CassidDamageOnNearDeathMod: WEAPON_VICTIM_DAMAGE_AMOUNT, ADD_BASE 20
- *    - DodgeAttackDamageMod: ADD_BASE 10 damage and 12 stability on dodge attacks
- *  ADD_BASE is flat base damage: From Above's 10 and Rejoinder's 10 match the
- *  wiki's confirmed values. Used only while the wiki text has a placeholder. */
 const GAME_EFFECT: Record<string, string> = {
   LegShotMod:
     "Severed Root increases the Stagger dealt by leg shots by 20%. When Double-Stacked, this bonus will be doubled to 40%.",
@@ -278,17 +237,13 @@ const GAME_EFFECT: Record<string, string> = {
   DodgeAttackDamageMod:
     "Rejoinder causes all Dodge Attacks, including Spectre Strikes, to deal 10 more base Damage and 12 more Stagger before multipliers. When Double-Stacked, these bonuses will be doubled to 20 and 24.",
 };
-/** The wiki's markers for a value nobody has measured yet. */
 const PLACEHOLDER_RE = /\b2?X\b|\bTBD\b|\b[Uu]nknown\b|\b[Uu]ndocumented\b/;
 
-/** The wiki's effect, unless it's missing a value the game data has. */
 export function withGameValues(tag: string, effect: string | null): string | null {
   const fallback = GAME_EFFECT[tag];
   return fallback && (!effect || PLACEHOLDER_RE.test(effect)) ? fallback : effect;
 }
 
-/** Build tempers.json { "<Tag>": { name, effect } } from the curated Tag->name
- *  map plus each temper's wiki effect. */
 export async function buildTempers(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
   const tags = Object.keys(TEMPER_NAME).sort();
   const out: Record<string, { name: string; effect: string | null }> = {};
@@ -314,19 +269,11 @@ export async function buildTempers(outPath: string, onProgress?: ProgressFn): Pr
   return { ok, archived: 0, unparsed };
 }
 
-// Pact Arts: skill ItemType (path after "/Pacts/") -> in-game name, tree slot and
-// max rank. Names come from the game's localization; max rank = the node's pip
-// count + 1 (virtues 3, passives & Rooted 4, the single-pip general arts 2).
-// Slots are the node positions of the current (Preludes 13+) tree layout. Every
-// Pact shares the general arts; the two passives are Pact-specific ("A" is the
-// root node the tree branches from). Legacy arts (Akin/Healer, Voided, Sympathy,
-// whose ItemTypes linger in old allocations) are intentionally absent.
 type ArtSlot =
   | "passiveA" | "passiveB" | "virtueTop" | "virtueMid" | "virtueRight"
   | "rooted" | "physic" | "forestall" | "wingspan" | "stalwart";
 interface ArtDef { name: string; slot: ArtSlot; max: number; virtue?: string }
 const PACT_ARTS: Record<string, ArtDef> = {
-  // General arts (shared by every Pact)
   "Fey/CourageVirtueUpgradeSkill": { name: "Mora's Pride", slot: "virtueTop", max: 3, virtue: "Courage" },
   "Fey/GraceVirtueUpgradeSkill": { name: "Saphene's Gift", slot: "virtueMid", max: 3, virtue: "Grace" },
   "Fey/SpiritVirtueUpgradeSkill": { name: "Iridis' Favour", slot: "virtueRight", max: 3, virtue: "Spirit" },
@@ -335,7 +282,6 @@ const PACT_ARTS: Record<string, ArtDef> = {
   "Fencer/HealthPotionMaxStackUpgradeSkill": { name: "Physic", slot: "physic", max: 2 },
   "Fey/PreventDeathUpgradeSkill": { name: "Forestall", slot: "forestall", max: 2 },
   "Fey/PreventStabilityBreakUpgradeSkill": { name: "Stalwart", slot: "stalwart", max: 2 },
-  // Pact passives
   "Bromius/ArmourShatterInstinctSkill": { name: "Barkbare", slot: "passiveA", max: 4 },
   "Bromius/ReflectArmourlInstinctSkill": { name: "Canopy's Blessing", slot: "passiveB", max: 4 },
   "Fencer/DodgeyDecoySkill": { name: "Chamariz", slot: "passiveA", max: 4 },
@@ -356,7 +302,6 @@ const PACT_ARTS: Record<string, ArtDef> = {
   "Fey/LastStandInstinctSkill": { name: "Last Stand", slot: "passiveB", max: 4 },
 };
 
-/** Strip wikitext markup to plain text. */
 const stripWiki = (s: string): string =>
   s
     .replace(/\{\{[^{}|]*\|([^{}|]*)\|Display=([^{}]*)\}\}/g, "$2")
@@ -368,7 +313,6 @@ const stripWiki = (s: string): string =>
     .replace(/\s+/g, " ")
     .trim();
 
-/** Tidy a prose snippet: drop wiki placeholders/editorial notes, keep <=2 sentences. */
 function tidy(t: string): string | null {
   t = t
     .replace(/\s+/g, " ")
@@ -376,7 +320,6 @@ function tidy(t: string): string | null {
     .replace(/\s*\([^)]*\b(?:need|needs|seem|confirm|approx|unconfirm|citation|TODO|unknown|assum|may scale)\w*[^)]*\)/gi, "")
     .replace(/\s*\?\?\?[^.,]*/g, "")
     .replace(/\*+/g, "")
-    // "0 points: 0 1 point: 2 2 points: 3 ..." -> "[2 / 3 / ...]." (per rank)
     .replace(/:?\s*((?:\d+ points?: [\d.]+%?\s*){2,})/g, (_m, list: string) => {
       const vals = [...list.matchAll(/(\d+) points?: ([\d.]+%?)/g)].filter((x) => x[1] !== "0").map((x) => x[2]);
       return `: [${vals.join(" / ")}]. `;
@@ -384,7 +327,6 @@ function tidy(t: string): string | null {
     .replace(/\s+,/g, ",")
     .replace(/\s{2,}/g, " ")
     .trim();
-  // Skip editorial sentences (wiki notes about the in-game text, TBDs, bugs).
   const sentences = t.match(/(?:[^.]|\.(?!\s|$))*\.(?=\s|$)/g)
     ?.map((x) => x.trim())
     .filter((x) => !/misleading|\bTBD\b|despite (?:its|the) description|in-game description|^It also does not|not yet (?:been )?tested|bugged/i.test(x));
@@ -392,31 +334,24 @@ function tidy(t: string): string | null {
   return t && t.length > 6 ? t : null;
 }
 
-/** Build pactarts.json { "<Folder/Skill>": { name, slot, max, virtue?, desc, detail } }.
- *  General arts & virtues: the in-game quote and first mechanics bullet from the
- *  Pact Arts page. Passives: their page's overview line and ability details. */
 export async function buildPactArts(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
   const keys = Object.keys(PACT_ARTS).sort();
   const out: Record<string, ArtDef & { desc: string | null; detail: string | null }> = {};
   const unparsed: string[] = [];
   let ok = 0;
-  // General arts + virtues live on the Pact Arts page as
-  //   '''Name''' - ''"quote"''  followed by "* mechanics" bullets.
   const general = new Map<string, { desc: string; detail: string | null }>();
   try {
     const r = await j(`${API}?action=parse&format=json&prop=wikitext&page=Pact_Arts`);
     const wt: string = r.parse?.wikitext?.["*"] ?? "";
-    // Only the current arts (not the "Legacy Pact Arts" archive section).
     const current = wt.split(/==\s*Legacy Pact Arts\s*==/)[0] ?? wt;
     const re = /'''(.+?)'''\s*-\s*''"?(.+?)"?''(?!')[^\n]*((?:\n\s*[*•][^\n]*)*)/g;
     for (let m; (m = re.exec(current)); ) {
       const bullets = (m[3] ?? "").split(/\n\s*[*•]\s*/).map(stripWiki).filter(Boolean);
-      // Prefer a bullet with a concrete number; skip "not yet tested" notes.
       const concrete = bullets.find((b) => /\d/.test(b) && !/not yet (?:been )?tested|replaced/i.test(b))
         ?? bullets.find((b) => !/not yet (?:been )?tested|replaced/i.test(b)) ?? null;
       general.set(stripWiki(m[1]!), { desc: stripWiki(m[2]!), detail: concrete ? tidy(concrete) : null });
     }
-  } catch { /* fall through: general arts get no text */ }
+  } catch {}
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]!;
@@ -434,7 +369,7 @@ export async function buildPactArts(outPath: string, onProgress?: ProgressFn): P
         desc = tidy(ov.replace(/^[\s\S]*?Passive Ability[^.]*\.\s*/i, ""));
         const ad = ex.match(/==+\s*Ability Details\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i)?.[1] ?? "";
         detail = tidy(ad);
-      } catch { /* leave empty */ }
+      } catch {}
     }
     out[key] = { ...def, desc, detail };
     if (desc || detail) ok++; else unparsed.push(def.name);
@@ -465,31 +400,22 @@ export async function buildRunes(outPath: string, onProgress?: ProgressFn): Prom
 
 export interface TotemData {
   animal: string;
-  /** What fires the effect: "Runes (Passive)", "Rune Activation", "Pull Smite", "Smite Proc". */
   enhances: string;
   description: string;
-  /** Effect template with $1, $2... placeholders. */
   effect: string;
-  /** Per placeholder, the value at ranks 1-4. */
   base: string[][];
-  /** Same, for grip-aligned (Combat Art) copies; null where the wiki doesn't know it. */
   grip: (string | null)[][];
 }
 
-/** "5/8/10/15,4/5/6/7" -> [["5","8","10","15"],["4","5","6","7"]]; unknowns ("-", "?", "X") -> null. */
 const statGroups = (s: string): (string | null)[][] =>
   s.split(",").map((g) => g.split("/").map((v) => (/^[\d.]+$/.test(v.trim()) ? v.trim() : null)));
 
-/** Build totemdata.json from the wiki's Module:Data/Totems (the data behind its
- *  totem cards): animal, trigger, effect template and per-rank stats, including
- *  the stronger values a grip-aligned totem gets. */
 export async function buildTotemData(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
   onProgress?.(0, 1, "Module:Data/Totems");
   const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Totems")}&prop=wikitext&format=json`);
   const lua: string = r.parse?.wikitext?.["*"] ?? "";
   const out: Record<string, TotemData> = {};
   const unparsed: string[] = [];
-  // Each entry: ["Name"] = { ...fields..., bonuses = { effect = "" }, stats = { base = "", gripBonusBase = "" } }
   for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s{4}\}/g)) {
     const name = m[1]!;
     const f: Record<string, string> = {};
@@ -507,16 +433,11 @@ export async function buildTotemData(outPath: string, onProgress?: ProgressFn): 
     };
   }
   onProgress?.(1, 1, "done");
-  // Never replace good data with nothing if the module's format changes.
   if (Object.keys(out).length < 10) throw new Error(`Module:Data/Totems parsed only ${Object.keys(out).length} totems`);
   await writeSorted(outPath, out);
   return { ok: Object.keys(out).length, unparsed };
 }
 
-/** Talisman ItemType leaf (/SF/Upgrades/Skins/Totem/<leaf>) -> in-game name,
- *  from the game's own text (/SF/Language/Totems/*Name). Several keys differ
- *  from their leaf ("CogahHumanTotem" is "CogahTalismanHumansName"), so the
- *  pairs are spelled out. */
 export const TALISMAN_NAMES: Record<string, string> = {
   AncientSpriteTotem: "Heartwood Soams",
   CardinalTotem: "Cardinal Charm",
@@ -554,9 +475,6 @@ export interface TalismanData {
   Grace: number;
 }
 
-/** Talismans' Virtue bonuses from the wiki (Module:Data/Armour, Slot =
- *  "Talisman"), keyed by ItemType leaf: { PrimordialTotem: { name: "Paragon
- *  Periapt", Courage: 3, Spirit: 3, Grace: 3 } }. */
 export function parseTalismans(lua: string): Record<string, TalismanData> {
   const byName = new Map<string, Omit<TalismanData, "name">>();
   for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\t\},/g)) {
@@ -579,7 +497,6 @@ export async function buildTalismans(outPath: string, onProgress?: ProgressFn): 
   const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Armour")}&prop=wikitext&format=json`);
   const out = parseTalismans(r.parse?.wikitext?.["*"] ?? "");
   onProgress?.(1, 1, "done");
-  // Never replace good data with nothing if the module's format changes.
   if (Object.keys(out).length < 10) throw new Error(`Module:Data/Armour gave only ${Object.keys(out).length} talismans`);
   await writeSorted(outPath, out as Record<string, unknown>);
   return { ok: Object.keys(out).length, unparsed: Object.keys(TALISMAN_NAMES).filter((k) => !out[k]) };
@@ -592,7 +509,6 @@ export interface ArmourData {
   physical: number;
   magick: number;
   stability: number;
-  /** The Virtue the piece asks for: "17 C" -> { virtue: "Courage", value: 17 }. */
   requires: { virtue: "Courage" | "Spirit" | "Grace"; value: number } | null;
 }
 
@@ -602,8 +518,6 @@ const VIRTUE_LETTER: Record<string, "Courage" | "Spirit" | "Grace"> = {
   G: "Grace",
 };
 
-/** Helms, Cuirasses and Leggings from the wiki (Module:Data/Armour), keyed by
- *  in-game name (the game's own armour names; see build_names.mjs). */
 export function parseArmour(lua: string): Record<string, ArmourData> {
   const out: Record<string, ArmourData> = {};
   for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\t\},/g)) {
@@ -630,15 +544,11 @@ export async function buildArmour(outPath: string, onProgress?: ProgressFn): Pro
   const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Armour")}&prop=wikitext&format=json`);
   const out = parseArmour(r.parse?.wikitext?.["*"] ?? "");
   onProgress?.(1, 1, "done");
-  // Never replace good data with nothing if the module's format changes.
   if (Object.keys(out).length < 30) throw new Error(`Module:Data/Armour gave only ${Object.keys(out).length} armour pieces`);
   await writeSorted(outPath, out as Record<string, unknown>);
   return { ok: Object.keys(out).length, unparsed: [] };
 }
 
-/** The highest Envoy (Mastery) Rank reachable in the current patch, from the
- *  wiki's Envoy Rank page: "Maximum Mastery as of {{VerShort|P16}} is ~19.1".
- *  Written as { maxMastery: 19.1, patch: "P16" }. */
 export interface MasteryRankData {
   maxMastery: number;
   patch: string;
@@ -653,29 +563,22 @@ export async function buildMasteryRank(outPath: string, onProgress?: ProgressFn)
   const r = await j(`${API}?action=parse&page=${encodeURIComponent("Envoy Rank")}&prop=wikitext&format=json`);
   const data = parseMaxMastery(r.parse?.wikitext?.["*"] ?? "");
   onProgress?.(1, 1, "done");
-  // Keep the bundled value rather than write nothing if the page's wording changes.
   if (!data) throw new Error("Envoy Rank page: maximum Mastery not found");
   await writeFile(outPath, `${JSON.stringify(data, null, 2)}\n`);
   return { ok: 1, unparsed: [] };
 }
 
-/** File slug a temper's icon is stored under: "Heightened Parry" -> "heightened-parry". */
 export const temperIconSlug = (name: string): string => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-/** Download every temper's in-game icon (the wiki hosts the game's art, listed
- *  in Module:Data/Tempers) into outDir as <slug>.png, resized to 96px with
- *  ImageMagick when available. Dev-time only: the icons are bundled with the
- *  app rather than fetched at launch. */
 export async function buildTemperIcons(outDir: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
   const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Tempers")}&prop=wikitext&format=json`);
   const lua: string = r.parse?.wikitext?.["*"] ?? "";
-  const icons = new Map<string, string>(); // temper name -> wiki file name
+  const icons = new Map<string, string>();
   for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n {2}\},/g)) {
     const icon = /Icon\s*=\s*"([^"]+)"/.exec(m[2]!)?.[1];
     if (icon) icons.set(m[1]!, icon);
   }
   if (icons.size < 10) throw new Error(`Module:Data/Tempers listed only ${icons.size} icons`);
-  // Resolve file names to URLs, 50 per request.
   const url = new Map<string, string>();
   const files = [...new Set(icons.values())];
   for (let i = 0; i < files.length; i += 50) {
@@ -709,7 +612,6 @@ export async function buildTemperIcons(outDir: string, onProgress?: ProgressFn):
   return { ok, unparsed };
 }
 
-// CLI: tsx scripts/build_data.ts <totems|runes> [outPath]
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const kind = process.argv[2];
   const barW = 28;

@@ -3,8 +3,6 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-// No real game process or memory: a fake Soulframe at pid 4242 whose memory
-// can't be opened, so any fall-through to a scan shows up as code 4.
 vi.mock("../helper/processFinder", () => ({
   findSoulframe: async () => [{ pid: 4242, matchedOn: "cmdline" }],
 }));
@@ -61,7 +59,7 @@ describe("repeat imports reuse the session nonce", () => {
     expect(fetchCalls).toHaveLength(1);
     expect(logs.some((l) => /scanning memory again/.test(l))).toBe(true);
     expect(ReadOnlyMemory.open).toHaveBeenCalledWith(4242);
-    expect(result.code).toBe(4); // the (mocked) scan couldn't open memory
+    expect(result.code).toBe(4);
   });
 
   it("doesn't try a nonce from a previous game process", async () => {
@@ -79,7 +77,6 @@ describe("data paths", () => {
       const home = await mkdtemp(join(tmpdir(), "sfhelper-home-"));
       process.env.SFHELPER_HOME = home;
       expect(appFile("inventory.json")).toBe(join(home, "inventory.json"));
-      // A module imported before the variable was set still writes there.
       await updateSettings({ moonsteelNotify: false });
       expect(JSON.parse(await readFile(join(home, "settings.json"), "utf8"))).toMatchObject({ moonsteelNotify: false });
     } finally {

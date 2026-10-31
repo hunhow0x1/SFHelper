@@ -1,22 +1,3 @@
-/** Resolve the in-game name dictionary from a hostable endpoint.
- *
- *  The app does not bundle the full name data or scrape a third party at
- *  runtime. Instead it pulls a names JSON from an endpoint you host (set
- *  SFHELPER_NAMES_URL, or "namesUrl" in ~/.config/sfhelper/config.json),
- *  caches it locally, and falls back to the small bundled seed when the
- *  endpoint is unset or unreachable. Resolution order, highest first:
- *
- *    1. Remote endpoint (fetched, then cached with a TTL).
- *    2. Last good cache on disk (if the remote is down).
- *    3. Bundled seed at public/names.json.
- *
- *  The shape is always { items: Record<string,string>, factions: Record<...> }.
- *  A note on the source: avakot's wiki is keyed by display name and does not
- *  carry DE internal names, so whatever you host here has to come from the
- *  game's own localization (cache extraction or the memory helper), not from
- *  scraping the wiki. This module is agnostic about how the file is produced.
- */
-
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -42,7 +23,6 @@ function emptyDict(): NameDict {
   return { items: {}, factions: {}, factionTokens: {}, currencies: {} };
 }
 
-/** Accept only the expected shape; ignore stray keys and non-string values. */
 function coerce(raw: unknown): NameDict {
   const dict = emptyDict();
   if (!raw || typeof raw !== "object") return dict;
@@ -99,7 +79,6 @@ async function readCache(): Promise<{ at: number; dict: NameDict } | null> {
   return { at: raw.at, dict: coerce(raw.dict) };
 }
 
-/** The resolved dictionary, memoized briefly so repeated page loads are cheap. */
 export async function getNames(): Promise<NameDict> {
   if (memo && Date.now() - memo.at < 60_000) return memo.dict;
 

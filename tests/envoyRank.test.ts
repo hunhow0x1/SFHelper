@@ -28,15 +28,12 @@ describe("Envoy Rank", () => {
   });
 
   it("ranks weapons at 250 * r^2 and pacts at 500 * r^2", () => {
-    // A Paragon at 232,074 XP is rank 30 in game; a pact needs twice that.
     expect(itemMastery({ [W(1)]: 232_074 })).toMatchObject({ weaponRanks: 30 });
     expect(itemMastery({ [P(1)]: 232_074 })).toMatchObject({ pactRanks: 21 });
     expect(itemMastery({ [W(1)]: 224_999 })).toMatchObject({ weaponRanks: 29 });
   });
 
   const base = { weaponCount: 62, pactCount: 13, maxMastery: 19.1, patch: "P16" };
-  // The account the formula was checked on: 1,234 weapon ranks, 360 pact ranks
-  // (the game logged 195,400) and 180,000 MissionProgressXP, badge a third full.
   const checked = Object.fromEntries([
     ...Array.from({ length: 41 }, (_, i) => [W(i), XP30]),
     [W(41), 250 * 4 * 4],

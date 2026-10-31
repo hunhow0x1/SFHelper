@@ -21,9 +21,9 @@ describe("enemy names", () => {
   });
 
   it("falls back to variant-free and reordered leaves (old game builds)", () => {
-    expect(enemyName(`${T}MeleeGruntEliteAvatar`, data)).toBe("Sinecure Soldier"); // drop "Elite"
-    expect(enemyName(`${T}EliteMeleeGruntAvatar`, data)).toBe("Sinecure Soldier"); // reordered
-    expect(enemyName(`${T}TempestBayorOldHelmetAvatar`, data)).toBe("Tempest Bayor"); // two variant words
+    expect(enemyName(`${T}MeleeGruntEliteAvatar`, data)).toBe("Sinecure Soldier");
+    expect(enemyName(`${T}EliteMeleeGruntAvatar`, data)).toBe("Sinecure Soldier");
+    expect(enemyName(`${T}TempestBayorOldHelmetAvatar`, data)).toBe("Tempest Bayor");
   });
 
   it("tidies a leaf the game has no name for", () => {
@@ -34,7 +34,6 @@ describe("enemy names", () => {
     const name = await getEnemyNamer();
     expect(name("/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntAvatar")).toBe("Sinecure Soldier");
     expect(name("/SF/Types/Enemies/Wildlife/Mockeries/MockeryManAvatar")).toBe("Deadwood Mockery");
-    // Elites have their own Codex names (newer game text).
     expect(name("/SF/Types/Enemies/Sinecure/Hunter/RangedHunterEliteAvatar")).toBe("Sinecure Gruulseeker");
     expect(name("/SF/Types/Enemies/Sinecure/Soldier/MeleeGruntEliteAvatar")).toBe("Sinecure Elite Soldier");
   });

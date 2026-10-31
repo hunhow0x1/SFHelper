@@ -11,7 +11,6 @@ describe("Discoveries", () => {
     UCWellMapLoreFragment: { name: "Dermak Undercity", memories: 0, map: true },
     UCMinesMapLoreFragment: { name: "Dermak Undercity", memories: 0, map: true },
   };
-  // Shaped like a real inventory's LoreFragmentScans.
   const raw = {
     LoreFragmentScans: [
       { Progress: 5, Redeemed: true, ItemType: "/SF/Types/Quests/LocationLoreQuests/TowerCampLoreFragment" },
@@ -34,7 +33,6 @@ describe("Discoveries", () => {
     expect(d.places.map((p) => p.name)).toEqual(["Castle Kearnhold", "College of Pensives", "Kairness", "Othavess", "Pegroot Mill"]);
     expect(d.places.find((p) => p.name === "Kairness")).toMatchObject({ found: 1, memories: 3, discovered: true });
     expect(d.places.find((p) => p.name === "Castle Kearnhold")).toMatchObject({ found: 0, discovered: false });
-    // More Progress than Memories (seen in game) shows as complete, not over.
     expect(d.places.find((p) => p.name === "Othavess")).toMatchObject({ found: 3, memories: 3 });
     expect(d.maps).toEqual({ found: 1, total: 2 });
   });

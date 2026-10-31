@@ -1,11 +1,3 @@
-// Exploration helper: walk the Soulframe cache manifests and dump/inspect paths.
-// Reuses the same SHCC/Oodle/manifest logic as extract_names.mjs.
-//
-// Usage:
-//   node scripts/explore_cache.mjs manifest /H.Cache.bin        # list a manifest's paths
-//   node scripts/explore_cache.mjs find <substr>                # search B.Cache.Windows.bin paths
-//   node scripts/explore_cache.mjs dump <path>                  # download+decompress a path, hexdump/strings
-
 import { decompress as oozDecompress } from "ooz-wasm";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -49,7 +41,7 @@ function shccUnpack(buf) {
   if (buf.subarray(0, 4).toString("latin1") !== "SHCC") buf = Buffer.from(oozDecompress(buf, buf.length * 10));
   return shccChunk(buf, 8)[0];
 }
-const manifestTypes = new Map(); // path -> 4 trailing bytes (LE int type id)
+const manifestTypes = new Map();
 function parseManifest(h) {
   let i = 20;
   const hashes = new Map();
@@ -86,7 +78,6 @@ async function downloadH(path, typeId, hash = NO_HASH, suffix = "") {
 async function rootManifest() {
   return parseManifest(await downloadH("/H.Cache.bin", TYPE_MANIFEST));
 }
-// The big content manifest that lists every /SF/... path.
 async function contentManifest() {
   const root = await rootManifest();
   const p = "/B.Cache.Windows.bin";
@@ -114,7 +105,6 @@ if (cmd === "manifest") {
   const outfile = join("/tmp", "cache_dump.bin");
   await writeFile(outfile, h);
   console.error(`decompressed ${h.length} bytes -> ${outfile}`);
-  // print printable strings >=4 chars
   const s = h.toString("latin1");
   const strings = s.match(/[\x20-\x7e]{4,}/g) || [];
   for (const str of strings) console.log(str);
@@ -130,7 +120,6 @@ if (cmd === "manifest") {
   if (!hash) throw new Error(`${arg} not in content manifest`);
   console.log(`${arg}  type=0x${manifestTypes.get(arg).toString(16)} (${manifestTypes.get(arg)})  hash=${b64m(hash)}`);
 } else if (cmd === "dumptype") {
-  // dumptype <path> <typeIdHex>
   const path = arg;
   const typeHex = process.argv[4];
   const m = await contentManifest();

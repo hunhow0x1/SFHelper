@@ -1,17 +1,6 @@
-/** The ban-risk acknowledgement gate.
- *
- *  No scan runs until the user has recorded an explicit acknowledgement on
- *  disk. There is no default-on state and no bypass flag: the gate reads a
- *  file, and if the exact acknowledgement phrase is not present, the scan
- *  refuses. This mirrors warframe-api-helper's consent step.
- *
- *  The point is informed consent, recorded deliberately - not a click-through.
- */
-
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 
-/** The user must type this exactly. Kept verbose on purpose. */
 export const ACK_PHRASE =
   "I understand reading the game's memory can risk my account and I accept that risk";
 
@@ -48,7 +37,6 @@ export async function readConsent(path: string): Promise<ConsentRecord | null> {
   }
 }
 
-/** Record consent. `typedPhrase` must match ACK_PHRASE exactly or this throws. */
 export async function recordConsent(path: string, typedPhrase: string): Promise<ConsentRecord> {
   if (typedPhrase.trim() !== ACK_PHRASE) {
     throw new Error("Acknowledgement phrase does not match; consent not recorded.");
@@ -63,7 +51,6 @@ export async function recordConsent(path: string, typedPhrase: string): Promise<
   return record;
 }
 
-/** Throw unless valid consent is on disk. Every scan entry point calls this. */
 export async function requireConsent(path: string): Promise<void> {
   const consent = await readConsent(path);
   if (!consent?.acknowledged) {

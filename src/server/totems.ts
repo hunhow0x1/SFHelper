@@ -1,25 +1,11 @@
-/** Owned Totems, from the inventory's Upgrades list.
- *
- *  Each totem is an upgrade instance whose UpgradeFingerprint carries:
- *    pol    - its attuned Virtue (AP_COURAGE / AP_SPIRIT / AP_GRACE);
- *    compat - its grip: "/SF/Types/Game/SFSkillTree" is Universal, otherwise
- *             the weapon technique tree of the Combat Art it is aligned to;
- *    lvl    - rank, 0-based (absent = rank 1).
- *  Effects, animal and trigger come from the wiki (totemdata.json) client-side.
- */
-
 import { gearIndex } from "./loadouts";
 
 export interface OwnedTotem {
   id: string;
-  /** ItemType, e.g. /SF/Upgrades/Totems/RuneDamageBuff */
   type: string;
-  /** 1-4. */
   rank: number;
   virtue: "Courage" | "Spirit" | "Grace" | null;
-  /** Combat Art the totem is aligned to, or "Universal". */
   grip: string;
-  /** ItemTypes of the weapons this totem is slotted into (any config). */
   equippedOn: string[];
 }
 
@@ -29,7 +15,6 @@ const VIRTUE: Record<string, OwnedTotem["virtue"]> = {
   AP_GRACE: "Grace",
 };
 
-/** Weapon technique tree -> the Combat Art name the game shows on the card. */
 const GRIP: Record<string, string> = {
   SFSkillTree: "Universal",
   ArcherySkillTree: "Bow",
@@ -45,7 +30,6 @@ const GRIP: Record<string, string> = {
 function gripOf(compat: unknown): string {
   if (typeof compat !== "string" || !compat) return "Universal";
   const leaf = compat.split("/").pop()!;
-  // Unknown trees (new Combat Arts): "FooBarSkillTree" -> "Foo Bar".
   return GRIP[leaf] ?? leaf.replace(/SkillTree$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
 }
 
@@ -55,7 +39,6 @@ export function parseTotems(raw: unknown): OwnedTotem[] {
   const list = record.Upgrades;
   if (!Array.isArray(list)) return [];
 
-  // Totem ItemId -> weapons it's slotted into.
   const slotted = new Map<string, Set<string>>();
   for (const info of gearIndex(record).values()) {
     if (info.type.includes("/Souls/")) continue;
@@ -76,7 +59,6 @@ export function parseTotems(raw: unknown): OwnedTotem[] {
     try {
       if (typeof u.UpgradeFingerprint === "string") fp = JSON.parse(u.UpgradeFingerprint) as typeof fp;
     } catch {
-      // Unreadable fingerprint: keep the totem with defaults.
     }
     out.push({
       id,

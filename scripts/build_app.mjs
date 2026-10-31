@@ -1,10 +1,3 @@
-// Build the Electron app into dist/electron/ for packaging.
-//   - main.ts     -> dist/electron/main.js   (ESM, Node platform)
-//   - preload.ts  -> dist/electron/preload.cjs (CJS)
-//   - consent.html and the dashboard's public/ are copied alongside.
-// electron, koffi and electron-updater stay external (provided at runtime /
-// packed from node_modules by electron-builder).
-
 import { build } from "esbuild";
 import { cp, mkdir, rm } from "node:fs/promises";
 

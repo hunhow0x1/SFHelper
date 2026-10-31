@@ -1,13 +1,3 @@
-/** Import an account export the user hands us: a file they saved themselves,
- *  a DE data-request export, or output from any community tool they already
- *  trust. We never fetch it - the user picks the file, so the trust decision
- *  is theirs and no credential ever reaches this app.
- *
- *  Soulframe's export shape is not settled, so parsing is shape-driven: we
- *  unwrap the common envelopes, then read whichever of several plausible
- *  layouts the file actually uses, and keep the original under `raw`.
- */
-
 import { readFile } from "node:fs/promises";
 import type { AccountDataProvider, Availability, CaptureContext, ProviderMeta } from "../provider";
 import {
@@ -23,9 +13,6 @@ import { hashAccountId } from "../identity";
 const PROVIDER_ID = "json-import";
 const MAX_UNWRAP_DEPTH = 6;
 const ENVELOPE_KEYS = ["data", "payload", "inventory", "Inventory", "InventoryJson", "account"];
-// Generic import keys plus the arrays a DE inventory.php dump carries. The
-// Soulframe-specific ones (LongGuns, Melee, WeaponSkins) are the field names we
-// saw the client name in EE.log; the others match DE's shared engine schema.
 const ITEM_ARRAY_KEYS = [
   "items",
   "Items",
@@ -42,7 +29,6 @@ const ITEM_ARRAY_KEYS = [
   "Consumables",
 ];
 
-// DE stores currencies as top-level scalars, not inside a "currencies" object.
 const DE_CURRENCY_KEYS = [
   "RegularCredits",
   "PremiumCredits",
@@ -51,8 +37,6 @@ const DE_CURRENCY_KEYS = [
   "PrimeTokens",
 ];
 
-/** Exports arrive double-encoded surprisingly often - a JSON string inside a
- *  JSON field inside the response envelope. Peel until we see item arrays. */
 export function unwrapPayload(value: unknown): unknown {
   let current = value;
   for (let depth = 0; depth < MAX_UNWRAP_DEPTH; depth += 1) {
@@ -160,7 +144,6 @@ export function snapshotFromExport(payload: unknown, observedAt: string): Accoun
       snapshot.currencies[name] = asNumber(amount);
     }
   }
-  // DE dumps put currencies at the top level as scalars.
   for (const key of DE_CURRENCY_KEYS) {
     if (record[key] !== undefined) snapshot.currencies[key] = asNumber(record[key]);
   }

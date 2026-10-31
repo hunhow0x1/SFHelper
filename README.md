@@ -208,7 +208,6 @@ src/server/public/  The dashboard page and its bundled data
 src/account/     Account snapshot providers (public profile, file import, EE.log)
 helper/          Read-only memory reader (Linux /proc, Windows ReadProcessMemory) - see helper/README.md
 scripts/         Data builders and game-file extractors
-docs/            Background research on Soulframe's account data sources
 tests/           Vitest suites
 ```
 

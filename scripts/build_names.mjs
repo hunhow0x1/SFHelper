@@ -1,27 +1,3 @@
-// Turn the extracted localization dict into the app's names file.
-//
-//   node scripts/extract_names.mjs --out dict.en.json      # pull the dict
-//   node scripts/build_names.mjs dict.en.json names.json [Packages.bin_H]   # -> { items, factions }
-//
-// Host the resulting names.json at your SFHELPER_NAMES_URL endpoint.
-//
-// The dict is keyed by localization paths (e.g.
-// /SF/Language/Weapons/FeySwordMeleeWeaponName = "Dewelion"), whose leaf stem
-// usually equals the profile's ItemType leaf ("FeySwordMeleeWeapon"). We index
-// every "*Name" string by that stem, then add category-aware aliases for the
-// cases where the two diverge (verified against a live profile):
-//   * weapons: RangedMelee<->RangedMeleeWeapon, Weapon->(Melee|RangedMelee)Weapon,
-//     Sword->Swords - each maps the dict stem onto the ItemType leaf form.
-//   * souls: /SF/Souls/<Char>/<Char>Soul takes its name from
-//     /SF/Language/Pacts/<Char>Name, so every Pacts "<X>Name" also aliases
-//     "<X>Soul".
-//   * armour: leaves that differ from their name's stem (ForgetFireAltBody vs
-//     ForgetFireBodyAlt, CircadeHelmet vs CircadeHelm, typos) are matched by
-//     armour_names.mjs, for every armour type in the game's type tree
-//     (Packages.bin, as cached by extract_names; skipped if it isn't there).
-// Aliases never overwrite an exact stem match. A handful of items are simply
-// unnamed in the dict (e.g. StagSoul) and fall back to the cleaned leaf.
-
 import { readFile, writeFile } from "node:fs/promises";
 import { DEFAULT_PACKAGES_PATH, readTypeTree } from "./type_tree.mjs";
 import { matchArmourStem } from "./armour_names.mjs";
@@ -40,40 +16,32 @@ for (const tag of FACTION_TAGS) {
   if (token) factionTokens[tag] = token;
 }
 
-// Internal currency field (as seen in inventory.php) -> its dict display name.
 const CURRENCY_FIELDS = {
-  RegularCredits: "/SF/Language/Currency/CurrencyName", // Dracs
-  PremiumCredits: "/SF/Language/Currency/PremiumCurrencyName", // Arcs
+  RegularCredits: "/SF/Language/Currency/CurrencyName",
+  PremiumCredits: "/SF/Language/Currency/PremiumCurrencyName",
   PremiumCreditsFree: "/SF/Language/Currency/PremiumCurrencyName",
-  FusionPoints: "/SF/Language/Currency/CurrencyMoteDustName", // Harmonies
+  FusionPoints: "/SF/Language/Currency/CurrencyMoteDustName",
 };
 const currencies = {};
 for (const [field, key] of Object.entries(CURRENCY_FIELDS)) {
   if (dict[key]) currencies[field] = dict[key];
 }
 
-// A few items have dict keys the heuristics cannot derive (the dict drops or
-// reshapes part of the name, e.g. "FennJotar" vs the ItemType's "FennJotarSword").
-// List only ones confirmed against the dict; everything else is automatic.
 const MANUAL_OVERRIDES = {
   FennJotarSwordMeleeWeapon: dict["/SF/Language/Weapons/FennJotarMeleeWeaponName"],
-  // Some souls' internal family differs from their pact's character name.
-  WolfSoul: dict["/SF/Language/Pacts/OrengalName"], // -> Orengall
-  StagSoul: dict["/SF/Language/Pacts/GarrenName"], // -> Garren Rood
-  SecondaryOdeSawDaggerMeleeWeapon: dict["/SF/Language/Weapons/OdeSecondarySawSwordMeleeWeaponName"], // -> Grinn
-  // Totem whose inventory ItemType leaf ("HealRip") differs from its
-  // localization stem ("HealAoeRip").
-  HealRip: dict["/SF/Language/Motes/HealAoeRipName"], // -> Dabble Dredge
-  // The dict misspells this one's key ("IronIgot"); IronIngotResourceItem looks up "IronIngot".
-  IronIngot: dict["/SF/Language/Materials/IronIgotName"], // -> Hushed Chordstone
+  WolfSoul: dict["/SF/Language/Pacts/OrengalName"],
+  StagSoul: dict["/SF/Language/Pacts/GarrenName"],
+  SecondaryOdeSawDaggerMeleeWeapon: dict["/SF/Language/Weapons/OdeSecondarySawSwordMeleeWeaponName"],
+  HealRip: dict["/SF/Language/Motes/HealAoeRipName"],
+  IronIngot: dict["/SF/Language/Materials/IronIgotName"],
 };
 
 const items = {};
 const setPrimary = (key, value) => {
-  if (key) items[key] = value; // primary: authoritative, may overwrite
+  if (key) items[key] = value;
 };
 const setAlias = (key, value) => {
-  if (key && !(key in items)) items[key] = value; // fill gaps only
+  if (key && !(key in items)) items[key] = value;
 };
 
 function weaponAliases(stem) {
@@ -88,7 +56,6 @@ function weaponAliases(stem) {
   return out;
 }
 
-// Pass 1 - primary index by exact leaf stem.
 for (const [key, value] of Object.entries(dict)) {
   if (typeof value !== "string" || !key.endsWith("Name")) continue;
   if (value === "" || value.startsWith("[PH]")) continue;
@@ -96,7 +63,6 @@ for (const [key, value] of Object.entries(dict)) {
   if (stem && !(stem in items)) setPrimary(stem, value);
 }
 
-// Pass 2 - category-aware aliases (never clobber a primary).
 for (const [key, value] of Object.entries(dict)) {
   if (typeof value !== "string" || !key.endsWith("Name")) continue;
   if (value === "" || value.startsWith("[PH]")) continue;
@@ -104,11 +70,10 @@ for (const [key, value] of Object.entries(dict)) {
   if (key.startsWith("/SF/Language/Weapons/")) {
     for (const alias of weaponAliases(stem)) setAlias(alias, value);
   } else if (key.startsWith("/SF/Language/Pacts/")) {
-    setAlias(stem + "Soul", value); // <Char>Name -> <Char>Soul
+    setAlias(stem + "Soul", value);
   }
 }
 
-// Pass 3 - armour whose ItemType leaf differs from its name's stem.
 const armourStems = Object.keys(dict)
   .filter((k) => k.startsWith("/SF/Language/Armour/") && k.endsWith("Name"))
   .map((k) => k.slice("/SF/Language/Armour/".length, -"Name".length));
@@ -129,13 +94,11 @@ for (const path of tree?.keys() ?? []) {
     armourAliases++;
   }
 }
-// The hair "helmets" (Hair1AHelmet...) are the helmet-off look: the game's "Helmless".
 for (const path of tree?.keys() ?? []) {
   const leaf = path.match(/^\/SF\/Upgrades\/Skins\/Helmets\/(Hair\d+AHelmet)$/)?.[1];
   if (leaf) setAlias(leaf, dict["/SF/Language/Armour/NoHelmetName"]);
 }
 
-// Manual overrides win over everything (skip any that were not in the dict).
 for (const [key, value] of Object.entries(MANUAL_OVERRIDES)) {
   if (value) items[key] = value;
 }

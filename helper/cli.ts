@@ -1,14 +1,3 @@
-/** SFHelper memory helper - standalone CLI entry point.
- *
- *  Thin wrapper over helper/run.ts. Order of operations is enforced there:
- *  consent gate -> find process -> open read-only -> recover/verify account id ->
- *  find & verify nonce -> save inventory.json for the app to import.
- *
- *  Usage:
- *    npm run helper -- [--account <24-hex-id>] [--out inventory.json]
- *    npm run helper -- --ack "<phrase>"     # record consent, then exit
- */
-
 import { homedir } from "node:os";
 import { recordConsent, CONSENT_NOTICE } from "./consent";
 import { importInventory, defaultPaths } from "./run";

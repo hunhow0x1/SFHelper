@@ -6,14 +6,12 @@
     <title>SFHelper</title>
     <link rel="icon" type="image/svg+xml" href="img/icon.svg" />
     <style>
-      /* ---- Fonts (bundled, SIL OFL - see fonts/LICENSE.txt) ------------------ */
       @font-face { font-family: "Cinzel"; src: url(fonts/Cinzel.woff2) format("woff2"); font-weight: 400 900; font-display: swap; }
       @font-face { font-family: "Alegreya Sans"; src: url(fonts/AlegreyaSans-400.woff2) format("woff2"); font-weight: 400; font-display: swap; }
       @font-face { font-family: "Alegreya Sans"; src: url(fonts/AlegreyaSans-400-italic.woff2) format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
       @font-face { font-family: "Alegreya Sans"; src: url(fonts/AlegreyaSans-500.woff2) format("woff2"); font-weight: 500; font-display: swap; }
       @font-face { font-family: "Alegreya Sans"; src: url(fonts/AlegreyaSans-700.woff2) format("woff2"); font-weight: 600 700; font-display: swap; }
 
-      /* ---- Soulframe palette: umber dark, parchment text, brass gold, fey jade -- */
       :root {
         --bg: #0e0b09;
         --panel: #1b1510;
@@ -25,15 +23,15 @@
         --text: #ece2cf;
         --muted: #a39276;
         --faint: #6f6352;
-        --accent: #c9a55c;       /* brass gold */
+        --accent: #c9a55c;
         --accent-hi: #e8c97e;
         --accent-lo: #8a6a32;
-        --accent-2: #7fb59a;     /* fey jade */
+        --accent-2: #7fb59a;
         --courage: #d98a6a;
         --spirit: #7fb59a;
         --grace: #6f9edb;
         --bar-bg: #16110d;
-        --page-w: 1720px;        /* widest the content gets on big screens */
+        --page-w: 1720px;
         --display: "Cinzel", "Trajan Pro", Georgia, serif;
         --body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
       }
@@ -49,7 +47,6 @@
           var(--bg);
         background-attachment: fixed;
       }
-      /* Faint painterly grain over everything. */
       body::before {
         content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: 0.05;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -58,7 +55,6 @@
 
       b, strong { font-weight: 600; }
 
-      /* ---- Header ---------------------------------------------------------- */
       header.top {
         display: flex; flex-wrap: wrap; align-items: center; gap: 14px 34px;
         max-width: var(--page-w); margin: 0 auto; padding: 26px 28px 18px;
@@ -76,7 +72,6 @@
       .kpi.upd { justify-content: flex-end; text-transform: none; letter-spacing: 0.02em; font-size: 12.5px; color: var(--faint); }
       main { max-width: var(--page-w); margin: 0 auto; padding: 0 28px 48px; }
 
-      /* ---- Updates (desktop app) ------------------------------------------- */
       .updbar {
         display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px; box-sizing: border-box;
         width: min(calc(var(--page-w) - 56px), calc(100% - 32px)); margin: 0 auto 18px; padding: 12px 18px;
@@ -84,7 +79,6 @@
         color: var(--text); font-size: 14.5px;
       }
       .updbar[hidden], .foot[hidden] { display: none; }
-      /* DE refusing requests: same bar, in the warning colour. */
       .updbar.alertbar { border-color: rgba(217, 138, 106, 0.55); background: rgba(217, 138, 106, 0.08); }
       .updbar.alertbar b { color: var(--courage); }
       .updbar .ubar { flex: 1; min-width: 120px; max-width: 260px; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
@@ -97,12 +91,11 @@
       .foot button:disabled { opacity: 0.5; cursor: default; }
       .foot a { color: var(--muted); }
 
-      /* ---- Tabs ------------------------------------------------------------ */
       .tabs {
         display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;
         position: relative; margin: 0 0 30px; padding: 6px 0 0;
       }
-      .tabs::after { /* ornamental rule under the tab strip */
+      .tabs::after {
         content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
         background: linear-gradient(90deg, transparent, var(--line-2) 15%, var(--frame) 50%, var(--line-2) 85%, transparent);
       }
@@ -114,7 +107,7 @@
       }
       .tab:hover { color: var(--text); filter: none; }
       .tab.active { color: var(--accent-hi); text-shadow: 0 0 14px rgba(201, 165, 92, 0.35); }
-      .tab.active::after { /* gold rule with a centred diamond */
+      .tab.active::after {
         content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 1px; z-index: 1;
         background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
       }
@@ -126,8 +119,6 @@
       .panel { display: none; }
       .panel.active { display: grid; gap: 28px; }
       .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
-      /* Overview: a main column (standing, trades) and a side column (account,
-         tokens, currencies) on wide windows; below that, one column in this order. */
       .ov-col { display: contents; }
       .ov-account { order: 1; }
       .ov-standing { order: 2; }
@@ -142,18 +133,17 @@
       }
       @media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
 
-      /* ---- Framed panels --------------------------------------------------- */
       section {
         position: relative; padding: 28px 30px 30px; border-radius: 3px;
         background: linear-gradient(180deg, rgba(36, 28, 20, 0.94), rgba(22, 17, 13, 0.94));
         border: 1px solid var(--frame);
         box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(232, 201, 126, 0.08), 0 14px 40px rgba(0, 0, 0, 0.4);
       }
-      section::before { /* inner hairline, for the double-frame look */
+      section::before {
         content: ""; position: absolute; inset: 5px; border: 1px solid rgba(201, 165, 92, 0.07);
         border-radius: 2px; pointer-events: none;
       }
-      section::after { /* diamond on the top edge */
+      section::after {
         content: ""; position: absolute; top: -4px; left: 50%; width: 7px; height: 7px;
         background: var(--panel); border: 1px solid var(--frame); transform: translateX(-50%) rotate(45deg);
       }
@@ -166,9 +156,8 @@
       h2.hdr .notifytoggle { order: 2; font: 400 13.5px/1 var(--body); letter-spacing: 0; text-transform: none; }
       h3.sub { font: 600 13px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2); margin: 0 0 12px; }
 
-      /* ---- Controls -------------------------------------------------------- */
       .setup { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-      .setup[hidden] { display: none; } /* .setup's display:flex would otherwise beat [hidden] */
+      .setup[hidden] { display: none; }
       input {
         background: var(--well); border: 1px solid var(--line-2); color: var(--text);
         padding: 11px 15px; border-radius: 3px; font: inherit; font-size: 15px; min-width: 320px;
@@ -194,7 +183,6 @@
       .daily { color: var(--muted); font-size: 14px; margin: -8px 0 20px; }
       .daily b { color: var(--text); font-variant-numeric: tabular-nums; }
 
-      /* ---- Progress rows --------------------------------------------------- */
       .rows { display: grid; gap: 14px; }
       .row { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-items: baseline; }
       .row .label { font-weight: 500; font-size: 15.5px; }
@@ -220,7 +208,6 @@
       .invstatus b { color: var(--text); font-variant-numeric: tabular-nums; }
       .invstatus .err { color: var(--courage); }
 
-      /* ---- Stat tiles ------------------------------------------------------ */
       .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
       .stat {
         background: var(--well); border: 1px solid var(--line); border-radius: 3px; padding: 16px 18px 14px;
@@ -243,14 +230,12 @@
         .row .label .today { display: block; margin: 2px 0 0; }
       }
 
-      /* ---- Tables (stats) -------------------------------------------------- */
       table { width: 100%; border-collapse: collapse; }
       td, th { text-align: left; padding: 10px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
       th { color: var(--muted); font-weight: 500; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.14em; }
       tr:last-child td { border-bottom: 0; }
       td.num, th.num { text-align: right; }
 
-      /* ---- Chips & badges -------------------------------------------------- */
       .chip {
         display: inline-block; background: rgba(201, 165, 92, 0.05); border: 1px solid rgba(201, 165, 92, 0.22);
         border-radius: 2px; padding: 3px 11px; margin: 3px 6px 3px 0; font-size: 13.5px; color: var(--text);
@@ -259,7 +244,6 @@
       .chip.temper:hover { border-color: var(--accent); background: rgba(201, 165, 92, 0.1); }
       .chip.temper.stacked { border-color: rgba(232, 201, 126, 0.6); background: rgba(201, 165, 92, 0.13); color: var(--accent-hi); }
       .chip.temper .x2 { font-weight: 700; }
-      /* In-game temper icons (bundled from the wiki's copies of the game art). */
       .chip.temper { display: inline-flex; align-items: center; gap: 7px; padding-left: 5px; }
       .ticn { width: 20px; height: 20px; object-fit: contain; flex: none; border-radius: 2px; }
       .temperpop .tp-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
@@ -281,7 +265,6 @@
       .cw4 { color: #bf94dc; border-color: #4d3a5e; }
       .cw5 { color: #eab45a; border-color: #7a5e22; background: rgba(234, 180, 90, 0.08); box-shadow: 0 0 10px rgba(234, 180, 90, 0.12); }
 
-      /* ---- Weapons & Pacts / Tempers -------------------------------------- */
       .wfilter { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
       .fchip {
         background: transparent; color: var(--muted); border: 1px solid var(--line-2); box-shadow: none;
@@ -292,15 +275,11 @@
       .wsearch { width: 100%; min-width: 0; margin-bottom: 18px; }
       .xpgroup { margin-bottom: 30px; }
       .xpgroup:last-child { margin-bottom: 0; }
-      /* ---- Mastery: classes flow into balanced columns; a class never splits. */
       #mastery { columns: 6 280px; column-gap: 20px; }
-      /* Each weapon type in its own box, like the loadout cards. */
       #mastery .xpgroup {
         break-inside: avoid; margin-bottom: 20px; padding: 14px 18px 18px;
         background: var(--well); border: 1px solid var(--line); border-radius: 3px;
       }
-      /* One type selected: its rows flow across all the columns instead (a box
-         would be split between them). */
       #mastery.single { column-gap: 44px; }
       #mastery.single .xpgroup { break-inside: auto; padding: 0; background: none; border: 0; }
       #mastery.single .xpgroup h3.wclass { column-span: all; }
@@ -315,7 +294,6 @@
       .mrow.done .mbar > i { background: linear-gradient(90deg, #4f7c66, var(--accent-2)); }
       .mrow.miss .mname, .mrow.miss .mval { color: var(--faint); }
       .mrow.miss .mbar { opacity: 0.45; }
-      /* Envoy Rank tracker: a badge that fills from the bottom, as in game. */
       .erank {
         display: grid; grid-template-columns: auto 1fr auto; gap: 18px 22px; align-items: center;
         background: var(--well); border: 1px solid var(--line); border-radius: 3px; padding: 16px 20px; margin-bottom: 22px;
@@ -354,8 +332,6 @@
       .xpgroup h3.wclass .count { font: 400 13px/1 var(--body); color: var(--faint); letter-spacing: 0; }
       .wtempers { grid-column: 1 / -1; margin-top: 8px; }
 
-      /* ---- Pickups --------------------------------------------------------- */
-      /* One weapon per row, newest first, scrolling down: name, tempers, time. */
       #trades { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 22px; align-content: start; }
       @media (max-width: 640px) { #trades { grid-template-columns: 1fr; } }
       .pickrow { padding: 14px 0; border-bottom: 1px solid var(--line); }
@@ -373,10 +349,7 @@
       .pickhead .pickwhen { margin-left: auto; color: var(--faint); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
       .picktop { display: flex; align-items: center; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 22px; }
       .picktop h2 { flex: 1; min-width: 220px; margin-bottom: 0; }
-      /* ---- Trades ---------------------------------------------------------- */
       #tradeTiles { margin-bottom: 26px; }
-      /* One framed card per trade: who and when, then what came in and went out,
-         each item with its in-game icon, and the Scutage paid. */
       .tradecard { background-color: var(--well); border: 1px solid var(--line); padding: 16px 20px 14px; }
       .tradecard .pickname .partner { color: var(--accent-hi); }
       .tradecols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; margin-top: 14px; }
@@ -397,7 +370,6 @@
       .notifytoggle { position: relative; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--muted); font-size: 14px; user-select: none; }
       .notifytoggle[hidden] { display: none; }
       .notifytoggle:hover { color: var(--text); }
-      /* The real checkbox stays hidden (and tiny: inputs default to 320px wide). */
       .notifytoggle input { position: absolute; opacity: 0; pointer-events: none; min-width: 0; width: 1px; height: 1px; }
       .notifytoggle .sw {
         position: relative; flex: none; width: 34px; height: 18px; border-radius: 9px;
@@ -418,7 +390,6 @@
         box-shadow: 0 0 12px rgba(200, 220, 245, 0.25);
       }
 
-      /* ---- Avakot's Gots ---------------------------------------------------- */
       @media (min-width: 1320px) {
         #panel-avakot { grid-template-columns: minmax(0, 1.55fr) minmax(420px, 1fr); align-items: start; }
       }
@@ -439,14 +410,12 @@
       .avtime.soon { color: var(--courage); }
       .avbar { height: 3px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
       .avbar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi)); }
-      /* Star toggle: outline when off, glowing gold when on. */
       button.star { background: none; border: 0; box-shadow: none; padding: 5px; margin: -5px; line-height: 0; cursor: pointer; }
       button.star:hover { filter: none; }
       button.star svg { width: 22px; height: 22px; fill: none; stroke: var(--faint); stroke-width: 1.5; stroke-linejoin: round; transition: stroke 0.15s, fill 0.15s; }
       button.star:hover svg { stroke: var(--accent-hi); }
       button.star.on svg { fill: var(--accent-hi); stroke: var(--accent-hi); filter: drop-shadow(0 0 5px rgba(232, 201, 126, 0.55)); }
       button.star:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
-      /* Weekly / always-stocked lists and the wishlist rows. */
       .avlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); column-gap: 32px; margin-bottom: 28px; }
       .avrow { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
       .avrow.starrable { grid-template-columns: auto 30px minmax(0, 1fr) auto; }
@@ -464,18 +433,17 @@
       }
       .avgroup h3 .count { font: 400 13px/1 var(--body); color: var(--faint); letter-spacing: 0; }
       .avgroup .avrow:last-child { border-bottom: 0; }
-      /* Discoveries (Mastery): compact rows, one diamond per Memory. */
       #discoveries .avrow { grid-template-columns: minmax(0, 1fr) auto; }
       #discoveries .avrow.undiscovered .avn { color: var(--faint); }
       .mempips { display: inline-flex; gap: 7px; padding-right: 2px; }
       .mempips i { width: 7px; height: 7px; border: 1px solid var(--line-2); transform: rotate(45deg); }
       .mempips i.on { background: var(--accent-2); border-color: var(--accent-2); box-shadow: 0 0 6px rgba(127, 181, 154, 0.45); }
-      /* Cooldowns (Overview): the compact list's rows without an icon. */
       #timers .avrow { grid-template-columns: minmax(0, 1fr) auto; }
+      #timers .avrow.starrable { grid-template-columns: auto minmax(0, 1fr) auto; }
+      #timers .avrow.idle .avn { color: var(--muted); }
       #timers .avrow:last-child { border-bottom: 0; }
       #timers .avr b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
 
-      /* ---- Totems ---------------------------------------------------------- */
       .tfilters { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; align-items: center; margin-bottom: 18px; }
       .tfilters .fl { color: var(--muted); font: 600 11px/1 var(--display); letter-spacing: 0.16em; text-transform: uppercase; }
       .tfilters .wfilter { margin: 0; gap: 8px; }
@@ -528,7 +496,6 @@
         .tgrid { grid-template-columns: 1fr; }
       }
 
-      /* ---- Popover --------------------------------------------------------- */
       .temperpop {
         position: fixed; z-index: 50; max-width: 340px; padding: 14px 16px;
         background: linear-gradient(180deg, #261d15, #19130e); color: var(--text);
@@ -542,7 +509,6 @@
       .temperpop .tp-rank { color: var(--muted); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
       .temperpop .tp-quote { color: var(--muted); font-style: italic; font-size: 14px; line-height: 1.5; margin-bottom: 8px; }
 
-      /* ---- Loadouts (cards) ------------------------------------------------ */
       .lo-list { display: grid; gap: 16px; }
       .lo {
         border: 1px solid var(--line); border-radius: 3px; background: var(--well);
@@ -554,7 +520,6 @@
         display: grid; grid-template-columns: minmax(170px, 1.05fr) minmax(0, 0.8fr) repeat(4, minmax(0, 1fr)) auto;
         gap: 24px; align-items: start; padding: 22px 24px; cursor: pointer;
       }
-      /* Narrower: Armour and Talisman drop to a second line under Pact/Primary. */
       @media (max-width: 1360px) {
         .lo-head { grid-template-columns: minmax(170px, 1.05fr) minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1fr) auto; }
         .lo-head > .lo-slot.extra { grid-row: 2; }
@@ -617,7 +582,6 @@
       .totemrow { display: grid; gap: 2px; }
       .totemrow .tname { font-weight: 500; font-size: 15px; color: var(--text); }
       .totemrow .teff { color: var(--muted); font-size: 14px; line-height: 1.45; }
-      /* Totems by slot: a fixed label column, then name/virtue over the effect. */
       .totemrow.slotted { grid-template-columns: 74px 1fr; column-gap: 12px; }
       .totemrow.slotted .tslot { grid-row: span 2; padding-top: 2px; color: var(--faint); font: 600 10.5px/1.3 var(--body); letter-spacing: 0.12em; text-transform: uppercase; }
       .totemrow.slotted .tslot small { display: block; font-size: 9.5px; letter-spacing: 0.1em; color: var(--faint); opacity: 0.8; }
@@ -650,7 +614,6 @@
       .lo-import { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
       .lo-import input { flex: 1; }
 
-      /* ---- Pact Arts tree (in-game node/pip art, current Preludes layout) --- */
       .pactarts { margin-top: 16px; }
       .pactarts .pa-sum { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
       .pacttree {
@@ -673,8 +636,6 @@
       .pacttree .artrank { font-family: var(--body); font-size: 12px; fill: var(--accent); }
       .pacttree .artnode.off .artrank { fill: #6a6155; }
 
-      /* ---- Card corner brackets: small gold ticks, like the game's item frames.
-         Last in the sheet so it adds to each card's own background colour. */
       .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard {
         --tick: rgba(201, 165, 92, 0.42);
         background-image:
@@ -719,7 +680,6 @@
         <button class="tab" data-tab="stats">Stats</button>
       </nav>
 
-      <!-- OVERVIEW -->
       <div class="panel active" id="panel-overview">
         <div class="ov-col">
           <section class="ov-standing">
@@ -728,7 +688,6 @@
             <div class="rows" id="factions"><span class="muted">—</span></div>
           </section>
 
-          <!-- The Trades tab's stats, repeated here. -->
           <section class="ov-trades" id="overviewTrades" hidden>
             <h2>Trades</h2>
             <div class="grid" id="overviewTradeTiles"></div>
@@ -747,10 +706,9 @@
             </div>
           </section>
 
-          <!-- The game's own timers: Agari respawns, Blessed Meetings and the like. -->
           <section class="ov-timers" id="timersSection" hidden>
             <h2 class="hdr">Cooldowns
-              <label class="notifytoggle" id="timerNotifyWrap" hidden title="Desktop notification when a cooldown ends">
+              <label class="notifytoggle" id="timerNotifyWrap" hidden title="Desktop notification when a starred cooldown ends">
                 <input type="checkbox" id="timerNotify" />
                 <span class="sw"></span>
                 Notify
@@ -774,7 +732,6 @@
         </div>
       </div>
 
-      <!-- LOADOUTS -->
       <div class="panel" id="panel-loadouts">
         <section>
           <h2>Loadouts</h2>
@@ -787,7 +744,6 @@
         </section>
       </div>
 
-      <!-- MASTERY: weapon & pact leveling -->
       <div class="panel" id="panel-mastery">
         <section>
           <h2>Mastery</h2>
@@ -797,7 +753,6 @@
           <div class="daily" id="masterySummary"></div>
           <div id="mastery"><span class="muted">Import your inventory to track weapon and pact mastery.</span></div>
         </section>
-        <!-- Places and Memories: they count toward Envoy Rank too. -->
         <section id="discoveriesSection" hidden>
           <h2>Discoveries</h2>
           <div class="daily" id="discSummary"></div>
@@ -806,7 +761,6 @@
         </section>
       </div>
 
-      <!-- UPGRADES: Tuvalkane temper learning + Totems -->
       <div class="panel" id="panel-upgrades">
         <section>
           <h2>Tempers · Tuvalkane</h2>
@@ -834,7 +788,6 @@
         </section>
       </div>
 
-      <!-- PICKUPS -->
       <div class="panel" id="panel-pickups">
         <section>
           <div class="picktop">
@@ -851,7 +804,6 @@
         </section>
       </div>
 
-      <!-- TRADES -->
       <div class="panel" id="panel-trades">
         <section>
           <h2>Trades</h2>
@@ -860,7 +812,6 @@
         </section>
       </div>
 
-      <!-- AVAKOT: his shop's stock, and the wishlist that notifies -->
       <div class="panel" id="panel-avakot">
         <section>
           <div class="picktop">
@@ -881,7 +832,6 @@
         </section>
       </div>
 
-      <!-- STATS -->
       <div class="panel" id="panel-stats">
         <section>
           <h2>Combat</h2>
@@ -899,8 +849,6 @@
     <script>
       const $ = (id) => document.getElementById(id);
       const fmt = (n) => (typeof n === "number" ? n.toLocaleString() : "—");
-      // True when a section's data differs from the last time it rendered, so we
-      // can skip re-rendering (and preserve expand/scroll state) on idle refreshes.
       const _sectionJson = {};
       function sectionChanged(key, val) {
         const j = JSON.stringify(val);
@@ -909,8 +857,6 @@
         return true;
       }
 
-      // Tabs. The active tab is remembered so a data refresh or the post-import
-      // window reload doesn't bounce you back to Overview.
       function activateTab(name) {
         if (!document.getElementById("panel-" + name)) return;
         document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x.dataset.tab === name));
@@ -924,56 +870,34 @@
       });
       try {
         const savedTab = localStorage.getItem("sfhelper.tab");
-        // Older tab names: Totems moved into Upgrades; Weapons & Pacts became Mastery.
         const RENAMED_TAB = { totems: "upgrades", weapons: "mastery" };
         if (savedTab) activateTab(RENAMED_TAB[savedTab] || savedTab);
       } catch {}
 
-      // In-game display names, loaded from /names.json. Until an entry exists
-      // for an item, we fall back to a cleaned-up path segment.
       let DICT = { items: {}, factions: {}, factionTokens: {}, currencies: {} };
-      // Lowercased item-name index, so lookups survive the source dict's casing
-      // inconsistencies (e.g. LongbladeProjectileRune vs LongBladeProjectileRune).
       let DICT_LC = {};
-      // Per-faction, per-rank standing caps (from faction-ranks.json).
       let FACTION_RANKS = {};
-      // Totem / rune display name -> effect text (from totems.json / runes.json).
       let TOTEMS = {};
       let RUNES = {};
-      // Temper Tag -> { name, effect } (from tempers.json).
       let TEMPER_DB = {};
-      // Pact Art key ("Folder/Skill") -> { name, slot, max, virtue?, desc, detail } (pactarts.json).
       let PACT_ARTS = {};
-      // Pact Art key -> its stats per point from the game's data [{ n, unit, sign, label }] (pactartvalues.json).
       let PACT_ART_VALUES = {};
-      // In-game item name -> icon path (itemicons.json), for the Trades tab.
       let ITEM_ICONS = {};
-      // Talisman ItemType leaf -> { name, Courage, Spirit, Grace } (talismans.json).
       let TALISMANS = {};
-      // Full weapon roster (name -> {class, slot}) from weapons.json, for the
-      // leveling tracker; and the last-seen owned weapons + the active filter.
       let WEAPON_ROSTER = {};
       let LAST_WEAPONS = [];
-      // Mastery filters (remembered per viewer; the search box is not).
       const MASTERY_UI = { own: "all", mastery: "all", type: "all", q: "" };
       try { Object.assign(MASTERY_UI, JSON.parse(localStorage.getItem("sfhelper.mastery") || "{}"), { q: "" }); } catch {}
       const saveMasteryUi = () => { try { localStorage.setItem("sfhelper.mastery", JSON.stringify({ ...MASTERY_UI, q: "" })); } catch {} };
-      // Pact roster (name -> {}) from pacts.json, and the last-seen owned pacts.
       let PACT_ROSTER = {};
       let LAST_PACTS = [];
-      // The game's mastery record: ItemType -> most XP ever reached (XPInfo), kept
-      // through dismantling/selling. Null without an inventory.
       let LAST_MASTERY = null;
-      // Envoy Rank: { rank, maxRank, maxMastery, patch, progress, mastery: { total, items, other, next }, items }.
       let LAST_ENVOY = null;
-      // Tuvalkane temper-learning progress [{tag, count}]; learned at 10.
       let LAST_TEMPERS = [];
-      // Picked-up weapon history [{key, craftwork, tempers, xp, at}], newest first.
       let LAST_PICKUPS = [];
       let PICKUP_SEARCH = "";
       let LAST_TRADES = null;
 
-      // Cumulative standing to REACH each rank (caps are per-rank earn amounts).
       function rankInfo(tag, standing, rank) {
         const caps = FACTION_RANKS[tag] || FACTION_RANKS.default || [];
         if (!caps.length) return null;
@@ -986,7 +910,6 @@
         return { cap, into, pct: cap ? Math.min(1, into / cap) : 0, atMax: r === caps.length - 1 };
       }
 
-      // Daily standing resets at 00:00 UTC (DE's daily reset). Pure client clock.
       function msToDailyReset() {
         const now = new Date();
         return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1) - now.getTime();
@@ -997,10 +920,6 @@
         return `${p(Math.floor(s / 3600))}:${p(Math.floor((s % 3600) / 60))}:${p(s % 60)}`;
       }
 
-      // Leveling: cumulative affinity to reach rank r is C*r^2, max 30. Weapons
-      // use C=250 (225,000 at rank 30) and Pacts C=500 (the wiki's 1000 for Pacts
-      // is out of date: in game a pact at 450,859 XP is maxed). pct is a smooth
-      // 0..1 bar that reaches r/30 exactly as each rank completes.
       const WEAPON_RANK_C = 250, PACT_RANK_C = 500;
       function levelOf(xp, C) {
         const MAX = 30;
@@ -1011,7 +930,6 @@
         return { rank: r, pct: (r + (xp - base) / (next - base)) / MAX, maxed: false };
       }
 
-      // Craftwork quality tiers (raw IQ_* -> tier name, temper capacity, damage bonus).
       const CRAFTWORK = {
         IQ_WORN: { name: "Stock", bonus: 0, tier: 0, max: 1 },
         IQ_MILITARY: { name: "Military", bonus: 4, tier: 1, max: 3 },
@@ -1021,21 +939,14 @@
         IQ_LEGENDARY: { name: "Legendary", bonus: 20, tier: 5, max: 8 },
       };
       const craftworkInfo = (q) => CRAFTWORK[q] || null;
-      // Cleaned tag fallback when a temper isn't in the name DB.
       const cleanTemper = (tag) =>
         String(tag).replace(/Mod$/, "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/\bAnd\b/g, "&").trim();
-      // In-game temper name (from tempers.json), else the cleaned tag.
       const temperName = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].name) || cleanTemper(tag);
       const temperEffect = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].effect) || "";
-      // The temper's in-game icon, bundled as img/tempers/<slug>.png (see
-      // build_data.ts tempericons). Removed quietly if there's no icon for it.
       const temperIcon = (tag) =>
         `<img class="ticn" src="img/tempers/${temperName(tag).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.png" alt="" loading="lazy" onerror="this.remove()">`;
-      // A clickable temper chip (click shows its effect).
       const temperChip = (tag, count = 1) =>
         `<span class="chip temper${count > 1 ? " stacked" : ""}" data-tag="${tag}" data-count="${count}">${temperIcon(tag)}<span>${temperName(tag)}${count > 1 ? ` <span class="x2">×${count}</span>` : ""}</span></span>`;
-      // Group identical tempers (double-stacked = same tag twice = 2x effect) and
-      // render them first, then singles, as one chip each.
       function temperChips(arr) {
         const counts = new Map();
         for (const t of arr || []) counts.set(t, (counts.get(t) || 0) + 1);
@@ -1044,12 +955,8 @@
           .map(([tag, count]) => temperChip(tag, count))
           .join("");
       }
-      // Back-compat alias used elsewhere; now returns the in-game name.
       const prettyTemper = (tag) => temperName(tag);
 
-      // Floating popover with a temper's name + effect (or a Pact Art's). A
-      // click on a temper chip, art node or Upgrades temper row pins it open;
-      // hovering an Upgrades temper row shows it until the pointer leaves.
       let temperPop = null;
       function closeTemperPop() { if (temperPop) { temperPop.remove(); temperPop = null; } }
       function openTemperPop(el, hover = false) {
@@ -1068,7 +975,6 @@
           temperPop.innerHTML = `<div class="tp-head">${temperIcon(tag)}<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div></div>${dbl}${effHtml}`;
         }
         document.body.appendChild(temperPop);
-        // Below the element, or above it when there's no room below.
         const r = (el.querySelector(".label") || el).getBoundingClientRect();
         const h = temperPop.offsetHeight;
         const top = r.bottom + 6 + h > window.innerHeight - 12 ? Math.max(12, r.top - 6 - h) : r.bottom + 6;
@@ -1095,9 +1001,6 @@
         if (temperPop && temperPop.dataset.hover) closeTemperPop();
       }, { passive: true });
 
-      // Envoy Rank tracker. The rank and the patch maximum are exact; progress
-      // adds your weapon and Pact ranks to the Mastery from discoveries and the
-      // like, which Soulframe writes to its log at login (see envoyRank.ts).
       const PATCH_NAME = (p) => (/^P(\d+(?:\.\d+)?)$/.test(p || "") ? `Preludes ${p.slice(1)}` : p || "");
       function renderEnvoyRank() {
         const e = LAST_ENVOY;
@@ -1133,17 +1036,12 @@
         </div>`;
       }
 
-      // Mastery: weapons and pacts share this tracker. Each section has its own
-      // roster, owned list and grouping. Mastery comes from the game's record of
-      // the most XP each item has ever reached, so a dismantled, sold or
-      // re-crafted item keeps the Mastery it granted; the copy you hold has its
-      // own rank. Without an inventory, the held copy's XP is all we have.
       function renderMastery() {
         const sections = [
           { roster: WEAPON_ROSTER, owned: LAST_WEAPONS, prefix: "/SF/Weapons/", C: WEAPON_RANK_C, groupOf: (n) => (WEAPON_ROSTER[n] && WEAPON_ROSTER[n].class) || "Other" },
           { roster: PACT_ROSTER, owned: LAST_PACTS, prefix: "/SF/Souls/", C: PACT_RANK_C, groupOf: () => "Pacts" },
         ];
-        const items = []; // { name, group, w, lvl (mastery earned), copy (held copy's rank) }
+        const items = [];
         for (const sec of sections) {
           const ownedByName = new Map((sec.owned || []).map((w) => [shortName(w.key), w]));
           const earnedByName = new Map();
@@ -1171,11 +1069,10 @@
           ? `Owned <b>${owned}/${items.length}</b> &nbsp;·&nbsp; Mastered <b>${mastered}</b> &nbsp;·&nbsp; Leveling <b>${leveling}</b>`
           : "";
 
-        // Weapon classes alphabetically, then Pacts last.
         const groupNames = [...new Set(items.map((i) => i.group))].sort((a, b) =>
           a === "Pacts" ? 1 : b === "Pacts" ? -1 : a.localeCompare(b),
         );
-        if (!["all", "weapons", "pacts"].includes(MASTERY_UI.type)) MASTERY_UI.type = "all"; // older saved class filters
+        if (!["all", "weapons", "pacts"].includes(MASTERY_UI.type)) MASTERY_UI.type = "all";
 
         const q = MASTERY_UI.q.trim().toLowerCase();
         const passOwn = (i) => MASTERY_UI.own === "all" || (MASTERY_UI.own === "owned") === !!i.w;
@@ -1184,7 +1081,6 @@
         const passType = (i) => MASTERY_UI.type === "all" || (MASTERY_UI.type === "pacts") === isPact(i);
         const passSearch = (i) => !q || i.name.toLowerCase().includes(q);
 
-        // Filter rows; each chip counts what it would show given the other filters.
         const chip = (key, val, label, n) =>
           `<button class="fchip${MASTERY_UI[key] === val ? " active" : ""}" data-k="${key}" data-v="${val}">${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
         const countIf = (pred) => items.filter((i) => passSearch(i) && pred(i)).length;
@@ -1208,8 +1104,6 @@
           if (!l) {
             return `<div class="mrow miss"><span class="mname">${i.name}</span><span class="mval">Unowned</span><span class="mbar"></span></div>`;
           }
-          // Say when the held copy is behind the Mastery already earned
-          // (re-crafted), or when the Mastery came from a copy no longer owned.
           const note = !i.w
             ? `<span class="mnote" title="Mastery earned before this item left your inventory">unowned</span>`
             : i.copy.rank < l.rank
@@ -1220,7 +1114,7 @@
           return `<div class="${cls}"><span class="mname">${i.name}</span><span class="mval">${note}${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
         };
         const shown = items.filter((i) => passOwn(i) && passMastery(i) && passType(i) && passSearch(i));
-        $("mastery").classList.toggle("single", MASTERY_UI.type === "pacts"); // one group: let it flow across columns
+        $("mastery").classList.toggle("single", MASTERY_UI.type === "pacts");
         const html = groupNames
           .map((g) => {
             const list = shown.filter((i) => i.group === g).sort((a, b) => a.name.localeCompare(b.name));
@@ -1243,9 +1137,6 @@
         renderMastery();
       });
 
-      // Discoveries: every place the game tracks, by its in-game name, with the
-      // Memories found there (from the inventory) out of how many it holds (from
-      // the game's data). Dungeon maps have no Memories, so they're just counted.
       let LAST_DISCOVERIES = null;
       let DISC_FILTER = "all";
       try { DISC_FILTER = localStorage.getItem("sfhelper.discoveries") || "all"; } catch {}
@@ -1286,8 +1177,6 @@
         renderDiscoveries();
       });
 
-      // Tuvalkane temper learning: each temper is learned at 10 progress (earned
-      // by dismantling weapons bearing it). ~43 tempers exist in-game (Preludes 16).
       const TEMPER_GOAL = 10;
       const TEMPER_TOTAL = 43;
       function renderTempers() {
@@ -1312,9 +1201,6 @@
         if (list.length) $("tempers").innerHTML = rows || '<span class="muted">No tempers match.</span>';
       }
 
-      // Relative time like "3h ago".
-      // Real pickup time: exact from the game log, else when the game synced it
-      // to the server (both resolved server-side), else when we noticed it.
       function pickWhen(p) {
         const d = new Date(p.when || p.at);
         const today = new Date();
@@ -1330,8 +1216,6 @@
         return `<span class="pickwhen" title="${how}&#10;${d.toLocaleString()}">${approx}${day} · ${time}</span>`;
       }
       function renderPickups() {
-        // Only weapons picked up off the ground - crafted and vendor-bought
-        // weapons are classified server-side and left out.
         const when = (p) => p.when || p.at;
         const list = (LAST_PICKUPS || [])
           .filter((p) => !p.source || p.source === "pickup")
@@ -1363,15 +1247,10 @@
           .join("");
         if (list.length) $("pickups").innerHTML = rows || '<span class="muted">No pickups match.</span>';
       }
-      // ---- Trades ---------------------------------------------------------
-      // Detected server-side from the inventory: each drop in the daily trade
-      // counter between two imports, with what changed hands in that window.
       function tradeItemName(key) {
         const tal = key.includes("/Skins/Totem/") ? TALISMANS[key.split("/").pop()] : null;
         return tal ? tal.name : shortName(key);
       }
-      // A traded item's icon: the game's art for it (itemicons.json, by name),
-      // else its weapon type's grip or its Joinery's icon.
       const CLASS_GRIP = {
         "Long Blades": "Long Blade", "Short Blades": "Short Blade", "Magick Weapons": "Magick", Bows: "Bow", Polearms: "Polearm",
         Cleavers: "Heavy", Greatswords: "Heavy", "Heavy Maces": "Heavy", Shields: "Shield", Flyblades: "Flyblade",
@@ -1382,8 +1261,6 @@
         const src = ITEM_ICONS[name] || (joinery ? `img/joineries/${joinery[1].toLowerCase()}.png` : grip ? gripIcon(grip) : null);
         return src ? `<img class="ticon" src="${src}" alt="" onerror="this.style.visibility='hidden'">` : '<span class="ticon"></span>';
       }
-      // Items from the inventory diff: weapons one by one with their craftwork
-      // and tempers, everything else by name and count.
       function tradeItem(i) {
         const name = tradeItemName(i.key);
         const count = i.count > 1 ? `<span class="tcount">×${fmt(i.count)}</span>` : "<span></span>";
@@ -1400,7 +1277,6 @@
           .map(tradeItem)
           .join("")}</ul>`;
       }
-      // Names only, as the game log lists them (no counts).
       function tradeNames(names) {
         return names.length ? `<ul>${names.map((n) => `<li>${tradeIcon(n)}<span>${escHtml(n)}</span><span></span></li>`).join("")}</ul>` : '<div class="none">Nothing</div>';
       }
@@ -1460,30 +1336,39 @@
           : '<span class="muted">No trades yet. Trades you make will appear here as your inventory refreshes; history starts once SFHelper is running.</span>';
       }
 
-      // ---- Cooldowns -------------------------------------------------------
-      // The game's own timers from the inventory (Agari respawns, the gap
-      // between Blessed Meetings...), soonest first. See src/server/timers.ts.
       let LAST_TIMERS = null;
+      let TIMER_WATCH = null;
+      function timerStar(t) {
+        const on = TIMER_WATCH.includes(t.tag);
+        const tip = on ? "Starred: you'll be notified when this cooldown ends" : "Star to be notified when this cooldown ends";
+        return `<button class="star${on ? " on" : ""}" data-timer="${escHtml(t.tag)}" aria-pressed="${on}" title="${tip}" aria-label="${escHtml(t.name)}">${STAR_SVG}</button>`;
+      }
       function renderTimers() {
         if (!LAST_TIMERS) return;
         const now = Date.now();
         const running = LAST_TIMERS.filter((t) => t.expiry > now);
-        $("timers").innerHTML = running.length
-          ? `<div>${running
-              .map((t) => `<div class="avrow" title="${escHtml(t.tag)}"><div class="avn">${escHtml(t.name)}${t.kind ? `<small>${escHtml(t.kind)}</small>` : ""}</div><div class="avr"><b>${avLeft(t.expiry - now)}</b><small>until ${avClock(t.expiry)}</small></div></div>`)
+        const ready = TIMER_WATCH ? LAST_TIMERS.filter((t) => t.expiry <= now && TIMER_WATCH.includes(t.tag)) : [];
+        const row = (t, right) =>
+          `<div class="avrow${TIMER_WATCH ? " starrable" : ""}${t.expiry > now ? "" : " idle"}" title="${escHtml(t.tag)}">${TIMER_WATCH ? timerStar(t) : ""}<div class="avn">${escHtml(t.name)}${t.kind ? `<small>${escHtml(t.kind)}</small>` : ""}</div><div class="avr">${right}</div></div>`;
+        $("timers").innerHTML = running.length || ready.length
+          ? `<div>${running.map((t) => row(t, `<b>${avLeft(t.expiry - now)}</b><small>until ${avClock(t.expiry)}</small>`)).join("")}${ready
+              .map((t) => row(t, '<span class="instock">Ready</span>'))
               .join("")}</div>`
           : '<span class="muted">No cooldowns running.</span>';
       }
       setInterval(renderTimers, 30000);
-      // Notify toggle - only meaningful in the desktop app.
       (async () => {
         if (!navigator.userAgent.includes("Electron")) return;
         const box = $("timerNotify");
         try {
-          box.checked = (await (await fetch("/api/settings")).json()).timerNotify !== false;
+          const s = await (await fetch("/api/settings")).json();
+          box.checked = s.timerNotify !== false;
+          TIMER_WATCH = Array.isArray(s.timerWatch) ? s.timerWatch : [];
         } catch {
           box.checked = true;
+          TIMER_WATCH = [];
         }
+        renderTimers();
         $("timerNotifyWrap").hidden = false;
         box.addEventListener("change", async () => {
           try {
@@ -1494,12 +1379,31 @@
             });
             box.checked = (await r.json()).timerNotify;
           } catch {
-            box.checked = !box.checked; // revert: the change didn't save
+            box.checked = !box.checked;
           }
+        });
+        $("timers").addEventListener("click", async (e) => {
+          const btn = e.target.closest("button.star");
+          if (!btn) return;
+          const tag = btn.dataset.timer;
+          const before = TIMER_WATCH;
+          TIMER_WATCH = before.includes(tag) ? before.filter((x) => x !== tag) : [...before, tag];
+          renderTimers();
+          try {
+            const r = await fetch("/api/settings", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ timerWatch: TIMER_WATCH }),
+            });
+            if (!r.ok) throw new Error("save failed");
+            TIMER_WATCH = (await r.json()).timerWatch;
+          } catch {
+            TIMER_WATCH = before;
+          }
+          renderTimers();
         });
       })();
 
-      // Moonsteel notification toggle - only meaningful in the desktop app.
       (async () => {
         if (!navigator.userAgent.includes("Electron")) return;
         const box = $("moonNotify");
@@ -1519,17 +1423,13 @@
             });
             box.checked = (await r.json()).moonsteelNotify;
           } catch {
-            box.checked = !box.checked; // revert: the change didn't save
+            box.checked = !box.checked;
           }
         });
       })();
 
-      // ---- Avakot's Gots ---------------------------------------------------
-      // The stock comes from /api/avakot: the desktop app fetches it while the
-      // game runs. /avakot.json is everything he can offer (from the game's
-      // data), so items can be starred before they turn up.
       let AV_POOL = new Map();
-      let AV = null; // { stock, seen, watch, notify }
+      let AV = null;
       const AV_GROUPS = ["Materials", "Lures", "Lampyrite", "Joineries", "Pact Fragments", "Supplies", "Other"];
       const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg>';
       const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -1603,7 +1503,6 @@
               ? `<h3 class="sub">Always in stock</h3><div class="avlist">${always.map((o) => row(o, avItem(o.storeItem).group === "Pact Fragments" ? "Pact Fragment" : "")).join("")}</div>`
               : "");
 
-        // Wishlist: everything that rotates in and out, starred or not.
         const pool = [...AV_POOL.values()].filter((it) => it.kind === "rotating");
         for (const o of rotating) if (!AV_POOL.has(o.storeItem)) pool.push(avItem(o.storeItem));
         const starredCount = pool.filter((it) => AV.watch.includes(it.storeItem)).length;
@@ -1652,11 +1551,10 @@
         try {
           AV.watch = (await saveAvakotSettings({ avakotWatch: AV.watch })).avakotWatch;
         } catch {
-          AV.watch = before; // the change didn't save
+          AV.watch = before;
         }
         renderAvakot();
       });
-      // The notification toggle only means something in the desktop app.
       if (navigator.userAgent.includes("Electron")) {
         $("avNotifyWrap").hidden = false;
         $("avNotify").addEventListener("change", async (e) => {
@@ -1670,23 +1568,18 @@
       }
       document.querySelector('.tab[data-tab="avakot"]').addEventListener("click", loadAvakot);
       setInterval(loadAvakot, 60000);
-      setInterval(renderAvakot, 30000); // countdowns
+      setInterval(renderAvakot, 30000);
 
       document.getElementById("pickupSearch").addEventListener("input", (e) => {
         PICKUP_SEARCH = e.target.value;
         renderPickups();
       });
 
-      // ---- Totems ---------------------------------------------------------
-      // Owned totems come from the inventory (rank, virtue, grip, where slotted);
-      // animal, trigger and effect values from the wiki's totem data.
       let TOTEM_DATA = {};
       let LAST_TOTEMS = null;
       const TOTEM_UI = { q: "", virtue: "all", grip: "all", animal: "all", trigger: "all", sort: "name" };
       try { Object.assign(TOTEM_UI, JSON.parse(localStorage.getItem("sfhelper.totems") || "{}"), { q: "" }); } catch {}
       const saveTotemUi = () => { try { localStorage.setItem("sfhelper.totems", JSON.stringify({ ...TOTEM_UI, q: "" })); } catch {} };
-      // Internal names the name dictionary doesn't cover. HealCast is the
-      // self-heal-on-Rune Beaver totem (its old AoE version was AOEHealCast).
       const TOTEM_ALIAS = { HealCast: "Rivers Revive" };
       const VIRTUES = ["Courage", "Grace", "Spirit"];
       const GRIPS = ["Universal", "Bow", "Flyblade", "Heavy", "Long Blade", "Magick", "Polearm", "Shield", "Short Blade"];
@@ -1701,8 +1594,6 @@
         const leaf = String(type).split("/").pop();
         return TOTEM_ALIAS[leaf] || shortName(type);
       }
-      // Effect text at a rank, using the stronger grip values for grip-aligned
-      // totems (where the wiki knows them). Values are bolded.
       function totemEffectHtml(d, rank, aligned) {
         const i = Math.max(0, Math.min(3, rank - 1));
         return d.effect
@@ -1714,7 +1605,6 @@
           .replace(/<\/b> %/g, "%</b>")
           .replace(/(\+)<b>/g, "<b>+");
       }
-      // One view row per distinct totem (same kind, virtue, grip, rank), with a count.
       function totemViews() {
         const groups = new Map();
         for (const t of LAST_TOTEMS || []) {
@@ -1734,8 +1624,6 @@
         }
         return [...groups.values()];
       }
-      // Every search word must appear somewhere on the card; "+" and "%" are
-      // ignored so "+rune damage" finds "Runes deal 15% additional damage".
       function totemMatches(v, words) {
         if (!words.length) return true;
         const hay = [v.name, v.effect.replace(/<[^>]+>/g, ""), v.animal, v.trigger, v.virtue, v.grip, v.description,
@@ -1794,7 +1682,6 @@
         if (!total) { $("totems").innerHTML = '<span class="muted">No totems in your inventory yet.</span>'; return; }
         if (!shown.length) { $("totems").innerHTML = '<span class="muted">No totems match.</span>'; return; }
 
-        // Within any grouping: name, then highest rank, then virtue.
         const byName = (a, b) => a.name.localeCompare(b.name) || b.rank - a.rank || String(a.virtue).localeCompare(String(b.virtue));
         const sort = TOTEM_UI.sort;
         if (sort === "name" || sort === "rank") {
@@ -1839,15 +1726,10 @@
         renderTotems();
       });
 
-      // Loadouts / builds. Presets come from the inventory; imported builds are
-      // kept in this browser so they survive refreshes. Columns, left to right:
-      // Loadout (name) | Pact (soul/s) | Primary Weapon (m slot) | Sidearm (l slot).
       let LAST_BUILDS = [];
       let IMPORTED_BUILDS = [];
       try { IMPORTED_BUILDS = JSON.parse(localStorage.getItem("sfhelper.builds") || "[]"); } catch {}
 
-      // A slot may arrive as an ItemType string (old exports/localStorage) or as
-      // { type, runes, totems } (current). Normalize both to the object form.
       function normSlot(x) {
         const empty = { type: null, runes: [], totems: [], joinery: null, craftwork: null, tempers: [] };
         if (x == null) return empty;
@@ -1885,7 +1767,6 @@
         arr && arr.length
           ? arr.map((t) => `<span class="chip">${shortName(t)}</span>`).join("")
           : '<span class="muted">—</span>';
-      // Runes as name + effect rows (effect looked up by display name).
       const effectRows = (arr, table) => {
         if (!arr || !arr.length) return '<span class="muted">—</span>';
         return arr
@@ -1896,8 +1777,6 @@
           })
           .join("");
       };
-      // A per-rank effect: replace each "a/b/c/d" value list with the current
-      // rank's value and append the rank, e.g. "…+200 Life… (Rank 4)".
       function effectAtRank(effect, rank) {
         if (!effect) return "";
         if (!rank) return effect;
@@ -1907,11 +1786,6 @@
         });
         return `${shown} (Rank ${rank})`;
       }
-      // Totems in weapon slot order (1-4; slot 4 is the one the Rune unlocks),
-      // with empty slots shown. Name + the totem's own Virtue, then its effect
-      // at its current rank. Older exports carry no slot numbers, so those list
-      // in their saved order without slot labels. Slot 4's Virtue comes from the
-      // Rune's description ("...grants an additional Courage slot for Totems").
       const runeSlotVirtue = (runes) => {
         const eff = runes && runes.length ? RUNES[shortName(runes[0])] || "" : "";
         const m = /additional (Courage|Spirit|Grace)\b[^.]*\bslot/i.exec(eff);
@@ -1947,12 +1821,9 @@
       const joineryIconSrc = (j) => "img/joineries/" + (JOINERY_ICON[j && j.name] || "joinery") + ".png";
       const joineryName = (j) => j.name || (j.code || "reforge").replace(/([a-z])([A-Z])/g, "$1 $2");
       const virtueTag = (v) => (v ? ` · <span style="color:${VIRTUE_COLOR[v] || "var(--text)"}">${v}</span>` : "");
-      // The deity that blesses each Virtue, as in the game's Joinery names
-      // ("Verite: Twice Blessed by Saphene").
       const VIRTUE_DEITY = { Courage: "Mora", Spirit: "Iridis", Grace: "Saphene" };
       const joineryFullName = (j) =>
         j.name && j.tier && j.virtue ? `${j.name}: ${j.tier} by ${VIRTUE_DEITY[j.virtue]}` : joineryName(j);
-      // Full joinery display (detail panel): icon, in-game name, and the pips it adds.
       function joineryLabel(j) {
         if (!j) return '<span class="muted">—</span>';
         const icon = `<img class="jicon" src="${joineryIconSrc(j)}" alt="" onerror="this.style.display='none'">`;
@@ -1961,10 +1832,6 @@
           : j.tier ? "" : '<span class="jpips">Obsolete (pre-Preludes 14) reforge</span>';
         return `${icon}<span><span class="jname">${joineryFullName(j)}</span>${pips}</span>`;
       }
-      // A loadout's Virtues, totalled as the Arsenal shows them: its allocation
-      // of the 16 + Envoy Rank points, plus its Pact's Virtue arts, its
-      // Talisman, and Fable choices. (Temporary buffs - elixirs, Blessed
-      // Meetings - aren't included.)
       const VIRTUE_ORDER = ["Courage", "Spirit", "Grace"];
       function virtueSources(b) {
         if (!b.virtues) return null;
@@ -1986,13 +1853,9 @@
         for (const r of rows) for (const k of VIRTUE_ORDER) total[k] += r.v[k];
         return { rows, total };
       }
-      // ---- Armour ---------------------------------------------------------
-      // The Helm, Cuirass and Leggings worn with a loadout, by their in-game
-      // names (names.json), with the wiki's stats (armour.json, keyed by name).
       let ARMOUR = {};
       const ARMOUR_SLOTS = [["helm", "Helm"], ["cuirass", "Cuirass"], ["leggings", "Leggings"]];
       const ARMOUR_STATS = [["physical", "Physical"], ["magick", "Magick"], ["stability", "Stability"]];
-      // The hair "helmets" are the helmet-off look, so that slot is empty.
       const NO_HELM_RE = /\/Hair\d+AHelmet$/;
       function armourPieces(b) {
         return ARMOUR_SLOTS.map(([key, slot]) => {
@@ -2014,7 +1877,6 @@
       const talismanOf = (b) => (b.talisman ? TALISMANS[b.talisman.split("/").pop()] || { name: shortName(b.talisman) } : null);
       const talismanBonus = (tal) =>
         VIRTUE_ORDER.filter((k) => tal && tal[k]).map((k) => `<span style="color:${VIRTUE_COLOR[k]}">+${tal[k]} ${k}</span>`).join(" ");
-      // Summary-row cells: the set (or "Mixed") with its defence, and the Talisman.
       function armourCell(b) {
         const worn = armourPieces(b).filter((p) => p.worn);
         let v = "—";
@@ -2032,8 +1894,6 @@
         const bonus = talismanBonus(tal);
         return `<div class="lo-slot extra t"><span class="k">Talisman</span><span class="v">${tal ? tal.name : "—"}</span>${bonus ? `<span class="j">${bonus}</span>` : ""}</div>`;
       }
-      // Detail panel: each piece's stats and Virtue requirement (checked against
-      // this loadout's Virtue totals), the set's totals, and the Talisman.
       function armourBlock(b) {
         const pieces = armourPieces(b);
         const tal = talismanOf(b);
@@ -2087,20 +1947,12 @@
           ${table}
         </div>`;
       }
-      // ---- Pact Arts tree ----------------------------------------------------
-      // The account stores each Pact tree's arts as { "Folder/Skill": Level }.
-      // An entry's presence means the art is unlocked, and Level counts the pips
-      // filled beyond that (Warframe-style 0-based ranks). So rank = Level + 1,
-      // and an art missing from the list is locked.
       const ART_LEVEL_BASE = 1;
-      // Node positions (viewBox units) of the current in-game layout, traced from
-      // the Ode Tempest tree; every Pact uses the same node spots.
       const ART_POS = {
         passiveA: [44, 140], passiveB: [192, 166], rooted: [128, 222], physic: [272, 192],
         virtueMid: [282, 122], virtueTop: [256, 32], virtueRight: [498, 66],
         forestall: [456, 116], wingspan: [372, 238], stalwart: [580, 186],
       };
-      // The tree's connecting branches (from -> to, with the curve's control points).
       const ART_EDGES = [
         ["passiveA", "virtueTop", "C 72,62 180,26"],
         ["passiveA", "virtueRight", "C 130,40 340,112"],
@@ -2112,13 +1964,10 @@
         ["wingspan", "forestall", "C 392,182 422,128"],
         ["wingspan", "stalwart", "C 404,172 522,150"],
       ];
-      const VIRTUE_POINTS = [0, 1, 3, 6]; // virtue points granted at rank 0..3
+      const VIRTUE_POINTS = [0, 1, 3, 6];
       const artRank = (arts, key, max) => (arts && key in arts ? Math.min(max, (Number(arts[key]) || 0) + ART_LEVEL_BASE) : 0);
-      // Pip spots around the bottom of a node (angles in degrees, SVG y points down).
       const PIP_ANGLES = { 1: [90], 2: [118, 62], 3: [140, 90, 40] };
 
-      // Resolve an allocation into one node per slot. The general arts always
-      // show; the two passives are whichever Pact-specific arts the tree lists.
       function artNodes(arts) {
         const bySlot = {};
         for (const [key, def] of Object.entries(PACT_ARTS)) {
@@ -2150,7 +1999,6 @@
             <text class="artlabel" x="23" y="5">${def.name} <tspan class="artrank">${rank}/${def.max}</tspan></text>
           </g>`;
         }).join("");
-        // Summary: virtue points granted, and how many arts are unlocked.
         const virt = Object.values(nodes).filter((n) => n.def.virtue && n.rank > 0)
           .map((n) => `<span style="color:${VIRTUE_COLOR[n.def.virtue]}">+${VIRTUE_POINTS[n.rank]} ${n.def.virtue}</span>`);
         const unlocked = Object.values(nodes).filter((n) => n.rank > 0).length;
@@ -2158,8 +2006,6 @@
         return `<div class="pactarts"><div class="pa-sum">${sum}</div>
           <svg class="pacttree" viewBox="0 0 700 280" role="img" aria-label="Pact Arts tree">${edges}${nodeSvg}</svg></div>`;
       }
-      // Replace a per-rank value list (e.g. "[25 / 30 / 40 / 60]", "0/5/11/22")
-      // with the current rank's value, keeping the full list for reference.
       function artDetailAtRank(text, rank, max) {
         if (!text || !(rank > 0)) return text || "";
         return text.replace(/\[?\s*(\d+(?:\.\d+)?%?(?:\s*\/\s*\d+(?:\.\d+)?%?)+)\s*\]?/g, (m, list) => {
@@ -2179,8 +2025,6 @@
         const eff = detail ? `<div class="tp-eff">${detail}</div>` : "";
         return `<div class="tp-name">${def.name}</div><div class="tp-rank">${rankLine}</div>${quote}${eff}${artNumbers(key, rank)}`;
       }
-      // The game's own numbers for an art, per point, and in total at the
-      // current rank (each point adds the same amount).
       function artNumbers(key, rank) {
         const stats = PACT_ART_VALUES[key];
         if (!stats || !stats.length) return "";
@@ -2194,10 +2038,7 @@
         return `<div class="tp-eff" title="From the game's data">${html}</div>`;
       }
 
-      // One labelled property block inside a gear card.
       const prop = (label, html) => `<div class="prop"><div class="h">${label}</div>${html}</div>`;
-      // Gear card for one slot of an expanded loadout. Pacts show their Arts
-      // tree; weapons show craftwork, Joinery, runes, totems and tempers.
       function slotDetail(label, slot) {
         if (!slot || !slot.type) return "";
         const head = (extra = "") => `<div class="gear-head">
@@ -2219,8 +2060,6 @@
       }
       function buildRow(raw, imported, key) {
         const b = normBuild(raw);
-        // Summary slot: small-caps label, the gear name, and (weapons) the
-        // equipped Joinery with the Virtue it attunes.
         const slotCell = (label, s) => {
           const j = s.joinery;
           const jline = j
@@ -2256,10 +2095,6 @@
             <div class="lo-hint">Open a loadout to see its Virtues, armour stats, Pact Arts, and each weapon's Joinery, runes, totems &amp; tempers.</div>`
           : '<span class="muted">No loadouts — run the memory helper to import your inventory, then refresh.</span>';
       }
-      // Loadout codes: "SFH1:" + base64url(deflate(JSON)). Compressing first is
-      // what makes them short; base64 on its own makes text ~33% longer. Empty
-      // fields are left out (normSlot restores them). Import also accepts the
-      // older plain-JSON codes.
       const CODE_PREFIX = "SFH1:";
       const toB64url = (bytes) => {
         let bin = "";
@@ -2278,7 +2113,7 @@
       }
       async function decodeBuild(code) {
         const t = code.trim();
-        if (t.startsWith("{")) return JSON.parse(t); // older plain-JSON codes
+        if (t.startsWith("{")) return JSON.parse(t);
         const body = t.startsWith(CODE_PREFIX) ? t.slice(CODE_PREFIX.length) : t;
         const bytes = await pipeBytes(fromB64url(body), new DecompressionStream("deflate-raw"));
         return JSON.parse(new TextDecoder().decode(bytes));
@@ -2324,12 +2159,10 @@
           $("importStatus").textContent = "That doesn't look like a loadout code.";
         }
       });
-      // Enter in the code field imports too.
       $("importBuild").addEventListener("keydown", (e) => {
         if (e.key === "Enter" && !e.isComposing && e.target.value.trim()) $("importBtn").click();
       });
 
-      // The header shows a live countdown to the daily reset (00:00 UTC).
       function tickReset() {
         $("dailyReset").textContent = fmtDur(msToDailyReset());
         const sr = document.getElementById("standingReset");
@@ -2337,16 +2170,13 @@
       }
       setInterval(tickReset, 1000);
       tickReset();
-      renderBuilds(); // show imported builds immediately, before a profile loads
+      renderBuilds();
 
-      // Internal currency ids -> in-game names: dict first, then a small fallback.
       const CURRENCY_NAMES = { RegularCredits: "Dracs", PremiumCredits: "Arcs", MoteDust: "Harmonies" };
       function currencyName(id) {
         return DICT.currencies[id] || CURRENCY_NAMES[id] || String(id).replace(/([a-z])([A-Z])/g, "$1 $2");
       }
 
-      // Best guess at a readable name from the internal path, when the dict has
-      // no entry: take the leaf, strip engine suffixes, avoid the folder token.
       function cleanName(itemType) {
         const parts = String(itemType).split("/").filter(Boolean);
         const leaf = parts[parts.length - 1] || itemType;
@@ -2354,19 +2184,13 @@
         if (stripped) return stripped.replace(/([a-z])([A-Z])/g, "$1 $2");
         return parts[parts.length - 2] || leaf;
       }
-      // Prefer an exact dict match on the full path, then on the leaf, then clean.
       function shortName(itemType) {
         if (DICT.items[itemType]) return DICT.items[itemType];
         const p = String(itemType);
         const leaf = p.split("/").filter(Boolean).pop();
         if (leaf && DICT.items[leaf]) return DICT.items[leaf];
-        // Runes key by <WeaponClass><Leaf> (e.g. BowStarterRune -> "Alca's Breath").
-        // The path's class token varies from the dict's ("Magiks" vs "Caster"),
-        // and casing differs, so try aliases against a lowercased index.
         const rune = p.match(/\/Upgrades\/Runes\/Weapon\/([^/]+)\/([^/]+)$/);
         if (rune) {
-          // Inventory weapon-class tokens differ from the localization's:
-          // Magiks -> Caster/Magick, LongBlade/GreatSword -> Melee. Try aliases.
           const CLASS_ALIAS = {
             magiks: ["caster", "magick", "magiks"],
             longblade: ["melee", "longblade"],
@@ -2380,8 +2204,6 @@
           }
         }
         if (leaf && DICT_LC[leaf.toLowerCase()]) return DICT_LC[leaf.toLowerCase()];
-        // Materials key by their bare name (FireFungusResource -> FireFungus,
-        // CatalystBResourceItem -> CatalystBResource, BrassIngotResourceItem -> BrassIngot).
         for (const bare of leaf ? [leaf.replace(/Item$/, ""), leaf.replace(/(Resource)?(Item)?$/, "")] : []) {
           if (bare && bare !== leaf && DICT_LC[bare.toLowerCase()]) return DICT_LC[bare.toLowerCase()];
         }
@@ -2391,8 +2213,6 @@
         if (DICT.factions[tag]) return DICT.factions[tag];
         return String(tag).replace(/Syndicate$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
       }
-      // The affiliation's raw Tag (e.g. "ChampionSyndicate") is how names.json
-      // keys factions; progression stores it as key "affiliation:<Tag>".
       function factionTag(f) {
         return String(f.key || "").replace(/^affiliation:/, "") || f.displayName || "";
       }
@@ -2407,11 +2227,6 @@
         $("playtime").textContent = hours(data.stats?.scalars?.TimePlayedSec);
         $("updated").textContent = "updated " + new Date(data.capturedAt).toLocaleTimeString();
 
-        // Daily standing: the remaining caps (the game counts them down as
-        // standing is earned) and standing earned since the reset (00:00 UTC).
-        // Per-faction earnings are tracked server-side; if SFHelper wasn't
-        // running at the reset and the game's countdown can't fill the gap,
-        // the total only counts from when it started today.
         const st = data.standingToday;
         const caps = data.dailyCaps;
         const todayOf = (tag) => (st && st.factions[tag]) || 0;
@@ -2432,7 +2247,6 @@
             <div class="stat"><div class="l">Resets In</div><div class="n" id="standingReset">${fmtDur(msToDailyReset())}</div><div class="s">00:00 UTC</div></div>`
           : "";
 
-        // Faction standing - bar fills toward the CURRENT rank's cap.
         const factions = data.progression.filter((p) => p.kind === "affiliation");
         $("factions").innerHTML =
           factions
@@ -2452,7 +2266,6 @@
             })
             .join("") || '<span class="muted">No standing data.</span>';
 
-        // Faction Tokens - owned counts of each faction's rep-token item.
         const owned = data.owned || {};
         const tokenCards = Object.entries(DICT.factionTokens).map(([tag, name]) => {
           const count = owned[`/SF/Types/Items/FactionItems/${tag}RepToken`] ?? 0;
@@ -2462,9 +2275,8 @@
           ? tokenCards.join("")
           : '<span class="muted">Import your inventory to show faction token counts.</span>';
 
-        // Currencies (owned amounts come from inventory, not the public profile).
         const cur = data.currencies || {};
-        const curEntries = Object.entries(cur).filter(([, v]) => v); // hide zero balances
+        const curEntries = Object.entries(cur).filter(([, v]) => v);
         $("currencies").innerHTML = curEntries.length
           ? curEntries
               .map(
@@ -2481,8 +2293,6 @@
           ? `Inventory loaded: <b>${data.inventory.itemCount}</b> items from ${data.inventory.source.split(/[\\/]/).pop()} · updated ${new Date(data.inventory.updatedAt).toLocaleString()}${impNote}`
           : impNote.replace(" · ", "");
 
-        // Re-render these only when their data actually changed, so the 60s
-        // refresh doesn't collapse expanded loadouts / open temper boxes.
         if (sectionChanged("builds", data.builds)) {
           LAST_BUILDS = data.builds || [];
           renderBuilds();
@@ -2514,7 +2324,6 @@
           LAST_DISCOVERIES = data.discoveries || null;
           renderDiscoveries();
         }
-        // Cooldowns come from the inventory, so the section waits for one.
         $("timersSection").hidden = !data.inventory;
         if (sectionChanged("timers", data.timers)) {
           LAST_TIMERS = data.timers || [];
@@ -2525,7 +2334,6 @@
           renderTrades();
         }
 
-        // Scalars
         const s = data.stats?.scalars || {};
         const cards = [
           ["Kills (melee)", s.MeleeKills],
@@ -2539,13 +2347,10 @@
           .map(([l, v]) => `<div class="stat"><div class="n">${fmt(v)}</div><div class="l">${l}</div></div>`)
           .join("");
 
-        // Top weapons / enemies
         const topWeapons = (data.stats?.weapons || [])
           .filter((w) => w.kills)
           .sort((a, b) => (b.kills || 0) - (a.kills || 0))
           .slice(0, 8);
-        // Several internal types share one in-game name (every Sinecure Soldier
-        // variant is "Sinecure Soldier"), so combine them under that name.
         const enemyRows = new Map();
         for (const e of data.stats?.enemies || []) {
           const name = e.name || shortName(e.type);
@@ -2586,9 +2391,6 @@
         checkConnection();
       }
 
-      // A banner while DE is refusing requests: the game's own (read from its
-      // log), or SFHelper's (paused after a 403/429). Otherwise the dashboard
-      // would just keep showing the last data it got.
       async function checkConnection() {
         let c = null;
         try { c = await (await fetch("/api/connection")).json(); } catch {}
@@ -2609,7 +2411,6 @@
       function start() {
         const id = ($("accountId").value || "").trim();
         try { localStorage.setItem("sfhelper.accountId", id); } catch {}
-        // Remember it server-side so future launches resolve it automatically.
         if (/^[0-9a-f]{24}$/i.test(id)) {
           fetch("/api/account", {
             method: "POST",
@@ -2621,12 +2422,10 @@
         if (accountWait) { clearInterval(accountWait); accountWait = null; }
         refresh();
         timer = setInterval(refresh, 30000);
-        setAccountSetup(false); // collapse once we're tracking
+        setAccountSetup(false);
       }
 
       $("save").addEventListener("click", start);
-      // The desktop app imports every 2 min: refresh as soon as one lands, so new
-      // pickups and trades show within seconds rather than at the next refresh.
       let lastImportAt = null;
       setInterval(async () => {
         if (!timer) return;
@@ -2640,7 +2439,6 @@
       }, 5000);
       $("accountId").addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
 
-      // Account ID entry is collapsed by default; this toggles it for manual entry.
       function setAccountSetup(open) {
         $("accountSetup").hidden = !open;
         const btn = $("accountToggle");
@@ -2650,7 +2448,6 @@
       }
       $("accountToggle").addEventListener("click", () => setAccountSetup($("accountSetup").hidden));
 
-      // Load the in-game name dictionary before first render, so names resolve.
       async function loadDict() {
         try {
           const res = await fetch("/names.json");
@@ -2715,11 +2512,7 @@
         loadAvakot();
       }
 
-      // On load, try to discover the id automatically before asking for it.
-      // First launch in the desktop app: the memory import finds the account id
-      // once Soulframe is running, so keep the entry collapsed and wait for it.
       let accountWait = null;
-      // While waiting, say what the memory import is doing rather than nothing.
       const IMPORT_HINT = {
         3: "Waiting for Soulframe — start the game and log in to a character; your account is detected automatically.",
       };
@@ -2744,13 +2537,9 @@
           return false;
         }
       }
-      // ---- Updates (desktop app) ------------------------------------------
-      // The app checks this repo's GitHub releases on its own and downloads in
-      // the background; the page shows progress, a restart button once the
-      // update is ready, and a manual check in the footer.
       const RELEASES_URL = "https://github.com/hunhow0x1/SFHelper/releases/latest";
       let updateTimer = null;
-      let updateAsked = false; // "up to date" and errors only after a manual check
+      let updateAsked = false;
       function renderUpdate(u) {
         if (!u) return;
         const version = String(u.version || "").replace(/[^\w.+-]/g, "");
@@ -2787,7 +2576,6 @@
           if (r.ok) u = await r.json();
         } catch {}
         if (!u) {
-          // The plain browser build has no updater; the app may just not have reported yet.
           if (navigator.userAgent.includes("Electron")) updateTimer = setTimeout(pollUpdate, 5000);
           return;
         }
@@ -2812,14 +2600,10 @@
       async function autoStart() {
         await loadDict();
         if (await tryDiscoveredAccount()) return;
-        // Fall back to a value this browser saved earlier.
         try {
           const saved = localStorage.getItem("sfhelper.accountId");
           if (saved) { $("accountId").value = saved; start(); return; }
         } catch {}
-        // No id anywhere yet. The desktop app detects it from the running game,
-        // so stay collapsed and check back; a plain browser can't, so open the
-        // entry for a first-time user there.
         if (navigator.userAgent.includes("Electron")) {
           setStatus("Waiting for Soulframe — your account is detected automatically once the game is running. (Or use Edit ID.)");
           accountWait = setInterval(tryDiscoveredAccount, 5000);

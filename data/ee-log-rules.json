@@ -1,5 +1,4 @@
 {
-  "note": "Verified against a real Soulframe EE.log (build 2026.08.20.11.07). The line grammar below matched every log line. EE.log carries NO item or inventory data - the only inventory trace is 'Bad data from inventory.php:' followed by 'Unknown property: <Field>' lines, which leak schema field names (Suits, LongGuns, Melee, WeaponSkins, Quests, Conquests, Descents, Mailbox, LoadOutInventory, CalendarProgress, ChallengeProgress, WebFlags) but never values. It also carries no account id and no display name. Treat this file as a session/run tracker, not an inventory source. Verified but unused until run tracking exists: 'LoginScripts.lua: STATS ENTER_LEVEL (?<level>\\S+)' marks level entry.",
   "line": "^\\s*[\\d.]+\\s+(?<category>\\w+)\\s+\\[(?<level>\\w+)\\]:\\s*(?<message>.*)$",
   "rules": [
     {

@@ -1,18 +1,3 @@
-// Every type's property text from Packages.bin (its header part, as cached by
-// extract_names / explore_cache under ~/.cache/sfhelper-cache, or extracted
-// from the game's local cache).
-//
-// The texts are stored as zstd frames that share one dictionary:
-//   - the dictionary starts at its magic (37 a4 30 ec); the u32 just before
-//     it is the size of the whole compressed area (dictionary + frames);
-//   - a sizes buffer earlier in the file: u32 length, u32 dictionary size,
-//     then one ULEB128 size per frame. It's found by checking that the sizes
-//     add up exactly to the compressed area minus the dictionary;
-//   - each frame is a ULEB128 decoded length, then a zstd frame without its
-//     magic. Frames that don't decode are stored raw.
-// Which type each frame belongs to isn't decoded here; callers find the text
-// they want by its content.
-
 import * as zlib from "node:zlib";
 
 const ZSTD_MAGIC = Buffer.from([0x28, 0xb5, 0x2f, 0xfd]);
@@ -30,7 +15,6 @@ function uleb(buf, i) {
   return [v >>> 0, i];
 }
 
-/** All property texts in a Packages.bin buffer, in file order. */
 export function readPackageTexts(buf) {
   const dictAt = buf.indexOf(DICT_MAGIC);
   if (dictAt < 4) throw new Error("Packages.bin: no zstd dictionary found");
@@ -66,7 +50,6 @@ export function readPackageTexts(buf) {
       const out = zlib.zstdDecompressSync(Buffer.concat([ZSTD_MAGIC, frame.subarray(start)]), { dictionary });
       if (out.length === decLen) text = out.toString("latin1");
     } catch {
-      // stored raw
     }
     texts.push((text ?? frame.toString("latin1")).replace(/\x00$/, ""));
   }

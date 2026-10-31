@@ -1,22 +1,3 @@
-// Extract Soulframe's in-game name dictionary - no proprietary Oodle DLL.
-//
-// Oodle decompression is done with `ooz-wasm`, an open-source clean-room Kraken
-// decompressor shipped as WebAssembly. It is a normal dependency (installed by
-// the app's `npm install`), so there is no separate library to fetch and
-// nothing proprietary in the tree.
-//
-// Flow (ported from Sainan's warframe-cache-tools, targeted at Soulframe):
-//   H.Cache.bin -> B.Cache.Windows_<lang>.bin -> Languages.bin (suffix _<lang>)
-// Each file is an SHCC container whose chunks are Oodle (format 0x8c = Kraken).
-// The final Languages.bin H-chunk parses into { "<path><name>": "<string>" }.
-//
-// Usage:  node scripts/extract_names.mjs [--lang en] [--out dict.en.json]
-//
-// Long, flagged strings (descriptions) are zstd frames compressed against a
-// dictionary stored in Languages.bin; Node's built-in zstd decodes them (on
-// Node versions without zstd they're skipped with a note). Item/faction NAMES
-// are short and stored uncompressed, so names work either way.
-
 import { decompress as oozDecompress } from "ooz-wasm";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -35,7 +16,6 @@ const NO_HASH = "---------------------w";
 
 const b64m = (buf) => buf.toString("base64").replace(/=+$/, "").replaceAll("/", "-");
 
-// --- Oodle blocks (shcc_decompress_chunk_oodle) --------------------------------
 function oodleBlocks(buf, i, decSize) {
   const out = [];
   let have = 0;
@@ -57,7 +37,6 @@ function oodleBlocks(buf, i, decSize) {
   return [Buffer.concat(out).subarray(0, decSize), i];
 }
 
-// --- SHCC container ------------------------------------------------------------
 function shccChunk(buf, i) {
   const chunkType = buf[i];
   const decSize = buf.readUInt32LE(i + 1);
@@ -78,7 +57,6 @@ function shccUnpack(buf) {
   return h;
 }
 
-// --- Manifest (path -> content hash) ------------------------------------------
 function parseManifest(h) {
   let i = 20;
   const hashes = new Map();
@@ -94,13 +72,12 @@ function parseManifest(h) {
       const path = h.subarray(i, i + plen).toString("latin1");
       i += plen;
       hashes.set(path, h.subarray(i, i + 16));
-      i += 20; // 16 hash + 4 unk
+      i += 20;
     }
   }
   return hashes;
 }
 
-// --- Download + cache ----------------------------------------------------------
 async function downloadH(path, typeId, hash = NO_HASH, suffix = "") {
   const local = join(DATA_DIR, `0${suffix}${path}_H`);
   if (existsSync(local)) return readFile(local);
@@ -120,7 +97,6 @@ async function downloadH(path, typeId, hash = NO_HASH, suffix = "") {
   return h;
 }
 
-// --- Languages.bin (languages_unpack) -----------------------------------------
 function u32DynLe(buf, i) {
   let value = 0;
   let shift = 0;
@@ -135,8 +111,6 @@ function u32DynLe(buf, i) {
 
 const ZSTD_MAGIC = Buffer.from([0x28, 0xb5, 0x2f, 0xfd]);
 
-// A flagged entry is its decompressed size (LEB128), then a zstd frame with the
-// magic number stripped. Null if this Node can't decode it.
 function zstdDictDecompress(data, dictionary) {
   if (typeof zlib.zstdDecompressSync !== "function") return null;
   const [, start] = u32DynLe(data, 0);
@@ -148,7 +122,7 @@ function zstdDictDecompress(data, dictionary) {
 }
 
 function languagesUnpack(buf) {
-  let i = 16 + 4 + 4 + 4; // hash, 0x14, 0x2B, 0x01
+  let i = 16 + 4 + 4 + 4;
   const numSuffixes = buf.readUInt32LE(i);
   i += 4;
   for (let s = 0; s < numSuffixes; s++) {
@@ -156,7 +130,7 @@ function languagesUnpack(buf) {
     i += 4 + slen;
   }
   const dictLen = buf.readUInt32LE(i);
-  const dictionary = buf.subarray(i + 4, i + 4 + dictLen); // used only by flagged entries
+  const dictionary = buf.subarray(i + 4, i + 4 + dictLen);
   i += 4 + dictLen;
   const numPaths = buf.readUInt32LE(i);
   i += 4;
@@ -201,7 +175,6 @@ function languagesUnpack(buf) {
   return entries;
 }
 
-// --- main ----------------------------------------------------------------------
 const { values } = parseArgs({
   options: { lang: { type: "string", default: "en" }, out: { type: "string", default: "dict.en.json" } },
 });

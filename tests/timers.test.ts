@@ -1,13 +1,13 @@
-import { describe, expect, it } from "vitest";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { nameAgari, parseTimers, timerLabel } from "../src/server/timers";
+import { nameAgari, parseTimers, rememberedAgari, resetRememberedAgari, timerLabel, TimerAlarms, withStarred, type GameTimer } from "../src/server/timers";
+import { getSettings, updateSettings } from "../src/server/settings";
 import { loggedAgari } from "../src/server/gameLog";
 import { agentName } from "../src/server/enemies";
 
 describe("the game's timers", () => {
-  // As in a real inventory: two quest flags long past, two running timers.
   const raw = {
     ExpiryTimeTrackers: [
       { Tag: "OrengallQuest", ExpiryTime: 1764392208, AutoExpire: false },
@@ -27,11 +27,11 @@ describe("the game's timers", () => {
 
   it("names unknown tags from their words", () => {
     expect(timerLabel("SiegeKearnholdCastle")).toEqual({ kind: null, name: "Siege Kearnhold Castle", ready: "Siege Kearnhold Castle is over" });
+    expect(timerLabel("MirifuirSiege")).toEqual({ kind: "Siege cooldown", name: "Mirifuir Siege", ready: "The Mirifuir Siege can start again" });
     expect(timerLabel("VadagarStag-SubBoss")).toMatchObject({ kind: "Agari respawn", name: "Vadagar Stag", spot: "VadagarStag" });
   });
 
   it("names an Agari timer after the Agari that spawned at its spot", async () => {
-    // Shaped like the real EE.log lines for two kills on 2026-10-31.
     const dir = await mkdtemp(join(tmpdir(), "sfh-agari-"));
     const log = join(dir, "EE.log");
     await writeFile(
@@ -55,8 +55,6 @@ describe("the game's timers", () => {
       MirifuirSiegeCistern: "MeleeHeavyNightAlwaysAgent",
     });
 
-    // Agents and avatars are named differently; the best word match wins, and
-    // a sub-boss agent never takes an ordinary enemy's name.
     const enemies = {
       names: { rangedhuntersubbossavatar: "Gruulseeker Ruthos", rangedhunteravatar: "Sinecure Hunter", mendicantknightbellcleaversubbossavatar: "Knell Knight" },
       parents: { RangedHunterSubBossAvatar: "RangedHunterAvatar", RangedHunterAvatar: "GruntAvatarBase", MendicantKnightBellCleaverSubBossAvatar: "GruntAvatarBase" },
@@ -78,8 +76,67 @@ describe("the game's timers", () => {
     );
     expect(named.map((t) => [t.name, t.ready])).toEqual([
       ["Knell Knight", "Knell Knight can return"],
-      ["Elsewhere A", "The Agari at Elsewhere A can return"], // not in this session's log
-      ["Mirifuir Siege Cistern", "The Agari at Mirifuir Siege Cistern can return"], // an ordinary enemy type
+      ["Elsewhere A", "The Agari at Elsewhere A can return"],
+      ["Mirifuir Siege Cistern", "The Agari at Mirifuir Siege Cistern can return"],
     ]);
+  });
+
+  describe("across restarts", () => {
+    let home: string | undefined;
+    beforeEach(async () => {
+      home = process.env.SFHELPER_HOME;
+      process.env.SFHELPER_HOME = await mkdtemp(join(tmpdir(), "sfh-timers-"));
+      resetRememberedAgari();
+    });
+    afterEach(() => {
+      if (home === undefined) delete process.env.SFHELPER_HOME;
+      else process.env.SFHELPER_HOME = home;
+      resetRememberedAgari();
+    });
+
+    it("keeps an Agari's spawn after the game starts a new log", async () => {
+      await rememberedAgari({ GalvinarCorruptedB: "MendicantKnightBellCleaverSubBossAgent" });
+      resetRememberedAgari();
+      expect(await rememberedAgari({ StoneHengeA: "RangedHunterBowSubBossAgent" })).toEqual({
+        GalvinarCorruptedB: "MendicantKnightBellCleaverSubBossAgent",
+        StoneHengeA: "RangedHunterBowSubBossAgent",
+      });
+      expect(JSON.parse(await readFile(join(process.env.SFHELPER_HOME!, "agari.json"), "utf8"))).toMatchObject({
+        GalvinarCorruptedB: "MendicantKnightBellCleaverSubBossAgent",
+      });
+      expect((await rememberedAgari({ StoneHengeA: "SpiderSubBossAgent" })).StoneHengeA).toBe("SpiderSubBossAgent");
+    });
+
+    it("saves only valid starred tags", async () => {
+      await updateSettings({ timerWatch: ["StoneHengeA-SubBoss", "<img onerror=x>"] });
+      expect((await getSettings()).timerWatch).toEqual([]);
+      await updateSettings({ timerWatch: ["StoneHengeA-SubBoss", "StoneHengeA-SubBoss", "UPGRADEGIVEN_GODANDGHOST"] });
+      expect((await getSettings()).timerWatch).toEqual(["StoneHengeA-SubBoss", "UPGRADEGIVEN_GODANDGHOST"]);
+    });
+  });
+
+  it("lists a starred timer that isn't running", () => {
+    const running = parseTimers(raw);
+    const listed = withStarred(running, ["StoneHengeA-SubBoss", "GalvinarCorruptedB-SubBoss"]);
+    expect(listed.slice(0, running.length)).toEqual(running);
+    expect(listed.slice(running.length)).toEqual([
+      { tag: "GalvinarCorruptedB-SubBoss", kind: "Agari respawn", name: "Galvinar Corrupted B", ready: "The Agari at Galvinar Corrupted B can return", spot: "GalvinarCorruptedB", expiry: 0 },
+    ]);
+  });
+
+  it("raises each alarm once, late after a sleep, and never for one that ended before launch", () => {
+    const t = (tag: string, expiry: number, name = tag): GameTimer => ({ tag, kind: null, name, ready: "", expiry });
+    const alarms = new TimerAlarms();
+    alarms.set([t("Ended", 500), t("A", 1_000), t("B", 5_000)], 900);
+    expect(alarms.due(900)).toEqual([]);
+    alarms.set([t("A", 1_000, "Knell Knight"), t("B", 5_000)], 950);
+    expect(alarms.due(1_000).map((x) => x.name)).toEqual(["Knell Knight"]);
+    expect(alarms.due(1_100)).toEqual([]);
+    alarms.set([t("B", 5_000)], 4_999);
+    alarms.set([], 6_000);
+    expect(alarms.due(60_000).map((x) => x.tag)).toEqual(["B"]);
+    alarms.set([t("C", 70_000)], 60_000);
+    alarms.set([], 61_000);
+    expect(alarms.due(80_000)).toEqual([]);
   });
 });

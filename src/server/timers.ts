@@ -1,35 +1,18 @@
-/** The game's own timers, from the inventory's ExpiryTimeTrackers, each a tag
- *  and the time it ends (Unix seconds). Only the ones the game expires on its
- *  own (AutoExpire) are timers; the others are long-past quest flags. Known
- *  ones, from the game's scripts:
- *   - "<spot>-SubBoss": an Agari (the game's sub-bosses) slain at that spawn
- *     spot, e.g. "StoneHengeA-SubBoss"; it can't return there until the timer
- *     ends, 30 minutes after the kill (SubBossEncounter.lua).
- *   - "UPGRADEGIVEN_GODANDGHOST": a Blessed Meeting's boon was taken; no other
- *     Ancestor or Omen Beast offers one for 24 hours (BoonGiver.lua).
- *  The game has no display names for the tags, so names come from them, and
- *  an Agari timer takes the name of the Agari that spawned at its spot when the
- *  game log has it ("Knell Knight").
- */
-
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 import { loggedAgari } from "./gameLog";
 import { getAgentNamer } from "./enemies";
+import { appFile } from "./paths";
 
 export interface GameTimer {
   tag: string;
-  /** What kind of timer it is, if known ("Agari respawn"). */
   kind: string | null;
-  /** Where or what ("Stone Henge A", "Blessed Meeting"). */
   name: string;
-  /** What's back when it ends, for the notification. */
   ready: string;
-  /** An Agari timer's spawn spot, as the game names it ("StoneHengeA"). */
   spot?: string;
-  /** When it ends (ms epoch). */
   expiry: number;
 }
 
-/** "StoneHengeA" -> "Stone Henge A"; "GODANDGHOST" -> "Godandghost". */
 function words(s: string): string {
   return s
     .split(/[_\s]+/)
@@ -48,6 +31,10 @@ const KNOWN: [RegExp, (m: RegExpExecArray) => Label][] = [
     const place = words(m[1]!);
     return { kind: "Agari respawn", name: place, ready: `The Agari at ${place} can return`, spot: m[1]! };
   }],
+  [/^([A-Z][A-Za-z]*?)Siege$/, (m) => {
+    const name = `${words(m[1]!)} Siege`;
+    return { kind: "Siege cooldown", name, ready: `The ${name} can start again` };
+  }],
 ];
 
 export function timerLabel(tag: string): Label {
@@ -59,10 +46,6 @@ export function timerLabel(tag: string): Label {
   return { kind: null, name, ready: `${name} is over` };
 }
 
-/** Agari timers named after the Agari last spawned at their spot (spot ->
- *  agent type, from the game log), where its name is known; the rest as they
- *  are. Only sub-boss agent types count: some spots (a siege's officers) spawn
- *  an ordinary enemy type whose in-game name as an Agari isn't in the data. */
 export function nameAgari(
   timers: GameTimer[],
   spawned: Record<string, string>,
@@ -75,14 +58,69 @@ export function nameAgari(
   });
 }
 
-/** nameAgari with the current game log and the bundled enemy names. */
+const agariPath = () => appFile("agari.json");
+let savedAgari: Record<string, string> | null = null;
+
+export async function rememberedAgari(logged: Record<string, string>): Promise<Record<string, string>> {
+  if (!savedAgari) {
+    try {
+      const raw = JSON.parse(await readFile(agariPath(), "utf8")) as unknown;
+      savedAgari = raw && typeof raw === "object" && !Array.isArray(raw)
+        ? Object.fromEntries(Object.entries(raw).filter((e): e is [string, string] => typeof e[1] === "string"))
+        : {};
+    } catch {
+      savedAgari = {};
+    }
+  }
+  if (Object.entries(logged).every(([spot, agent]) => savedAgari![spot] === agent)) return savedAgari;
+  savedAgari = { ...savedAgari, ...logged };
+  try {
+    await mkdir(dirname(agariPath()), { recursive: true });
+    await writeFile(agariPath(), JSON.stringify(savedAgari));
+  } catch {}
+  return savedAgari;
+}
+
+export function resetRememberedAgari(): void {
+  savedAgari = null;
+}
+
 export async function withAgariNames(timers: GameTimer[]): Promise<GameTimer[]> {
   if (!timers.some((t) => t.spot)) return timers;
-  const [spawned, agentName] = await Promise.all([loggedAgari(), getAgentNamer()]);
+  const [spawned, agentName] = await Promise.all([loggedAgari().then(rememberedAgari), getAgentNamer()]);
   return nameAgari(timers, spawned, agentName);
 }
 
-/** Every self-expiring timer in the inventory, soonest first. */
+export function withStarred(timers: GameTimer[], watch: string[]): GameTimer[] {
+  const have = new Set(timers.map((t) => t.tag));
+  return [...timers, ...watch.filter((tag) => !have.has(tag)).map((tag) => ({ tag, ...timerLabel(tag), expiry: 0 }))];
+}
+
+export class TimerAlarms {
+  private pending = new Map<string, GameTimer>();
+
+  set(timers: GameTimer[], now = Date.now()): void {
+    const keep = new Set<string>();
+    for (const t of timers) {
+      if (t.expiry <= now) continue;
+      const key = `${t.tag}@${t.expiry}`;
+      keep.add(key);
+      this.pending.set(key, t);
+    }
+    for (const [key, t] of this.pending) if (!keep.has(key) && t.expiry > now) this.pending.delete(key);
+  }
+
+  due(now = Date.now()): GameTimer[] {
+    const out: GameTimer[] = [];
+    for (const [key, t] of this.pending) {
+      if (t.expiry > now) continue;
+      out.push(t);
+      this.pending.delete(key);
+    }
+    return out;
+  }
+}
+
 export function parseTimers(raw: Record<string, unknown>): GameTimer[] {
   const out: GameTimer[] = [];
   for (const e of Array.isArray(raw.ExpiryTimeTrackers) ? raw.ExpiryTimeTrackers : []) {

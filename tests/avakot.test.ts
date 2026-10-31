@@ -16,7 +16,6 @@ import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
 import { getSettings, updateSettings } from "../src/server/settings";
 
-// A real response, trimmed to one of each kind of offer; fetched at FETCHED.
 const SAMPLE_PATH = join(import.meta.dirname, "fixtures", "avakot.sample.json");
 const FETCHED = Date.parse("2026-10-26T21:02:49.518Z");
 const HOUR = 3600_000;
@@ -34,12 +33,9 @@ describe("Avakot's stock", () => {
     expect(by("RiverPearlResource", stock.offers)).toMatchObject({
       currency: "Dracs", price: 1500, limit: 2, weekly: false, expiry: Date.parse("2026-10-26T23:00:00Z"),
     });
-    // Arcs, weekly, and never leaves (the game's 2035 expiry).
     expect(by("KintsugiUpgradeMeleeSRC", stock.offers)).toMatchObject({ currency: "Arcs", price: 52, limit: 1, weekly: true, expiry: null });
-    // No purchase limit.
     expect(by("GarrenPactBlueprint", stock.offers)).toMatchObject({ price: 3000, limit: null, expiry: null });
     expect(by("CatalystALargeBundle", stock.offers)).toMatchObject({ currency: "Arcs", price: 57, expiry: Date.parse("2026-10-27T00:00:00Z") });
-    // The stock next changes when the first rotating offer leaves.
     expect(stock.nextChange).toBe(Date.parse("2026-10-26T23:00:00Z"));
   });
 
@@ -66,7 +62,6 @@ describe("Avakot's stock history and notifications", () => {
     const watch = [RIVER_PEARL, MORANITE, "/SF/StoreItems/Types/Recipes/Pacts/GarrenPactBlueprint"];
     const fresh = await recordAvakot(stock, watch);
     expect(fresh.map((o) => o.storeItem)).toEqual([RIVER_PEARL]);
-    // The next check still sees the same offer: no second notification.
     expect(await recordAvakot(parseVendorInfo(await sample(), FETCHED + HOUR), watch)).toEqual([]);
   });
 
@@ -84,7 +79,6 @@ describe("Avakot's stock history and notifications", () => {
     await recordAvakot(first, []);
     let { seen } = await getAvakot(FETCHED);
     expect(seen[RIVER_PEARL]).toEqual({ count: 1, last: Date.parse("2026-10-26T23:00:00Z") });
-    // It rotates in again later with a new offer id.
     const again = JSON.parse(await sample());
     const pearl = again.VendorInfo.ItemManifest.find((i: { StoreItem: string }) => i.StoreItem === RIVER_PEARL);
     pearl.Id.$oid = "6ad1bc722c6ca7ea9e4affff";
@@ -95,17 +89,17 @@ describe("Avakot's stock history and notifications", () => {
   });
 
   it("asks again only once the stock has changed, and never twice in ten minutes", async () => {
-    expect(await avakotDue(FETCHED)).toBe(true); // nothing fetched yet
+    expect(await avakotDue(FETCHED)).toBe(true);
     await noteAvakotAttempt(FETCHED);
     expect(await avakotDue(FETCHED + 5 * 60_000)).toBe(false);
     await recordAvakot(parseVendorInfo(await sample(), FETCHED), []);
-    expect(await avakotDue(FETCHED + 30 * 60_000)).toBe(false); // stock changes at 23:00
-    expect(await avakotDueAt()).toBe(Date.parse("2026-10-26T23:00:30Z")); // the app's timer for the next check
+    expect(await avakotDue(FETCHED + 30 * 60_000)).toBe(false);
+    expect(await avakotDueAt()).toBe(Date.parse("2026-10-26T23:00:30Z"));
     expect(await avakotDue(Date.parse("2026-10-26T23:01:00Z"))).toBe(true);
   });
 
   it("asks again ten minutes later if DE hadn't rotated the stock yet", async () => {
-    const late = Date.parse("2026-10-26T23:00:30Z"); // River Pearl's offer ended at 23:00
+    const late = Date.parse("2026-10-26T23:00:30Z");
     await noteAvakotAttempt(late);
     await recordAvakot(parseVendorInfo(await sample(), late), []);
     expect(await avakotDueAt()).toBe(late + 10 * 60_000);
@@ -121,7 +115,7 @@ describe("Avakot's stock history and notifications", () => {
 
   it("keeps only store item paths in the starred list", async () => {
     await updateSettings({ avakotWatch: [RIVER_PEARL, RIVER_PEARL, "javascript:alert(1)"] });
-    expect((await getSettings()).avakotWatch).toEqual([]); // rejected as a whole
+    expect((await getSettings()).avakotWatch).toEqual([]);
     await updateSettings({ avakotWatch: [RIVER_PEARL, RIVER_PEARL, MORANITE] });
     expect((await getSettings()).avakotWatch).toEqual([RIVER_PEARL, MORANITE]);
     expect((await getSettings()).avakotNotify).toBe(true);

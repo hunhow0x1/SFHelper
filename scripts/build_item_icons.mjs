@@ -1,13 +1,3 @@
-// Item icons for the Trades tab (src/server/public/itemicons.json + img/items/):
-// in-game name -> icon, for crafting materials, consumables, fish and weapons.
-//
-//   node scripts/build_item_icons.mjs
-//
-// The icons are the game's art as hosted by the Soulframe Wiki (the Icon/Image
-// fields of its Module:Data pages), resized to 64px like Avakot's. Icons that
-// build_avakot.mjs already fetched (img/avakot/) are reused, not downloaded
-// again. Requests are spaced out to go easy on the wiki.
-
 import { access, mkdir, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 
@@ -28,7 +18,6 @@ const wiki = async (params) => {
   return r.json();
 };
 
-// --- Name -> icon file, from the Module:Data pages. ------------------------------
 const files = new Map();
 for (const mod of MODULES) {
   const lua = (await wiki({ action: "parse", page: `Module:Data/${mod}`, prop: "wikitext" })).parse?.wikitext?.["*"] ?? "";
@@ -50,7 +39,6 @@ async function download(file, out) {
   return true;
 }
 
-// --- Fetch each file once. -------------------------------------------------------
 await mkdir(ICON_DIR, { recursive: true });
 const icons = {};
 const byFile = new Map();

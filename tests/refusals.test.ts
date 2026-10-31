@@ -4,7 +4,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gameBeingRefused, gameRefusals } from "../src/server/gameLog";
 
-// Shaped like the real EE.log from 2026-10-26, when Akamai refused every request.
 const LOG = `0.040 Sys [Diag]: Build Label: 2026.10.08.15.20 Retail Windows x64 [Stripped]
 0.041 Sys [Diag]: Current time: Mon Oct 26 16:06:24 2026 [UTC: Mon Oct 26 20:06:24 2026]
 3467.756 Net [Info]: Updating session (heartbeat)
@@ -37,7 +36,7 @@ describe("the game being refused by DE's servers", () => {
     expect(r).toEqual({
       count: 3,
       first: Date.parse("Mon, 26 Oct 2026 21:06:09 GMT"),
-      last: START + 7278398, // no Date header: log time
+      last: START + 7278398,
     });
   });
 

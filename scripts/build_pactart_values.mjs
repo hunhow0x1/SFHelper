@@ -1,17 +1,3 @@
-// The numbers behind Pact Arts, from the game's data, for the Loadouts tab's
-// Pact Arts popups (src/server/public/pactartvalues.json).
-//
-//   node scripts/build_pactart_values.mjs dict.en.json [Packages.bin_H]
-//
-// (dict.en.json as for build_locations.mjs.) Each art is an upgrade item with
-// LocalizeTag=/SF/Language/Pacts/... and an Upgrades list: a stat (UpgradeType,
-// or SymbolFilter for skill unlocks) and its value per point, e.g. Forestall's
-// PREVENT_DEATH_SKILL_CHANCE 0.1. Arts are matched to pactarts.json by their
-// in-game name. Only stats with a wording below are kept: ability unlocks have
-// no number, and the Virtue arts are shown from their own table. Values are per
-// point; the popup multiplies by the points spent, as the wiki shows for
-// Physic (+1 per point) and Wingspan (7 / 14 seconds).
-
 import { readFile, writeFile } from "node:fs/promises";
 import { DEFAULT_PACKAGES_PATH } from "./type_tree.mjs";
 import { readPackageTexts } from "./package_texts.mjs";
@@ -19,7 +5,6 @@ import { readPackageTexts } from "./package_texts.mjs";
 const [dictPath = "dict.en.json", pkgPath = DEFAULT_PACKAGES_PATH] = process.argv.slice(2);
 const OUT = "src/server/public/pactartvalues.json";
 
-// Stat -> how the popup words it. `scale` turns the game's value into the shown one.
 const WORDING = {
   PREVENT_DEATH_SKILL_CHANCE: { scale: 100, unit: "%", label: "chance to survive a killing blow" },
   PREVENT_DEATH_SKILL_HEAL: { label: "Health restored when it saves you" },
@@ -35,7 +20,6 @@ const dict = JSON.parse(await readFile(dictPath, "utf8"));
 const arts = JSON.parse(await readFile("src/server/public/pactarts.json", "utf8"));
 const texts = readPackageTexts(await readFile(pkgPath));
 
-// In-game name -> its upgrade item's stats (upgrade items carry a FusionLimit).
 const statsByName = new Map();
 for (const t of texts) {
   const tag = /^LocalizeTag=(\/SF\/Language\/Pacts\/\S+)$/m.exec(t)?.[1];

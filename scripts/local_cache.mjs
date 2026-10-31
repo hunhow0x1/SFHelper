@@ -1,15 +1,3 @@
-// Read the LOCAL installed Soulframe cache (Cache.Windows/*.toc + *.cache).
-// No CDN, no proprietary Oodle DLL - decompresses with ooz-wasm, same block
-// codec as the CDN path (extract_names.mjs).
-//
-// TOC: uint32 magic 0x1867C64E, uint32 version, then 96-byte entries:
-//   int64 offset(-1=dir), int64 timestamp, int32 compSize, int32 decompSize,
-//   int32 flags, int32 compType, char[64] name (leaf, NUL-padded).
-//
-// Usage:
-//   node scripts/local_cache.mjs search <name.toc> <name.cache> <text> [--names]
-//   node scripts/local_cache.mjs extract <name.toc> <name.cache> <nameSubstr> <outdir>
-
 import { decompress as oozDecompress } from "ooz-wasm";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -20,7 +8,6 @@ const ENTRY = 96;
 
 function unwrap(buf) {
   if (buf.length >= 4 && buf.readUInt32LE(0) === MAGIC) return buf;
-  // On-disk files are raw; CDN ones are whole-file LZMA. Try LZMA-alone.
   try { return Buffer.from(lzma.default ? [] : []); } catch { return buf; }
 }
 

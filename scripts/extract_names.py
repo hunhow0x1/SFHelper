@@ -1,30 +1,4 @@
 #!/usr/bin/env python3
-"""Extract Soulframe's in-game name dictionary into a names file.
-
-Ported from Sainan's warframe-cache-tools (lib/cachelib.pluto) for Soulframe.
-The display names live in Languages.bin (per-language), NOT in Cache.Windows -
-a zstd-with-custom-dictionary format reached through a chain of manifests:
-
-    H.Cache.bin  ->  B.Cache.Windows_<lang>.bin  ->  Languages.bin  (suffix _<lang>)
-
-Each downloaded file is an SHCC container whose chunks are Oodle-compressed
-(the same 8-byte-header + oo2core codec as Cache.Windows entries). The final
-Languages.bin H-chunk is parsed into { "<path><name>": "<display string>" }.
-
-Runtime dependencies (both native, loaded via ctypes):
-  * Oodle  - oo2core_9, ships with the game. Set OODLE_LIB to its path
-             (.so on Linux/Proton, .dll on Windows).
-  * libzstd - system library (Linux has /usr/lib64/libzstd.so). Set ZSTD_LIB
-             to override.
-
-Usage:
-    OODLE_LIB=/path/to/oo2core_9.so extract_names.py [--lang en] [--out dict.en.json]
-
-Output is the full localization dict as JSON. Grep it for a known name (e.g.
-"Igne Mora") to confirm the key convention, then map keys to the app's
-{ items, factions } names file.
-"""
-
 from __future__ import annotations
 import argparse
 import base64
@@ -42,12 +16,8 @@ TYPE_BIN = 0x2C
 CONTENT_HOST = "http://content.soulframe.com"
 ORIGIN_HOST = "http://origin.soulframe.com"
 USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)"
-# Local mirror of downloaded manifest/bin H-chunks, like cachelib's data/0 dir.
 DATA_DIR = Path(os.environ.get("SFHELPER_CACHE_DIR", Path.home() / ".cache" / "sfhelper-cache"))
 
-# ---------------------------------------------------------------------------
-# Oodle (oo2core_9) via ctypes - same codec as scripts/unpack_cache.py.
-# ---------------------------------------------------------------------------
 _OODLE = None
 
 
@@ -80,7 +50,6 @@ def oodle_decompress(chunk: bytes, dec_size: int) -> bytes:
 
 
 def _oodle_blocks(bin_: bytes, i: int, dec_size: int) -> tuple[bytes, int]:
-    """Decode a run of Oodle blocks (shcc_decompress_chunk_oodle)."""
     out = bytearray()
     while len(out) < dec_size:
         info = bin_[i:i + 8]
@@ -95,9 +64,6 @@ def _oodle_blocks(bin_: bytes, i: int, dec_size: int) -> tuple[bytes, int]:
     return bytes(out[:dec_size]), i
 
 
-# ---------------------------------------------------------------------------
-# SHCC container (shcc_decompress_chunk / shcc_unpack).
-# ---------------------------------------------------------------------------
 def _shcc_chunk(bin_: bytes, i: int) -> tuple[bytes, int]:
     chunk_type = bin_[i]
     dec_size, comp_size = struct.unpack_from("<II", bin_, i + 1)
@@ -110,9 +76,7 @@ def _shcc_chunk(bin_: bytes, i: int) -> tuple[bytes, int]:
 
 
 def shcc_unpack(bin_: bytes) -> tuple[bytes, bytes | None]:
-    """Return (H_chunk, B_chunk_or_None) from an SHCC container."""
     if bin_[:4] != MAGIC_SHCC:
-        # Rarely the whole file is Oodle-compressed first.
         bin_ = oodle_decompress(bin_, len(bin_) * 10)
     i = 8
     h, i = _shcc_chunk(bin_, i)
@@ -124,16 +88,12 @@ def shcc_unpack(bin_: bytes) -> tuple[bytes, bytes | None]:
     return h, b
 
 
-# ---------------------------------------------------------------------------
-# Manifest (CacheManifest): path -> content hash.
-# ---------------------------------------------------------------------------
 def b64m_encode(data: bytes) -> str:
     return base64.b64encode(data).decode().rstrip("=").replace("/", "-")
 
 
 def parse_manifest(h_chunk: bytes) -> dict[str, bytes]:
-    """Parse a manifest H-chunk into { path: 16-byte hash }."""
-    i = 20  # skip header
+    i = 20
     hashes: dict[str, bytes] = {}
     n = len(h_chunk)
     while i < n:
@@ -149,13 +109,10 @@ def parse_manifest(h_chunk: bytes) -> dict[str, bytes]:
             path = h_chunk[i:i + plen].decode("latin1")
             i += plen
             hashes[path] = h_chunk[i:i + 16]
-            i += 20  # 16 hash + 4 unk
+            i += 20
     return hashes
 
 
-# ---------------------------------------------------------------------------
-# Download flow (download_file).
-# ---------------------------------------------------------------------------
 def _http_get(url: str) -> bytes:
     req = urllib.request.Request(url, headers={"user-agent": USER_AGENT})
     with urllib.request.urlopen(req, timeout=60) as resp:
@@ -164,7 +121,6 @@ def _http_get(url: str) -> bytes:
 
 def download_h(path: str, type_id: int, b64m_hash: str = "---------------------w",
                suffix: str = "") -> bytes:
-    """Download a file, unpack its SHCC container, cache and return the H-chunk."""
     local = DATA_DIR / f"0{suffix}{path}_H"
     if local.exists():
         return local.read_bytes()
@@ -183,9 +139,6 @@ def download_h(path: str, type_id: int, b64m_hash: str = "---------------------w
     return h
 
 
-# ---------------------------------------------------------------------------
-# zstd (with custom dictionary) and Languages.bin parser (languages_unpack).
-# ---------------------------------------------------------------------------
 _ZSTD = None
 
 
@@ -216,7 +169,6 @@ def _zstd():
 
 
 def _u32_dyn_le(bin_: bytes, i: int) -> tuple[int, int]:
-    """LEB128-style varint (unpack_u32_dyn_le)."""
     value = shift = 0
     while shift < 28:
         byte = bin_[i]
@@ -231,7 +183,7 @@ def _u32_dyn_le(bin_: bytes, i: int) -> tuple[int, int]:
 
 def languages_unpack(bin_: bytes) -> dict[str, str]:
     z = _zstd()
-    i = 16 + 4 + 4 + 4  # hash, 0x14, 0x2B, 0x01
+    i = 16 + 4 + 4 + 4
     (num_suffixes,) = struct.unpack_from("<I", bin_, i)
     i += 4
     for _ in range(num_suffixes):
@@ -290,7 +242,6 @@ def main(argv: list[str]) -> int:
     args = ap.parse_args(argv)
     suffix = f"_{args.lang}"
 
-    # H.Cache.bin (root) -> B.Cache.Windows_<lang>.bin (lang manifest) -> Languages.bin
     meta_h = download_h("/H.Cache.bin", TYPE_MANIFEST)
     meta = parse_manifest(meta_h)
 

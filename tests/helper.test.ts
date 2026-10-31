@@ -18,7 +18,7 @@ describe("memory maps parsing", () => {
 
   it("keeps readable regions and drops non-readable ones", () => {
     const regions = parseMaps(maps);
-    expect(regions).toHaveLength(3); // the ---p guard page is dropped
+    expect(regions).toHaveLength(3);
     expect(regions.every((r) => r.perms[0] === "r")).toBe(true);
   });
 
@@ -29,8 +29,6 @@ describe("memory maps parsing", () => {
 });
 
 describe("memory scan (Windows-like reads)", () => {
-  // Regions separated by uncommitted gaps; a read that crosses a region's end
-  // fails outright, as ReadProcessMemory does with ERROR_PARTIAL_COPY.
   function fakeMemory(): ReadOnlyMemory {
     const regions: { start: number; end: number; perms: string; path: null; data: Buffer }[] = [];
     let base = 0x10000;
@@ -38,10 +36,10 @@ describe("memory scan (Windows-like reads)", () => {
       regions.push({ start: base, end: base + size, perms: "rw-p", path: null, data: Buffer.alloc(size, 0x2e) });
       base += size + 0x10000;
     }
-    regions[0]!.data.write("accountId=0123456789abcdef01234567", 1000, "latin1"); // small region
+    regions[0]!.data.write("accountId=0123456789abcdef01234567", 1000, "latin1");
     const r1 = regions[1]!;
-    r1.data.write("accountId=aaaaaaaaaaaaaaaaaaaaaaaa", r1.data.length - 34, "latin1"); // flush with region end
-    regions[2]!.data.write("accountId=bbbbbbbbbbbbbbbbbbbbbbbb", (1 << 20) - 5, "latin1"); // across a 1 MiB chunk
+    r1.data.write("accountId=aaaaaaaaaaaaaaaaaaaaaaaa", r1.data.length - 34, "latin1");
+    regions[2]!.data.write("accountId=bbbbbbbbbbbbbbbbbbbbbbbb", (1 << 20) - 5, "latin1");
     const backend = {
       pid: 1,
       regions,
@@ -78,7 +76,7 @@ describe("memory scan (Windows-like reads)", () => {
     expect(ids?.map((h) => h.trailing.toString("latin1"))).toEqual(["0123", "aaaa", "bbbb"]);
     expect(keys).toHaveLength(2);
     expect(none).toEqual([]);
-    expect(reads).toBe(1 + 1 + 3); // each 1 MiB chunk read once, not once per needle
+    expect(reads).toBe(1 + 1 + 3);
   });
 });
 

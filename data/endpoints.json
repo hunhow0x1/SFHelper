@@ -1,5 +1,4 @@
 {
-  "note": "Public, unauthenticated Soulframe endpoints. Paths came from Launcher.log's own HTTP transcripts and EE.log error lines, then were probed. inventory.php and getShip.php are deliberately absent: both are session-authenticated, the app forbids credentials, so there is nothing to probe. Soulframe has NO PublicExport equivalent - the origin index is a client download manifest (binaries, language RTFs, Cache.Windows/*.toc) with no item exports.",
   "userAgent": "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)",
   "minIntervalMs": 2000,
   "confirmed": [
@@ -7,48 +6,26 @@
       "id": "profile-by-id",
       "url": "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId={accountId}",
       "kind": "account",
-      "expects": "json",
-      "verified": "200 with 45KB of real profile JSON for a live account. Unauthenticated. Returns Results[0] (DisplayName, PlayerLevel, Affiliations, ChallengeProgress, LoadOutInventory incl. XPInfo) plus top-level Stats. accountId is a 24-hex Mongo ObjectId."
+      "expects": "json"
     },
     {
       "id": "client-ip",
       "url": "https://api.soulframe.com/api/clientIP.php",
       "kind": "world-state",
-      "expects": "text",
-      "verified": "200, 42 bytes. Returns the caller's own public IP and city - diagnostic only, never log its response."
+      "expects": "text"
     },
     {
       "id": "origin-index",
       "url": "https://origin.soulframe.com/origin/6AF16C5A/index.txt.lzma",
       "kind": "static-content",
-      "expects": "lzma",
-      "verified": "200, 6503 bytes, decompresses to 250 manifest entries. The hash segment is build-specific."
+      "expects": "lzma"
     },
     {
       "id": "content-motd",
       "url": "https://content.soulframe.com/Lotus/Language/MOTD_en.rtf.lzma",
       "kind": "static-content",
-      "expects": "lzma",
-      "verified": "200, 15321 bytes. Confirms the /Lotus/ content layout."
+      "expects": "lzma"
     }
   ],
-  "candidates": [],
-  "rejected": [
-    {
-      "url": "https://api.soulframe.com/cdn/getProfileViewingData.php?n={displayName}",
-      "result": "200 but always empty, even for a real display name in exact case - the name lookup is not wired up on Soulframe, unlike Warframe. Use playerId."
-    },
-    {
-      "url": "https://api.soulframe.com/api/worldState.php",
-      "result": "404"
-    },
-    {
-      "url": "https://content.soulframe.com/dynamic/worldState.php",
-      "result": "404"
-    },
-    {
-      "url": "https://content.soulframe.com/dynamic/getProfileViewingData.php",
-      "result": "404 - this host serves static content only"
-    }
-  ]
+  "candidates": []
 }

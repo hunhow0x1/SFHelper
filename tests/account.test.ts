@@ -162,7 +162,6 @@ describe("profile payload parsing (real shape)", () => {
     const soul = snap.items.find((i) => i.category === "soul");
     expect(soul?.key).toContain("/SF/Souls/");
     expect(snap.items.every((i) => i.source.fidelity === "partial")).toBe(true);
-    // A partial view is never allowed to claim it saw the whole account.
     expect(snap.sources.some((s) => s.fidelity === "full")).toBe(false);
   });
 

@@ -1,36 +1,15 @@
-/** Faction standing earned since the last daily reset (00:00 UTC).
- *
- *  The profile only carries each faction's cumulative Standing. (Its
- *  DailyAffiliation field is the daily cap still available, not what was
- *  earned, and it isn't per faction.) So we watch Standing over time: every
- *  rise between two observations is standing earned, and the tally restarts at
- *  each reset. Summing rises rather than diffing against a baseline keeps a
- *  standing spend from cancelling out what was earned.
- *
- *  If SFHelper was running across the reset, the last pre-reset observation is
- *  a near-exact baseline. Otherwise anything earned today before SFHelper
- *  started can't be known, and the tally counts from the first observation
- *  (`exact: false`, `since` = that time).
- */
-
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 import { appFile } from "./paths";
 
-/** A pre-reset observation this close to the reset counts as an exact baseline
- *  (the dashboard refreshes every 30s while open). */
 const EXACT_WINDOW_MS = 10 * 60_000;
 
 interface State {
-  /** UTC day ("YYYY-MM-DD") the tally belongs to. */
   day: string;
-  /** When counting started: the reset itself if exact, else the first observation. */
   since: string;
   exact: boolean;
-  /** Last observed Standing per faction tag, and when. */
   last: Record<string, number>;
   lastAt: string;
-  /** Standing earned today per faction tag. */
   earned: Record<string, number>;
 }
 
@@ -38,31 +17,20 @@ export interface StandingToday {
   since: string;
   exact: boolean;
   total: number;
-  /** Faction tag -> standing earned today (every observed faction, 0 included). */
   factions: Record<string, number>;
 }
 
-/** Today's daily standing caps. The game counts each cap down as standing is
- *  earned (DailyAffiliation for the regular factions, DailyAffiliationOde for
- *  the Ode); a full cap is 16,000 + 500 x player level. */
 export interface DailyCaps {
   cap: number;
   remaining: number;
   odeCap: number;
   odeRemaining: number;
-  /** Standing earned today: the larger of what the caps' countdown implies
-   *  and what we tracked (the countdown is exact for the whole day). */
   earned: number;
-  /** True when `earned` covers the whole day (game countdown or tracking from reset). */
   exact: boolean;
 }
 
 const ODE_TAG = "OdeSyndicate";
 
-/** Combine the game's remaining-cap counters with our tracked earnings.
- *  `reported` are the game's remaining values (lowest of the fresh sources).
- *  If a counter hasn't moved from full, it's either untouched today or the
- *  game didn't count it down yet, so our tracked earnings are subtracted. */
 export function dailyCaps(
   level: number | null,
   reported: { affiliation: number | null; affiliationOde: number | null },
@@ -75,7 +43,7 @@ export function dailyCaps(
 
   const one = (rem: number | null, tracked: number) => {
     const cap = Math.max(full, rem ?? 0);
-    const counted = rem != null && rem < cap; // the game is counting this cap down
+    const counted = rem != null && rem < cap;
     const remaining = counted ? rem! : Math.max(0, cap - tracked);
     return { cap, remaining, counted, earned: Math.max(tracked, cap - remaining) };
   };
@@ -111,7 +79,6 @@ async function save(s: State): Promise<void> {
   await writeFile(path, JSON.stringify(s));
 }
 
-/** Record the current per-faction Standing; returns today's tally. */
 export async function recordStanding(current: Record<string, number>, now = Date.now()): Promise<StandingToday> {
   const prev = await load();
   const day = dayKey(now);
@@ -119,8 +86,6 @@ export async function recordStanding(current: Record<string, number>, now = Date
   let s: State;
 
   if (!prev || prev.day !== day) {
-    // New day (or first run). The previous observation is a usable baseline
-    // only if it was taken just before this reset.
     const lastAt = prev ? Date.parse(prev.lastAt) : NaN;
     const exact = !!prev && lastAt < reset && reset - lastAt <= EXACT_WINDOW_MS;
     const earned: Record<string, number> = {};
@@ -139,7 +104,6 @@ export async function recordStanding(current: Record<string, number>, now = Date
     s = prev;
     for (const [tag, v] of Object.entries(current)) {
       const before = s.last[tag];
-      // A faction seen for the first time starts its own baseline.
       if (before !== undefined && v > before) s.earned[tag] = (s.earned[tag] ?? 0) + (v - before);
       else s.earned[tag] ??= 0;
       s.last[tag] = v;

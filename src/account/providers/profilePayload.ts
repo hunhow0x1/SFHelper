@@ -1,20 +1,3 @@
-/** Parse the real getProfileViewingData.php payload into an AccountSnapshot.
- *
- *  Shape confirmed against a live account (build 2026.08.20.11.07):
- *
- *    { Results: [ { AccountId:{$oid}, DisplayName, PlayerLevel,
- *                   Affiliations[], ChallengeProgress[],
- *                   LoadOutInventory:{ Suits, LongGuns, Melee, WeaponSkins,
- *                                      XPInfo[] } } ],
- *      Stats: { Weapons[], Enemies[], <scalars> },
- *      TechProjects, XpComponents }
- *
- *  This is a public, unauthenticated view: the equipped loadout plus every
- *  item the player has earned XP on, plus lifetime stats. It is NOT the owned
- *  inventory - no resource counts, no currencies, no unequipped gear - so the
- *  snapshot it produces is "partial", never "full".
- */
-
 import {
   emptySnapshot,
   type AccountSnapshot,
@@ -24,7 +7,6 @@ import {
 } from "../snapshot";
 import { hashAccountId } from "../identity";
 
-/** DE stores masterable item progress under these loadout keys. */
 const LOADOUT_ITEM_KEYS = ["Suits", "LongGuns", "Melee", "WeaponSkins"] as const;
 
 interface ProfileEnvelope {
@@ -43,17 +25,11 @@ interface ProfileResult {
   DailyAffiliationOde?: number;
 }
 
-/** Daily standing cap still AVAILABLE today (not earned), for the standard
- *  factions and for the Ode. Matches 16,000 + 500 x player level when nothing
- *  has been earned yet. Both reset at 00:00 UTC. Per-faction earnings are
- *  tracked separately (server/standing.ts). */
 export interface DailyStanding {
   affiliation: number | null;
   affiliationOde: number | null;
 }
 
-/** A game path's last segment is a usable display name until we have a real
- *  item DB: "/SF/Weapons/Melee/OneHand/FeySword/FeySwordMeleeWeapon" -> FeySword. */
 function nameFromItemType(itemType: string): string {
   const parts = itemType.split("/").filter(Boolean);
   return parts[parts.length - 2] ?? parts[parts.length - 1] ?? itemType;
@@ -69,8 +45,6 @@ function categoryForKey(key: string): string {
   return "weapon";
 }
 
-/** Every item the profile mentions, folded into one list keyed by ItemType.
- *  Equipped items carry their config XP; XPInfo backfills the rest. */
 function readItems(loadout: Record<string, unknown>, source: SourceRef): ItemStack[] {
   const byKey = new Map<string, ItemStack>();
 
@@ -153,8 +127,6 @@ function readProgression(result: ProfileResult, source: SourceRef): ProgressionE
   return entries;
 }
 
-/** Lifetime stats plus per-weapon and per-enemy breakdowns. Kept under raw so
- *  a stats view can read them without inventing schema in the snapshot type. */
 export interface ProfileStats {
   scalars: Record<string, number>;
   weapons: Array<Record<string, unknown>>;

@@ -1,11 +1,3 @@
-/** Find the running Soulframe process, cross-platform.
- *
- *  Linux (incl. Proton/Wine): scan /proc. /proc/<pid>/comm is capped at 15 chars
- *  (TASK_COMM_LEN-1), so we match the full name in /proc/<pid>/cmdline first and
- *  fall back to the truncated comm.
- *  Windows: parse `tasklist` for the image name.
- */
-
 import { readFile, readdir } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -13,7 +5,7 @@ import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 
 const FULL_NAME = "Soulframe.x64.exe";
-const COMM_TRUNCATED = FULL_NAME.slice(0, 15); // "Soulframe.x64.e"
+const COMM_TRUNCATED = FULL_NAME.slice(0, 15);
 
 export interface FoundProcess {
   pid: number;
@@ -55,7 +47,6 @@ async function findLinux(): Promise<FoundProcess[]> {
 }
 
 async function findWindows(): Promise<FoundProcess[]> {
-  // CSV, no header: "Image Name","PID","Session Name","Session#","Mem Usage"
   const { stdout } = await execFileAsync("tasklist", ["/FO", "CSV", "/NH"], {
     windowsHide: true,
     maxBuffer: 8 * 1024 * 1024,

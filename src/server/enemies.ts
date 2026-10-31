@@ -1,35 +1,16 @@
-/** In-game names for the enemy types in the profile's kill stats.
- *
- *  Stats key enemies by type path (/SF/Types/Enemies/Sinecure/Soldier/
- *  MeleeGruntAvatar); the game shows a localized name ("Sinecure Soldier").
- *  public/enemies.json (built by scripts/build_enemies.mjs from the game's
- *  localization and type tree) holds the names by type leaf, plus each enemy
- *  type's parent. A type without a name of its own takes its nearest
- *  ancestor's, as in game: MeleeGruntSpikedMaceEliteAvatar -> MeleeGruntAvatar.
- *
- *  Stats also keep types from older game builds that no longer exist under
- *  that name, so as fallbacks we try the leaf's words reordered (old
- *  EliteMeleeGruntAvatar = current MeleeGruntEliteAvatar), then without
- *  variant words like "Elite"; failing all that, a cleaned-up leaf.
- */
-
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 export interface EnemyData {
-  /** Type leaf, lowercased -> in-game name. */
   names: Record<string, string>;
-  /** Type leaf -> parent type leaf. */
   parents: Record<string, string>;
 }
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DATA_PATH = join(HERE, "public", "enemies.json");
 
-/** Words that mark a variant of an enemy (or a boss phase), not a different one. */
 const VARIANT_WORDS = new Set(["Elite", "Night", "Always", "Summon", "Proc", "Swamp", "Messenger", "Old", "Young", "Helmet"]);
-/** Internal markers left out of a fallback name. */
 const INTERNAL_WORDS = new Set(["Proc", "Always"]);
 const MAX_PERMUTED_WORDS = 5;
 
@@ -68,22 +49,15 @@ function byLeaf(leaf: string, d: EnemyData, depth: number): string | null {
   return null;
 }
 
-/** "MendicantKnightProcAvatar" -> "Mendicant Knight". */
 function cleaned(leaf: string): string {
   return wordsOf(leaf).filter((w) => !INTERNAL_WORDS.has(w)).join(" ") || leaf;
 }
 
-/** The in-game name for an enemy type path. */
 export function enemyName(type: string, d: EnemyData): string {
   const leaf = type.slice(type.lastIndexOf("/") + 1);
   return byLeaf(leaf, d, 0) ?? cleaned(leaf);
 }
 
-/** The in-game name for an NPC agent type, as the game log names spawns
- *  ("RangedHunterBowSubBossAgent"). Agents and avatars aren't named alike, so
- *  it's the named avatar whose words are the most of the agent's
- *  (RangedHunterSubBossAvatar: "Gruulseeker Ruthos"). A sub-boss agent only
- *  takes a sub-boss avatar's name. Null if nothing fits. */
 export function agentName(agent: string, d: EnemyData): string | null {
   const norm = (leaf: string) => wordsOf(leaf.replace(/Agent$/, "Avatar").replace(/subboss/i, "SubBoss")).map((w) => w.toLowerCase());
   const words = new Set(norm(agent));
@@ -105,13 +79,11 @@ const enemyData = (): Promise<EnemyData> =>
     .then((t) => JSON.parse(t) as EnemyData)
     .catch(() => ({ names: {}, parents: {} })));
 
-/** Name lookup backed by the bundled data (a no-name fallback if it's missing). */
 export async function getEnemyNamer(): Promise<(type: string) => string> {
   const d = await enemyData();
   return (type) => enemyName(type, d);
 }
 
-/** Agent-type name lookup (see agentName), backed by the bundled data. */
 export async function getAgentNamer(): Promise<(agent: string) => string | null> {
   const d = await enemyData();
   return (agent) => agentName(agent, d);

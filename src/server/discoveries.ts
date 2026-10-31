@@ -1,12 +1,3 @@
-/** Discoveries: the places (and maps) the game tracks, and the Memories found at
- *  each. Discoveries and Memories count toward Envoy Rank.
- *
- *  The list of locations, their in-game names and Memory counts come from the
- *  game's data (public/locations.json, built by scripts/build_locations.mjs).
- *  What you've found comes from the inventory's LoreFragmentScans: one entry
- *  per location discovered, with Progress = Memories found there.
- */
-
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -14,7 +5,6 @@ import { dirname, join } from "node:path";
 const LOCATION_PREFIX = "/SF/Types/Quests/LocationLoreQuests/";
 
 export interface LoreScan {
-  /** Memories found there. */
   progress: number;
   redeemed: boolean;
 }
@@ -22,20 +12,16 @@ export interface LoreScan {
 export interface Place {
   key: string;
   name: string;
-  /** Memories this place holds (0 for some, like the Undercity's districts). */
   memories: number;
-  /** Memories found, at most `memories`. */
   found: number;
   discovered: boolean;
 }
 
 export interface Discoveries {
   places: Place[];
-  /** Dungeon maps: no Memories, just found or not. */
   maps: { found: number; total: number };
 }
 
-/** Location type leaf -> what the inventory says about it. */
 export function parseLoreScans(raw: Record<string, unknown>): Record<string, LoreScan> {
   const out: Record<string, LoreScan> = {};
   for (const e of Array.isArray(raw.LoreFragmentScans) ? raw.LoreFragmentScans : []) {
@@ -51,7 +37,6 @@ export function parseLoreScans(raw: Record<string, unknown>): Record<string, Lor
 
 type LocationDefs = Record<string, { name: string; memories: number; map: boolean }>;
 
-/** Every known place (found or not, by name) and the maps found, against the game's list. */
 export function discoveries(scans: Record<string, LoreScan>, defs: LocationDefs): Discoveries {
   const places: Place[] = [];
   let mapsFound = 0;
@@ -72,7 +57,6 @@ export function discoveries(scans: Record<string, LoreScan>, defs: LocationDefs)
 const HERE = dirname(fileURLToPath(import.meta.url));
 let defs: LocationDefs | null = null;
 
-/** The Discoveries view for an inventory's scans; null if the bundled list is missing. */
 export async function getDiscoveries(scans: Record<string, LoreScan>): Promise<Discoveries | null> {
   if (!defs) {
     try {
