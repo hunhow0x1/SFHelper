@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
@@ -14,6 +14,15 @@ async function writeSorted(path: string, obj: Record<string, unknown>): Promise<
   const sorted: Record<string, unknown> = {};
   for (const k of Object.keys(obj).sort()) sorted[k] = obj[k];
   await writeFile(path, JSON.stringify(sorted, null, 2));
+}
+
+async function readKnown<T>(path?: string): Promise<Record<string, T> | null> {
+  if (!path) return null;
+  try {
+    return JSON.parse(await readFile(path, "utf8")) as Record<string, T>;
+  } catch {
+    return null;
+  }
 }
 
 async function categoryMembers(category: string): Promise<string[]> {
@@ -72,7 +81,18 @@ function runeEffect(extract: string): string | null {
   return t && t.length > 6 ? t : null;
 }
 
-export async function buildTotems(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
+const UNKNOWN_VALUE = /\?\s*\/|\/\s*\?/;
+
+export function mergeTotemTexts(fresh: Record<string, string>, known: Record<string, string> | null): Record<string, string> {
+  if (!known) return fresh;
+  const out: Record<string, string> = { ...known, ...fresh };
+  for (const [name, text] of Object.entries(fresh)) {
+    if (UNKNOWN_VALUE.test(text) && known[name] && !UNKNOWN_VALUE.test(known[name])) out[name] = known[name];
+  }
+  return out;
+}
+
+export async function buildTotems(outPath: string, onProgress?: ProgressFn, knownPath?: string): Promise<{ ok: number; archived: number; unparsed: string[] }> {
   const names = await categoryMembers("Totems");
   const out: Record<string, string> = {};
   let ok = 0, archived = 0;
@@ -87,7 +107,7 @@ export async function buildTotems(outPath: string, onProgress?: ProgressFn): Pro
     } catch { unparsed.push(names[i]!); }
   }
   onProgress?.(names.length, names.length, "done");
-  await writeSorted(outPath, out);
+  await writeSorted(outPath, mergeTotemTexts(out, await readKnown<string>(knownPath)));
   return { ok, archived, unparsed };
 }
 
@@ -407,14 +427,35 @@ export interface TotemData {
   grip: (string | null)[][];
 }
 
+const placeholders = (effect: string): number => new Set(effect.match(/\$\d/g) ?? []).size;
+const fillRows = (rows: (string | null)[][], known: (string | null)[][]): (string | null)[][] =>
+  rows.map((row, i) => row.map((v, j) => v ?? known[i]?.[j] ?? null));
+const complete = (rows: (string | null)[][]): boolean => rows.every((row) => row.every((v) => v !== null));
+
+export interface PartialTotemData extends Omit<TotemData, "base"> {
+  base: (string | null)[][];
+}
+
+export function mergeTotemData(fresh: Record<string, PartialTotemData>, known: Record<string, TotemData> | null): Record<string, TotemData> {
+  const out: Record<string, TotemData> = { ...(known ?? {}) };
+  for (const [name, d] of Object.entries(fresh)) {
+    const k = known?.[name];
+    const same = k && placeholders(k.effect) === placeholders(d.effect) && k.base.length === d.base.length && k.grip.length === d.grip.length;
+    const base = same ? fillRows(d.base, k.base) : d.base;
+    const grip = same ? fillRows(d.grip, k.grip) : d.grip;
+    if (complete(base)) out[name] = { ...d, base: base as string[][], grip };
+  }
+  return out;
+}
+
 const statGroups = (s: string): (string | null)[][] =>
   s.split(",").map((g) => g.split("/").map((v) => (/^[\d.]+$/.test(v.trim()) ? v.trim() : null)));
 
-export async function buildTotemData(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
+export async function buildTotemData(outPath: string, onProgress?: ProgressFn, knownPath?: string): Promise<{ ok: number; unparsed: string[] }> {
   onProgress?.(0, 1, "Module:Data/Totems");
   const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Totems")}&prop=wikitext&format=json`);
   const lua: string = r.parse?.wikitext?.["*"] ?? "";
-  const out: Record<string, TotemData> = {};
+  const out: Record<string, PartialTotemData> = {};
   const unparsed: string[] = [];
   for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s{4}\}/g)) {
     const name = m[1]!;
@@ -422,20 +463,21 @@ export async function buildTotemData(outPath: string, onProgress?: ProgressFn): 
     for (const kv of m[2]!.matchAll(/(\w+)\s*=\s*"((?:[^"\\]|\\.)*)"/g)) f[kv[1]!] = kv[2]!.replace(/\\"/g, '"');
     if (!f.Animal || !f.effect || !f.base) { unparsed.push(name); continue; }
     const base = statGroups(f.base);
-    if (base.some((g) => g.some((v) => v === null))) { unparsed.push(name); continue; }
     out[name] = {
       animal: f.Animal,
       enhances: f.Enhances ?? "",
       description: f.description ?? "",
       effect: f.effect,
-      base: base as string[][],
+      base,
       grip: f.gripBonusBase ? statGroups(f.gripBonusBase) : base,
     };
   }
   onProgress?.(1, 1, "done");
-  if (Object.keys(out).length < 10) throw new Error(`Module:Data/Totems parsed only ${Object.keys(out).length} totems`);
-  await writeSorted(outPath, out);
-  return { ok: Object.keys(out).length, unparsed };
+  const merged = mergeTotemData(out, await readKnown<TotemData>(knownPath));
+  for (const name of Object.keys(out)) if (!merged[name] || merged[name]!.effect !== out[name]!.effect) unparsed.push(name);
+  if (Object.keys(merged).length < 10) throw new Error(`Module:Data/Totems parsed only ${Object.keys(merged).length} totems`);
+  await writeSorted(outPath, merged);
+  return { ok: Object.keys(merged).length, unparsed };
 }
 
 export const TALISMAN_NAMES: Record<string, string> = {

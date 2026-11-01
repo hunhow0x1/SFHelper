@@ -47,13 +47,13 @@ async function refreshData(): Promise<void> {
     await mkdir(DATA_DIR, { recursive: true });
     log("Refreshing totem/rune/weapon/pact/temper/pact-art data…");
     const [t, r, w, p, tp, pa, td, tl, ar, mr] = await Promise.all([
-      buildTotems(join(DATA_DIR, "totems.json")),
+      buildTotems(join(DATA_DIR, "totems.json"), undefined, join(HERE, "public", "totems.json")),
       buildRunes(join(DATA_DIR, "runes.json")),
       buildWeapons(join(DATA_DIR, "weapons.json")),
       buildPacts(join(DATA_DIR, "pacts.json")),
       buildTempers(join(DATA_DIR, "tempers.json")),
       buildPactArts(join(DATA_DIR, "pactarts.json")),
-      buildTotemData(join(DATA_DIR, "totemdata.json")),
+      buildTotemData(join(DATA_DIR, "totemdata.json"), undefined, join(HERE, "public", "totemdata.json")),
       buildTalismans(join(DATA_DIR, "talismans.json")),
       buildArmour(join(DATA_DIR, "armour.json")).catch(() => ({ ok: 0 })),
       buildMasteryRank(join(DATA_DIR, "masteryrank.json")).catch(() => ({ ok: 0 })),
