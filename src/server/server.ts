@@ -286,6 +286,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
         timers: inventory ? await withAgariNames(withStarred(inventory.timers, (await getSettings()).timerWatch)) : [],
         discoveries: inventory ? await getDiscoveries(inventory.loreScans) : null,
         temperProgress: inventory?.temperProgress ?? [],
+        upgradeItems: inventory?.upgradeItems ?? null,
         pickups,
         trades,
         builds: inventory?.builds ?? [],

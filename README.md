@@ -7,18 +7,29 @@ in-game names throughout.
 
 Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 
+![The Overview tab: faction standing, cooldowns, faction tokens and trades](screenshots/overview.webp)
+
 ## Features
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, faction tokens and currencies. Cooldowns: the game's own timers counting down, such as an Agari (sub-boss) respawning 30 minutes after you slay it and the 24 hours between Blessed Meetings, with optional desktop notifications when one ends. |
+| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, faction tokens and currencies. Cooldowns: the game's own timers counting down, such as an Agari (sub-boss) respawning 30 minutes after you slay it, a siege's cooldown, the 3 hours before an Organ can be destroyed again, and the 24 hours between Blessed Meetings. Star a cooldown to get a desktop notification when it ends. |
 | **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*), plus its armour (Helm, Cuirass, Leggings, with defence and Virtue requirements) and Talisman. Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Pact Arts show the game's own numbers (e.g. Forestall's chance to survive). Loadouts can be shared as short `SFH1:` codes; paste one and press Enter or Import. |
-| **Mastery** | Your Envoy Rank, your Mastery and progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type. Discoveries lists every place by its in-game name, whether you've found it, and the Memories found there. |
-| **Upgrades** | Tuvalkane temper learning, and your Totem inventory with search and grip / Virtue / type filters. |
+| **Mastery** | Your Envoy Rank, your Mastery and progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type (weapons, Primary, Sidearm or Pacts). Discoveries lists every place by its in-game name, whether you've found it, and the Memories found there. |
+| **Upgrades** | Tuvalkane temper learning; your Runes by weapon art with their rank, the Totem slot they add and their numbers at that rank; your Joineries by metal and blessing; your Gear, with what's equipped; and your Totem inventory with search and grip / Virtue / type filters. |
 | **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. |
 | **Trades** | Your trade history: who you traded with, what you received and gave, with in-game icons (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
 | **Avakot** | What Avakot's Gots has in stock right now, with prices, purchase limits and how long each item stays, plus his weekly and always-stocked wares. Star anything he can sell to get a desktop notification when he stocks it. |
 | **Stats** | Your top weapons and enemies by kills, by in-game name. |
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Loadouts: a loadout opened to its Virtues, armour and Pact Arts](screenshots/loadouts.webp) | ![Loadouts: the same loadout's Pact Arts tree and weapons, with Joinery, Runes, Totems by slot and Tempers](screenshots/loadouts-2.webp) |
+| ![Mastery: Envoy Rank and every weapon's Mastery](screenshots/mastery.webp) | ![Upgrades: Tuvalkane's tempers and your Runes](screenshots/upgrades-1.webp) |
+| ![Upgrades: Joineries, Gear and Totems](screenshots/upgrades-2.webp) | ![Pickups: weapons picked up, with craftwork and tempers](screenshots/pickups.webp) |
+| ![Trades: what you received and gave in each trade, and the Scutage paid](screenshots/trades.webp) | ![Avakot: what Avakot's Gots has in stock, with stars for notifications](screenshots/avakot.webp) |
 
 ## How it gets your data
 
@@ -189,6 +200,7 @@ npm test
 | `npm run build-avakot -- dict.en.json <Packages.bin>` | Avakot's shop definition and item names from the game's data, icons from the Soulframe Wiki | `src/server/public/avakot.json`, `img/avakot/` |
 | `npm run build-locations -- dict.en.json <Packages.bin>` | Every location, its in-game name and Memories, from the game's data | `src/server/public/locations.json` |
 | `npm run build-pactart-values -- dict.en.json <Packages.bin>` | The numbers behind Pact Arts, from the game's data | `src/server/public/pactartvalues.json` |
+| `npm run build-upgrades -- dict.en.json <Packages.bin>` | Every Rune, Joinery and Gear item's in-game name and description from the game's data; rune numbers per rank and rune icons from the Soulframe Wiki | `src/server/public/upgrades.json`, `img/runes/` |
 | `npm run build-item-icons` | Item and weapon icons (game art) from the Soulframe Wiki | `src/server/public/itemicons.json`, `img/items/` |
 
 `dict.en.json` can also be made offline from the installed game: extract

@@ -25,6 +25,8 @@ function words(s: string): string {
 
 type Label = Omit<GameTimer, "tag" | "expiry">;
 
+const ORGAN_REGIONS: Record<string, string> = { Airdelands: "Fuirlands", Kearnhold: "Kearnhold Lowlands", Odell: "Fortress O'Dell" };
+
 const KNOWN: [RegExp, (m: RegExpExecArray) => Label][] = [
   [/^UPGRADEGIVEN_GODANDGHOST$/, () => ({ kind: "Once a day, after a boon", name: "Blessed Meeting", ready: "Blessed Meetings can happen again" })],
   [/^(.+)-SubBoss$/i, (m) => {
@@ -34,6 +36,10 @@ const KNOWN: [RegExp, (m: RegExpExecArray) => Label][] = [
   [/^([A-Z][A-Za-z]*?)Siege$/, (m) => {
     const name = `${words(m[1]!)} Siege`;
     return { kind: "Siege cooldown", name, ready: `The ${name} can start again` };
+  }],
+  [/^PollutionTower([A-Za-z]+)$/, (m) => {
+    const name = `${ORGAN_REGIONS[m[1]!] ?? words(m[1]!)} Organ`;
+    return { kind: "Organ cooldown", name, ready: `The ${name} can be destroyed again` };
   }],
 ];
 

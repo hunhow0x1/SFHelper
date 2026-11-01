@@ -438,6 +438,12 @@
       .mempips { display: inline-flex; gap: 7px; padding-right: 2px; }
       .mempips i { width: 7px; height: 7px; border: 1px solid var(--line-2); transform: rotate(45deg); }
       .mempips i.on { background: var(--accent-2); border-color: var(--accent-2); box-shadow: 0 0 6px rgba(127, 181, 154, 0.45); }
+      .upgroups { columns: 4 300px; }
+      .upgroups .avgroup h3 img { width: 22px; height: 22px; object-fit: contain; align-self: center; }
+      .upgroups .avrow.plain { grid-template-columns: minmax(0, 1fr) auto; }
+      .upgroups .avr .mempips { justify-content: flex-end; }
+      .avn small.equipped { color: #a6dcc0; }
+      .poprow { cursor: help; }
       #timers .avrow { grid-template-columns: minmax(0, 1fr) auto; }
       #timers .avrow.starrable { grid-template-columns: auto minmax(0, 1fr) auto; }
       #timers .avrow.idle .avn { color: var(--muted); }
@@ -767,6 +773,21 @@
           <div class="daily" id="temperSummary"></div>
           <div id="tempers" class="rows"><span class="muted">Dismantle weapons to teach Tuvalkane their tempers (10 to learn each).</span></div>
         </section>
+        <section id="runesSection" hidden>
+          <h2>Runes</h2>
+          <div class="daily" id="runeSummary"></div>
+          <div id="runes"></div>
+        </section>
+        <section id="joinerySection" hidden>
+          <h2>Joineries</h2>
+          <div class="daily" id="joinerySummary"></div>
+          <div id="joineries"></div>
+        </section>
+        <section id="gearSection" hidden>
+          <h2>Gear</h2>
+          <div class="daily" id="gearSummary"></div>
+          <div id="gear"></div>
+        </section>
         <section>
           <h2>Totems</h2>
           <input id="totemSearch" class="wsearch" placeholder="Search names or effects, e.g. rune damage, pull smite, armour…" spellcheck="false" />
@@ -966,6 +987,8 @@
         if (hover) temperPop.dataset.hover = "1";
         if (el.classList.contains("artnode")) {
           temperPop.innerHTML = artPopHtml(el.dataset.art, Number(el.dataset.rank) || 0);
+        } else if (el.classList.contains("poprow")) {
+          temperPop.innerHTML = upgradePopHtml(el.dataset.kind, el.dataset.type);
         } else {
           const tag = el.dataset.tag;
           const count = Number(el.dataset.count) || 1;
@@ -982,7 +1005,7 @@
         temperPop.style.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - temperPop.offsetWidth - 12))) + "px";
       }
       document.addEventListener("click", (e) => {
-        const el = e.target.closest && e.target.closest(".temper, .artnode, .temperrow");
+        const el = e.target.closest && e.target.closest(".temper, .artnode, .temperrow, .poprow");
         closeTemperPop();
         if (!el) return;
         e.stopPropagation();
@@ -990,7 +1013,7 @@
       });
       let hoverRow = null;
       document.addEventListener("mouseover", (e) => {
-        const row = e.target.closest && e.target.closest(".temperrow");
+        const row = e.target.closest && e.target.closest(".temperrow, .poprow");
         if (row === hoverRow) return;
         hoverRow = row;
         if (temperPop && temperPop.dataset.hover) closeTemperPop();
@@ -1056,6 +1079,7 @@
             items.push({
               name,
               group: sec.groupOf(name),
+              slot: sec.roster === WEAPON_ROSTER ? (WEAPON_ROSTER[name] && WEAPON_ROSTER[name].slot) || (w ? (w.slot === "Melee" ? "Primary" : "Sidearm") : null) : null,
               w,
               lvl: w || earned > 0 ? levelOf(earned, sec.C) : null,
               copy: w ? levelOf(w.xp, sec.C) : null,
@@ -1072,13 +1096,16 @@
         const groupNames = [...new Set(items.map((i) => i.group))].sort((a, b) =>
           a === "Pacts" ? 1 : b === "Pacts" ? -1 : a.localeCompare(b),
         );
-        if (!["all", "weapons", "pacts"].includes(MASTERY_UI.type)) MASTERY_UI.type = "all";
+        if (!["all", "weapons", "primary", "sidearm", "pacts"].includes(MASTERY_UI.type)) MASTERY_UI.type = "all";
 
         const q = MASTERY_UI.q.trim().toLowerCase();
         const passOwn = (i) => MASTERY_UI.own === "all" || (MASTERY_UI.own === "owned") === !!i.w;
         const passMastery = (i) => MASTERY_UI.mastery === "all" || (MASTERY_UI.mastery === "mastered") === !!(i.lvl && i.lvl.maxed);
         const isPact = (i) => i.group === "Pacts";
-        const passType = (i) => MASTERY_UI.type === "all" || (MASTERY_UI.type === "pacts") === isPact(i);
+        const SLOT_OF = { primary: "Primary", sidearm: "Sidearm" };
+        const passType = (i) =>
+          MASTERY_UI.type === "all" ||
+          (MASTERY_UI.type === "pacts" ? isPact(i) : MASTERY_UI.type === "weapons" ? !isPact(i) : i.slot === SLOT_OF[MASTERY_UI.type]);
         const passSearch = (i) => !q || i.name.toLowerCase().includes(q);
 
         const chip = (key, val, label, n) =>
@@ -1096,6 +1123,8 @@
           `</div><span class="fl">Type</span><div class="wfilter">` +
             chip("type", "all", "All") +
             chip("type", "weapons", "Weapons", countIf((i) => !isPact(i) && passOwn(i) && passMastery(i))) +
+            chip("type", "primary", "Primary", countIf((i) => i.slot === "Primary" && passOwn(i) && passMastery(i))) +
+            chip("type", "sidearm", "Sidearm", countIf((i) => i.slot === "Sidearm" && passOwn(i) && passMastery(i))) +
             chip("type", "pacts", "Pacts", countIf((i) => isPact(i) && passOwn(i) && passMastery(i))) +
           `</div>`;
 
@@ -1576,6 +1605,114 @@
       });
 
       let TOTEM_DATA = {};
+      let UPGRADES = { runes: {}, joineries: {}, gear: {} };
+      let LAST_UPGRADE_ITEMS = null;
+      const DEITY_VIRTUE = { Mora: "Courage", Iridis: "Spirit", Saphene: "Grace" };
+      const JOINERY_FAMILIES = ["Verite", "Quicksilver", "Feybalt", "Gildaur"];
+      const TIER_ORDER = (label) => (/^Thrice/.test(label) ? 3 : /^Twice/.test(label) ? 2 : 1);
+      const GEAR_KINDS = ["Supplies", "Fishing", "Companion"];
+      const deityHtml = (label) =>
+        escHtml(label).replace(/\b(Mora|Iridis|Saphene)\b/, (d) => `<span style="color:${VIRTUE_COLOR[DEITY_VIRTUE[d]]}">${d}</span>`);
+      const upIcon = (src, cls = "avicn") => (src ? `<img class="${cls}" src="${escHtml(src)}" alt="" loading="lazy">` : `<span class="${cls}"></span>`);
+      const runeInfo = (type) => UPGRADES.runes[type] || { name: shortName(type), art: null, stats: [], icon: null };
+      const runeMax = (d) => Math.max(0, ...(d.stats || []).map((st) => st.values.length - 1));
+      const runeTop = (o) => (o.ranks.length ? o.ranks[0] : null);
+      function runeStat(st, rank) {
+        const v = st.values[Math.min(rank, st.values.length - 1)];
+        return st.effect.includes("$1") ? escHtml(st.effect).replace("$1", `<b>${escHtml(v)}</b>`) : `${escHtml(st.effect)} <b>${escHtml(v)}</b>`;
+      }
+      const slotHtml = (virtue) => (virtue ? `<span style="color:${VIRTUE_COLOR[virtue] || "inherit"}">${escHtml(virtue)}</span> Totem slot` : "");
+      const upGroups = (groups) =>
+        `<div class="avgroups upgroups">${groups
+          .filter((g) => g.rows.length)
+          .map((g) => `<div class="avgroup"><h3>${g.icon ? upIcon(g.icon, "") : ""}${escHtml(g.name)} <span class="count">${g.count ?? g.rows.length}</span></h3>${g.rows.join("")}</div>`)
+          .join("")}</div>`;
+
+      function renderUpgradeItems() {
+        const u = LAST_UPGRADE_ITEMS;
+        for (const id of ["runesSection", "joinerySection", "gearSection"]) $(id).hidden = !u;
+        if (!u) return;
+
+        const runes = u.runes.map((o) => ({ ...o, d: runeInfo(o.type) }));
+        const maxed = runes.filter((o) => runeTop(o) != null && runeMax(o.d) && runeTop(o) >= runeMax(o.d)).length;
+        const unranked = runes.reduce((n, o) => n + o.unranked, 0);
+        $("runeSummary").innerHTML = runes.length
+          ? `Owned <b>${runes.length}</b> &nbsp;·&nbsp; At max rank <b>${maxed}</b> &nbsp;·&nbsp; Unranked copies <b>${unranked}</b>`
+          : "";
+        const runeRow = (o) => {
+          const max = runeMax(o.d);
+          const r = runeTop(o);
+          const pips = max
+            ? `<span class="mempips" title="Rank ${r ?? 0} of ${max}">${Array.from({ length: max }, (_, i) => `<i${r != null && i < r ? ' class="on"' : ""}></i>`).join("")}</span>`
+            : r != null ? `Rank ${r}` : "";
+          const extra = o.unranked ? `<small>${o.unranked} unranked</small>` : r == null ? "<small>Unranked</small>" : "";
+          const sub = [slotHtml(o.d.slot), o.ranks.length > 1 ? `${o.ranks.length} ranked` : ""].filter(Boolean).join(" · ");
+          return `<div class="avrow poprow" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}${extra}</div></div>`;
+        };
+        const arts = [...new Set(runes.map((o) => o.d.art || "Other"))].sort((a, b) => (a === "Other") - (b === "Other") || a.localeCompare(b));
+        $("runes").innerHTML = runes.length
+          ? upGroups(arts.map((art) => ({
+              name: art,
+              rows: runes.filter((o) => (o.d.art || "Other") === art).sort((a, b) => a.d.name.localeCompare(b.d.name)).map(runeRow),
+            })))
+          : '<span class="muted">No runes in your inventory.</span>';
+
+        const joins = u.joineries.map((o) => ({ ...o, d: UPGRADES.joineries[o.type] || { name: shortName(o.type), family: null } }));
+        $("joinerySummary").innerHTML = joins.length
+          ? `Kinds <b>${joins.length}</b> &nbsp;·&nbsp; Total <b>${joins.reduce((n, o) => n + o.count, 0).toLocaleString()}</b>`
+          : "";
+        const joinGroup = (family) => {
+          const list = joins.filter((o) => (o.d.family || null) === family);
+          const label = (o) => (family ? o.d.name.slice(family.length + 1).trim() : o.d.name);
+          return {
+            name: family || "Other",
+            icon: `img/joineries/${family ? family.toLowerCase() : "joinery"}.png`,
+            count: list.reduce((n, o) => n + o.count, 0).toLocaleString(),
+            rows: list
+              .sort((a, b) => TIER_ORDER(label(a)) - TIER_ORDER(label(b)) || label(a).localeCompare(label(b)))
+              .map((o) => `<div class="avrow plain poprow" data-kind="joinery" data-type="${escHtml(o.type)}"><div class="avn">${deityHtml(label(o))}</div><div class="avr">${o.count.toLocaleString()}</div></div>`),
+          };
+        };
+        $("joineries").innerHTML = joins.length
+          ? upGroups([...JOINERY_FAMILIES, null].map(joinGroup))
+          : '<span class="muted">No joineries in your inventory.</span>';
+
+        const gear = u.gear.map((o) => ({ ...o, d: UPGRADES.gear[o.type] || { name: shortName(o.type), kind: "Supplies", icon: null } }));
+        $("gearSummary").innerHTML = gear.length
+          ? `Items <b>${gear.length}</b> &nbsp;·&nbsp; Equipped <b>${gear.filter((o) => o.equipped).length}</b>`
+          : "";
+        const gearRow = (o) =>
+          `<div class="avrow poprow" data-kind="gear" data-type="${escHtml(o.type)}">${upIcon(o.d.icon || ITEM_ICONS[o.d.name])}<div class="avn">${escHtml(o.d.name)}${o.equipped ? '<small class="equipped">Equipped</small>' : ""}</div><div class="avr">${o.count.toLocaleString()}</div></div>`;
+        $("gear").innerHTML = gear.length
+          ? upGroups(GEAR_KINDS.map((kind) => ({
+              name: kind,
+              rows: gear.filter((o) => (GEAR_KINDS.includes(o.d.kind) ? o.d.kind : "Supplies") === kind).sort((a, b) => b.equipped - a.equipped || a.d.name.localeCompare(b.d.name)).map(gearRow),
+            })))
+          : '<span class="muted">No gear in your inventory.</span>';
+      }
+
+      function upgradePopHtml(kind, type) {
+        const u = LAST_UPGRADE_ITEMS || { runes: [], joineries: [], gear: [] };
+        if (kind === "rune") {
+          const d = runeInfo(type);
+          const o = u.runes.find((x) => x.type === type) || { ranks: [], unranked: 0 };
+          const r = runeTop(o);
+          const max = runeMax(d);
+          const rank = r == null ? "Unranked" : max ? `Rank ${r} of ${max}` : `Rank ${r}`;
+          const stats = r != null ? d.stats.map((st) => `<div class="tp-eff">${runeStat(st, r)}</div>`).join("") : "";
+          const art = d.art ? `${escHtml(d.art)} rune · ` : "";
+          return `<div class="tp-head">${upIcon(d.icon, "ticn")}<div class="tp-name">${escHtml(d.name)}</div></div>` +
+            `<div class="tp-rank">${art}${rank}</div>${d.desc ? `<div class="tp-quote">${escHtml(d.desc)}</div>` : ""}` +
+            stats + (d.does ? `<div class="tp-eff">${escHtml(d.does)}</div>` : "") +
+            (d.slot ? `<div class="tp-eff">Adds a ${slotHtml(d.slot)}.</div>` : "") +
+            (o.unranked ? `<div class="tp-dbl">${o.unranked} unranked ${o.unranked === 1 ? "copy" : "copies"}</div>` : "");
+        }
+        const d = (kind === "joinery" ? UPGRADES.joineries : UPGRADES.gear)[type] || { name: shortName(type) };
+        const icon = d.icon || ITEM_ICONS[d.name];
+        return `<div class="tp-head">${upIcon(icon, "ticn")}<div class="tp-name">${kind === "joinery" ? deityHtml(d.name) : escHtml(d.name)}</div></div>` +
+          (d.desc ? `<div class="${kind === "joinery" ? "tp-quote" : "tp-eff"}">${escHtml(d.desc)}</div>` : "");
+      }
+
       let LAST_TOTEMS = null;
       const TOTEM_UI = { q: "", virtue: "all", grip: "all", animal: "all", trigger: "all", sort: "name" };
       try { Object.assign(TOTEM_UI, JSON.parse(localStorage.getItem("sfhelper.totems") || "{}"), { q: "" }); } catch {}
@@ -2311,6 +2448,10 @@
           LAST_TEMPERS = data.temperProgress || [];
           renderTempers();
         }
+        if (sectionChanged("upgradeItems", data.upgradeItems)) {
+          LAST_UPGRADE_ITEMS = data.upgradeItems || null;
+          renderUpgradeItems();
+        }
         if (sectionChanged("totems", data.totems)) {
           LAST_TOTEMS = data.totems || null;
           renderTotems();
@@ -2504,6 +2645,11 @@
         try {
           const res = await fetch("/pacts.json");
           if (res.ok) PACT_ROSTER = await res.json();
+        } catch {}
+        try {
+          const res = await fetch("/upgrades.json");
+          if (res.ok) UPGRADES = await res.json();
+          renderUpgradeItems();
         } catch {}
         try {
           const res = await fetch("/avakot.json");

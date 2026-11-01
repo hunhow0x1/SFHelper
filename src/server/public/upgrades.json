@@ -1,0 +1,759 @@
+{
+  "runes": {
+    "/SF/Upgrades/Runes/Weapon/Bow/FlameRune/FlameRune": {
+      "name": "Blazingbolt",
+      "desc": "The rune of the arrowhead, aglow in flame",
+      "art": "Bow",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": "img/runes/alcacourage012.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Bow/RainRune": {
+      "name": "The Torrent",
+      "desc": "The rune of the mighty hail",
+      "art": "Bow",
+      "does": "Summon a volley of arrows from the sky where The Torrent strikes.",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Damage",
+          "values": [
+            "50%",
+            "60%",
+            "70%",
+            "80%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcaspirit008.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Bow/StarterRune": {
+      "name": "Alca's Breath",
+      "desc": "The rune of stirring Magicks, ever flowing",
+      "art": "Bow",
+      "does": "Performs a Charged Shot imbued with an additional instance of Arcanic damage.",
+      "slot": "Grace",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "90%",
+            "110%",
+            "130%",
+            "150%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage005.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeInvisRune": {
+      "name": "The Flitsmoke",
+      "desc": "The rune of smoke ephemeral",
+      "art": "Short Blade",
+      "does": "Grants invisibility on activation. Stealth kills while active extend the duration.",
+      "slot": "Grace",
+      "stats": [
+        {
+          "effect": "$1 Duration",
+          "values": [
+            "3s",
+            "4s",
+            "5s",
+            "6s"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcagrace001.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Dagger/StarterRune": {
+      "name": "Emberaught",
+      "desc": "The rune of the ember, ready to be stoked",
+      "art": "Short Blade",
+      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Flame Damage Bonus",
+          "values": [
+            "100%",
+            "150%",
+            "200%",
+            "250%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage011.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Flyblade/FlameRune/FlameRune": {
+      "name": "Emberlash",
+      "desc": "The rune of the ember glowing in wait",
+      "art": "Flyblade",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": "img/runes/alcacourage012.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeSeekingRune": {
+      "name": "Picktrix",
+      "desc": "The rune of the Picktrix, swarming smells of blood",
+      "art": "Flyblade",
+      "does": "Releases a flock of four seeking sprites that strike nearby foes.",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "$1 Projectile Damage",
+          "values": [
+            "60%",
+            "80%",
+            "100%",
+            "120%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage017.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Flyblade/StarterRune": {
+      "name": "Hurlwind",
+      "desc": "The rune of the gusts ever-whirling",
+      "art": "Flyblade",
+      "does": "Launches a single, powerful blast of Arcanic energy towards the target.",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "40%",
+            "60%",
+            "80%",
+            "100%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage013.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordRangeRune": {
+      "name": "Treefell",
+      "desc": "The rune of the falling tree, heavy yet rapid",
+      "art": "Heavy",
+      "does": "Enhances the range, charge rate, and armour piercing of charged Heavy Attacks.",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "Charge Speed",
+          "values": [
+            "40%",
+            "60%",
+            "80%",
+            "100%"
+          ]
+        },
+        {
+          "effect": "Duration",
+          "values": [
+            "5s",
+            "6s",
+            "7s",
+            "8s"
+          ]
+        },
+        {
+          "effect": "$1 Armour Penetration",
+          "values": [
+            "10",
+            "30",
+            "50",
+            "70"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage016.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/GreatSword/StarterRune": {
+      "name": "Cindermore",
+      "desc": "The rune of the eternal flame, never to be stifled",
+      "art": "Heavy",
+      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Flame Damage Bonus",
+          "values": [
+            "100%",
+            "150%",
+            "200%",
+            "250%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage010.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeProjectileRune": {
+      "name": "The Mistgale",
+      "desc": "The rune of the phantoms formed in mist",
+      "art": "Long Blade",
+      "does": "Sends forth a wave of energy, passing through and dealing damage to all foes in its path.",
+      "slot": "Grace",
+      "stats": [
+        {
+          "effect": "$1 Projectile Damage Bonus",
+          "values": [
+            "125%",
+            "150%",
+            "175%",
+            "200%"
+          ]
+        },
+        {
+          "effect": "$1 Stagger Bonus",
+          "values": [
+            "150%",
+            "200%",
+            "250%",
+            "300%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage008.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/LongBlade/StarterRune": {
+      "name": "Everflame",
+      "desc": "The rune of the eternal flame, never to be stifled",
+      "art": "Long Blade",
+      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Flame Damage Bonus",
+          "values": [
+            "100%",
+            "150%",
+            "200%",
+            "250%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage006.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Magiks/ExplosiveBuildUpRune": {
+      "name": "The Hollowing",
+      "desc": "The rune of held breath bursting free",
+      "art": "Magick",
+      "does": "Marks foes on hit. Once marked enemies are struck a sufficient number of times, they trigger a radial explosion dealing damage to nearby foes.",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Explosion Damage",
+          "values": [
+            "200%",
+            "235%",
+            "265%",
+            "300%"
+          ]
+        },
+        {
+          "effect": "$1 Subsequent Attacks",
+          "values": [
+            "6",
+            "5",
+            "4",
+            "3"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage004.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Magiks/FlameRune/FlameRune": {
+      "name": "Wickwell",
+      "desc": "The rune of a waxed wick, ready to ignite",
+      "art": "Magick",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": "img/runes/alcacourage012.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Magiks/StarterRune": {
+      "name": "Archstorm",
+      "desc": "The rune of the erst storm, the root of all rain",
+      "art": "Magick",
+      "does": "Performs a Charged Cast imbued with additional Arcanic damage.",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "125%",
+            "150%",
+            "175%",
+            "200%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage002.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Polearm/PolearmMultiThrowRune": {
+      "name": "Splitbolt",
+      "desc": "The rune of forked lightning, strengthened in its fragmentation",
+      "art": "Polearm",
+      "does": "Calls down a barrage of spears, which strike in an area of effect around the target.",
+      "slot": "Grace",
+      "stats": [
+        {
+          "effect": "$1 Projectile Damage",
+          "values": [
+            "40%",
+            "60%",
+            "80%",
+            "100%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage015.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Polearm/StarterRune": {
+      "name": "Torcheternal",
+      "desc": "The rune of the Fey Torch, alight 'yond the veil",
+      "art": "Polearm",
+      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Flame Damage Bonus",
+          "values": [
+            "100%",
+            "150%",
+            "200%",
+            "250%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage014.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Shield/SBLaserRune": {
+      "name": "The Durglint",
+      "desc": "The rune of sharp reflections",
+      "art": "Shield",
+      "does": "For 8 seconds, blocking fires a beam of energy which deals 125 damage and increases damage dealt on the next melee attack.",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "$1 Beam Damage",
+          "values": [
+            "75",
+            "100",
+            "125",
+            "125"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcagrace008.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Shield/StarterRune": {
+      "name": "Forburn",
+      "desc": "The rune of the Fey Torch, alight 'yond the veil",
+      "art": "Shield",
+      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Flame Damage Bonus",
+          "values": [
+            "100%",
+            "150%",
+            "200%",
+            "250%"
+          ]
+        }
+      ],
+      "icon": "img/runes/alcacourage012.png"
+    }
+  },
+  "joineries": {
+    "/SF/Types/Items/Kintsugi/KintsugiUpgradeA": {
+      "name": "Grey Gold",
+      "family": null,
+      "desc": "A dull gold tinged with smoke. A fine metal, traditionally used in the art of Steelsinging. Once mined plentifully in the Mines of Borro, Grey Gold is a reliable joinery for broken weapons.",
+      "rarity": null,
+      "icon": "img/joineries/joinery.png"
+    },
+    "/SF/Types/Items/Kintsugi/KintsugiUpgradeArmourA": {
+      "name": "Tribalt",
+      "family": null,
+      "desc": "A blue-tinged metal, traditionally used in the art of Steelsinging. It is an unusually flexible joinery, making it a perfect binder for broken armour.",
+      "rarity": null,
+      "icon": "img/joineries/joinery.png"
+    },
+    "/SF/Types/Items/Kintsugi/KintsugiUpgradeB": {
+      "name": "Sun Gold",
+      "family": null,
+      "desc": "A vibrant golden ore, traditionally used in the art of Steelsinging. So named for its bright reddish glint, Sun Gold grants broken weapons the luck of the stars when used as a joinery. +1 damage.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/joinery.png"
+    },
+    "/SF/Types/Items/Kintsugi/KintsugiUpgradeC": {
+      "name": "Palladium",
+      "family": null,
+      "desc": "A silver-white metal of great value, traditionally used in the art of Steelsinging. Forming a seamless fusion twixt shattered parts, Palladium fortifies broken weapons when used as a joinery. +2 damage.",
+      "rarity": "RARE",
+      "icon": "img/joineries/joinery.png"
+    },
+    "/SF/Types/Items/Kintsugi/KintsugiUpgradeD": {
+      "name": "Eldore",
+      "family": null,
+      "desc": "An iridescent metal, traditionally used in the art of Steelsinging. Thought to be the currency of the Fey. When used as a joinery, Eldore fastens severed weapons with the strength of bound realms. +3 damage.",
+      "rarity": "RARE",
+      "icon": "img/joineries/joinery.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseC": {
+      "name": "Gildaur: Blessed by Mora",
+      "family": "Gildaur",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": null,
+      "icon": "img/joineries/gildaur.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseR": {
+      "name": "Gildaur: Blessed by Saphene",
+      "family": "Gildaur",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": null,
+      "icon": "img/joineries/gildaur.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRC": {
+      "name": "Gildaur: Thrice Blessed by Mora",
+      "family": "Gildaur",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/gildaur.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRG": {
+      "name": "Gildaur: Thrice Blessed by Saphene",
+      "family": "Gildaur",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/gildaur.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRS": {
+      "name": "Gildaur: Thrice Blessed by Iridis",
+      "family": "Gildaur",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/gildaur.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseUC": {
+      "name": "Gildaur: Blessed by Iridis",
+      "family": "Gildaur",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": null,
+      "icon": "img/joineries/gildaur.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeC": {
+      "name": "Verite: Blessed by Mora",
+      "family": "Verite",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": null,
+      "icon": "img/joineries/verite.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeR": {
+      "name": "Verite: Blessed by Saphene",
+      "family": "Verite",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": null,
+      "icon": "img/joineries/verite.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRC": {
+      "name": "Verite: Twice Blessed by Mora",
+      "family": "Verite",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/verite.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRG": {
+      "name": "Verite: Twice Blessed by Saphene",
+      "family": "Verite",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/verite.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRS": {
+      "name": "Verite: Twice Blessed by Iridis",
+      "family": "Verite",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/verite.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeUC": {
+      "name": "Verite: Blessed by Iridis",
+      "family": "Verite",
+      "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
+      "rarity": null,
+      "icon": "img/joineries/verite.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedC": {
+      "name": "Quicksilver: Blessed by Mora",
+      "family": "Quicksilver",
+      "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
+      "rarity": null,
+      "icon": "img/joineries/quicksilver.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedR": {
+      "name": "Quicksilver: Blessed by Saphene",
+      "family": "Quicksilver",
+      "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
+      "rarity": null,
+      "icon": "img/joineries/quicksilver.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRC": {
+      "name": "Quicksilver: Thrice Blessed by Mora",
+      "family": "Quicksilver",
+      "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/quicksilver.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRCTwo": {
+      "name": "Quicksilver: Twice Blessed by Mora",
+      "family": "Quicksilver",
+      "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/quicksilver.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRG": {
+      "name": "Quicksilver: Thrice Blessed by Saphene",
+      "family": "Quicksilver",
+      "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/quicksilver.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRGTwo": {
+      "name": "Quicksilver: Twice Blessed by Saphene",
+      "family": "Quicksilver",
+      "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/quicksilver.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRS": {
+      "name": "Quicksilver: Thrice Blessed by Iridis",
+      "family": "Quicksilver",
+      "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/quicksilver.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRSTwo": {
+      "name": "Quicksilver: Twice Blessed by Iridis",
+      "family": "Quicksilver",
+      "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/quicksilver.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedUC": {
+      "name": "Quicksilver: Blessed by Iridis",
+      "family": "Quicksilver",
+      "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
+      "rarity": null,
+      "icon": "img/joineries/quicksilver.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterC": {
+      "name": "Feybalt: Blessed by Mora",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": null,
+      "icon": "img/joineries/feybalt.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterFeySRS": {
+      "name": "Feybalt: Thrice Blessed by Saphene",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/feybalt.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterR": {
+      "name": "Feybalt: Blessed by Saphene",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": null,
+      "icon": "img/joineries/feybalt.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRC": {
+      "name": "Feybalt: Thrice Blessed by Mora",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/feybalt.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRCTwo": {
+      "name": "Feybalt: Twice Blessed by Mora",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/feybalt.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRG": {
+      "name": "Feybalt: Thrice Blessed by Saphene",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/feybalt.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRGTwo": {
+      "name": "Feybalt: Twice Blessed by Saphene",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/feybalt.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRS": {
+      "name": "Feybalt: Thrice Blessed by Iridis",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": "RARE",
+      "icon": "img/joineries/feybalt.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRSTwo": {
+      "name": "Feybalt: Twice Blessed by Iridis",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": "UNCOMMON",
+      "icon": "img/joineries/feybalt.png"
+    },
+    "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterUC": {
+      "name": "Feybalt: Blessed by Iridis",
+      "family": "Feybalt",
+      "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
+      "rarity": null,
+      "icon": "img/joineries/feybalt.png"
+    }
+  },
+  "gear": {
+    "/SF/Types/Items/Consumables/BasicFishingSpool": {
+      "name": "Doyen's Spool",
+      "desc": "Grandfa's fishing spindle, painted with pigments of crushed Lullily and Sangelia. Doyen carved the spool himself, in the likeness of the Lumenelli. ‘Twas always his favoured fish for the way its whiskers willow.",
+      "kind": "Fishing",
+      "icon": "img/items/doyensspool.png"
+    },
+    "/SF/Types/Items/Consumables/HealingPotion": {
+      "name": "Life Elixir",
+      "desc": "Essence of life. Drink to regain health.",
+      "kind": "Supplies",
+      "icon": "img/avakot/healingpotion.png"
+    },
+    "/SF/Types/Items/Consumables/PetConsumeables/WolfMealPetFood": {
+      "name": "Canid Kibble",
+      "desc": "A bowl of hearty finners and grain. Feed to your Wolfpup to grant them Energy ‘betwixt romps around the Isle. Orengall warns not to let her brood overeat… Lest a tummy too full lull them to silvern sleep.",
+      "kind": "Companion",
+      "icon": "img/items/canidkibble.png"
+    },
+    "/SF/Types/Items/Consumables/PetConsumeables/WolfTreatPetFood": {
+      "name": "Canid Biscuit",
+      "desc": "A handful of fishie-biscuits, bound with Brineflour. Feed to your Wolfpup to inspire obedience and resolve, boosting Training progress for a short time. Though do dole in rations or your Pup will tire all the quicker! Best paired with a whine or a beg.",
+      "kind": "Companion",
+      "icon": "img/items/canidbiscuit.png"
+    },
+    "/SF/Types/Items/Consumables/RedNightElixir": {
+      "name": "The Cogah",
+      "desc": "An ancient fey rite to be drunk before battle. Seek out Agari lost, and soon you'll taste the cost.",
+      "kind": "Supplies",
+      "icon": "img/items/rednightelixir.png"
+    },
+    "/SF/Types/Items/Consumables/Syndicates/ChampionVirtueElixir": {
+      "name": "Curaidh's Breath",
+      "desc": "A vial of liquid Courage. Drink to your virtue.",
+      "kind": "Supplies",
+      "icon": "img/items/courageelixir.png"
+    },
+    "/SF/Types/Items/Consumables/Syndicates/FeyVirtueElixir": {
+      "name": "Dancing Galdre",
+      "desc": "A vial of liquid Spirit. Drink to your virtue.",
+      "kind": "Supplies",
+      "icon": "img/items/spiritelixir.png"
+    },
+    "/SF/Types/Items/Consumables/Syndicates/LesserChampionVirtueElixir": {
+      "name": "Curaidh's Whisp",
+      "desc": "A small tincture of liquid Courage. Drink to your virtue.",
+      "kind": "Supplies",
+      "icon": null
+    },
+    "/SF/Types/Items/Consumables/Syndicates/LesserFeyVirtueElixir": {
+      "name": "Sleeping Galdre",
+      "desc": "A small tincture of liquid Spirit. Drink to your virtue.",
+      "kind": "Supplies",
+      "icon": null
+    },
+    "/SF/Types/Items/Consumables/Syndicates/LesserSilentRoseVirtueElixir": {
+      "name": "Mistmaker",
+      "desc": "A small tincture of liquid Grace. Drink to your virtue.",
+      "kind": "Supplies",
+      "icon": null
+    },
+    "/SF/Types/Items/Consumables/Syndicates/SilentRoseVirtueElixir": {
+      "name": "Shademaker",
+      "desc": "A vial of liquid Grace. Drink to your virtue.",
+      "kind": "Supplies",
+      "icon": "img/items/graceelixir.png"
+    },
+    "/SF/Types/Items/Consumables/Tackle/BugLureStarterCommon": {
+      "name": "Feathered Flier",
+      "desc": "A wispy critter and a line is all one needs for a convincing little morsel. The Feathered Flier is favoured by fledgling anglers for its simple assembly. An unassuming caricature, yet what swims 'neath seldom knows the difference.",
+      "kind": "Fishing",
+      "icon": "img/items/featheredflier.png"
+    },
+    "/SF/Types/Items/Consumables/Tackle/CarpLureUncommon": {
+      "name": "Pluckfin Skimmer",
+      "desc": "Its Curfret-like shape makes surface water prey take flight, yet its cerulean glow entices them back. Pluckfin Skimmer sways to a siren song of deceit that some say makes for a more appetizing catch.",
+      "kind": "Fishing",
+      "icon": "img/avakot/pluckfinskimmer.png"
+    },
+    "/SF/Types/Items/Consumables/Tackle/CricketLureRare": {
+      "name": "Spindled Bugger",
+      "desc": "With limbs and appendages aplenty, this verdant decoy is sure to tempt the most docile of foragers. Its living counterpart favours lurking in pockets of moon-cooled dew, such placid habits makes the Spindled Bugger enticing bait indeed.",
+      "kind": "Fishing",
+      "icon": "img/avakot/spindledbugger.png"
+    },
+    "/SF/Types/Items/Consumables/Tackle/FishLureUncommon": {
+      "name": "Snelled Swimmer",
+      "desc": "Whittled with care and beaded through skill, this fish-like lure performs best by trawling among the lakebed. The Snelled Swimmer's sunken dance draws bottom-feeders from the murk, eager to swallow their wooden kin.",
+      "kind": "Fishing",
+      "icon": "img/avakot/snelledswimmer.png"
+    },
+    "/SF/Types/Items/Consumables/Tackle/FrogLureUncommon": {
+      "name": "Sirin's Hopper",
+      "desc": "Sirin's mischief embodied in toad's form. Best released in swamps or stillwater, the mimicry of the Hopper's twitching limbs proves a cruel temptation to any hungry thing beneath.",
+      "kind": "Fishing",
+      "icon": "img/avakot/sirinshopper.png"
+    },
+    "/SF/Types/Items/Consumables/Tackle/LobsterLureRare": {
+      "name": "Locustax Streamer",
+      "desc": "Bait revered by ambush feeders for its crustaceous frame and mother-of-pearl twinkle. The Locustax Streamer proves most able at the shoreline, its slim body floating elegantly; all for the biting.",
+      "kind": "Fishing",
+      "icon": "img/avakot/locustaxstreamer.png"
+    },
+    "/SF/Types/Items/Consumables/Tackle/TurtleLureRare": {
+      "name": "Scuter",
+      "desc": "Rudimentary in make yet rare for its shellback body, a mimic made for basking in sunlit waters. Cast a Scuter 'pon the lake's gleaming face and rest; for in idle drift does this lure calls its quarry.",
+      "kind": "Fishing",
+      "icon": "img/avakot/scuter.png"
+    },
+    "/SF/Types/Items/Consumables/VerminiaPotion": {
+      "name": "Cloudquell",
+      "desc": "A vial of sun. Cast it skyward to dry out a storm. Effective against lightning-charged foes.",
+      "kind": "Supplies",
+      "icon": "img/items/consumables-clayale.png"
+    },
+    "/SF/Types/Items/Consumables/WevetSeed": {
+      "name": "Wevetseed",
+      "desc": "The sacred child of the Wevetwood. Contained within is the wisdom of the ancients, of the ever-reaching Wevetroots that tunnel beneath all of Midrath.",
+      "kind": "Supplies",
+      "icon": "img/items/acorn.png"
+    },
+    "/SF/Types/Items/Consumables/WolfCubSummon": {
+      "name": "Summon Wolfpup",
+      "desc": null,
+      "kind": "Supplies",
+      "icon": "img/items/summonwolfpup.png"
+    },
+    "/SF/Types/Items/Consumables/WolfSummon": {
+      "name": "Summon Wolf",
+      "desc": null,
+      "kind": "Supplies",
+      "icon": null
+    }
+  }
+}
