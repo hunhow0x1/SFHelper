@@ -1,0 +1,659 @@
+{
+  "recipes": {
+    "/SF/Types/Recipes/ColorPalettes/AlcasChildrenPalletteBlueprint": {
+      "name": "Epona",
+      "station": "Brewing",
+      "kind": "Palettes",
+      "result": "/SF/Types/Items/ColorPalettes/AlcasChildrenFactionPalette",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 10,
+      "seconds": 10,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/Mushrooms/WyrmWortResource",
+          "name": "Wyrmwort",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/WillOFrondResource",
+          "name": "Will-o-frond",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/JadenRingResource",
+          "name": "Jaden Drop",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/BrineflossResource",
+          "name": "Brinefloss",
+          "count": 15
+        }
+      ],
+      "desc": "An effigy left by Epona of the coven, Druid Ward to the Omen Bear.\n\n\"May my mem'ry weep you silvern tears. And water well the Wevetroots. For a humble life of reverent weeding, is not oft' remembered but always goode.\nRouse my mem'ry from the earth. From will-o-frond, from fair wyrmwort. Lucky I, consumed by roots, for hiding well from royal court.\"",
+      "icon": "img/items/palettechildrenofalca.png",
+      "bond": 1
+    },
+    "/SF/Types/Recipes/ColorPalettes/KithofKingsPalletteBlueprint": {
+      "name": "Rhiannon",
+      "station": "Brewing",
+      "kind": "Palettes",
+      "result": "/SF/Types/Items/ColorPalettes/KithOfKingsFactionPalette",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 10,
+      "seconds": 10,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/MorasKissResource",
+          "name": "Mora's Kiss",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/Flowers/SynodsWitResource",
+          "name": "Synod's Maiden",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/FireFungusResource",
+          "name": "Fire Fungus",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/BileSackResource",
+          "name": "Bile Sack",
+          "count": 25
+        }
+      ],
+      "desc": "An effigy left by Rhiannon of the coven, Fire Mage to Queen Muireall Jotar.\n\n\"May my mem'ry burn by fire, by fury. Settled scores and vying pride. Of a hungry princess I stoked to greatness. Of a long, red strife 'till last I died.\nRouse my mem'ry from the earth. From fungus fire, from Mora's kiss. For last, they found me, drowned me deep. To never sail to rings of 'Dris.\"",
+      "icon": "img/items/palettekithofkings.png",
+      "bond": 1
+    },
+    "/SF/Types/Recipes/ColorPalettes/SilentRosePalletteBlueprint": {
+      "name": "Sigil",
+      "station": "Brewing",
+      "kind": "Palettes",
+      "result": "/SF/Types/Items/ColorPalettes/SilentRoseFactionPalette",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 10,
+      "seconds": 10,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/HymmRoseResource",
+          "name": "Hymn Rose",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/QueensFollyResource",
+          "name": "Queen's Folly",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/NeathCapResource",
+          "name": "Neathcap",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/Flowers/SynodsWitResource",
+          "name": "Synod's Maiden",
+          "count": 20
+        }
+      ],
+      "desc": "An effigy left by Sigil of the coven, seer of the Silent Rose.\n\n\"May my mem'ry stir you from the song. Wake you from your sleep enslaved. Know 'tis for my love I've run, and bid return soon she is saved.\nRouse my mem'ry from the earth. From hymn rose hear my rebel song. For in our time, Alca needs witches. Promise dears, I won't be long.\"",
+      "icon": "img/items/palettesilentrose.png",
+      "bond": 1
+    },
+    "/SF/Types/Recipes/Consumeables/PetFood/WolfMealBlueprint": {
+      "name": "Canid Kibble",
+      "station": "Brewing",
+      "kind": "Pup Treats",
+      "result": "/SF/Types/Items/Consumables/PetConsumeables/WolfMealPetFood",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 200,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Food/FishChumResource",
+          "name": "Clappie Pail",
+          "count": 5
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/ToeOfOdeResource",
+          "name": "Toe of Ode",
+          "count": 2
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Food/MinnowSnackResource",
+          "name": "Plaited Freshfish",
+          "count": 1
+        }
+      ],
+      "desc": "A bowl of hearty finners and grain. Feed to your Wolfpup to grant them Energy ‘betwixt romps around the Isle. Orengall warns not to let her brood overeat… Lest a tummy too full lull them to silvern sleep.",
+      "icon": "img/items/canidkibble.png",
+      "bond": 1
+    },
+    "/SF/Types/Recipes/Consumeables/PetFood/WolfSnackBlueprint": {
+      "name": "Canid Biscuit",
+      "station": "Brewing",
+      "kind": "Pup Treats",
+      "result": "/SF/Types/Items/Consumables/PetConsumeables/WolfTreatPetFood",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 200,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Food/MinnowSnackResource",
+          "name": "Plaited Freshfish",
+          "count": 5
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/JadenRingResource",
+          "name": "Jaden Drop",
+          "count": 2
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Food/FishChumResource",
+          "name": "Clappie Pail",
+          "count": 1
+        }
+      ],
+      "desc": "A handful of fishie-biscuits, bound with Brineflour. Feed to your Wolfpup to inspire obedience and resolve, boosting Training progress for a short time. Though do dole in rations or your Pup will tire all the quicker!  Best paired with a whine or a beg.",
+      "icon": "img/items/canidbiscuit.png",
+      "bond": 1
+    },
+    "/SF/Types/Recipes/Elixers/ChampionElixirRecipe": {
+      "name": "Curaidh's Breath",
+      "station": "Brewing",
+      "kind": "Elixirs",
+      "result": "/SF/Types/Items/Consumables/Syndicates/ChampionVirtueElixir",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 250,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/MorasKissResource",
+          "name": "Mora's Kiss",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/FireFungusResource",
+          "name": "Fire Fungus",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Essence/FishEssenceResource",
+          "name": "Swell O' Tides",
+          "count": 6
+        }
+      ],
+      "desc": "A vial of liquid Courage. Drink to your virtue.",
+      "icon": "img/items/courageelixir.png",
+      "bond": null
+    },
+    "/SF/Types/Recipes/Elixers/CloudquellElixerRecipe": {
+      "name": "Cloudquell",
+      "station": "Brewing",
+      "kind": "Elixirs",
+      "result": "/SF/Types/Items/Consumables/VerminiaPotion",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 250,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/WeepinDrisResource",
+          "name": "Weepin' Dris",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/ToeOfOdeResource",
+          "name": "Toe of Ode",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/BrineflossResource",
+          "name": "Brinefloss",
+          "count": 10
+        }
+      ],
+      "desc": "A vial of sun. Cast it skyward to dry out a storm. Effective against lightning-charged foes.",
+      "icon": "img/items/consumables-clayale.png",
+      "bond": 1
+    },
+    "/SF/Types/Recipes/Elixers/FeyElixirRecipe": {
+      "name": "Dancing Galdre",
+      "station": "Brewing",
+      "kind": "Elixirs",
+      "result": "/SF/Types/Items/Consumables/Syndicates/FeyVirtueElixir",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 250,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/WeepinDrisResource",
+          "name": "Weepin' Dris",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/JadenRingResource",
+          "name": "Jaden Drop",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Essence/FishEssenceResource",
+          "name": "Swell O' Tides",
+          "count": 6
+        }
+      ],
+      "desc": "A vial of liquid Spirit. Drink to your virtue.",
+      "icon": "img/items/spiritelixir.png",
+      "bond": null
+    },
+    "/SF/Types/Recipes/Elixers/LesserChampionElixirRecipe": {
+      "name": "Curaidh's Whisp",
+      "station": "Brewing",
+      "kind": "Elixirs",
+      "result": "/SF/Types/Items/Consumables/Syndicates/LesserChampionVirtueElixir",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 125,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/MorasKissResource",
+          "name": "Mora's Kiss",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/FireFungusResource",
+          "name": "Fire Fungus",
+          "count": 4
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/NeathCapResource",
+          "name": "Neathcap",
+          "count": 6
+        }
+      ],
+      "desc": "A small tincture of liquid Courage. Drink to your virtue.",
+      "icon": null,
+      "bond": null
+    },
+    "/SF/Types/Recipes/Elixers/LesserFeyElixirRecipe": {
+      "name": "Sleeping Galdre",
+      "station": "Brewing",
+      "kind": "Elixirs",
+      "result": "/SF/Types/Items/Consumables/Syndicates/LesserFeyVirtueElixir",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 125,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/WeepinDrisResource",
+          "name": "Weepin' Dris",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/JadenRingResource",
+          "name": "Jaden Drop",
+          "count": 4
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/Flowers/LullilyResource",
+          "name": "Lullily",
+          "count": 6
+        }
+      ],
+      "desc": "A small tincture of liquid Spirit. Drink to your virtue.",
+      "icon": null,
+      "bond": null
+    },
+    "/SF/Types/Recipes/Elixers/LesserSilentRoseElixirRecipe": {
+      "name": "Mistmaker",
+      "station": "Brewing",
+      "kind": "Elixirs",
+      "result": "/SF/Types/Items/Consumables/Syndicates/LesserSilentRoseVirtueElixir",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 125,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/HymmRoseResource",
+          "name": "Hymn Rose",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/Mushrooms/CrimsonLipResource",
+          "name": "Grynnetongue",
+          "count": 4
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/QueensFollyResource",
+          "name": "Queen's Folly",
+          "count": 6
+        }
+      ],
+      "desc": "A small tincture of liquid Grace. Drink to your virtue.",
+      "icon": null,
+      "bond": null
+    },
+    "/SF/Types/Recipes/Elixers/RednightElixerRecipeItem": {
+      "name": "The Cogah",
+      "station": "Brewing",
+      "kind": "Elixirs",
+      "result": "/SF/Types/Items/Consumables/RedNightElixir",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 500,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Sap/WevetWoodSapResource",
+          "name": "Wevetwood Sap",
+          "count": 8
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/AgaricMushroomResource",
+          "name": "Agaric",
+          "count": 3
+        }
+      ],
+      "desc": "An ancient fey rite to be drunk before battle. Seek out Agari lost, and soon you'll taste the cost.",
+      "icon": "img/items/rednightelixir.png",
+      "bond": 2
+    },
+    "/SF/Types/Recipes/Elixers/SilentRoseElixirRecipe": {
+      "name": "Shademaker",
+      "station": "Brewing",
+      "kind": "Elixirs",
+      "result": "/SF/Types/Items/Consumables/Syndicates/SilentRoseVirtueElixir",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 250,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/HymmRoseResource",
+          "name": "Hymn Rose",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/QueensFollyResource",
+          "name": "Queen's Folly",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Essence/FishEssenceResource",
+          "name": "Swell O' Tides",
+          "count": 6
+        }
+      ],
+      "desc": "A vial of liquid Grace. Drink to your virtue.",
+      "icon": "img/items/graceelixir.png",
+      "bond": null
+    },
+    "/SF/Types/Recipes/Ingots/Bundles/IronIngotBundleSmallBlueprint": {
+      "name": "Hushed Chordstone",
+      "station": "Blacksmith",
+      "kind": "Chordstones",
+      "result": "/SF/Types/PickUps/Resources/Ingots/IronIngotResourceItem",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 5,
+      "dracs": 1000,
+      "seconds": 6480,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 90
+        }
+      ],
+      "desc": "A cratesweight of 5 Hushed Chordstone",
+      "icon": "img/items/hushedchordstone.png",
+      "bond": 4
+    },
+    "/SF/Types/Recipes/Ingots/Bundles/SteelIngotT1BundleSmallBlueprint": {
+      "name": "Whispering Chordstone",
+      "station": "Blacksmith",
+      "kind": "Chordstones",
+      "result": "/SF/Types/PickUps/Resources/Ingots/SteelIngotT1ResourceItem",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 5,
+      "dracs": 1500,
+      "seconds": 9720,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 68
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 90
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 32
+        }
+      ],
+      "desc": "A cratesweight of 5 Whispering Chordstone",
+      "icon": "img/items/whisperingchordstone.png",
+      "bond": 4
+    },
+    "/SF/Types/Recipes/Ingots/InfusedIngotT4Blueprint": {
+      "name": "Rhapsodic Chordstone",
+      "station": "Blacksmith",
+      "kind": "Chordstones",
+      "result": "/SF/Types/PickUps/Resources/Ingots/InfusedIngotResourceItem",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 1000,
+      "seconds": 32400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Ingots/SteelIngotT3ResourceItem",
+          "name": "Melodious Chordstone",
+          "count": 4
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystCResourceItem",
+          "name": "Faer Lampyrite",
+          "count": 7
+        }
+      ],
+      "desc": "A refinement forged of Melodic Chordstone, smelted hot by Faer Lampyrite's flame. This Chordstone sings a Feyish Rhapsody with every strike of Tuvalkane's hammer. A key component in refining one's Weapon to Legendary Craftwork.",
+      "icon": "img/items/rhapsodicchordstone.png",
+      "bond": 4
+    },
+    "/SF/Types/Recipes/Ingots/SteelIngotT1Blueprint": {
+      "name": "Whispering Chordstone",
+      "station": "Blacksmith",
+      "kind": "Chordstones",
+      "result": "/SF/Types/PickUps/Resources/Ingots/SteelIngotT1ResourceItem",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 300,
+      "seconds": 2412,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 7
+        }
+      ],
+      "desc": "Forged of Scrap Steel and acid fire, this Chordstone sings a gentle note with every strike of Tuvalkane's hammer. A key component in refining one's Weapon to Officer Craftwork.",
+      "icon": "img/items/whisperingchordstone.png",
+      "bond": 2
+    },
+    "/SF/Types/Recipes/Ingots/SteelIngotT2Blueprint": {
+      "name": "Lilting Chordstone",
+      "station": "Blacksmith",
+      "kind": "Chordstones",
+      "result": "/SF/Types/PickUps/Resources/Ingots/SteelIngotT2ResourceItem",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 400,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Ingots/SteelIngotT1ResourceItem",
+          "name": "Whispering Chordstone",
+          "count": 1
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 9
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystAResourceItem",
+          "name": "Glow Lampyrite",
+          "count": 4
+        }
+      ],
+      "desc": "A refinement forged of Whispering Chordstone, smelted hot by Lampyrite's flame. This Chordstone sings a lilting melody with every strike of Tuvalkane's hammer. A key component in refining one's Weapon to Noble Craftwork.",
+      "icon": "img/items/liltingchordstone.png",
+      "bond": 3
+    },
+    "/SF/Types/Recipes/Ingots/SteelIngotT3Blueprint": {
+      "name": "Melodious Chordstone",
+      "station": "Blacksmith",
+      "kind": "Chordstones",
+      "result": "/SF/Types/PickUps/Resources/Ingots/SteelIngotT3ResourceItem",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 500,
+      "seconds": 18000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Ingots/SteelIngotT2ResourceItem",
+          "name": "Lilting Chordstone",
+          "count": 2
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 12
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystBResourceItem",
+          "name": "Amber Lampyrite",
+          "count": 5
+        }
+      ],
+      "desc": "A refinement forged of Lilting Chordstone, smelted hot by Amber Lampyrite's flame. This Chordstone sings a harmonious melody with every strike of Tuvalkane's hammer. A key component in refining one's Weapon to Sovereign Craftwork.",
+      "icon": "img/items/melodiouschordstone.png",
+      "bond": 3
+    },
+    "/SF/Types/Recipes/Quests/OrlickProgression/IronIngotBlueprint": {
+      "name": "Hushed Chordstone",
+      "station": "Blacksmith",
+      "kind": "Chordstones",
+      "result": "/SF/Types/PickUps/Resources/Ingots/IronIngotResourceItem",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 150,
+      "seconds": 2412,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 20
+        }
+      ],
+      "desc": "Forged of Scrap Iron and low flame, this Chordstone hums a near-silent note with every strike of Tuvalkane's hammer. A key component in refining one's Weapon to Military Craftwork.",
+      "icon": "img/items/hushedchordstone.png",
+      "bond": 1
+    }
+  }
+}

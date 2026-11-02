@@ -33,6 +33,7 @@ const result = await updateGameData({
   bundledDir: PUBLIC_DIR,
   wiki: values["no-wiki"] ? null : new Wiki(),
   shrinkIcon,
+  maxDownloads: Infinity,
   log: (m) => console.error(m),
 });
 console.log(result.summary);

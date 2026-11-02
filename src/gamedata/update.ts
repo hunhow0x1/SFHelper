@@ -9,11 +9,15 @@ import {
   buildLocations,
   buildNames,
   buildPactArtValues,
+  buildRecipes,
   buildUpgrades,
+  parseCraftingTable,
   parseFactionCaps,
   parseWikiIcons,
+  parseWikiImages,
   parseWikiRunes,
   type AvakotPool,
+  type RecipeDef,
   type UpgradeData,
   type WikiRune,
 } from "./builders";
@@ -28,9 +32,11 @@ export const GAME_DATA_FILES = [
   "upgrades.json",
   "avakot.json",
   "faction-ranks.json",
+  "recipes.json",
 ];
 
 const MAX_DOWNLOADS = 60;
+const RECIPE_IMAGE_MODULES = ["Weapons", "Armour", "Pacts", "Cosmetics", "Misc", "CraftingResources", "Consumables"];
 const MIN_KEPT = 0.8;
 const DEFAULT_CAPS = [5000, 5000, 20000, 20000, 30000, 30000];
 
@@ -41,6 +47,7 @@ export interface UpdateOptions {
   bundledDir: string;
   wiki?: Wiki | null;
   shrinkIcon?: (png: Buffer) => Buffer | Promise<Buffer>;
+  maxDownloads?: number;
   log?: (msg: string) => void;
 }
 
@@ -56,6 +63,14 @@ export interface UpdateResult {
 const slug = (s: string): string => s.toLowerCase().replace(/\.png$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const exists = (p: string): Promise<boolean> => access(p).then(() => true, () => false);
 const readText = (p: string): Promise<string | null> => readFile(p, "utf8").catch(() => null);
+
+export function wikiEntry<T>(table: Map<string, T>, r: Pick<RecipeDef, "name" | "gives">): T | undefined {
+  if (r.gives > 1) return table.get(`${r.name} (Cratesweight)`);
+  const direct = table.get(r.name) ?? table.get(`${r.name} (Consumable)`);
+  if (direct !== undefined) return direct;
+  const named = [...table.keys()].filter((k) => k.startsWith(`${r.name}'s `));
+  return named.length === 1 ? table.get(named[0]!) : undefined;
+}
 
 function enough(label: string, fresh: number, previous: number | undefined): void {
   if (previous && fresh < previous * MIN_KEPT) throw new Error(`${label}: only ${fresh} found (had ${previous}), keeping the old list`);
@@ -111,7 +126,7 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   const icon = async (dir: string, file: string, as = slug(file)): Promise<string | null> => {
     const rel = `${dir}/${as}.png`;
     if ((await exists(join(o.outDir, rel))) || (await exists(join(o.bundledDir, rel)))) return rel;
-    if (!wiki || downloads >= MAX_DOWNLOADS) return null;
+    if (!wiki || downloads >= (o.maxDownloads ?? MAX_DOWNLOADS)) return null;
     const png = await wiki.image(file);
     if (!png) return null;
     await writeFileAtomic(join(o.outDir, rel), o.shrinkIcon ? await o.shrinkIcon(png) : png);
@@ -125,6 +140,16 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
       const lua = await wiki.wikitext(`Module:Data/${mod}`);
       if (lua === null) return null;
       parseWikiIcons(lua, table);
+    }
+    return table;
+  };
+  const imageTable = async (modules: string[]): Promise<Map<string, string> | null> => {
+    if (!wiki) return null;
+    const table = new Map<string, string>();
+    for (const mod of modules) {
+      const lua = await wiki.wikitext(`Module:Data/${mod}`);
+      if (lua === null) return null;
+      parseWikiImages(lua, table);
     }
     return table;
   };
@@ -214,6 +239,24 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     if (table) for (const [file, as] of [["DracsCurrencyIcon.png", "dracs"], ["Arcs.png", "arcs"]] as const) await icon("img/avakot", file, as);
     await put("avakot.json", `${JSON.stringify(pool, null, 2)}\n`);
     return `${pool.items.length} Avakot items`;
+  });
+
+  await step("recipes.json", async () => {
+    const recipes = buildRecipes(dict, unique, names.items);
+    const prev = (await previous<{ recipes?: Record<string, RecipeDef> }>("recipes.json"))?.recipes;
+    enough("recipes", Object.keys(recipes).length, prev ? Object.keys(prev).length : undefined);
+    const lua = wiki ? await wiki.wikitext("Module:Data/CraftingTable") : null;
+    const crafts = lua ? parseCraftingTable(lua) : null;
+    const images = await imageTable(RECIPE_IMAGE_MODULES);
+    if (wiki && (!crafts?.size || !images)) incomplete = true;
+    for (const [type, r] of Object.entries(recipes)) {
+      const old = prev?.[type];
+      r.bond = crafts?.size ? (wikiEntry(crafts, r) ?? null) : (old?.bond ?? null);
+      const file = images ? (wikiEntry(images, r) ?? images.get(r.name)) : undefined;
+      r.icon = itemIcons[r.name] ?? (file ? await icon("img/items", file) : null) ?? old?.icon ?? null;
+    }
+    await put("recipes.json", `${JSON.stringify({ recipes }, null, 2)}\n`);
+    return `${Object.keys(recipes).length} recipes`;
   });
 
   await step("faction-ranks.json", async () => {

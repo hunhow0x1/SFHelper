@@ -34,6 +34,7 @@ const LOG_PATH = join(USER_DATA, "sfhelper.log");
 const PREV_LOG_PATH = join(USER_DATA, "sfhelper.prev.log");
 const GAME_DATA_STATE_PATH = join(USER_DATA, "gamedata.json");
 const APP_PORT = 47317;
+const TITLE_BAR = { color: "#120e0b", symbolColor: "#c9a55c", height: 36 };
 
 let server: RunningServer | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -324,6 +325,8 @@ function createMainWindow(url: string): void {
     backgroundColor: "#14110f",
     title: "SFHelper",
     icon: ICON_PATH,
+    titleBarStyle: "hidden",
+    titleBarOverlay: TITLE_BAR,
     webPreferences: { contextIsolation: true },
   });
   void mainWindow.loadURL(url);

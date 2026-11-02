@@ -443,3 +443,115 @@ export function parseFactionCaps(text: string): number[] | null {
   for (let m; (m = re.exec(text)) !== null; ) caps[Number(m[1])] = Number(m[2]!.replaceAll(",", ""));
   return caps.length && caps.every((c) => typeof c === "number") ? caps : null;
 }
+
+export interface RecipeIngredient {
+  type: string;
+  name: string;
+  count: number;
+  alt?: string[];
+}
+
+export interface RecipeDef {
+  name: string;
+  station: "Blacksmith" | "Brewing";
+  kind: string;
+  result: string;
+  rarity: string | null;
+  fragments: number;
+  consumed: boolean;
+  gives: number;
+  dracs: number;
+  seconds: number;
+  ingredients: RecipeIngredient[];
+  desc: string | null;
+  icon: string | null;
+  bond: number | null;
+}
+
+const RECIPES = "/SF/Types/Recipes/";
+const NOT_CRAFTS = /^(WeaponQuality|WeaponAspectManipulation|WeaponTitles)(\/|$)|ReforgeBlueprint$/;
+
+export function recipeKind(type: string, name: string): [RecipeDef["station"], string] | null {
+  const folder = type.slice(RECIPES.length, type.lastIndexOf("/"));
+  if (NOT_CRAFTS.test(folder)) return null;
+  const top = folder.split("/")[0];
+  if (top === "Elixers") return ["Brewing", "Elixirs"];
+  if (top === "ColorPalettes") return ["Brewing", "Palettes"];
+  if (top === "Consumeables") return ["Brewing", "Pup Treats"];
+  if ((top === "Ingots" || top === "Quests") && /Chordstone/.test(name)) return ["Blacksmith", "Chordstones"];
+  return null;
+}
+
+export function buildRecipes(dict: Dict, texts: string[], names: Record<string, string>): Record<string, RecipeDef> {
+  const tagOf = new Map<string, string>();
+  const descOf = new Map<string, string>();
+  for (const t of texts) {
+    const type = /^TypeName=(\S+)$/m.exec(t)?.[1];
+    const tag = /^LocalizeTag=(\S+)$/m.exec(t)?.[1];
+    const desc = /^LocalizeDescTag=(\S+)$/m.exec(t)?.[1];
+    if (type && tag && !tagOf.has(type)) tagOf.set(type, tag);
+    if (type && desc && !descOf.has(type)) descOf.set(type, desc);
+  }
+  const text = (tag: string | undefined): string | null => (tag && usable(dict[tag]) ? dict[tag]!.replace(/\r\n?/g, "\n").trim() : null);
+  const itemName = (type: string): string => {
+    const tag = tagOf.get(type);
+    const own = tag ? dict[tag] : undefined;
+    if (usable(own)) return own.trim();
+    const leaf = leafOf(type);
+    for (const k of [type, leaf, leaf.replace(/Item$/, ""), leaf.replace(/(Resource)?(Item)?$/, "")]) if (names[k]) return names[k]!;
+    return leaf.replace(/(Resource)?(Item)?$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
+  };
+
+  const out: Record<string, RecipeDef> = {};
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    if (!type?.startsWith(RECIPES) || type in out) continue;
+    const result = field(t, "ResultItem");
+    if (!result) continue;
+    const tag = field(t, "OverrideLocalizeTag") ?? field(t, "LocalizeTag");
+    const name = (tag && usable(dict[tag]) ? dict[tag]!.trim() : null) ?? itemName(result.replace("/SF/StoreItems/", "/SF/"));
+    const kind = recipeKind(type, name);
+    if (!kind) continue;
+    const ingredients: RecipeIngredient[] = [];
+    for (const [, ing, alts, count] of t.matchAll(/\{\nItemType=(\S+)\nAlternativeItemTypes=\{([^}]*)\}\nItemCount=(\d+)/g)) {
+      const alt = alts!.split(/[\n,]+/).map((a) => a.trim()).filter((a) => a.startsWith("/"));
+      ingredients.push({ type: ing!, name: itemName(ing!), count: Number(count), ...(alt.length ? { alt } : {}) });
+    }
+    if (!ingredients.length) continue;
+    const made = result.replace("/SF/StoreItems/", "/SF/");
+    const gives = Math.max(1, Number(field(t, "NumToGive") ?? 1));
+    out[type] = {
+      name,
+      station: kind[0],
+      kind: kind[1],
+      result: made,
+      rarity: field(t, "Rarity") ?? null,
+      fragments: Math.max(1, Number(field(t, "NumRequired") ?? 1)),
+      consumed: field(t, "ConsumeOnUse") !== "0",
+      gives,
+      dracs: Number(field(t, "BuildPrice") ?? 0),
+      seconds: Number(field(t, "BuildTime") ?? 0),
+      ingredients,
+      desc: (text(field(t, "LocalizeDescTag")) ?? text(descOf.get(made)))?.replaceAll("|AMOUNT|", String(gives)) ?? null,
+      icon: null,
+      bond: null,
+    };
+  }
+  return sortedKeys(out);
+}
+
+export function parseCraftingTable(lua: string): Map<string, number | null> {
+  const out = new Map<string, number | null>();
+  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s*Ingredients\s*=/g)) {
+    const bond = /\bBondReq\s*=\s*"(\d+)"/.exec(m[2]!)?.[1];
+    out.set(m[1]!.trim(), bond ? Number(bond) : null);
+  }
+  return out;
+}
+
+export function parseWikiImages(lua: string, into: Map<string, string>): void {
+  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s*\},/g)) {
+    const file = /\b(?:Img)?(?:Icon|Image|Preview)\s*=\s*"([^"]+\.png)"/.exec(m[2]!)?.[1];
+    if (file && !into.has(m[1]!.trim())) into.set(m[1]!.trim(), file);
+  }
+}

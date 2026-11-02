@@ -311,6 +311,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         discoveries: inventory ? await getDiscoveries(inventory.loreScans) : null,
         temperProgress: inventory?.temperProgress ?? [],
         upgradeItems: inventory?.upgradeItems ?? null,
+        crafting: inventory?.crafting ?? null,
         pickups,
         trades,
         builds: inventory?.builds ?? [],
