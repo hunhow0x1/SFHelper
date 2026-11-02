@@ -1,8 +1,7 @@
 import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-import { appFile } from "./paths";
+import { appFile, readDataJson } from "./paths";
 import { writeFileAtomic } from "./files";
+import { getDataRefreshedAt } from "./importStatus";
 
 export interface NameDict {
   items: Record<string, string>;
@@ -11,14 +10,12 @@ export interface NameDict {
   currencies: Record<string, string>;
 }
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-const BUNDLED_SEED = join(HERE, "public", "names.json");
 const configPath = () => appFile("config.json");
 const cachePath = () => appFile("names.cache.json");
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 
-let memo: { at: number; dict: NameDict } | null = null;
+let memo: { at: number; data: number | null; dict: NameDict } | null = null;
 
 function emptyDict(): NameDict {
   return { items: {}, factions: {}, factionTokens: {}, currencies: {} };
@@ -80,9 +77,10 @@ async function readCache(): Promise<{ at: number; dict: NameDict } | null> {
 }
 
 export async function getNames(): Promise<NameDict> {
-  if (memo && Date.now() - memo.at < 60_000) return memo.dict;
+  const data = getDataRefreshedAt();
+  if (memo && memo.data === data && Date.now() - memo.at < 60_000) return memo.dict;
 
-  const seed = coerce(await readJson(BUNDLED_SEED));
+  const seed = coerce(await readDataJson("names.json"));
   const url = await resolveNamesUrl();
   const cache = await readCache();
 
@@ -95,6 +93,6 @@ export async function getNames(): Promise<NameDict> {
     dict = merge(seed, cache.dict);
   }
 
-  memo = { at: Date.now(), dict };
+  memo = { at: Date.now(), data, dict };
   return dict;
 }

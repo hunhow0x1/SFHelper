@@ -3,6 +3,7 @@
   "version": "0.4.10",
   "private": true,
   "description": "Desktop Soulframe companion - account snapshots, progression tracking and loadouts",
+  "license": "GPL-3.0-or-later",
   "type": "module",
   "main": "dist/electron/main.js",
   "engines": {
@@ -13,7 +14,7 @@
     "test": "vitest run",
     "start": "tsx src/server/start.ts",
     "helper": "tsx helper/cli.ts",
-    "extract-names": "node scripts/extract_names.mjs",
+    "build-game-data": "tsx scripts/build_game_data.ts",
     "build-totems": "tsx scripts/build_data.ts totems",
     "build-runes": "tsx scripts/build_data.ts runes",
     "build-weapons": "tsx scripts/build_data.ts weapons",
@@ -22,12 +23,6 @@
     "build-pactarts": "tsx scripts/build_data.ts pactarts",
     "build-totemdata": "tsx scripts/build_data.ts totemdata",
     "build-tempericons": "tsx scripts/build_data.ts tempericons",
-    "build-enemies": "node scripts/build_enemies.mjs",
-    "build-avakot": "node scripts/build_avakot.mjs",
-    "build-locations": "node scripts/build_locations.mjs",
-    "build-pactart-values": "node scripts/build_pactart_values.mjs",
-    "build-upgrades": "node scripts/build_upgrades.mjs",
-    "build-item-icons": "node scripts/build_item_icons.mjs",
     "build-talismans": "tsx scripts/build_data.ts talismans",
     "build-armour": "tsx scripts/build_data.ts armour",
     "build-masteryrank": "tsx scripts/build_data.ts masteryrank",
@@ -44,6 +39,7 @@
     "koffi": "^2.9.0"
   },
   "devDependencies": {
+    "@bokuweb/zstd-wasm": "^0.0.27",
     "@types/node": "^26.2.0",
     "electron": "^33.0.0",
     "electron-builder": "^25.1.8",
@@ -62,7 +58,8 @@
     },
     "files": [
       "dist/**/*",
-      "package.json"
+      "package.json",
+      "LICENSE"
     ],
     "asarUnpack": [
       "**/node_modules/koffi/**"

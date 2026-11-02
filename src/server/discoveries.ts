@@ -1,6 +1,5 @@
-import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { getDataRefreshedAt } from "./importStatus";
+import { readDataJson } from "./paths";
 
 const LOCATION_PREFIX = "/SF/Types/Quests/LocationLoreQuests/";
 
@@ -54,16 +53,14 @@ export function discoveries(scans: Record<string, LoreScan>, defs: LocationDefs)
   return { places, maps: { found: mapsFound, total: mapsTotal } };
 }
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-let defs: LocationDefs | null = null;
+let defs: { at: number | null; locations: LocationDefs } | null = null;
 
 export async function getDiscoveries(scans: Record<string, LoreScan>): Promise<Discoveries | null> {
-  if (!defs) {
-    try {
-      defs = (JSON.parse(await readFile(join(HERE, "public", "locations.json"), "utf8")) as { locations: LocationDefs }).locations;
-    } catch {
-      return null;
-    }
+  const at = getDataRefreshedAt();
+  if (!defs || defs.at !== at) {
+    const locations = (await readDataJson<{ locations?: LocationDefs }>("locations.json"))?.locations;
+    if (!locations) return null;
+    defs = { at, locations };
   }
-  return discoveries(scans, defs);
+  return discoveries(scans, defs.locations);
 }

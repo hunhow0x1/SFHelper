@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Notification, screen, shell } from "electron";
+import { app, BrowserWindow, ipcMain, nativeImage, Notification, screen, shell } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
@@ -15,7 +15,11 @@ import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "
 import { AVAKOT_VENDOR, avakotDue, avakotDueAt, noteAvakotAttempt, parseVendorInfo, recordAvakot, type AvakotOffer } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameRefusedMessage } from "../src/server/gameLog";
+import { gameBeingRefused, gameRefusedMessage, loggedGame } from "../src/server/gameLog";
+import { readDataJson } from "../src/server/paths";
+import { findCacheDir } from "../src/gamedata/cache";
+import { GameDataWatcher } from "../src/gamedata/watch";
+import { Wiki } from "../src/gamedata/wiki";
 import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts, buildTalismans, buildArmour, buildMasteryRank } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -28,6 +32,7 @@ const INVENTORY_PATH = join(USER_DATA, "inventory.json");
 const DATA_DIR = join(USER_DATA, "data");
 const LOG_PATH = join(USER_DATA, "sfhelper.log");
 const PREV_LOG_PATH = join(USER_DATA, "sfhelper.prev.log");
+const GAME_DATA_STATE_PATH = join(USER_DATA, "gamedata.json");
 const APP_PORT = 47317;
 
 let server: RunningServer | null = null;
@@ -65,6 +70,36 @@ async function refreshData(): Promise<void> {
     log(`Effect data refresh failed (using bundled data): ${(err as Error).message}`);
   }
 }
+
+const GAME_DATA_FIRST_MS = 30_000;
+const GAME_DATA_CHECK_MS = 10 * 60_000;
+const ICON_PX = 64;
+
+function shrinkIcon(png: Buffer): Buffer {
+  const img = nativeImage.createFromBuffer(png);
+  const { width, height } = img.getSize();
+  const side = Math.max(width, height);
+  if (img.isEmpty() || side <= ICON_PX) return png;
+  return img.resize({ width: Math.round((width * ICON_PX) / side), height: Math.round((height * ICON_PX) / side), quality: "best" }).toPNG();
+}
+
+const gameData = new GameDataWatcher({
+  statePath: GAME_DATA_STATE_PATH,
+  outDir: DATA_DIR,
+  bundledDir: join(HERE, "public"),
+  appVersion: app.getVersion(),
+  locate: async () => {
+    const logged = await loggedGame();
+    return { dir: await findCacheDir(logged?.log ?? null, logged?.cacheDir ?? null), build: logged?.build ?? null };
+  },
+  wiki: () => new Wiki(),
+  shrinkIcon,
+  log,
+  onChanged: () => {
+    resetNameCaches();
+    noteDataRefreshed();
+  },
+});
 
 let importing = false;
 let session: ImportSession | undefined;
@@ -174,12 +209,8 @@ async function scheduleAvakot(): Promise<void> {
 let avakotNames: Map<string, string> | null = null;
 async function avakotItemName(storeItem: string): Promise<string> {
   if (!avakotNames) {
-    try {
-      const pool = JSON.parse(await readFile(join(HERE, "public", "avakot.json"), "utf8")) as { items?: { storeItem: string; name: string }[] };
-      avakotNames = new Map((pool.items ?? []).map((i) => [i.storeItem, i.name]));
-    } catch {
-      avakotNames = new Map();
-    }
+    const pool = await readDataJson<{ items?: { storeItem: string; name: string }[] }>("avakot.json");
+    avakotNames = new Map((pool?.items ?? []).map((i) => [i.storeItem, i.name]));
   }
   return avakotNames.get(storeItem) ?? (await displayName(storeItem.replace("/SF/StoreItems/", "/SF/")));
 }
@@ -252,14 +283,13 @@ async function notifyTimer(t: GameTimer): Promise<void> {
 }
 
 let itemNames: Record<string, string> | null = null;
+function resetNameCaches(): void {
+  avakotNames = null;
+  itemNames = null;
+}
+
 async function displayName(itemType: string): Promise<string> {
-  if (!itemNames) {
-    try {
-      itemNames = (JSON.parse(await readFile(join(HERE, "public", "names.json"), "utf8")) as { items?: Record<string, string> }).items ?? {};
-    } catch {
-      itemNames = {};
-    }
-  }
+  if (!itemNames) itemNames = (await readDataJson<{ items?: Record<string, string> }>("names.json"))?.items ?? {};
   const leaf = itemType.split("/").pop() ?? itemType;
   return itemNames[itemType] ?? itemNames[leaf] ??
     leaf.replace(/(RangedMeleeWeapon|MeleeWeapon|RangedWeapon|Weapon)$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
@@ -324,6 +354,8 @@ async function proceed(): Promise<void> {
   }, TIMER_CHECK_MS);
   void importFromMemory();
   setInterval(() => void importFromMemory(), REIMPORT_INTERVAL_MS);
+  setTimeout(() => void gameData.check(), GAME_DATA_FIRST_MS);
+  setInterval(() => void gameData.check(), GAME_DATA_CHECK_MS);
 }
 
 function askConsent(): Promise<boolean> {

@@ -1,7 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-import { appFile, dataDir } from "./paths";
+import { appFile, readDataJson } from "./paths";
 import { loggedMastery } from "./gameLog";
 import { MAX_RANK as MAX_ITEM_RANK, PACT_RANK_CONST, xpToRank } from "./weapons";
 import { writeFileAtomic } from "./files";
@@ -90,29 +88,15 @@ async function saveOther(accountId: string, other: number): Promise<void> {
   }
 }
 
-const HERE = dirname(fileURLToPath(import.meta.url));
-
-async function readData<T>(name: string): Promise<T | null> {
-  const overlay = dataDir();
-  for (const dir of [overlay, join(HERE, "public")]) {
-    if (!dir) continue;
-    try {
-      return JSON.parse(await readFile(join(dir, name), "utf8")) as T;
-    } catch {
-    }
-  }
-  return null;
-}
-
 export async function getEnvoyRank(
   accountId: string,
   rank: number,
   mastery: Record<string, number> | null,
 ): Promise<EnvoyRank> {
   const [max, weapons, pacts] = await Promise.all([
-    readData<{ maxMastery?: number; patch?: string }>("masteryrank.json"),
-    readData<Record<string, unknown>>("weapons.json"),
-    readData<Record<string, unknown>>("pacts.json"),
+    readDataJson<{ maxMastery?: number; patch?: string }>("masteryrank.json"),
+    readDataJson<Record<string, unknown>>("weapons.json"),
+    readDataJson<Record<string, unknown>>("pacts.json"),
   ]);
   const maxMastery = typeof max?.maxMastery === "number" ? max.maxMastery : null;
   const patch = typeof max?.patch === "string" ? max.patch : null;

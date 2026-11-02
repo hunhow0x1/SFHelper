@@ -4,7 +4,7 @@ import { dirname } from "node:path";
 let seq = 0;
 const RETRYABLE = new Set(["EPERM", "EACCES", "EBUSY"]);
 
-export async function writeFileAtomic(path: string, data: string): Promise<void> {
+export async function writeFileAtomic(path: string, data: string | Uint8Array): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
   const tmp = `${path}.${process.pid}.${++seq}.tmp`;
   await writeFile(tmp, data);

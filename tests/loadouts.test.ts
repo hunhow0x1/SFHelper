@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { decodeJoinery, fableVirtues, parseBuilds, virtuePoints } from "../src/server/loadouts";
 import { parseArmour, parseTalismans } from "../scripts/build_data";
-// @ts-expect-error
-import { matchArmourStem } from "../scripts/armour_names.mjs";
+import { matchArmourStem } from "../src/gamedata/armour";
 
 const K = "/SF/Types/Items/Kintsugi/Weapons/";
 

@@ -1,7 +1,7 @@
-const SLOT_WORD = { Helmets: "helm", Body: "body", Legs: "legs" };
+const SLOT_WORD: Record<string, string> = { Helmets: "helm", Body: "body", Legs: "legs" };
 const VARIANT_WORDS = new Set(["closed", "open"]);
 
-const words = (s) =>
+const words = (s: string): string[] =>
   s
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
     .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
@@ -10,7 +10,7 @@ const words = (s) =>
     .map((w) => (w === "helmet" ? "helm" : w))
     .filter((w) => w && !VARIANT_WORDS.has(w));
 
-function core(name, slot) {
+function core(name: string, slot: string): string | null {
   const ws = words(name);
   const i = ws.lastIndexOf(slot);
   if (i < 0) return null;
@@ -18,23 +18,23 @@ function core(name, slot) {
   return ws.join("");
 }
 
-function editDistance(a, b) {
+function editDistance(a: string, b: string): number {
   let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
   for (let i = 1; i <= a.length; i++) {
     const cur = [i];
     for (let j = 1; j <= b.length; j++) {
-      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      cur[j] = Math.min(prev[j]! + 1, cur[j - 1]! + 1, prev[j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1));
     }
     prev = cur;
   }
-  return prev[b.length];
+  return prev[b.length]!;
 }
 
-export function matchArmourStem(leaf, folder, stems) {
+export function matchArmourStem(leaf: string, folder: string, stems: string[]): string | null {
   const slot = SLOT_WORD[folder];
   const want = slot ? core(leaf, slot) : null;
-  if (!want) return null;
-  let best = null;
+  if (!slot || !want) return null;
+  let best: string | null = null;
   let bestScore = Infinity;
   let tied = false;
   for (const stem of stems) {

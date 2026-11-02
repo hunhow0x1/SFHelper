@@ -1,14 +1,10 @@
-import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { getDataRefreshedAt } from "./importStatus";
+import { readDataJson } from "./paths";
 
 export interface EnemyData {
   names: Record<string, string>;
   parents: Record<string, string>;
 }
-
-const HERE = dirname(fileURLToPath(import.meta.url));
-const DATA_PATH = join(HERE, "public", "enemies.json");
 
 const VARIANT_WORDS = new Set(["Elite", "Night", "Always", "Summon", "Proc", "Swamp", "Messenger", "Old", "Young", "Helmet"]);
 const INTERNAL_WORDS = new Set(["Proc", "Always"]);
@@ -73,11 +69,14 @@ export function agentName(agent: string, d: EnemyData): string | null {
   return best?.name ?? null;
 }
 
-let loaded: Promise<EnemyData> | null = null;
-const enemyData = (): Promise<EnemyData> =>
-  (loaded ??= readFile(DATA_PATH, "utf8")
-    .then((t) => JSON.parse(t) as EnemyData)
-    .catch(() => ({ names: {}, parents: {} })));
+let loaded: { at: number | null; data: Promise<EnemyData> } | null = null;
+function enemyData(): Promise<EnemyData> {
+  const at = getDataRefreshedAt();
+  if (!loaded || loaded.at !== at) {
+    loaded = { at, data: readDataJson<EnemyData>("enemies.json").then((d) => d ?? { names: {}, parents: {} }) };
+  }
+  return loaded.data;
+}
 
 export async function getEnemyNamer(): Promise<(type: string) => string> {
   const d = await enemyData();

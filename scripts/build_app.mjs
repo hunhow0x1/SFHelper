@@ -6,6 +6,14 @@ await rm("dist", { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
 
 const external = ["electron", "koffi", "electron-updater"];
+const cjsShim = [
+  'import { createRequire as __sfhRequire } from "node:module";',
+  'import { dirname as __sfhDirname } from "node:path";',
+  'import { fileURLToPath as __sfhPath } from "node:url";',
+  "const require = __sfhRequire(import.meta.url);",
+  "const __filename = __sfhPath(import.meta.url);",
+  "const __dirname = __sfhDirname(__filename);",
+].join("\n");
 
 await build({
   entryPoints: ["electron/main.ts"],
@@ -15,7 +23,7 @@ await build({
   format: "esm",
   target: "node20",
   external,
-  banner: { js: "// SFHelper — bundled Electron main" },
+  banner: { js: `// SFHelper — bundled Electron main\n${cjsShim}` },
   logLevel: "info",
 });
 
@@ -31,6 +39,7 @@ await build({
 });
 
 await cp("electron/consent.html", `${OUT}/consent.html`);
+await cp("node_modules/@bokuweb/zstd-wasm/dist/common/zstd.wasm", `${OUT}/zstd.wasm`);
 await cp("src/server/public", `${OUT}/public`, { recursive: true });
 
-console.log("Built dist/electron (main.js, preload.cjs, consent.html, public/).");
+console.log("Built dist/electron (main.js, preload.cjs, consent.html, zstd.wasm, public/).");

@@ -99,6 +99,8 @@ const AGENT_RE = /OnAgentCreated \/Npc\/(\w+?Agent)\d*\s/;
 const AGENT_WITHIN = 5;
 const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
 const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
+const BUILD_RE = /Build Label: (\S+)/;
+const CACHE_DIR_RE = /Scanning (.+?) for cache blocks/;
 const HEAD_BYTES = 256;
 const CHUNK_BYTES = 1 << 20;
 
@@ -112,6 +114,7 @@ interface Scan {
   rest: string;
   decoder: StringDecoder;
   start: number | null;
+  game: { build: string | null; cacheDir: string | null };
   refusals: { count: number; first: number; last: number; pending: number | null; headerLines: number };
   agari: { spawned: Record<string, string>; spot: string | null; since: number };
   mastery: { other: number | null; items: number | null };
@@ -127,6 +130,7 @@ function newScan(path: string, head: string): Scan {
     rest: "",
     decoder: new StringDecoder("utf8"),
     start: null,
+    game: { build: null, cacheDir: null },
     refusals: { count: 0, first: 0, last: 0, pending: null, headerLines: 0 },
     agari: { spawned: {}, spot: null, since: 0 },
     mastery: { other: null, items: null },
@@ -238,7 +242,13 @@ function feedEvents(e: Scan["events"], line: string, start: number): void {
   }
 }
 
+function feedGame(g: Scan["game"], line: string): void {
+  if (g.build === null && line.includes("Build Label: ")) g.build = BUILD_RE.exec(line)?.[1] ?? null;
+  else if (g.cacheDir === null && line.includes(" for cache blocks")) g.cacheDir = CACHE_DIR_RE.exec(line)?.[1] ?? null;
+}
+
 function feed(s: Scan, line: string): void {
+  if (s.game.cacheDir === null) feedGame(s.game, line);
   feedAgari(s.agari, line);
   feedMastery(s.mastery, line);
   if (s.start === null) {
@@ -322,6 +332,17 @@ export function gameRefusedMessage(r: GameRefusals): string {
 export async function loggedAgari(path?: string): Promise<Record<string, string>> {
   const s = await currentScan(path);
   return s ? { ...s.agari.spawned } : {};
+}
+
+export interface LoggedGame {
+  log: string;
+  build: string | null;
+  cacheDir: string | null;
+}
+
+export async function loggedGame(path?: string): Promise<LoggedGame | null> {
+  const s = await currentScan(path);
+  return s ? { log: s.path, build: s.game.build, cacheDir: s.game.cacheDir } : null;
 }
 
 export async function loggedMastery(path?: string): Promise<LoggedMastery | null> {
