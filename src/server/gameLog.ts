@@ -1,8 +1,7 @@
-import { createReadStream } from "node:fs";
-import { readdir, readFile, stat } from "node:fs/promises";
+import { open, readdir, readFile, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { createInterface } from "node:readline";
+import { StringDecoder } from "node:string_decoder";
 
 const ICON_AFTER_OWNER_S = 4;
 const SKEW_MS = 60_000;
@@ -28,7 +27,16 @@ async function steamLibraries(): Promise<string[]> {
   return [...libs];
 }
 
+const FIND_TTL_MS = 30_000;
+let found: { at: number; path: string | null } | null = null;
+
 async function findLog(): Promise<string | null> {
+  if (found && Date.now() - found.at < FIND_TTL_MS) return found.path;
+  found = { at: Date.now(), path: await locateLog() };
+  return found.path;
+}
+
+async function locateLog(): Promise<string | null> {
   const candidates: string[] = [];
   if (process.env.LOCALAPPDATA) candidates.push(join(process.env.LOCALAPPDATA, "Soulframe", "EE.log"));
   for (const lib of await steamLibraries()) {
@@ -59,59 +67,6 @@ function parseUtc(s: string): number | null {
   return Date.UTC(Number(m[6]), mon, Number(m[2]), Number(m[3]), Number(m[4]), Number(m[5]));
 }
 
-interface LogEvents {
-  start: number;
-  acquired: Map<string, number[]>;
-  owner: Map<string, number[]>;
-}
-
-const OWNER_RE = /^(\d+\.\d+) .*Set owner called multiple times on item (\S+)/;
-const ICON_RE = /^(\d+\.\d+) .*ResourceLoader \S+ \(\/SF\/Interface\/Graphics\/StoreItems\/Weapons\//;
-const START_RE = /Current time: .*\[UTC: (.+)\]/;
-
-async function readEvents(path: string): Promise<LogEvents | null> {
-  let start: number | null = null;
-  const acquired = new Map<string, number[]>();
-  const owner = new Map<string, number[]>();
-  let lastOwner: { t: number; leaf: string } | null = null;
-  const push = (m: Map<string, number[]>, k: string, v: number) => {
-    const a = m.get(k);
-    if (a) a.push(v);
-    else m.set(k, [v]);
-  };
-
-  const lines = createInterface({ input: createReadStream(path, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
-  try {
-    for await (const line of lines) {
-      if (start === null) {
-        const h = START_RE.exec(line);
-        if (h) start = parseUtc(h[1]!);
-        continue;
-      }
-      if (line.includes("Set owner called")) {
-        const m = OWNER_RE.exec(line);
-        if (!m) continue;
-        const t = start + Math.round(Number(m[1]) * 1000);
-        lastOwner = { t, leaf: m[2]! };
-        push(owner, m[2]!, t);
-      } else if (line.includes("StoreItems/Weapons/") && line.includes("ResourceLoader")) {
-        const m = ICON_RE.exec(line);
-        if (!m || !lastOwner) continue;
-        const t = start + Math.round(Number(m[1]) * 1000);
-        if (t - lastOwner.t <= ICON_AFTER_OWNER_S * 1000) {
-          push(acquired, lastOwner.leaf, t);
-          lastOwner = null;
-        }
-      }
-    }
-  } catch {
-    return null;
-  } finally {
-    lines.close();
-  }
-  return start === null ? null : { start, acquired, owner };
-}
-
 export interface LoggedTrade {
   at: number;
   partner: string | null;
@@ -119,83 +74,239 @@ export interface LoggedTrade {
   received: string[];
 }
 
-const CONFIRM_RE = /You are offering:\n([\s\S]*?)\n*and will receive from (.+?) the following:\n?([\s\S]*?), leftItem=/;
-const INVITE_RE = /description=(.+?) wants to trade with you/;
-const TIME_RE = /^(\d+\.\d+) /;
-const itemLines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
-const playerName = (s: string) => s.replace(/[\uE000-\uF8FF]/g, "").trim();
-
 export interface GameRefusals {
   count: number;
   first: number;
   last: number;
 }
 
+export interface LoggedMastery {
+  other: number;
+  items: number | null;
+}
+
+const OWNER_RE = /^(\d+\.\d+) .*Set owner called multiple times on item (\S+)/;
+const ICON_RE = /^(\d+\.\d+) .*ResourceLoader \S+ \(\/SF\/Interface\/Graphics\/StoreItems\/Weapons\//;
+const START_RE = /Current time: .*\[UTC: (.+)\]/;
+const CONFIRM_RE = /You are offering:\n([\s\S]*?)\n*and will receive from (.+?) the following:\n?([\s\S]*?), leftItem=/;
+const INVITE_RE = /description=(.+?) wants to trade with you/;
+const TIME_RE = /^(\d+\.\d+) /;
 const STILL_REFUSED_MS = 5 * 60_000;
 const REFUSED_RE = /^(\d+\.\d+) .*HTTP\/1\.[01] (?:403|429)\b/;
 const HTTP_DATE_RE = /Date: (\w{3}, \d{1,2} \w{3} \d{4} \d{2}:\d{2}:\d{2} GMT)/;
+const AGARI_SPAWN_RE = /SubBossEncounter\.lua: \[[^\]-]*-([^\]]+)\] Spawning sub-boss/;
+const AGENT_RE = /OnAgentCreated \/Npc\/(\w+?Agent)\d*\s/;
+const AGENT_WITHIN = 5;
+const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
+const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
+const HEAD_BYTES = 256;
+const CHUNK_BYTES = 1 << 20;
 
-let refusalCache: { key: string; value: GameRefusals | null } | null = null;
+const itemLines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
+const playerName = (s: string) => s.replace(/[\uE000-\uF8FF]/g, "").trim();
 
-export async function gameRefusals(path?: string): Promise<GameRefusals | null> {
-  const log = path ?? (await findLog());
-  if (!log) return null;
-  let key: string;
+interface Scan {
+  path: string;
+  head: string;
+  offset: number;
+  rest: string;
+  decoder: StringDecoder;
+  start: number | null;
+  refusals: { count: number; first: number; last: number; pending: number | null; headerLines: number };
+  agari: { spawned: Record<string, string>; spot: string | null; since: number };
+  mastery: { other: number | null; items: number | null };
+  trades: { out: LoggedTrade[]; collecting: string[] | null; confirm: Omit<LoggedTrade, "at"> | null; invitedBy: string | null };
+  events: { acquired: Map<string, number[]>; owner: Map<string, number[]>; lastOwner: { t: number; leaf: string } | null };
+}
+
+function newScan(path: string, head: string): Scan {
+  return {
+    path,
+    head,
+    offset: 0,
+    rest: "",
+    decoder: new StringDecoder("utf8"),
+    start: null,
+    refusals: { count: 0, first: 0, last: 0, pending: null, headerLines: 0 },
+    agari: { spawned: {}, spot: null, since: 0 },
+    mastery: { other: null, items: null },
+    trades: { out: [], collecting: null, confirm: null, invitedBy: null },
+    events: { acquired: new Map(), owner: new Map(), lastOwner: null },
+  };
+}
+
+function feedAgari(a: Scan["agari"], line: string): void {
+  if (a.spot !== null) {
+    const m = line.includes("OnAgentCreated") ? AGENT_RE.exec(line) : null;
+    if (m) {
+      a.spawned[a.spot] = m[1]!;
+      a.spot = null;
+      return;
+    }
+    if (++a.since > AGENT_WITHIN) a.spot = null;
+  }
+  if (!line.includes("Spawning sub-boss")) return;
+  const m = AGARI_SPAWN_RE.exec(line);
+  if (m) {
+    a.spot = m[1]!;
+    a.since = 0;
+  }
+}
+
+function feedMastery(x: Scan["mastery"], line: string): void {
+  if (!line.includes("XP")) return;
+  const o = OTHER_XP_RE.exec(line);
+  if (o) {
+    x.other = Number(o[1]);
+    return;
+  }
+  const it = ITEM_XP_RE.exec(line);
+  if (it && Number(it[1]) > 0) x.items = Number(it[1]);
+}
+
+function noteRefusal(r: Scan["refusals"], t: number): void {
+  r.count += 1;
+  if (!r.first) r.first = t;
+  r.last = Math.max(r.last, t);
+}
+
+function feedRefusals(r: Scan["refusals"], line: string, start: number): void {
+  if (r.pending !== null) {
+    const d = line.includes("Date: ") ? HTTP_DATE_RE.exec(line) : null;
+    if (d) {
+      noteRefusal(r, Date.parse(d[1]!));
+      r.pending = null;
+      return;
+    }
+    if (++r.headerLines > 10) {
+      noteRefusal(r, r.pending);
+      r.pending = null;
+    }
+  }
+  if (!line.includes("HTTP/1.")) return;
+  const m = REFUSED_RE.exec(line);
+  if (!m) return;
+  if (r.pending !== null) noteRefusal(r, r.pending);
+  r.pending = start + Math.round(Number(m[1]) * 1000);
+  r.headerLines = 0;
+}
+
+function feedTrades(x: Scan["trades"], line: string, start: number): void {
+  if (x.collecting) {
+    x.collecting.push(line);
+    if (!line.includes(", leftItem=") && x.collecting.length < 200) return;
+    const m = CONFIRM_RE.exec(x.collecting.join("\n"));
+    x.collecting = null;
+    if (m) x.confirm = { partner: playerName(m[2]!), offered: itemLines(m[1]!), received: itemLines(m[3]!) };
+    return;
+  }
+  if (!line.includes("Dialog::Create")) return;
+  if (line.includes("You are offering:")) {
+    x.collecting = [line.slice(line.indexOf("You are offering:"))];
+  } else if (line.includes("description=The trade was successful!")) {
+    const t = TIME_RE.exec(line);
+    if (t) x.out.push({ at: start + Math.round(Number(t[1]) * 1000), ...(x.confirm ?? { partner: x.invitedBy, offered: [], received: [] }) });
+    x.confirm = null;
+    x.invitedBy = null;
+  } else {
+    const inv = INVITE_RE.exec(line);
+    if (inv) x.invitedBy = playerName(inv[1]!);
+  }
+}
+
+function pushTime(m: Map<string, number[]>, k: string, v: number): void {
+  const a = m.get(k);
+  if (a) a.push(v);
+  else m.set(k, [v]);
+}
+
+function feedEvents(e: Scan["events"], line: string, start: number): void {
+  if (line.includes("Set owner called")) {
+    const m = OWNER_RE.exec(line);
+    if (!m) return;
+    const t = start + Math.round(Number(m[1]) * 1000);
+    e.lastOwner = { t, leaf: m[2]! };
+    pushTime(e.owner, m[2]!, t);
+  } else if (line.includes("StoreItems/Weapons/") && line.includes("ResourceLoader")) {
+    const m = ICON_RE.exec(line);
+    if (!m || !e.lastOwner) return;
+    const t = start + Math.round(Number(m[1]) * 1000);
+    if (t - e.lastOwner.t <= ICON_AFTER_OWNER_S * 1000) {
+      pushTime(e.acquired, e.lastOwner.leaf, t);
+      e.lastOwner = null;
+    }
+  }
+}
+
+function feed(s: Scan, line: string): void {
+  feedAgari(s.agari, line);
+  feedMastery(s.mastery, line);
+  if (s.start === null) {
+    const h = START_RE.exec(line);
+    if (h) s.start = parseUtc(h[1]!);
+    return;
+  }
+  feedRefusals(s.refusals, line, s.start);
+  feedTrades(s.trades, line, s.start);
+  feedEvents(s.events, line, s.start);
+}
+
+let scan: Scan | null = null;
+let scanning: Promise<unknown> = Promise.resolve();
+
+async function readNew(path: string): Promise<Scan | null> {
+  let fh;
   try {
-    const s = await stat(log);
-    key = `${log}:${s.size}:${s.mtimeMs}`;
+    fh = await open(path, "r");
   } catch {
     return null;
   }
-  if (refusalCache?.key === key) return refusalCache.value;
-
-  let start: number | null = null;
-  let count = 0;
-  let first = 0;
-  let last = 0;
-  const note = (t: number) => {
-    count += 1;
-    if (!first) first = t;
-    last = Math.max(last, t);
-  };
-  let pending: number | null = null;
-  let headerLines = 0;
-  const lines = createInterface({ input: createReadStream(log, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
   try {
-    for await (const line of lines) {
-      if (start === null) {
-        const h = START_RE.exec(line);
-        if (h) start = parseUtc(h[1]!);
-        continue;
-      }
-      if (pending !== null) {
-        const d = line.includes("Date: ") ? HTTP_DATE_RE.exec(line) : null;
-        if (d) {
-          note(Date.parse(d[1]!));
-          pending = null;
-          continue;
-        }
-        if (++headerLines > 10) {
-          note(pending);
-          pending = null;
-        }
-      }
-      if (!line.includes("HTTP/1.")) continue;
-      const m = REFUSED_RE.exec(line);
-      if (!m) continue;
-      if (pending !== null) note(pending);
-      pending = start + Math.round(Number(m[1]) * 1000);
-      headerLines = 0;
+    const { size } = await fh.stat();
+    const headBuf = Buffer.alloc(Math.min(size, HEAD_BYTES));
+    if (headBuf.length) await fh.read(headBuf, 0, headBuf.length, 0);
+    const head = headBuf.toString("latin1");
+    if (!scan || scan.path !== path || size < scan.offset || !head.startsWith(scan.head)) scan = newScan(path, head);
+    const s = scan;
+    const buf = Buffer.allocUnsafe(Math.max(1, Math.min(CHUNK_BYTES, size - s.offset)));
+    while (s.offset < size) {
+      const { bytesRead } = await fh.read(buf, 0, Math.min(buf.length, size - s.offset), s.offset);
+      if (!bytesRead) break;
+      s.offset += bytesRead;
+      const lines = (s.rest + s.decoder.write(buf.subarray(0, bytesRead))).split("\n");
+      s.rest = lines.pop()!;
+      for (const line of lines) feed(s, line.endsWith("\r") ? line.slice(0, -1) : line);
     }
-    if (pending !== null) note(pending);
+    return s;
   } catch {
     return null;
   } finally {
-    lines.close();
+    await fh.close();
   }
-  const value = count ? { count, first, last } : null;
-  refusalCache = { key, value };
-  return value;
+}
+
+function scanLog(path: string): Promise<Scan | null> {
+  const run = scanning.then(() => readNew(path));
+  scanning = run.catch(() => undefined);
+  return run;
+}
+
+async function currentScan(path?: string): Promise<Scan | null> {
+  const log = path ?? (await findLog());
+  return log ? scanLog(log) : null;
+}
+
+export async function gameRefusals(path?: string): Promise<GameRefusals | null> {
+  const s = await currentScan(path);
+  if (!s) return null;
+  const r = s.refusals;
+  let { count, first, last } = r;
+  if (r.pending !== null) {
+    count += 1;
+    if (!first) first = r.pending;
+    last = Math.max(last, r.pending);
+  }
+  return count ? { count, first, last } : null;
 }
 
 export async function gameBeingRefused(now = Date.now(), path?: string): Promise<GameRefusals | null> {
@@ -208,144 +319,19 @@ export function gameRefusedMessage(r: GameRefusals): string {
   return `Soulframe's servers are refusing your game's requests (since ${since}), so SFHelper is waiting.`;
 }
 
-const AGARI_SPAWN_RE = /SubBossEncounter\.lua: \[[^\]-]*-([^\]]+)\] Spawning sub-boss/;
-const AGENT_RE = /OnAgentCreated \/Npc\/(\w+?Agent)\d*\s/;
-const AGENT_WITHIN = 5;
-
-let agariCache: { key: string; value: Record<string, string> } | null = null;
-
 export async function loggedAgari(path?: string): Promise<Record<string, string>> {
-  const log = path ?? (await findLog());
-  if (!log) return {};
-  let key: string;
-  try {
-    const s = await stat(log);
-    key = `${log}:${s.size}:${s.mtimeMs}`;
-  } catch {
-    return {};
-  }
-  if (agariCache?.key === key) return agariCache.value;
-
-  const spawned: Record<string, string> = {};
-  let spot: string | null = null;
-  let since = 0;
-  const lines = createInterface({ input: createReadStream(log, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
-  try {
-    for await (const line of lines) {
-      if (spot !== null) {
-        const a = line.includes("OnAgentCreated") ? AGENT_RE.exec(line) : null;
-        if (a) {
-          spawned[spot] = a[1]!;
-          spot = null;
-          continue;
-        }
-        if (++since > AGENT_WITHIN) spot = null;
-      }
-      if (!line.includes("Spawning sub-boss")) continue;
-      const m = AGARI_SPAWN_RE.exec(line);
-      if (m) {
-        spot = m[1]!;
-        since = 0;
-      }
-    }
-  } catch {
-    return {};
-  } finally {
-    lines.close();
-  }
-  agariCache = { key, value: spawned };
-  return spawned;
+  const s = await currentScan(path);
+  return s ? { ...s.agari.spawned } : {};
 }
-
-export interface LoggedMastery {
-  other: number;
-  items: number | null;
-}
-
-const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
-const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
-
-let masteryCache: { key: string; value: LoggedMastery | null } | null = null;
 
 export async function loggedMastery(path?: string): Promise<LoggedMastery | null> {
-  const log = path ?? (await findLog());
-  if (!log) return null;
-  let key: string;
-  try {
-    const s = await stat(log);
-    key = `${log}:${s.size}:${s.mtimeMs}`;
-  } catch {
-    return null;
-  }
-  if (masteryCache?.key === key) return masteryCache.value;
-
-  let other: number | null = null;
-  let items: number | null = null;
-  const lines = createInterface({ input: createReadStream(log, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
-  try {
-    for await (const line of lines) {
-      if (!line.includes("XP")) continue;
-      const o = OTHER_XP_RE.exec(line);
-      if (o) {
-        other = Number(o[1]);
-        continue;
-      }
-      const it = ITEM_XP_RE.exec(line);
-      if (it && Number(it[1]) > 0) items = Number(it[1]);
-    }
-  } catch {
-    return null;
-  } finally {
-    lines.close();
-  }
-  const value = other === null ? null : { other, items };
-  masteryCache = { key, value };
-  return value;
+  const s = await currentScan(path);
+  return s && s.mastery.other !== null ? { other: s.mastery.other, items: s.mastery.items } : null;
 }
 
-export async function logTrades(): Promise<LoggedTrade[]> {
-  const path = await findLog();
-  if (!path) return [];
-  const out: LoggedTrade[] = [];
-  let start: number | null = null;
-  let collecting: string[] | null = null;
-  let confirm: Omit<LoggedTrade, "at"> | null = null;
-  let invitedBy: string | null = null;
-  const lines = createInterface({ input: createReadStream(path, { encoding: "utf8", flags: "r" }), crlfDelay: Infinity });
-  try {
-    for await (const line of lines) {
-      if (start === null) {
-        const h = START_RE.exec(line);
-        if (h) start = parseUtc(h[1]!);
-        continue;
-      }
-      if (collecting) {
-        collecting.push(line);
-        if (!line.includes(", leftItem=") && collecting.length < 200) continue;
-        const m = CONFIRM_RE.exec(collecting.join("\n"));
-        collecting = null;
-        if (m) confirm = { partner: playerName(m[2]!), offered: itemLines(m[1]!), received: itemLines(m[3]!) };
-        continue;
-      }
-      if (!line.includes("Dialog::Create")) continue;
-      if (line.includes("You are offering:")) {
-        collecting = [line.slice(line.indexOf("You are offering:"))];
-      } else if (line.includes("description=The trade was successful!")) {
-        const t = TIME_RE.exec(line);
-        if (t) out.push({ at: start + Math.round(Number(t[1]) * 1000), ...(confirm ?? { partner: invitedBy, offered: [], received: [] }) });
-        confirm = null;
-        invitedBy = null;
-      } else {
-        const inv = INVITE_RE.exec(line);
-        if (inv) invitedBy = playerName(inv[1]!);
-      }
-    }
-  } catch {
-    return out;
-  } finally {
-    lines.close();
-  }
-  return out;
+export async function logTrades(path?: string): Promise<LoggedTrade[]> {
+  const s = await currentScan(path);
+  return s ? [...s.trades.out] : [];
 }
 
 export function objectIdTime(id: string | null | undefined): number | null {
@@ -370,10 +356,9 @@ export async function logPickupTimes(
     .sort((a, b) => a.synced - b.synced);
   if (!wanted.length) return out;
 
-  const path = await findLog();
-  if (!path) return out;
-  const ev = await readEvents(path);
-  if (!ev) return out;
+  const s = await currentScan();
+  if (!s || s.start === null) return out;
+  const ev = { start: s.start, acquired: s.events.acquired, owner: s.events.owner };
 
   const used = (leaf: string) => {
     let s = taken.get(leaf);

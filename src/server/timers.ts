@@ -1,8 +1,8 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { readFile } from "node:fs/promises";
 import { loggedAgari } from "./gameLog";
 import { getAgentNamer } from "./enemies";
 import { appFile } from "./paths";
+import { writeFileAtomic } from "./files";
 
 export interface GameTimer {
   tag: string;
@@ -81,8 +81,7 @@ export async function rememberedAgari(logged: Record<string, string>): Promise<R
   if (Object.entries(logged).every(([spot, agent]) => savedAgari![spot] === agent)) return savedAgari;
   savedAgari = { ...savedAgari, ...logged };
   try {
-    await mkdir(dirname(agariPath()), { recursive: true });
-    await writeFile(agariPath(), JSON.stringify(savedAgari));
+    await writeFileAtomic(agariPath(), JSON.stringify(savedAgari));
   } catch {}
   return savedAgari;
 }

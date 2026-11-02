@@ -1,9 +1,10 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { appFile, dataDir } from "./paths";
 import { loggedMastery } from "./gameLog";
 import { MAX_RANK as MAX_ITEM_RANK, PACT_RANK_CONST, xpToRank } from "./weapons";
+import { writeFileAtomic } from "./files";
 
 const WEAPON_RANK_XP = 100;
 const PACT_RANK_XP = 200;
@@ -84,8 +85,7 @@ async function loadOther(accountId: string): Promise<number | null> {
 
 async function saveOther(accountId: string, other: number): Promise<void> {
   try {
-    await mkdir(dirname(statePath(accountId)), { recursive: true });
-    await writeFile(statePath(accountId), JSON.stringify({ v: STATE_VERSION, other } satisfies MasteryState));
+    await writeFileAtomic(statePath(accountId), JSON.stringify({ v: STATE_VERSION, other } satisfies MasteryState));
   } catch {
   }
 }

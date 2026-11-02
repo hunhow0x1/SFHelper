@@ -130,10 +130,28 @@ async function pageCategories(name: string): Promise<string[]> {
   return cats.map((c: { title: string }) => c.title.replace(/^Category:/, ""));
 }
 
+export const patchNumber = (patch: string | null | undefined): number | null => {
+  const m = /^P(\d+)$/i.exec(patch ?? "");
+  return m ? Number(m[1]) : null;
+};
+
+let livePatch: Promise<number | null> | null = null;
+function currentPatch(): Promise<number | null> {
+  return (livePatch ??= j(`${API}?action=parse&page=${encodeURIComponent("Envoy Rank")}&prop=wikitext&format=json`)
+    .then((r) => patchNumber(parseMaxMastery(r.parse?.wikitext?.["*"] ?? "")?.patch))
+    .catch(() => null));
+}
+
+export function notInGame(categories: string[], live: number | null): boolean {
+  if (categories.some((c) => /^(Archived|Upcoming|Unreleased|Unobtainable)/i.test(c))) return true;
+  const patches = categories.map((c) => /^Preludes[ _](\d+)$/i.exec(c)?.[1]).filter((n): n is string => !!n).map(Number);
+  return live !== null && patches.length > 0 && Math.min(...patches) > live;
+}
+
 export interface WeaponInfo { class: string; slot: string; }
 
 export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
-  const names = await categoryMembers("Weapons");
+  const [names, live] = await Promise.all([categoryMembers("Weapons"), currentPatch()]);
   const out: Record<string, WeaponInfo> = {};
   let ok = 0, archived = 0;
   const unparsed: string[] = [];
@@ -141,7 +159,7 @@ export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Pr
     onProgress?.(i, names.length, names[i]!);
     try {
       const cats = await pageCategories(names[i]!);
-      if (cats.some((c) => /^Archived|^Upcoming$|^Unreleased$/i.test(c))) { archived++; continue; }
+      if (notInGame(cats, live)) { archived++; continue; }
       let slot = "";
       let klass = "";
       for (const c of cats) {
@@ -158,7 +176,7 @@ export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Pr
 }
 
 export async function buildPacts(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
-  const names = await categoryMembers("Pacts");
+  const [names, live] = await Promise.all([categoryMembers("Pacts"), currentPatch()]);
   const out: Record<string, Record<string, never>> = {};
   let ok = 0, archived = 0;
   const unparsed: string[] = [];
@@ -167,7 +185,7 @@ export async function buildPacts(outPath: string, onProgress?: ProgressFn): Prom
     try {
       const cats = await pageCategories(names[i]!);
       if (cats.includes("Abilities") || !cats.includes("Items")) continue;
-      if (cats.includes("Upcoming") || cats.includes("Unreleased")) { archived++; continue; }
+      if (notInGame(cats, live)) { archived++; continue; }
       out[names[i]!] = {};
       ok++;
     } catch { unparsed.push(names[i]!); }

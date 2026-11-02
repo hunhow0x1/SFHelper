@@ -1,4 +1,4 @@
-import { writeFile } from "node:fs/promises";
+import { writeFileAtomic } from "../src/server/files";
 
 const ENDPOINT = "https://api.soulframe.com/api/inventory.php";
 const USER_AGENT = "SFHelper-memory-helper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
@@ -55,5 +55,5 @@ export async function verifyNonce(
 }
 
 export async function saveInventory(outPath: string, body: string): Promise<void> {
-  await writeFile(outPath, body.endsWith("\n") ? body : `${body}\n`);
+  await writeFileAtomic(outPath, body.endsWith("\n") ? body : `${body}\n`);
 }

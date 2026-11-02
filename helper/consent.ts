@@ -1,5 +1,5 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
+import { readFile } from "node:fs/promises";
+import { writeFileAtomic } from "../src/server/files";
 
 export const ACK_PHRASE =
   "I understand reading the game's memory can risk my account and I accept that risk";
@@ -46,8 +46,7 @@ export async function recordConsent(path: string, typedPhrase: string): Promise<
     phrase: ACK_PHRASE,
     recordedAt: new Date().toISOString(),
   };
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, `${JSON.stringify(record, null, 2)}\n`);
+  await writeFileAtomic(path, `${JSON.stringify(record, null, 2)}\n`);
   return record;
 }
 

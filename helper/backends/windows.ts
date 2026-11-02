@@ -111,6 +111,10 @@ export async function openWindows(pid: number): Promise<MemBackend> {
   const k32 = loadKernel32();
   const handle = k32.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, pid);
   if (!handle) throw new Error(`OpenProcess(${pid}) failed (run as the same user / as admin)`);
-  const regions = enumerateRegions(k32, handle);
-  return new WindowsBackend(pid, handle, regions, k32);
+  try {
+    return new WindowsBackend(pid, handle, enumerateRegions(k32, handle), k32);
+  } catch (err) {
+    k32.CloseHandle(handle);
+    throw err;
+  }
 }

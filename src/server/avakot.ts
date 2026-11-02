@@ -1,6 +1,6 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { readFile } from "node:fs/promises";
 import { appFile } from "./paths";
+import { writeFileAtomic } from "./files";
 
 export const AVAKOT_VENDOR = "/SF/Types/Game/AvakotVendorManifest";
 const PERMANENT_AFTER_MS = 365 * 24 * 3600_000;
@@ -42,7 +42,10 @@ async function loadState(): Promise<AvakotState> {
   try {
     const s = JSON.parse(await readFile(statePath(), "utf8")) as Partial<AvakotState>;
     if (s.v === 1) {
-      return { v: 1, stock: s.stock ?? null, lastAttempt: s.lastAttempt ?? 0, seen: s.seen ?? {}, notified: s.notified ?? [] };
+      const stock = s.stock && Array.isArray(s.stock.offers) && Number.isFinite(s.stock.nextChange) ? s.stock : null;
+      const lastAttempt = Number.isFinite(s.lastAttempt) ? s.lastAttempt! : 0;
+      const seen = s.seen && typeof s.seen === "object" ? s.seen : {};
+      return { v: 1, stock, lastAttempt, seen, notified: Array.isArray(s.notified) ? s.notified : [] };
     }
   } catch {
   }
@@ -50,8 +53,7 @@ async function loadState(): Promise<AvakotState> {
 }
 
 async function saveState(s: AvakotState): Promise<void> {
-  await mkdir(dirname(statePath()), { recursive: true });
-  await writeFile(statePath(), `${JSON.stringify(s)}\n`);
+  await writeFileAtomic(statePath(), `${JSON.stringify(s)}\n`);
 }
 
 const dateOf = (v: unknown): number | null => {

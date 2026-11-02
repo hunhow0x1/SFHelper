@@ -1,8 +1,8 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
+import { readFile } from "node:fs/promises";
 import { appFile } from "./paths";
 import { logTrades, type LoggedTrade } from "./gameLog";
 import { parseWeaponInstances } from "./weapons";
+import { writeFileAtomic } from "./files";
 
 const INSTANCE_BUCKETS = ["Melee", "LongGuns", "Pistols", "WeaponSkins", "Upgrades"];
 const COUNT_BUCKETS = ["MiscItems", "RawUpgrades"];
@@ -178,8 +178,7 @@ async function load(): Promise<State> {
 }
 
 async function save(s: State): Promise<void> {
-  await mkdir(dirname(statePath()), { recursive: true });
-  await writeFile(statePath(), JSON.stringify(s));
+  await writeFileAtomic(statePath(), JSON.stringify(s));
 }
 
 export function tradedIds(history: Trade[]): Set<string> {

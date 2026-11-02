@@ -1,6 +1,6 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
+import { readFile } from "node:fs/promises";
 import { appFile } from "./paths";
+import { writeFileAtomic } from "./files";
 
 export interface Settings {
   moonsteelNotify: boolean;
@@ -41,17 +41,21 @@ export async function getSettings(): Promise<Settings> {
   }
 }
 
-export async function updateSettings(patch: Record<string, unknown>): Promise<Settings> {
-  const s = await getSettings();
-  if (typeof patch.moonsteelNotify === "boolean") s.moonsteelNotify = patch.moonsteelNotify;
-  if (typeof patch.avakotNotify === "boolean") s.avakotNotify = patch.avakotNotify;
-  if (typeof patch.timerNotify === "boolean") s.timerNotify = patch.timerNotify;
-  const watch = storeItems(patch.avakotWatch);
-  if (watch) s.avakotWatch = watch;
-  const timerWatch = timerTags(patch.timerWatch);
-  if (timerWatch) s.timerWatch = timerWatch;
-  const path = settingsPath();
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, `${JSON.stringify(s, null, 2)}\n`);
-  return s;
+let queue: Promise<unknown> = Promise.resolve();
+
+export function updateSettings(patch: Record<string, unknown>): Promise<Settings> {
+  const run = queue.then(async () => {
+    const s = await getSettings();
+    if (typeof patch.moonsteelNotify === "boolean") s.moonsteelNotify = patch.moonsteelNotify;
+    if (typeof patch.avakotNotify === "boolean") s.avakotNotify = patch.avakotNotify;
+    if (typeof patch.timerNotify === "boolean") s.timerNotify = patch.timerNotify;
+    const watch = storeItems(patch.avakotWatch);
+    if (watch) s.avakotWatch = watch;
+    const timerWatch = timerTags(patch.timerWatch);
+    if (timerWatch) s.timerWatch = timerWatch;
+    await writeFileAtomic(settingsPath(), `${JSON.stringify(s, null, 2)}\n`);
+    return s;
+  });
+  queue = run.catch(() => undefined);
+  return run;
 }

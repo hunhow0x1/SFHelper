@@ -1,8 +1,8 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
+import { readFile } from "node:fs/promises";
 import type { AcquisitionContext, WeaponInstance } from "./weapons";
 import { logPickupTimes, objectIdTime } from "./gameLog";
 import { appFile } from "./paths";
+import { writeFileAtomic } from "./files";
 
 export type PickupSource = "pickup" | "crafted" | "purchased" | "traded";
 
@@ -46,8 +46,7 @@ async function load(): Promise<State> {
 
 async function save(s: State): Promise<void> {
   const path = statePath();
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, JSON.stringify(s));
+  await writeFileAtomic(path, JSON.stringify(s));
 }
 
 const baseName = (leaf: string): string =>

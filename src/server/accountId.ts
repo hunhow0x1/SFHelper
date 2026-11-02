@@ -1,7 +1,8 @@
-import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { appFile } from "./paths";
+import { writeFileAtomic } from "./files";
 
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
 const configPath = () => appFile("config.json");
@@ -75,6 +76,5 @@ export async function discoverAccountId(): Promise<DiscoveredAccount | null> {
 export async function rememberAccountId(accountId: string): Promise<void> {
   if (!ACCOUNT_ID_RE.test(accountId)) throw new Error("account id must be 24 hex characters");
   const path = configPath();
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, `${JSON.stringify({ accountId }, null, 2)}\n`);
+  await writeFileAtomic(path, `${JSON.stringify({ accountId }, null, 2)}\n`);
 }

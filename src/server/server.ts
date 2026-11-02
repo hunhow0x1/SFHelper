@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { dirname, join, normalize } from "node:path";
+import { dirname, join, normalize, sep } from "node:path";
 import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/profilePayload";
 import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
@@ -10,7 +10,7 @@ import { recordPickups } from "./pickups";
 import { recordTrades, tradedIds } from "./trades";
 import { getSettings, updateSettings } from "./settings";
 import { recordStanding, dailyCaps } from "./standing";
-import { getImportStatus } from "./importStatus";
+import { getDataRefreshedAt, getImportStatus } from "./importStatus";
 import { getUpdateStatus, requestUpdateAction } from "./updateStatus";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
 import { appFile, dataDir } from "./paths";
@@ -20,6 +20,7 @@ import { getEnvoyRank } from "./envoyRank";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
 import { getDiscoveries } from "./discoveries";
 import { withAgariNames, withStarred } from "./timers";
+import { writeFileAtomic } from "./files";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -27,6 +28,8 @@ const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.ph
 const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
 const MIN_FETCH_INTERVAL_MS = 120_000;
+const MAX_BODY_BYTES = 64 * 1024;
+const HOST = "127.0.0.1";
 
 const CONTENT_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -63,8 +66,7 @@ async function loadSavedProfile(accountId: string): Promise<CacheEntry | null> {
 
 async function saveProfile(accountId: string, snapshot: ProfileSnapshot): Promise<void> {
   const path = savedProfilePath(accountId);
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, `${JSON.stringify({ snapshot })}\n`);
+  await writeFileAtomic(path, `${JSON.stringify({ snapshot })}\n`);
 }
 
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
@@ -73,7 +75,18 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(text);
 }
 
-async function getProfile(accountId: string): Promise<{ snapshot: ProfileSnapshot; error: string | null }> {
+const inflight = new Map<string, Promise<{ snapshot: ProfileSnapshot; error: string | null }>>();
+
+function getProfile(accountId: string): Promise<{ snapshot: ProfileSnapshot; error: string | null }> {
+  let run = inflight.get(accountId);
+  if (!run) {
+    run = loadProfile(accountId).finally(() => inflight.delete(accountId));
+    inflight.set(accountId, run);
+  }
+  return run;
+}
+
+async function loadProfile(accountId: string): Promise<{ snapshot: ProfileSnapshot; error: string | null }> {
   const cached = cache.get(accountId) ?? (await loadSavedProfile(accountId));
   if (cached && Date.now() - cached.at < MIN_FETCH_INTERVAL_MS) return { snapshot: cached.snapshot, error: cached.error };
   try {
@@ -110,8 +123,9 @@ async function fetchProfile(accountId: string): Promise<ProfileSnapshot> {
 }
 
 async function readFromDir(base: string, rel: string): Promise<Buffer | null> {
-  const full = normalize(join(base, rel));
-  if (!full.startsWith(base)) return null;
+  const root = normalize(base);
+  const full = normalize(join(root, rel));
+  if (!full.startsWith(root.endsWith(sep) ? root : root + sep)) return null;
   try {
     return await readFile(full);
   } catch {
@@ -132,7 +146,34 @@ async function serveStatic(res: ServerResponse, urlPath: string): Promise<void> 
   res.end(body);
 }
 
-async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
+async function readJsonBody(req: IncomingMessage, res: ServerResponse): Promise<Record<string, unknown> | null> {
+  if (!String(req.headers["content-type"] ?? "").startsWith("application/json")) {
+    sendJson(res, 415, { error: "Expected JSON." });
+    return null;
+  }
+  let body = "";
+  for await (const chunk of req) {
+    body += chunk;
+    if (body.length > MAX_BODY_BYTES) {
+      sendJson(res, 413, { error: "Request too large." });
+      req.destroy();
+      return null;
+    }
+  }
+  try {
+    const parsed = JSON.parse(body || "{}") as unknown;
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed as Record<string, unknown>;
+  } catch {
+  }
+  sendJson(res, 400, { error: "Invalid request." });
+  return null;
+}
+
+async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<string>): Promise<void> {
+  if (!hosts.has(String(req.headers.host ?? "").toLowerCase())) {
+    res.writeHead(403).end("Forbidden");
+    return;
+  }
   const url = new URL(req.url ?? "/", "http://localhost");
 
   if (url.pathname === "/names.json") {
@@ -147,19 +188,15 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   }
 
   if (url.pathname === "/api/account" && req.method === "POST") {
-    let body = "";
-    for await (const chunk of req) body += chunk;
-    try {
-      const { accountId } = JSON.parse(body || "{}") as { accountId?: string };
-      if (!accountId || !ACCOUNT_ID_RE.test(accountId)) {
-        sendJson(res, 400, { error: "Enter your 24-character account id." });
-        return;
-      }
-      await rememberAccountId(accountId);
-      sendJson(res, 200, { accountId, source: "config" });
-    } catch {
-      sendJson(res, 400, { error: "Invalid request." });
+    const body = await readJsonBody(req, res);
+    if (!body) return;
+    const accountId = body.accountId;
+    if (typeof accountId !== "string" || !ACCOUNT_ID_RE.test(accountId)) {
+      sendJson(res, 400, { error: "Enter your 24-character account id." });
+      return;
     }
+    await rememberAccountId(accountId);
+    sendJson(res, 200, { accountId, source: "config" });
     return;
   }
 
@@ -169,7 +206,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   }
 
   if (url.pathname === "/api/connection") {
-    sendJson(res, 200, { pausedUntil: apiPausedUntil(), gameRefused: await gameBeingRefused() });
+    sendJson(res, 200, { pausedUntil: apiPausedUntil(), gameRefused: await gameBeingRefused(), dataAt: getDataRefreshedAt() });
     return;
   }
 
@@ -178,26 +215,18 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     return;
   }
   if (url.pathname === "/api/update" && req.method === "POST") {
-    if (!String(req.headers["content-type"] ?? "").startsWith("application/json")) {
-      sendJson(res, 415, { error: "Expected JSON." });
+    const body = await readJsonBody(req, res);
+    if (!body) return;
+    const action = body.action;
+    if (action !== "check" && action !== "install") {
+      sendJson(res, 400, { error: "Unknown action." });
       return;
     }
-    let body = "";
-    for await (const chunk of req) body += chunk;
-    try {
-      const { action } = JSON.parse(body || "{}") as { action?: unknown };
-      if (action !== "check" && action !== "install") {
-        sendJson(res, 400, { error: "Unknown action." });
-        return;
-      }
-      if (!requestUpdateAction(action)) {
-        sendJson(res, 409, { error: "Updates aren't available here." });
-        return;
-      }
-      sendJson(res, 200, getUpdateStatus());
-    } catch {
-      sendJson(res, 400, { error: "Invalid request." });
+    if (!requestUpdateAction(action)) {
+      sendJson(res, 409, { error: "Updates aren't available here." });
+      return;
     }
+    sendJson(res, 200, getUpdateStatus());
     return;
   }
 
@@ -206,16 +235,11 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     return;
   }
   if (url.pathname === "/api/settings" && req.method === "POST") {
-    let body = "";
-    for await (const chunk of req) body += chunk;
-    try {
-      const patch = JSON.parse(body || "{}") as Record<string, unknown>;
-      const settings = await updateSettings(patch);
-      if ("avakotWatch" in patch) await acknowledgeAvakot(settings.avakotWatch);
-      sendJson(res, 200, settings);
-    } catch {
-      sendJson(res, 400, { error: "Invalid request." });
-    }
+    const patch = await readJsonBody(req, res);
+    if (!patch) return;
+    const settings = await updateSettings(patch);
+    if ("avakotWatch" in patch) await acknowledgeAvakot(settings.avakotWatch);
+    sendJson(res, 200, settings);
     return;
   }
 
@@ -319,17 +343,19 @@ export interface RunningServer {
 }
 
 export function startServer(port = Number(process.env.SFHELPER_PORT ?? 4317)): Promise<RunningServer> {
+  const hosts = new Set<string>();
   const server = createServer((req, res) => {
-    handle(req, res).catch((err) => {
+    handle(req, res, hosts).catch((err) => {
       console.error(err);
       if (!res.headersSent) res.writeHead(500).end("Internal error");
     });
   });
   return new Promise((resolve, reject) => {
     server.on("error", reject);
-    server.listen(port, () => {
+    server.listen(port, HOST, () => {
       const actual = (server.address() as { port: number }).port;
-      const url = `http://localhost:${actual}`;
+      for (const name of [HOST, "localhost"]) hosts.add(`${name}:${actual}`);
+      const url = `http://${HOST}:${actual}`;
       console.log(`SFHelper dashboard: ${url}`);
       resolve({
         port: actual,

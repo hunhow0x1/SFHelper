@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-import type { AccountDataProvider, Availability, CaptureContext, ProviderMeta } from "../provider";
 import {
   SNAPSHOT_SCHEMA_VERSION,
   emptySnapshot,
@@ -157,31 +155,4 @@ export function snapshotFromExport(payload: unknown, observedAt: string): Accoun
   }
 
   return snapshot;
-}
-
-export function createJsonImportProvider(): AccountDataProvider {
-  const meta: ProviderMeta = {
-    id: PROVIDER_ID,
-    label: "Import a file",
-    risk: "safe",
-    requiresCredentials: false,
-    touchesGameProcess: false,
-    description:
-      "Read an account export the user selects - their own saved file, a DE data request, or another tool's output.",
-  };
-
-  return {
-    meta,
-    async isAvailable(ctx: CaptureContext): Promise<Availability> {
-      return ctx.paths?.file
-        ? { available: true }
-        : { available: false, reason: "no file selected" };
-    },
-    async capture(ctx: CaptureContext): Promise<AccountSnapshot> {
-      const file = ctx.paths?.file;
-      if (!file) throw new Error("json-import requires paths.file");
-      const text = await readFile(file, "utf8");
-      return snapshotFromExport(JSON.parse(text), new Date().toISOString());
-    },
-  };
 }

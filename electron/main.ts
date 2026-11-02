@@ -9,7 +9,7 @@ import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
 import { getInventory } from "../src/server/inventory";
 import { TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
-import { setImportStatus } from "../src/server/importStatus";
+import { noteDataRefreshed, setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
 import { AVAKOT_VENDOR, avakotDue, avakotDueAt, noteAvakotAttempt, parseVendorInfo, recordAvakot, type AvakotOffer } from "../src/server/avakot";
@@ -28,6 +28,7 @@ const INVENTORY_PATH = join(USER_DATA, "inventory.json");
 const DATA_DIR = join(USER_DATA, "data");
 const LOG_PATH = join(USER_DATA, "sfhelper.log");
 const PREV_LOG_PATH = join(USER_DATA, "sfhelper.prev.log");
+const APP_PORT = 47317;
 
 let server: RunningServer | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -58,6 +59,7 @@ async function refreshData(): Promise<void> {
       buildArmour(join(DATA_DIR, "armour.json")).catch(() => ({ ok: 0 })),
       buildMasteryRank(join(DATA_DIR, "masteryrank.json")).catch(() => ({ ok: 0 })),
     ]);
+    noteDataRefreshed();
     log(`Data updated: ${t.ok} totems, ${r.ok} runes, ${w.ok} weapons, ${p.ok} pacts, ${tp.ok} tempers, ${pa.ok} pact arts, ${td.ok} totem cards, ${tl.ok} talismans, ${ar.ok} armour pieces${mr.ok ? ", max Envoy Rank" : ""}.`);
   } catch (err) {
     log(`Effect data refresh failed (using bundled data): ${(err as Error).message}`);
@@ -157,9 +159,11 @@ async function refreshAvakot(): Promise<void> {
 }
 
 let avakotTimer: ReturnType<typeof setTimeout> | undefined;
+const MAX_TIMEOUT_MS = 2 ** 31 - 1;
 async function scheduleAvakot(): Promise<void> {
   clearTimeout(avakotTimer);
-  const wait = Math.max(0, (await avakotDueAt()) - Date.now());
+  const due = await avakotDueAt();
+  const wait = Number.isFinite(due) ? Math.min(MAX_TIMEOUT_MS, Math.max(0, due - Date.now())) : REIMPORT_INTERVAL_MS;
   avakotTimer = setTimeout(async () => {
     if (importing || Date.now() - lastImportOk > REIMPORT_INTERVAL_MS + 30_000) return;
     if (await gameBeingRefused()) return;
@@ -178,6 +182,24 @@ async function avakotItemName(storeItem: string): Promise<string> {
     }
   }
   return avakotNames.get(storeItem) ?? (await displayName(storeItem.replace("/SF/StoreItems/", "/SF/")));
+}
+
+const shownNotifications: Notification[] = [];
+const MAX_KEPT_NOTIFICATIONS = 20;
+function showNotification(n: Notification, tab: string): void {
+  const forget = () => {
+    const i = shownNotifications.indexOf(n);
+    if (i >= 0) shownNotifications.splice(i, 1);
+  };
+  n.on("click", () => {
+    forget();
+    showTab(tab);
+  });
+  n.on("close", forget);
+  n.on("failed", forget);
+  shownNotifications.push(n);
+  if (shownNotifications.length > MAX_KEPT_NOTIFICATIONS) shownNotifications.shift();
+  n.show();
 }
 
 function showTab(tab: string): void {
@@ -201,8 +223,7 @@ async function notifyAvakot(offers: AvakotOffer[]): Promise<void> {
     icon: ICON_PATH,
     silent: false,
   });
-  n.on("click", () => showTab("avakot"));
-  n.show();
+  showNotification(n, "avakot");
   log(`Avakot notification: ${names.join(", ")}.`);
 }
 
@@ -226,8 +247,7 @@ async function notifyTimer(t: GameTimer): Promise<void> {
     icon: ICON_PATH,
     silent: false,
   });
-  n.on("click", () => showTab("overview"));
-  n.show();
+  showNotification(n, "overview");
   log(`Cooldown notification: ${t.tag}.`);
 }
 
@@ -262,8 +282,7 @@ async function notifyMoonsteel(p: Pickup): Promise<void> {
     icon: ICON_PATH,
     silent: false,
   });
-  n.on("click", () => showTab("pickups"));
-  n.show();
+  showNotification(n, "pickups");
   log(`Moonsteel ${name} acquired (${p.source ?? "pickup"}).`);
 }
 
@@ -282,6 +301,9 @@ function createMainWindow(url: string): void {
     if (target.startsWith("https://github.com/hunhow0x1/SFHelper")) void shell.openExternal(target);
     return { action: "deny" };
   });
+  mainWindow.webContents.on("will-navigate", (e, target) => {
+    if (!target.startsWith(url)) e.preventDefault();
+  });
   mainWindow.on("closed", () => (mainWindow = null));
 }
 
@@ -291,7 +313,7 @@ async function proceed(): Promise<void> {
   process.env.SFHELPER_INVENTORY = INVENTORY_PATH;
 
   onMoonsteelAcquired((p) => void notifyMoonsteel(p));
-  server = await startServer(0);
+  server = await startServer(APP_PORT).catch(() => startServer(0));
   createMainWindow(server.url);
 
   void refreshData();

@@ -11,7 +11,6 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "probe": "node scripts/probe-endpoints.mjs",
     "start": "tsx src/server/start.ts",
     "helper": "tsx helper/cli.ts",
     "extract-names": "node scripts/extract_names.mjs",
@@ -32,7 +31,6 @@
     "build-talismans": "tsx scripts/build_data.ts talismans",
     "build-armour": "tsx scripts/build_data.ts armour",
     "build-masteryrank": "tsx scripts/build_data.ts masteryrank",
-    "watch-log": "node scripts/watch_log.mjs",
     "build:app": "node scripts/build_app.mjs",
     "app": "npm run build:app && electron .",
     "dist": "npm run build:app && electron-builder",

@@ -1,6 +1,6 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
+import { readFile } from "node:fs/promises";
 import { appFile } from "./paths";
+import { writeFileAtomic } from "./files";
 
 const EXACT_WINDOW_MS = 10 * 60_000;
 
@@ -75,8 +75,7 @@ async function load(): Promise<State | null> {
 
 async function save(s: State): Promise<void> {
   const path = statePath();
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, JSON.stringify(s));
+  await writeFileAtomic(path, JSON.stringify(s));
 }
 
 export async function recordStanding(current: Record<string, number>, now = Date.now()): Promise<StandingToday> {

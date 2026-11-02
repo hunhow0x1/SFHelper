@@ -1,11 +1,12 @@
-import { join, dirname } from "node:path";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { readFile } from "node:fs/promises";
 import { requireConsent } from "./consent";
 import { findSoulframe } from "./processFinder";
 import { ReadOnlyMemory } from "./memoryReader";
 import { findNonceCandidates } from "./nonceLocator";
 import { findAccountIdCandidates, discoverVerifiedAccountId } from "./accountIdLocator";
 import { verifyNonce, saveInventory, EndpointRefusedError } from "./fetchInventory";
+import { writeFileAtomic } from "../src/server/files";
 
 export interface ImportOptions {
   account?: string | undefined;
@@ -33,8 +34,7 @@ export interface ImportResult {
 }
 
 async function rememberAccountId(configPath: string, accountId: string): Promise<void> {
-  await mkdir(dirname(configPath), { recursive: true });
-  await writeFile(configPath, `${JSON.stringify({ accountId }, null, 2)}\n`);
+  await writeFileAtomic(configPath, `${JSON.stringify({ accountId }, null, 2)}\n`);
 }
 
 async function readSavedAccountId(configPath: string): Promise<string | undefined> {

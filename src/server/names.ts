@@ -1,7 +1,8 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { appFile } from "./paths";
+import { writeFileAtomic } from "./files";
 
 export interface NameDict {
   items: Record<string, string>;
@@ -65,8 +66,7 @@ async function fetchRemote(url: string): Promise<NameDict | null> {
     const res = await fetch(url, { headers: { "user-agent": USER_AGENT } });
     if (!res.ok) return null;
     const dict = coerce(await res.json());
-    await mkdir(dirname(cachePath()), { recursive: true });
-    await writeFile(cachePath(), JSON.stringify({ at: Date.now(), dict }, null, 2));
+    await writeFileAtomic(cachePath(), JSON.stringify({ at: Date.now(), dict }, null, 2));
     return dict;
   } catch {
     return null;

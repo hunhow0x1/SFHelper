@@ -14,3 +14,13 @@ export function getImportStatus(): ImportStatus | null {
 export function setImportStatus(s: Omit<ImportStatus, "at">): void {
   status = { ...s, at: new Date().toISOString() };
 }
+
+let dataRefreshedAt: number | null = null;
+
+export function noteDataRefreshed(): void {
+  dataRefreshedAt = Date.now();
+}
+
+export function getDataRefreshedAt(): number | null {
+  return dataRefreshedAt;
+}
