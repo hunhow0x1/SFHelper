@@ -35,6 +35,10 @@ const PREV_LOG_PATH = join(USER_DATA, "sfhelper.prev.log");
 const GAME_DATA_STATE_PATH = join(USER_DATA, "gamedata.json");
 const APP_PORT = 47317;
 const TITLE_BAR = { color: "#120e0b", symbolColor: "#c9a55c", height: 36 };
+const ZOOM_STEP = 0.5;
+const ZOOM_MIN = -3;
+const ZOOM_MAX = 4;
+const ZOOM_REPEAT_MS = 10;
 
 let server: RunningServer | null = null;
 let mainWindow: BrowserWindow | null = null;
@@ -317,6 +321,17 @@ async function notifyMoonsteel(p: Pickup): Promise<void> {
   log(`Moonsteel ${name} acquired (${p.source ?? "pickup"}).`);
 }
 
+function watchZoom(wc: Electron.WebContents): void {
+  let lastZoomAt = -Infinity;
+  wc.on("zoom-changed", (_e, direction) => {
+    const now = performance.now();
+    if (now - lastZoomAt < ZOOM_REPEAT_MS) return;
+    lastZoomAt = now;
+    const level = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, wc.getZoomLevel() + (direction === "in" ? ZOOM_STEP : -ZOOM_STEP)));
+    wc.setZoomLevel(level);
+  });
+}
+
 function createMainWindow(url: string): void {
   const area = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new BrowserWindow({
@@ -330,6 +345,7 @@ function createMainWindow(url: string): void {
     webPreferences: { contextIsolation: true },
   });
   void mainWindow.loadURL(url);
+  watchZoom(mainWindow.webContents);
   mainWindow.webContents.setWindowOpenHandler(({ url: target }) => {
     if (target.startsWith("https://github.com/hunhow0x1/SFHelper")) void shell.openExternal(target);
     return { action: "deny" };
@@ -372,6 +388,7 @@ function askConsent(): Promise<boolean> {
       icon: ICON_PATH,
       webPreferences: { contextIsolation: true, preload: join(HERE, "preload.cjs") },
     });
+    win.removeMenu();
     void win.loadFile(join(HERE, "consent.html"));
 
     let decided = false;

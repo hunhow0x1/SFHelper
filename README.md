@@ -17,6 +17,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 | **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*), plus its armour (Helm, Cuirass, Leggings, with defence and Virtue requirements) and Talisman. Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Pact Arts show the game's own numbers (e.g. Forestall's chance to survive). Loadouts can be shared as short `SFH1:` codes; paste one and press Enter or Import. |
 | **Mastery** | Your Envoy Rank, your Mastery and progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type (weapons, Primary, Sidearm or Pacts). Discoveries lists every place by its in-game name, whether you've found it, and the Memories found there. |
 | **Upgrades** | Tuvalkane temper learning; your Runes by weapon art with their rank, the Totem slot they add and their numbers at that rank; your Joineries by metal and blessing; your Gear, with what's equipped; and your Totem inventory with search and grip / Virtue / type filters. |
+| **Recipes** | Everything you can brew with the Witch Verminia (Elixirs, Pup Treats and Palettes) and the Chordstones Tuvalkane casts: each recipe's ingredients against what you have, what you're short of, the Dracs and time it takes, and the Bond rank it needs. Filter by station, or by what's ready to make. |
 | **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. |
 | **Trades** | Your trade history: who you traded with, what you received and gave, with in-game icons (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
 | **Avakot** | What Avakot's Gots has in stock right now, with prices, purchase limits and how long each item stays, plus his weekly and always-stocked wares. Star anything he can sell to get a desktop notification when he stocks it. |
@@ -30,6 +31,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 | ![Mastery: Envoy Rank and every weapon's Mastery](screenshots/mastery.webp) | ![Upgrades: Tuvalkane's tempers and your Runes](screenshots/upgrades-1.webp) |
 | ![Upgrades: Joineries, Gear and Totems](screenshots/upgrades-2.webp) | ![Pickups: weapons picked up, with craftwork and tempers](screenshots/pickups.webp) |
 | ![Trades: what you received and gave in each trade, and the Scutage paid](screenshots/trades.webp) | ![Avakot: what Avakot's Gots has in stock, with stars for notifications](screenshots/avakot.webp) |
+| ![Recipes: Verminia's brews and Tuvalkane's Chordstones, with what you have and what you're short of](screenshots/recipes.webp) | |
 
 ## How it gets your data
 

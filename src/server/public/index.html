@@ -136,8 +136,8 @@
         background: var(--accent-hi); transform: translateX(-50%) rotate(45deg);
         box-shadow: 0 0 8px rgba(232, 201, 126, 0.6);
       }
-      .panel { display: none; }
-      .panel.active { display: grid; gap: 28px; }
+      .panel { display: grid; gap: 28px; }
+      .panel:not(.active) { content-visibility: hidden; }
       .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
       .ov-col { display: contents; }
       .ov-account { order: 1; }
@@ -2788,78 +2788,38 @@
           reloadingData = false;
         }
       }
+      const DATA_FILES = [
+        "names", "faction-ranks", "totems", "totemdata", "runes", "tempers", "pactarts", "itemicons",
+        "pactartvalues", "talismans", "armour", "weapons", "pacts", "upgrades", "recipes", "avakot",
+      ];
       async function loadDict() {
         dictLoadedAt = Date.now();
-        try {
-          const res = await fetch("/names.json");
-          if (res.ok) {
-            DICT = await res.json();
-            DICT_LC = {};
-            for (const k in DICT.items) DICT_LC[k.toLowerCase()] = DICT.items[k];
-          }
-        } catch {}
-        try {
-          const res = await fetch("/faction-ranks.json");
-          if (res.ok) FACTION_RANKS = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/totems.json");
-          if (res.ok) TOTEMS = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/totemdata.json");
-          if (res.ok) TOTEM_DATA = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/runes.json");
-          if (res.ok) RUNES = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/tempers.json");
-          if (res.ok) TEMPER_DB = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/pactarts.json");
-          if (res.ok) PACT_ARTS = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/itemicons.json");
-          if (res.ok) ITEM_ICONS = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/pactartvalues.json");
-          if (res.ok) PACT_ART_VALUES = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/talismans.json");
-          if (res.ok) TALISMANS = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/armour.json");
-          if (res.ok) ARMOUR = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/weapons.json");
-          if (res.ok) WEAPON_ROSTER = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/pacts.json");
-          if (res.ok) PACT_ROSTER = await res.json();
-        } catch {}
-        try {
-          const res = await fetch("/upgrades.json");
-          if (res.ok) UPGRADES = await res.json();
-          renderUpgradeItems();
-        } catch {}
-        try {
-          const res = await fetch("/recipes.json");
-          if (res.ok) RECIPES = (await res.json()).recipes || {};
-          renderRecipes();
-        } catch {}
-        try {
-          const res = await fetch("/avakot.json");
-          if (res.ok) AV_POOL = new Map((await res.json()).items.map((it) => [it.storeItem, it]));
-        } catch {}
+        const got = await Promise.all(
+          DATA_FILES.map((f) => fetch(`/${f}.json`).then((res) => (res.ok ? res.json() : null)).catch(() => null)),
+        );
+        const d = Object.fromEntries(DATA_FILES.map((f, i) => [f, got[i]]));
+        if (d.names) {
+          DICT = d.names;
+          DICT_LC = {};
+          for (const k in DICT.items) DICT_LC[k.toLowerCase()] = DICT.items[k];
+        }
+        if (d["faction-ranks"]) FACTION_RANKS = d["faction-ranks"];
+        if (d.totems) TOTEMS = d.totems;
+        if (d.totemdata) TOTEM_DATA = d.totemdata;
+        if (d.runes) RUNES = d.runes;
+        if (d.tempers) TEMPER_DB = d.tempers;
+        if (d.pactarts) PACT_ARTS = d.pactarts;
+        if (d.itemicons) ITEM_ICONS = d.itemicons;
+        if (d.pactartvalues) PACT_ART_VALUES = d.pactartvalues;
+        if (d.talismans) TALISMANS = d.talismans;
+        if (d.armour) ARMOUR = d.armour;
+        if (d.weapons) WEAPON_ROSTER = d.weapons;
+        if (d.pacts) PACT_ROSTER = d.pacts;
+        if (d.upgrades) UPGRADES = d.upgrades;
+        if (d.recipes) RECIPES = d.recipes.recipes || {};
+        if (d.avakot) AV_POOL = new Map((d.avakot.items || []).map((it) => [it.storeItem, it]));
+        renderUpgradeItems();
+        renderRecipes();
         loadAvakot();
       }
 

@@ -56,10 +56,16 @@
       "output": "release",
       "buildResources": "build"
     },
+    "electronLanguages": [
+      "en-US"
+    ],
     "files": [
       "dist/**/*",
       "package.json",
-      "LICENSE"
+      "LICENSE",
+      "!node_modules/koffi/{src,vendor,doc,lib}/**",
+      "!node_modules/koffi/build/koffi/!(win32_x64)/**",
+      "!node_modules/koffi/build/koffi/win32_x64/*.{exp,lib}"
     ],
     "asarUnpack": [
       "**/node_modules/koffi/**"
@@ -70,14 +76,21 @@
       ],
       "category": "Game",
       "icon": "build/icon.png",
-      "artifactName": "SFHelper-${version}.${ext}"
+      "artifactName": "SFHelper-${version}.${ext}",
+      "files": [
+        "dist/**/*",
+        "package.json",
+        "LICENSE",
+        "!node_modules/koffi/**"
+      ]
     },
     "win": {
       "target": [
         "nsis"
       ],
       "icon": "build/icon.ico",
-      "artifactName": "SFHelper-Setup-${version}.${ext}"
+      "artifactName": "SFHelper-Setup-${version}.${ext}",
+      "compression": "maximum"
     },
     "nsis": {
       "oneClick": false,
