@@ -56,10 +56,6 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   writes at login; SFHelper keeps the last figure it saw. Trades are detected by comparing inventory imports,
   so the history starts once SFHelper is running; trades made earlier in the
   same game session are recovered from the log.
-- **Reference data:** totem, rune, temper, weapon, pact, talisman and armour details
-  come from the [Soulframe Wiki](https://wiki.avakot.org) and are refreshed
-  each time the app starts; a bundled copy is used if the wiki can't be
-  reached. In-game names come from the game's own text.
 - **Rate limits:** if Soulframe's servers ever refuse a request (403/429),
   SFHelper stops all requests to them, for 15 minutes at first and up to an hour.
   If the game's own requests are being refused (its log shows the 403s),
