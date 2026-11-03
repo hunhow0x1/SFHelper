@@ -29,7 +29,9 @@ describe("the game's timers", () => {
     expect(timerLabel("SiegeKearnholdCastle")).toEqual({ kind: null, name: "Siege Kearnhold Castle", ready: "Siege Kearnhold Castle is over" });
     expect(timerLabel("MirifuirSiege")).toEqual({ kind: "Siege cooldown", name: "Mirifuir Siege", ready: "The Mirifuir Siege can start again" });
     expect(timerLabel("PollutionTowerAirdelands")).toEqual({ kind: "Organ cooldown", name: "Fuirlands Organ", ready: "The Fuirlands Organ can be destroyed again" });
-    expect(timerLabel("PollutionTowerOdell").name).toBe("Fortress O'Dell Organ");
+    expect(timerLabel("PollutionTowerODell").name).toBe("O'Dell Organ");
+    expect(timerLabel("PollutionTowerOdell").name).toBe("O'Dell Organ");
+    expect(timerLabel("CollectorTimer")).toEqual({ kind: "Operation cooldown", name: "Collector Event", ready: "The Collector Event can happen again" });
     expect(timerLabel("PollutionTowerKearnhold").name).toBe("Kearnhold Lowlands Organ");
     expect(timerLabel("PollutionTowerNewRegion").name).toBe("New Region Organ");
     expect(timerLabel("VadagarStag-SubBoss")).toMatchObject({ kind: "Agari respawn", name: "Vadagar Stag", spot: "VadagarStag" });

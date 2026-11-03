@@ -8,14 +8,14 @@ import { recordHistory, startServer, type RunningServer } from "../src/server/se
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
 import { getInventory } from "../src/server/inventory";
-import { TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
+import { COLLECTOR_TAG, dockedCollector, TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
 import { noteDataRefreshed, setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
 import { AVAKOT_VENDOR, avakotDue, avakotDueAt, noteAvakotAttempt, parseVendorInfo, recordAvakot, type AvakotOffer } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameRefusedMessage, loggedGame } from "../src/server/gameLog";
+import { gameBeingRefused, gameRefusedMessage, loggedCollector, loggedGame } from "../src/server/gameLog";
 import { readDataJson } from "../src/server/paths";
 import { findCacheDir } from "../src/gamedata/cache";
 import { GameDataWatcher } from "../src/gamedata/watch";
@@ -287,6 +287,22 @@ async function notifyTimer(t: GameTimer): Promise<void> {
   log(`Cooldown notification: ${t.tag}.`);
 }
 
+const COLLECTOR_NOTIFY_MS = 15 * 60_000;
+let collectorSeen = 0;
+async function checkCollector(): Promise<void> {
+  const c = await loggedCollector();
+  const docked = dockedCollector(c);
+  if (!c || !docked || c.at === collectorSeen) return;
+  collectorSeen = c.at;
+  const where = docked.region ?? "Midrath";
+  log(`The Collector docked in ${where}.`);
+  if (Date.now() - c.at > COLLECTOR_NOTIFY_MS || !Notification.isSupported()) return;
+  const settings = await getSettings();
+  if (!settings.timerNotify || !settings.timerWatch.includes(COLLECTOR_TAG)) return;
+  const n = new Notification({ title: "The Collector is descending!", body: `Hark, The Collector · ${where}`, icon: ICON_PATH, silent: false });
+  showNotification(n, "overview");
+}
+
 let itemNames: Record<string, string> | null = null;
 function resetNameCaches(): void {
   avakotNames = null;
@@ -370,6 +386,7 @@ async function proceed(): Promise<void> {
   void armSavedTimers();
   setInterval(() => {
     for (const t of timerAlarms.due()) void notifyTimer(t);
+    void checkCollector().catch(() => {});
   }, TIMER_CHECK_MS);
   void importFromMemory();
   setInterval(() => void importFromMemory(), REIMPORT_INTERVAL_MS);

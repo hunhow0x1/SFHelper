@@ -15,11 +15,11 @@ import { getUpdateStatus, requestUpdateAction } from "./updateStatus";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
 import { appFile, dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
-import { gameBeingRefused, gameRefusedMessage } from "./gameLog";
+import { gameBeingRefused, gameRefusedMessage, loggedCollector } from "./gameLog";
 import { getEnvoyRank } from "./envoyRank";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
 import { getDiscoveries } from "./discoveries";
-import { withAgariNames, withStarred } from "./timers";
+import { withAgariNames, withCollector, withStarred } from "./timers";
 import { writeFileAtomic } from "./files";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -307,7 +307,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         pacts,
         mastery: inventory?.mastery ?? null,
         envoyRank: PlayerLevel != null ? await getEnvoyRank(accountId, PlayerLevel, inventory?.mastery ?? null) : null,
-        timers: inventory ? await withAgariNames(withStarred(inventory.timers, (await getSettings()).timerWatch)) : [],
+        timers: inventory ? withCollector(await withAgariNames(withStarred(inventory.timers, (await getSettings()).timerWatch)), await loggedCollector()) : [],
         discoveries: inventory ? await getDiscoveries(inventory.loreScans) : null,
         temperProgress: inventory?.temperProgress ?? [],
         upgradeItems: inventory?.upgradeItems ?? null,

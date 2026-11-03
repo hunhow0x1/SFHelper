@@ -1430,18 +1430,22 @@
       let TIMER_WATCH = null;
       function timerStar(t) {
         const on = TIMER_WATCH.includes(t.tag);
-        const tip = on ? "Starred: you'll be notified when this cooldown ends" : "Star to be notified when this cooldown ends";
+        const what = t.tag === "CollectorTimer" ? "when this cooldown ends and when a Collector docks" : "when this cooldown ends";
+        const tip = on ? `Starred: you'll be notified ${what}` : `Star to be notified ${what}`;
         return `<button class="star${on ? " on" : ""}" data-timer="${escHtml(t.tag)}" aria-pressed="${on}" title="${tip}" aria-label="${escHtml(t.name)}">${STAR_SVG}</button>`;
       }
       function renderTimers() {
         if (!LAST_TIMERS) return;
         const now = Date.now();
-        const running = LAST_TIMERS.filter((t) => t.expiry > now);
-        const ready = TIMER_WATCH ? LAST_TIMERS.filter((t) => t.expiry <= now && TIMER_WATCH.includes(t.tag)) : [];
-        const row = (t, right) =>
-          `<div class="avrow${TIMER_WATCH ? " starrable" : ""}${t.expiry > now ? "" : " idle"}" title="${escHtml(t.tag)}">${TIMER_WATCH ? timerStar(t) : ""}<div class="avn">${escHtml(t.name)}${t.kind ? `<small>${escHtml(t.kind)}</small>` : ""}</div><div class="avr">${right}</div></div>`;
-        $("timers").innerHTML = running.length || ready.length
-          ? `<div>${running.map((t) => row(t, `<b>${avLeft(t.expiry - now)}</b><small>until ${avClock(t.expiry)}</small>`)).join("")}${ready
+        const docked = LAST_TIMERS.filter((t) => t.docked);
+        const running = LAST_TIMERS.filter((t) => !t.docked && t.expiry > now);
+        const ready = TIMER_WATCH ? LAST_TIMERS.filter((t) => !t.docked && t.expiry <= now && TIMER_WATCH.includes(t.tag)) : [];
+        const row = (t, right, kind = t.kind) =>
+          `<div class="avrow${TIMER_WATCH ? " starrable" : ""}${t.expiry > now || t.docked ? "" : " idle"}">${TIMER_WATCH ? timerStar(t) : ""}<div class="avn">${escHtml(t.name)}${kind ? `<small>${escHtml(kind)}</small>` : ""}</div><div class="avr">${right}</div></div>`;
+        const dockedRow = (t) =>
+          row(t, `<span class="instock">Docked</span><small>since ${avClock(t.docked.at)}</small>`, t.docked.region ? `Docked in ${t.docked.region}` : "Hark, The Collector");
+        $("timers").innerHTML = docked.length || running.length || ready.length
+          ? `<div>${docked.map(dockedRow).join("")}${running.map((t) => row(t, `<b>${avLeft(t.expiry - now)}</b><small>until ${avClock(t.expiry)}</small>`)).join("")}${ready
               .map((t) => row(t, '<span class="instock">Ready</span>'))
               .join("")}</div>`
           : '<span class="muted">No cooldowns running.</span>';

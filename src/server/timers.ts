@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
-import { loggedAgari } from "./gameLog";
+import { loggedAgari, type LoggedCollector } from "./gameLog";
+import { collectorRegion } from "./collector";
 import { getAgentNamer } from "./enemies";
 import { appFile } from "./paths";
 import { writeFileAtomic } from "./files";
@@ -10,6 +11,7 @@ export interface GameTimer {
   name: string;
   ready: string;
   spot?: string;
+  docked?: { at: number; region: string | null };
   expiry: number;
 }
 
@@ -25,10 +27,13 @@ function words(s: string): string {
 
 type Label = Omit<GameTimer, "tag" | "expiry">;
 
-const ORGAN_REGIONS: Record<string, string> = { Airdelands: "Fuirlands", Kearnhold: "Kearnhold Lowlands", Odell: "Fortress O'Dell" };
+export const COLLECTOR_TAG = "CollectorTimer";
+const COLLECTOR_STALE_MS = 10 * 60_000;
+const ORGAN_REGIONS: Record<string, string> = { Airdelands: "Fuirlands", Kearnhold: "Kearnhold Lowlands", ODell: "O'Dell", Odell: "O'Dell" };
 
 const KNOWN: [RegExp, (m: RegExpExecArray) => Label][] = [
   [/^UPGRADEGIVEN_GODANDGHOST$/, () => ({ kind: "Once a day, after a boon", name: "Blessed Meeting", ready: "Blessed Meetings can happen again" })],
+  [new RegExp(`^${COLLECTOR_TAG}$`), () => ({ kind: "Operation cooldown", name: "Collector Event", ready: "The Collector Event can happen again" })],
   [/^(.+)-SubBoss$/i, (m) => {
     const place = words(m[1]!);
     return { kind: "Agari respawn", name: place, ready: `The Agari at ${place} can return`, spot: m[1]! };
@@ -94,6 +99,19 @@ export async function withAgariNames(timers: GameTimer[]): Promise<GameTimer[]> 
   if (!timers.some((t) => t.spot)) return timers;
   const [spawned, agentName] = await Promise.all([loggedAgari().then(rememberedAgari), getAgentNamer()]);
   return nameAgari(timers, spawned, agentName);
+}
+
+export function dockedCollector(c: LoggedCollector | null, now = Date.now()): GameTimer["docked"] | null {
+  if (!c || c.ended !== null || now - c.logAt > COLLECTOR_STALE_MS) return null;
+  return { at: c.at, region: collectorRegion(c.x, c.z) };
+}
+
+export function withCollector(timers: GameTimer[], c: LoggedCollector | null, now = Date.now()): GameTimer[] {
+  const docked = dockedCollector(c, now);
+  if (!docked) return timers;
+  const rest = timers.filter((t) => t.tag !== COLLECTOR_TAG);
+  const own = timers.find((t) => t.tag === COLLECTOR_TAG) ?? { tag: COLLECTOR_TAG, ...timerLabel(COLLECTOR_TAG), expiry: 0 };
+  return [{ ...own, docked }, ...rest];
 }
 
 export function withStarred(timers: GameTimer[], watch: string[]): GameTimer[] {

@@ -80,6 +80,15 @@ export interface GameRefusals {
   last: number;
 }
 
+export interface LoggedCollector {
+  at: number;
+  x: number;
+  z: number;
+  started: number | null;
+  ended: number | null;
+  logAt: number;
+}
+
 export interface LoggedMastery {
   other: number;
   items: number | null;
@@ -99,6 +108,7 @@ const AGENT_RE = /OnAgentCreated \/Npc\/(\w+?Agent)\d*\s/;
 const AGENT_WITHIN = 5;
 const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
 const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
+const COLLECTOR_RE = /^(\d+\.\d+) .*PrimeMissionOnHint \[[^\]]*\] at pos \[\((-?[\d.]+), (-?[\d.]+), (-?[\d.]+).*missionTag MT_COLLECTOR/;
 const BUILD_RE = /Build Label: (\S+)/;
 const CACHE_DIR_RE = /Scanning (.+?) for cache blocks/;
 const HEAD_BYTES = 256;
@@ -111,10 +121,12 @@ interface Scan {
   path: string;
   head: string;
   offset: number;
+  mtime: number;
   rest: string;
   decoder: StringDecoder;
   start: number | null;
   game: { build: string | null; cacheDir: string | null };
+  collector: Omit<LoggedCollector, "logAt"> | null;
   refusals: { count: number; first: number; last: number; pending: number | null; headerLines: number };
   agari: { spawned: Record<string, string>; spot: string | null; since: number };
   mastery: { other: number | null; items: number | null };
@@ -127,10 +139,12 @@ function newScan(path: string, head: string): Scan {
     path,
     head,
     offset: 0,
+    mtime: 0,
     rest: "",
     decoder: new StringDecoder("utf8"),
     start: null,
     game: { build: null, cacheDir: null },
+    collector: null,
     refusals: { count: 0, first: 0, last: 0, pending: null, headerLines: 0 },
     agari: { spawned: {}, spot: null, since: 0 },
     mastery: { other: null, items: null },
@@ -247,6 +261,19 @@ function feedGame(g: Scan["game"], line: string): void {
   else if (g.cacheDir === null && line.includes(" for cache blocks")) g.cacheDir = CACHE_DIR_RE.exec(line)?.[1] ?? null;
 }
 
+function feedCollector(s: Scan, line: string, start: number): void {
+  if (line.includes("MT_COLLECTOR")) {
+    const m = COLLECTOR_RE.exec(line);
+    if (m) s.collector = { at: start + Math.round(Number(m[1]) * 1000), x: Number(m[2]), z: Number(m[4]), started: null, ended: null };
+    return;
+  }
+  if (!s.collector || !line.includes("CollectorShipObjective.lua: ")) return;
+  const t = TIME_RE.exec(line);
+  const at = t ? start + Math.round(Number(t[1]) * 1000) : null;
+  if (line.includes("Collector encounter started")) s.collector.started ??= at;
+  else if (line.includes("Collector encounter ending") || line.includes("playing collectorCinLeaving")) s.collector.ended ??= at;
+}
+
 function feed(s: Scan, line: string): void {
   if (s.game.cacheDir === null) feedGame(s.game, line);
   feedAgari(s.agari, line);
@@ -259,6 +286,7 @@ function feed(s: Scan, line: string): void {
   feedRefusals(s.refusals, line, s.start);
   feedTrades(s.trades, line, s.start);
   feedEvents(s.events, line, s.start);
+  feedCollector(s, line, s.start);
 }
 
 let scan: Scan | null = null;
@@ -272,12 +300,13 @@ async function readNew(path: string): Promise<Scan | null> {
     return null;
   }
   try {
-    const { size } = await fh.stat();
+    const { size, mtimeMs } = await fh.stat();
     const headBuf = Buffer.alloc(Math.min(size, HEAD_BYTES));
     if (headBuf.length) await fh.read(headBuf, 0, headBuf.length, 0);
     const head = headBuf.toString("latin1");
     if (!scan || scan.path !== path || size < scan.offset || !head.startsWith(scan.head)) scan = newScan(path, head);
     const s = scan;
+    s.mtime = mtimeMs;
     const buf = Buffer.allocUnsafe(Math.max(1, Math.min(CHUNK_BYTES, size - s.offset)));
     while (s.offset < size) {
       const { bytesRead } = await fh.read(buf, 0, Math.min(buf.length, size - s.offset), s.offset);
@@ -343,6 +372,11 @@ export interface LoggedGame {
 export async function loggedGame(path?: string): Promise<LoggedGame | null> {
   const s = await currentScan(path);
   return s ? { log: s.path, build: s.game.build, cacheDir: s.game.cacheDir } : null;
+}
+
+export async function loggedCollector(path?: string): Promise<LoggedCollector | null> {
+  const s = await currentScan(path);
+  return s?.collector ? { ...s.collector, logAt: s.mtime } : null;
 }
 
 export async function loggedMastery(path?: string): Promise<LoggedMastery | null> {
