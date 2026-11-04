@@ -288,18 +288,21 @@ async function notifyTimer(t: GameTimer): Promise<void> {
 }
 
 const COLLECTOR_NOTIFY_MS = 15 * 60_000;
+const COLLECTOR_REPEAT_MS = 60 * 60_000;
 let collectorSeen = 0;
 async function checkCollector(): Promise<void> {
   const c = await loggedCollector();
   const docked = dockedCollector(c);
   if (!c || !docked || c.at === collectorSeen) return;
+  const again = c.at - collectorSeen < COLLECTOR_REPEAT_MS;
   collectorSeen = c.at;
   const where = docked.region ?? "Midrath";
   log(`The Collector docked in ${where}.`);
-  if (Date.now() - c.at > COLLECTOR_NOTIFY_MS || !Notification.isSupported()) return;
+  if (again || Date.now() - c.at > COLLECTOR_NOTIFY_MS || !Notification.isSupported()) return;
   const settings = await getSettings();
   if (!settings.timerNotify || !settings.timerWatch.includes(COLLECTOR_TAG)) return;
-  const n = new Notification({ title: "The Collector is descending!", body: `Hark, The Collector · ${where}`, icon: ICON_PATH, silent: false });
+  const until = docked.leaves ? ` · leaves ${new Date(docked.leaves).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "";
+  const n = new Notification({ title: "The Collector is descending!", body: `Hark, The Collector · ${where}${until}`, icon: ICON_PATH, silent: false });
   showNotification(n, "overview");
 }
 

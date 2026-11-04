@@ -3,7 +3,7 @@ import { writeFile, mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { collectorRegion } from "../src/server/collector";
-import { loggedCollector } from "../src/server/gameLog";
+import { loggedCollector, type LoggedCollector } from "../src/server/gameLog";
 import { withCollector, type GameTimer } from "../src/server/timers";
 
 const HEADER = "0.043 Sys [Diag]: Current time: Mon Nov 02 22:00:00 2026 [UTC: Tue Nov 03 03:00:00 2026]";
@@ -39,11 +39,42 @@ describe("Collector arrivals", () => {
 
     const shown = withCollector([agari, cooldown], spawn, now);
     expect(shown.map((t) => t.tag)).toEqual(["CollectorTimer", "X-SubBoss"]);
-    expect(shown[0]!.docked).toEqual({ at: spawn.at, region: "Fortress O'Dell" });
+    expect(shown[0]!.docked).toEqual({ at: spawn.at, region: "Fortress O'Dell", started: null, leaves: spawn.at + 15 * 60_000 });
     expect(withCollector([agari], spawn, now)[0]).toMatchObject({ tag: "CollectorTimer", name: "Collector Event" });
 
     expect(withCollector([agari], { ...spawn, ended: now - 1_000 }, now)).toEqual([agari]);
     expect(withCollector([agari], { ...spawn, logAt: now - 11 * 60_000 }, now)).toEqual([agari]);
     expect(withCollector([agari], null, now)).toEqual([agari]);
+  });
+
+  it("ends when it leaves without a fight", async () => {
+    const log = join(await mkdtemp(join(tmpdir(), "sfh-log-")), "EE.log");
+    await writeFile(
+      log,
+      [
+        HEADER,
+        PRIMED,
+        "1177.732 Script [Info]: CollectorShipObjective.lua: OnPrimed: Collector primed",
+        "2078.902 Script [Info]: CollectorShipObjective.lua: OnPrimed Loop ended",
+        "2078.902 Script [Info]: CollectorShipObjective.lua: OnPrimed: hint was unprimed and never activated",
+        "2078.902 Sys [Info]: Cinematic /Layer0/Layer21/SFCinematic36 Start, 1 scene(s), first: /SF/Animations/Cinematics/Dendria/CollectorLeaving_cin.fbx",
+        "2078.903 Script [Info]: CollectorShipObjective.lua: Shutdown collector",
+        "",
+      ].join("\n"),
+    );
+    expect(await loggedCollector(log)).toMatchObject({ started: null, ended: START + 2_078_902 });
+  });
+
+  it("stays 15 minutes unless the fight starts", () => {
+    const at = START + 1_177_731;
+    const spawn: LoggedCollector = { at, x: 880.326, z: -28.7015, started: null, ended: null, logAt: 0 };
+    const shownAt = (now: number, c = spawn) => withCollector([], { ...c, logAt: now }, now)[0]?.docked ?? null;
+
+    expect(shownAt(at + 14 * 60_000)).toMatchObject({ leaves: at + 15 * 60_000 });
+    expect(shownAt(at + 15 * 60_000)).toBeNull();
+
+    const fought = { ...spawn, started: at + 5 * 60_000 };
+    expect(shownAt(at + 20 * 60_000, fought)).toMatchObject({ started: at + 5 * 60_000, leaves: null });
+    expect(shownAt(at + 36 * 60_000, fought)).toBeNull();
   });
 });

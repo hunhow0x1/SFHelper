@@ -189,8 +189,35 @@ export function tradedIds(history: Trade[]): Set<string> {
 
 let queue: Promise<unknown> = Promise.resolve();
 
+function queued<T>(fn: () => Promise<T>): Promise<T> {
+  const run = queue.then(fn);
+  queue = run.catch(() => undefined);
+  return run;
+}
+
+export function tradeHistory(): Promise<Trade[]> {
+  return queued(async () => (await load()).history);
+}
+
+export function importTrades(entries: Trade[]): Promise<number> {
+  return queued(async () => {
+    const s = await load();
+    const have = new Set(s.history.map((t) => t.at));
+    const added: Trade[] = [];
+    for (const t of entries) {
+      if (have.has(t.at)) continue;
+      have.add(t.at);
+      added.push(t);
+    }
+    if (!added.length) return 0;
+    s.history = [...s.history, ...added].sort((a, b) => b.at.localeCompare(a.at)).slice(0, MAX_HISTORY);
+    await save(s);
+    return added.length;
+  });
+}
+
 export function recordTrades(h: Holdings, at: string, readLog: () => Promise<LoggedTrade[]> = logTrades): Promise<TradesView> {
-  const run = queue.then(async (): Promise<TradesView> => {
+  return queued(async (): Promise<TradesView> => {
     const s = await load();
     if (!s.last || s.last.at !== at) {
       const trade = s.last && Date.parse(at) > Date.parse(s.last.at) ? detectTrade(s.last.holdings, s.last.at, h, at) : null;
@@ -211,6 +238,4 @@ export function recordTrades(h: Holdings, at: string, readLog: () => Promise<Log
     }
     return { history: s.history, remaining: remainingToday(h, at), max: allowance(h) };
   });
-  queue = run.catch(() => undefined);
-  return run;
 }

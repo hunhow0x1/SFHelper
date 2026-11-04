@@ -11,7 +11,7 @@ export interface GameTimer {
   name: string;
   ready: string;
   spot?: string;
-  docked?: { at: number; region: string | null };
+  docked?: { at: number; region: string | null; started: number | null; leaves: number | null };
   expiry: number;
 }
 
@@ -29,6 +29,19 @@ type Label = Omit<GameTimer, "tag" | "expiry">;
 
 export const COLLECTOR_TAG = "CollectorTimer";
 const COLLECTOR_STALE_MS = 10 * 60_000;
+const COLLECTOR_STAY_MS = 15 * 60_000;
+const COLLECTOR_FIGHT_MS = 30 * 60_000;
+
+export const KNOWN_AGARI: Record<string, string> = {
+  GalvinarCorruptedB: "MendicantKnightBellCleaverSubBossAgent",
+  LargeRuinsCamp: "MeleeMaceOfficerSubBossAgent",
+  NimrodSubboss: "NimrodSubBossAgent",
+  RockCastleCourtyardCamp: "MeleeMaceOfficerSubBossSiegeAgent",
+  RockCastleMidCamp: "MeleeMaceOfficerSubBossSiegeAgent",
+  SlaneCenoteCave: "SpiderSubBossAgent",
+  StoneHengeA: "RangedHunterBowSubBossAgent",
+  TurretJotarFortInterior: "MeleeMaceOfficerSubBossSiegeAgent",
+};
 const ORGAN_REGIONS: Record<string, string> = { Airdelands: "Fuirlands", Kearnhold: "Kearnhold Lowlands", ODell: "O'Dell", Odell: "O'Dell" };
 
 const KNOWN: [RegExp, (m: RegExpExecArray) => Label][] = [
@@ -98,12 +111,14 @@ export function resetRememberedAgari(): void {
 export async function withAgariNames(timers: GameTimer[]): Promise<GameTimer[]> {
   if (!timers.some((t) => t.spot)) return timers;
   const [spawned, agentName] = await Promise.all([loggedAgari().then(rememberedAgari), getAgentNamer()]);
-  return nameAgari(timers, spawned, agentName);
+  return nameAgari(timers, { ...KNOWN_AGARI, ...spawned }, agentName);
 }
 
 export function dockedCollector(c: LoggedCollector | null, now = Date.now()): GameTimer["docked"] | null {
   if (!c || c.ended !== null || now - c.logAt > COLLECTOR_STALE_MS) return null;
-  return { at: c.at, region: collectorRegion(c.x, c.z) };
+  const leaves = c.started === null ? c.at + COLLECTOR_STAY_MS : null;
+  if (leaves !== null ? now >= leaves : now - c.started! > COLLECTOR_FIGHT_MS) return null;
+  return { at: c.at, region: collectorRegion(c.x, c.z), started: c.started, leaves };
 }
 
 export function withCollector(timers: GameTimer[], c: LoggedCollector | null, now = Date.now()): GameTimer[] {

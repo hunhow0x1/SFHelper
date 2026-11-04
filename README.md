@@ -13,12 +13,12 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, faction tokens and currencies. Cooldowns: the game's own timers counting down, such as an Agari (sub-boss) respawning 30 minutes after you slay it, a siege's cooldown, the 3 hours before an Organ can be destroyed again, and the 24 hours between Blessed Meetings. Star a cooldown to get a desktop notification when it ends. |
+| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, faction tokens and currencies. Cooldowns: the game's own timers counting down, such as an Agari (sub-boss) respawning 30 minutes after you slay it, a siege's cooldown, the 3 hours before an Organ can be destroyed again, and the 24 hours between Blessed Meetings. Star a cooldown to get a desktop notification when it ends. When the Collector docks in your game, Cooldowns shows the region and when it leaves; star Collector Event to be notified. |
 | **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*), plus its armour (Helm, Cuirass, Leggings, with defence and Virtue requirements) and Talisman. Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Pact Arts show the game's own numbers (e.g. Forestall's chance to survive). Loadouts can be shared as short `SFH1:` codes; paste one and press Enter or Import. |
 | **Mastery** | Your Envoy Rank, your Mastery and progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type (weapons, Primary, Sidearm or Pacts). Discoveries lists every place by its in-game name, whether you've found it, and the Memories found there. |
 | **Upgrades** | Tuvalkane temper learning; your Runes by weapon art with their rank, the Totem slot they add and their numbers at that rank; your Joineries by metal and blessing; your Gear, with what's equipped; and your Totem inventory with search and grip / Virtue / type filters. |
 | **Recipes** | Everything you can brew with the Witch Verminia (Elixirs, Pup Treats and Palettes) and the Chordstones Tuvalkane casts: each recipe's ingredients against what you have, what you're short of, the Dracs and time it takes, and the Bond rank it needs. Filter by station, or by what's ready to make. |
-| **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. |
+| **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. Pickup and trade history is kept on your computer; export it to move it to a new install. |
 | **Trades** | Your trade history: who you traded with, what you received and gave, with in-game icons (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
 | **Avakot** | What Avakot's Gots has in stock right now, with prices, purchase limits and how long each item stays, plus his weekly and always-stocked wares. Star anything he can sell to get a desktop notification when he stocks it. |
 | **Stats** | Your top weapons and enemies by kills, by in-game name. |
@@ -104,6 +104,15 @@ Everything stays on your machine:
 `sfhelper.log` in that folder records each session's imports and errors, and
 `sfhelper.prev.log` the session before. They're the files to send when
 something isn't working.
+
+Your pickup and trade history exists only in that folder, because Soulframe's
+servers don't keep it. Updating or reinstalling SFHelper keeps the folder, but
+a new computer, another OS or a fresh system install starts the history over.
+To keep it, click **Export** on the Pickups or Trades tab.
+That saves one file with both histories and the Agari names SFHelper has
+learned. On the new install, click **Import** and pick that file. Importing
+adds what's missing and never removes or replaces anything, so it's safe to
+import the same file twice.
 
 ### Troubleshooting
 

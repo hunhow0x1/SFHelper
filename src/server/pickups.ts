@@ -100,14 +100,40 @@ async function resolveTimes(history: Pickup[]): Promise<boolean> {
 
 let queue: Promise<unknown> = Promise.resolve();
 
+function queued<T>(fn: () => Promise<T>): Promise<T> {
+  const run = queue.then(fn);
+  queue = run.catch(() => undefined);
+  return run;
+}
+
 export function recordPickups(
   instances: WeaponInstance[],
   ctx: AcquisitionContext,
   traded: Set<string> = new Set(),
 ): Promise<Pickup[]> {
-  const run = queue.then(() => record(instances, ctx, traded));
-  queue = run.catch(() => undefined);
-  return run;
+  return queued(() => record(instances, ctx, traded));
+}
+
+export function pickupHistory(): Promise<Pickup[]> {
+  return queued(async () => (await load()).history);
+}
+
+export function importPickups(entries: Pickup[]): Promise<number> {
+  return queued(async () => {
+    const s = await load();
+    const have = new Set(s.history.map((p) => p.id));
+    const added: Pickup[] = [];
+    for (const p of entries) {
+      if (have.has(p.id)) continue;
+      have.add(p.id);
+      added.push(p);
+      s.known[p.id] = true;
+    }
+    if (!added.length) return 0;
+    s.history = [...s.history, ...added].sort((a, b) => b.at.localeCompare(a.at)).slice(0, MAX_HISTORY);
+    await save(s);
+    return added.length;
+  });
 }
 
 async function record(instances: WeaponInstance[], ctx: AcquisitionContext, traded: Set<string>): Promise<Pickup[]> {

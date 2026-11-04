@@ -479,6 +479,11 @@
       .tfilters .fchip.active .n { color: rgba(27, 20, 11, 0.65); }
       .tfilters .fchip.active img { filter: brightness(0.25); }
       .tfilters .fchip.active img.keep { filter: none; }
+      .histnote { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; margin: -6px 0 20px; color: var(--muted); font-size: 14px; }
+      .histnote > span { flex: 1; min-width: 240px; }
+      .histnote .histmsg { color: var(--muted); }
+      .histnote .histmsg.done { color: var(--accent-2); }
+      .histnote .histmsg.err { color: var(--courage); }
       .tbar { display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; margin: 4px 0 20px; }
       .tbar .daily { margin: 0; flex: 1; }
       .tsort { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
@@ -873,6 +878,11 @@
               Moonsteel notifications
             </label>
           </div>
+          <div class="histnote">
+            <span>Your pickup history is saved only on this computer. <span class="histmsg"></span></span>
+            <button class="mini" data-hist="export" title="Save your pickup and trade history to a file">Export</button>
+            <button class="mini" data-hist="import" title="Add pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
+          </div>
           <input id="pickupSearch" class="wsearch" placeholder="Search name, craftwork, or temper…" spellcheck="false" />
           <div class="daily" id="pickupSummary"></div>
           <div id="pickups"><span class="muted">New weapons you acquire (with their craftwork &amp; tempers) will appear here as your inventory refreshes.</span></div>
@@ -882,6 +892,12 @@
       <div class="panel" id="panel-trades">
         <section>
           <h2>Trades</h2>
+          <div class="histnote">
+            <span>Your trade history is saved only on this computer. <span class="histmsg"></span></span>
+            <button class="mini" data-hist="export" title="Save your pickup and trade history to a file">Export</button>
+            <button class="mini" data-hist="import" title="Add pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
+          </div>
+          <input type="file" id="historyFile" accept=".json,application/json" hidden />
           <div class="grid" id="tradeTiles"></div>
           <div id="trades"><span class="muted">Import your inventory to track your trades.</span></div>
         </section>
@@ -1437,13 +1453,20 @@
       function renderTimers() {
         if (!LAST_TIMERS) return;
         const now = Date.now();
-        const docked = LAST_TIMERS.filter((t) => t.docked);
-        const running = LAST_TIMERS.filter((t) => !t.docked && t.expiry > now);
-        const ready = TIMER_WATCH ? LAST_TIMERS.filter((t) => !t.docked && t.expiry <= now && TIMER_WATCH.includes(t.tag)) : [];
+        const isDocked = (t) => t.docked && !(t.docked.leaves && t.docked.leaves <= now);
+        const docked = LAST_TIMERS.filter(isDocked);
+        const running = LAST_TIMERS.filter((t) => !isDocked(t) && t.expiry > now);
+        const ready = TIMER_WATCH ? LAST_TIMERS.filter((t) => !isDocked(t) && t.expiry <= now && TIMER_WATCH.includes(t.tag)) : [];
         const row = (t, right, kind = t.kind) =>
-          `<div class="avrow${TIMER_WATCH ? " starrable" : ""}${t.expiry > now || t.docked ? "" : " idle"}">${TIMER_WATCH ? timerStar(t) : ""}<div class="avn">${escHtml(t.name)}${kind ? `<small>${escHtml(kind)}</small>` : ""}</div><div class="avr">${right}</div></div>`;
+          `<div class="avrow${TIMER_WATCH ? " starrable" : ""}${t.expiry > now || isDocked(t) ? "" : " idle"}">${TIMER_WATCH ? timerStar(t) : ""}<div class="avn">${escHtml(t.name)}${kind ? `<small>${escHtml(kind)}</small>` : ""}</div><div class="avr">${right}</div></div>`;
         const dockedRow = (t) =>
-          row(t, `<span class="instock">Docked</span><small>since ${avClock(t.docked.at)}</small>`, t.docked.region ? `Docked in ${t.docked.region}` : "Hark, The Collector");
+          row(
+            t,
+            t.docked.started
+              ? `<span class="instock">Fighting</span><small>since ${avClock(t.docked.started)}</small>`
+              : `<span class="instock">Docked</span><small>until ${avClock(t.docked.leaves)}</small>`,
+            t.docked.region ? `Docked in ${t.docked.region}` : "Hark, The Collector",
+          );
         $("timers").innerHTML = docked.length || running.length || ready.length
           ? `<div>${docked.map(dockedRow).join("")}${running.map((t) => row(t, `<b>${avLeft(t.expiry - now)}</b><small>until ${avClock(t.expiry)}</small>`)).join("")}${ready
               .map((t) => row(t, '<span class="instock">Ready</span>'))
@@ -2757,6 +2780,49 @@
       }
 
       $("save").addEventListener("click", start);
+      const MAX_HISTORY_FILE = 16 * 1024 * 1024;
+      let historyMsg = null;
+      const plural = (n, word) => `${fmt(n)} ${word}${n === 1 ? "" : "s"}`;
+      for (const b of document.querySelectorAll("[data-hist]")) {
+        b.addEventListener("click", () => {
+          if (b.dataset.hist === "export") {
+            const a = document.createElement("a");
+            a.href = "/api/history/export";
+            a.download = "";
+            a.click();
+            return;
+          }
+          historyMsg = b.closest(".histnote").querySelector(".histmsg");
+          $("historyFile").value = "";
+          $("historyFile").click();
+        });
+      }
+      $("historyFile").addEventListener("change", async () => {
+        const file = $("historyFile").files[0];
+        const msg = historyMsg;
+        if (!file || !msg) return;
+        const show = (text, kind) => {
+          for (const m of document.querySelectorAll(".histmsg")) {
+            m.textContent = m === msg ? text : "";
+            m.className = "histmsg" + (m === msg && kind ? ` ${kind}` : "");
+          }
+        };
+        show("Importing…");
+        try {
+          if (file.size > MAX_HISTORY_FILE) throw new Error("That file is too large to be an SFHelper history file.");
+          const text = await file.text();
+          try { JSON.parse(text); } catch { throw new Error("That isn't an SFHelper history file."); }
+          const res = await fetch("/api/history/import", { method: "POST", headers: { "content-type": "application/json" }, body: text });
+          const r = await res.json();
+          if (!res.ok) throw new Error(r.error || "Import failed.");
+          const added = [r.pickups && plural(r.pickups, "pickup"), r.trades && plural(r.trades, "trade"), r.agari && plural(r.agari, "Agari name")].filter(Boolean);
+          const skipped = r.skipped ? ` Skipped ${plural(r.skipped, "unreadable entry").replace(/entrys$/, "entries")}.` : "";
+          show((added.length ? `Added ${added.join(", ")}.` : "Nothing new: everything in that file is already here.") + skipped, "done");
+          refresh();
+        } catch (e) {
+          show(e.message, "err");
+        }
+      });
       let lastImportAt = null;
       setInterval(async () => {
         if (!timer) return;

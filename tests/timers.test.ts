@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { nameAgari, parseTimers, rememberedAgari, resetRememberedAgari, timerLabel, TimerAlarms, withStarred, type GameTimer } from "../src/server/timers";
+import { KNOWN_AGARI, nameAgari, parseTimers, rememberedAgari, resetRememberedAgari, timerLabel, TimerAlarms, withStarred, type GameTimer } from "../src/server/timers";
 import { getSettings, updateSettings } from "../src/server/settings";
 import { loggedAgari } from "../src/server/gameLog";
 import { agentName } from "../src/server/enemies";
@@ -144,5 +144,25 @@ describe("the game's timers", () => {
     alarms.set([t("C", 70_000)], 60_000);
     alarms.set([], 61_000);
     expect(alarms.due(80_000)).toEqual([]);
+  });
+
+  it("names known Agari on a computer that hasn't seen them spawn", () => {
+    const enemies = {
+      names: {
+        mendicantknightbellcleaversubbossavatar: "Knell Knight",
+        meleemaceofficersubbossavatar: "Sinecure-Errant Gawth",
+        spidersubbossavatar: "Etheldred The Weaver",
+      },
+      parents: { MendicantKnightBellCleaverSubBossAvatar: "GruntAvatarBase", MeleeMaceOfficerSubBossAvatar: "GruntAvatarBase", SpiderSubBossAvatar: "GruntAvatarBase" },
+    };
+    const timers = parseTimers({
+      ExpiryTimeTrackers: ["GalvinarCorruptedB", "LargeRuinsCamp", "SlaneCenoteCave"].map((spot, i) => ({ Tag: `${spot}-SubBoss`, ExpiryTime: 1793460000 + i, AutoExpire: true })),
+    });
+    expect(nameAgari(timers, { ...KNOWN_AGARI }, (a) => agentName(a, enemies)).map((t) => t.name)).toEqual([
+      "Knell Knight",
+      "Sinecure-Errant Gawth",
+      "Etheldred The Weaver",
+    ]);
+    expect(Object.values(KNOWN_AGARI).every((agent) => /SubBoss/.test(agent))).toBe(true);
   });
 });

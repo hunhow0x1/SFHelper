@@ -108,6 +108,7 @@ const AGENT_RE = /OnAgentCreated \/Npc\/(\w+?Agent)\d*\s/;
 const AGENT_WITHIN = 5;
 const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
 const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
+const COLLECTOR_GONE = ["Collector encounter ending", "playing collectorCinLeaving", "OnPrimed Loop ended", "Shutdown collector"];
 const COLLECTOR_RE = /^(\d+\.\d+) .*PrimeMissionOnHint \[[^\]]*\] at pos \[\((-?[\d.]+), (-?[\d.]+), (-?[\d.]+).*missionTag MT_COLLECTOR/;
 const BUILD_RE = /Build Label: (\S+)/;
 const CACHE_DIR_RE = /Scanning (.+?) for cache blocks/;
@@ -271,7 +272,7 @@ function feedCollector(s: Scan, line: string, start: number): void {
   const t = TIME_RE.exec(line);
   const at = t ? start + Math.round(Number(t[1]) * 1000) : null;
   if (line.includes("Collector encounter started")) s.collector.started ??= at;
-  else if (line.includes("Collector encounter ending") || line.includes("playing collectorCinLeaving")) s.collector.ended ??= at;
+  else if (COLLECTOR_GONE.some((text) => line.includes(text))) s.collector.ended ??= at;
 }
 
 function feed(s: Scan, line: string): void {

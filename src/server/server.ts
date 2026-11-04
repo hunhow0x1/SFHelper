@@ -6,8 +6,9 @@ import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/
 import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
 import { getInventory, type InventoryView } from "./inventory";
-import { recordPickups } from "./pickups";
-import { recordTrades, tradedIds } from "./trades";
+import { pickupHistory, recordPickups } from "./pickups";
+import { recordTrades, tradedIds, tradeHistory } from "./trades";
+import { exportHistory, historyFileName, importHistory } from "./history";
 import { getSettings, updateSettings } from "./settings";
 import { recordStanding, dailyCaps } from "./standing";
 import { getDataRefreshedAt, getImportStatus } from "./importStatus";
@@ -29,6 +30,7 @@ const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
 const MIN_FETCH_INTERVAL_MS = 120_000;
 const MAX_BODY_BYTES = 64 * 1024;
+const MAX_IMPORT_BYTES = 16 * 1024 * 1024;
 const HOST = "127.0.0.1";
 
 const CONTENT_TYPES: Record<string, string> = {
@@ -146,7 +148,7 @@ async function serveStatic(res: ServerResponse, urlPath: string): Promise<void> 
   res.end(body);
 }
 
-async function readJsonBody(req: IncomingMessage, res: ServerResponse): Promise<Record<string, unknown> | null> {
+async function readJsonBody(req: IncomingMessage, res: ServerResponse, limit = MAX_BODY_BYTES): Promise<Record<string, unknown> | null> {
   if (!String(req.headers["content-type"] ?? "").startsWith("application/json")) {
     sendJson(res, 415, { error: "Expected JSON." });
     return null;
@@ -154,7 +156,7 @@ async function readJsonBody(req: IncomingMessage, res: ServerResponse): Promise<
   let body = "";
   for await (const chunk of req) {
     body += chunk;
-    if (body.length > MAX_BODY_BYTES) {
+    if (body.length > limit) {
       sendJson(res, 413, { error: "Request too large." });
       req.destroy();
       return null;
@@ -197,6 +199,28 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
     }
     await rememberAccountId(accountId);
     sendJson(res, 200, { accountId, source: "config" });
+    return;
+  }
+
+  if (url.pathname === "/api/history/export" && req.method === "GET") {
+    const now = new Date();
+    const text = `${JSON.stringify(await exportHistory(now), null, 2)}\n`;
+    res.writeHead(200, {
+      "content-type": "application/json; charset=utf-8",
+      "content-disposition": `attachment; filename="${historyFileName(now)}"`,
+    });
+    res.end(text);
+    return;
+  }
+
+  if (url.pathname === "/api/history/import" && req.method === "POST") {
+    const body = await readJsonBody(req, res, MAX_IMPORT_BYTES);
+    if (!body) return;
+    try {
+      sendJson(res, 200, await importHistory(body));
+    } catch (err) {
+      sendJson(res, 400, { error: (err as Error).message });
+    }
     return;
   }
 
@@ -331,7 +355,10 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
 
 export async function recordHistory(inventory?: InventoryView | null) {
   if (inventory === undefined) inventory = await getInventory();
-  if (!inventory) return { trades: null, pickups: [] };
+  if (!inventory) {
+    const [history, pickups] = await Promise.all([tradeHistory(), pickupHistory()]);
+    return { trades: history.length ? { history, remaining: null, max: null } : null, pickups };
+  }
   const trades = await recordTrades(inventory.holdings, inventory.updatedAt);
   const pickups = await recordPickups(inventory.weaponInstances, inventory.acquisition, tradedIds(trades.history));
   return { trades, pickups };
