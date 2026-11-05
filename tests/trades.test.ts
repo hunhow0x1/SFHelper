@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { attachDeals, detectTrade, parseHoldings, recordTrades, remainingToday, tradedIds, tradesBetween, type Trade } from "../src/server/trades";
+import { attachDeals, dailyTrades, detectTrade, parseHoldings, recordTrades, remainingToday, tradedIds, tradesBetween, type Trade } from "../src/server/trades";
 import { onMoonsteelAcquired, recordPickups } from "../src/server/pickups";
 
 const SWORD = "/SF/Weapons/Melee/OneHand/Sword/SwordMeleeWeapon";
@@ -80,6 +80,14 @@ describe("trade detection", () => {
     const h = parseHoldings(inventory({ weapons: [], onyx: 0, dracs: 0, trades: 3 }));
     expect(remainingToday(h, "2026-10-24T10:00:00Z", "2026-10-24T12:00:00Z")).toBe(3);
     expect(remainingToday(h, "2026-10-23T10:00:00Z", "2026-10-24T12:00:00Z")).toBe(18);
+  });
+
+  it("allows Envoy Rank + 1 trades a day, or more if the servers handed out more since the reset", () => {
+    const h = (trades: number) => ({ ...parseHoldings(inventory({ weapons: [], onyx: 0, dracs: 0, trades, rank: 19 })), envoyRank: 17 });
+    const at = "2026-11-06T10:00:00Z";
+    expect(dailyTrades(h(18), undefined, at)).toBe(18);
+    expect(dailyTrades(h(18), { day: "2026-11-05", remaining: 20 }, at)).toBe(18);
+    expect(dailyTrades(h(19), { day: "2026-11-06", remaining: 20 }, at)).toBe(20);
   });
 });
 

@@ -205,11 +205,21 @@ describe("weapons, Pacts and gear straight from the game files", () => {
     });
   });
 
-  it("files wolf summons and treats under Companion gear", async () => {
-    const consumable = (type: string, tag: string) => item({ ProductCategory: "Consumables", LocalizeTag: tag, TypeName: `/SF/Types/Items/Consumables/${type}` });
-    const texts = [consumable("WolfSummon", "/L/Summon"), consumable("PetConsumeables/WoldAdultUpgradePetFood", "/L/Biscuit"), consumable("HealingPotion", "/L/Elixir")];
-    const { gear } = await buildUpgrades(dict, texts, null, null, {}, async () => null);
-    expect(Object.fromEntries(Object.values(gear).map((g) => [g.name, g.kind]))).toEqual({ "Summon Wolf": "Companion", "Bairnday Biscuit": "Companion", "Life Elixir": "Supplies" });
+  it("files wolf treats under Companion gear and leaves out summons and gear the game doesn't show", async () => {
+    const consumable = (type: string, tag: string, extra: Record<string, string> = {}) =>
+      item({ ProductCategory: "Consumables", LocalizeTag: tag, LocalizeDescTag: "/L/Desc", TypeName: `/SF/Types/Items/Consumables/${type}`, ...extra });
+    const texts = [
+      consumable("WolfSummon", "/L/Summon", { ShowInInventory: "0" }),
+      consumable("WolfCubSummon", "/L/Pup"),
+      consumable("PetConsumeables/WoldAdultUpgradePetFood", "/L/Biscuit"),
+      consumable("HealingPotion", "/L/Elixir"),
+      consumable("Syndicates/LesserChampionVirtueElixir", "/L/Whisp"),
+      consumable("Elixers/CloudSwellElixer", "/L/Swell", { LocalizeDescTag: "/L/None" }),
+      consumable("Tackle/Hidden", "/L/Hidden", { ShowInInventory: "0" }),
+    ];
+    const names = { ...dict, "/L/Desc": "A description.", "/L/Pup": "Summon Wolfpup", "/L/Whisp": "Curaidh's Whisp", "/L/Swell": "Cloudswell", "/L/Hidden": "Hidden Lure" };
+    const { gear } = await buildUpgrades(names, texts, null, null, {}, async () => null);
+    expect(Object.fromEntries(Object.values(gear).map((g) => [g.name, g.kind]))).toEqual({ "Bairnday Biscuit": "Companion", "Life Elixir": "Supplies" });
   });
 });
 

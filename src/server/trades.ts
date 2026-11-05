@@ -58,6 +58,7 @@ export interface TradesView {
 
 interface State {
   last?: { at: string; holdings: Holdings } | undefined;
+  peak?: { day: string; remaining: number } | undefined;
   history: Trade[];
 }
 
@@ -161,6 +162,12 @@ export function attachDeals(history: Trade[], logged: LoggedTrade[], latestAt: s
   return out.sort((a, b) => b.at.localeCompare(a.at));
 }
 
+export function dailyTrades(h: Holdings, peak: State["peak"], at: string): number | null {
+  const base = allowance(h);
+  const seen = peak && peak.day === utcDay(at) ? peak.remaining : null;
+  return base === null ? seen : Math.max(base, seen ?? 0);
+}
+
 export function remainingToday(h: Holdings, at: string, now = new Date().toISOString()): number | null {
   if (utcDay(at) !== utcDay(now)) return allowance(h);
   return h.tradesRemaining;
@@ -171,7 +178,7 @@ const statePath = () => appFile("trades.json");
 async function load(): Promise<State> {
   try {
     const s = JSON.parse(await readFile(statePath(), "utf8")) as Partial<State>;
-    return { last: s.last, history: Array.isArray(s.history) ? s.history : [] };
+    return { last: s.last, peak: s.peak, history: Array.isArray(s.history) ? s.history : [] };
   } catch {
     return { history: [] };
   }
@@ -234,8 +241,10 @@ export function recordTrades(h: Holdings, at: string, readLog: () => Promise<Log
       }
       s.history = history.slice(0, MAX_HISTORY);
       s.last = { at, holdings: h };
+      const day = utcDay(at);
+      if (h.tradesRemaining !== null && (s.peak?.day !== day || h.tradesRemaining > s.peak.remaining)) s.peak = { day, remaining: h.tradesRemaining };
       await save(s);
     }
-    return { history: s.history, remaining: remainingToday(h, at), max: allowance(h) };
+    return { history: s.history, remaining: remainingToday(h, at), max: dailyTrades(h, s.peak, at) };
   });
 }

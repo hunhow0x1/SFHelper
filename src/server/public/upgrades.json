@@ -773,12 +773,6 @@
       "kind": "Fishing",
       "icon": "img/items/doyensspool.png"
     },
-    "/SF/Types/Items/Consumables/Elixers/CloudSwellElixer": {
-      "name": "Cloudswell",
-      "desc": null,
-      "kind": "Supplies",
-      "icon": null
-    },
     "/SF/Types/Items/Consumables/HealingPotion": {
       "name": "Life Elixir",
       "desc": "Essence of life. Drink to regain health.",
@@ -789,7 +783,7 @@
       "name": "Bairnday Biscuit",
       "desc": "A thick, layered biscuit to feed to a wholly-trained pup so that they may grow into Omen Wolf. Baked of young yolk and aged Wevetgrain, 'tis a celebration that would make a wolf of any whelp.",
       "kind": "Companion",
-      "icon": null
+      "icon": "img/items/bairndaybiscuit.png"
     },
     "/SF/Types/Items/Consumables/PetConsumeables/WolfMealPetFood": {
       "name": "Canid Kibble",
@@ -801,7 +795,7 @@
       "name": "Follyfrond Treat",
       "desc": "Dried Will-o-frond leaves to be served to a Wolfpup's whose talent be ill-suited to their calling. One nibble of a Follyfrond Treat shall grant you leave to train their strengths once again! For even the cleverest pup deserves a second chance to find their paws.",
       "kind": "Companion",
-      "icon": null
+      "icon": "img/items/follyfrondtreat.png"
     },
     "/SF/Types/Items/Consumables/PetConsumeables/WolfTreatPetFood": {
       "name": "Canid Biscuit",
@@ -826,24 +820,6 @@
       "desc": "A vial of liquid Spirit. Drink to your virtue.",
       "kind": "Supplies",
       "icon": "img/items/spiritelixir.png"
-    },
-    "/SF/Types/Items/Consumables/Syndicates/LesserChampionVirtueElixir": {
-      "name": "Curaidh's Whisp",
-      "desc": "A small tincture of liquid Courage. Drink to your virtue.",
-      "kind": "Supplies",
-      "icon": null
-    },
-    "/SF/Types/Items/Consumables/Syndicates/LesserFeyVirtueElixir": {
-      "name": "Sleeping Galdre",
-      "desc": "A small tincture of liquid Spirit. Drink to your virtue.",
-      "kind": "Supplies",
-      "icon": null
-    },
-    "/SF/Types/Items/Consumables/Syndicates/LesserSilentRoseVirtueElixir": {
-      "name": "Mistmaker",
-      "desc": "A small tincture of liquid Grace. Drink to your virtue.",
-      "kind": "Supplies",
-      "icon": null
     },
     "/SF/Types/Items/Consumables/Syndicates/SilentRoseVirtueElixir": {
       "name": "Shademaker",
@@ -904,18 +880,6 @@
       "desc": "The sacred child of the Wevetwood. Contained within is the wisdom of the ancients, of the ever-reaching Wevetroots that tunnel beneath all of Midrath.",
       "kind": "Supplies",
       "icon": "img/items/acorn.png"
-    },
-    "/SF/Types/Items/Consumables/WolfCubSummon": {
-      "name": "Summon Wolfpup",
-      "desc": "Summon your Wolfpup. A little fangling of the wild, all wayward paws and mottled mane. Though it may still yip and stumble, 'tis bound to follow your footfalls through leaf and loam.",
-      "kind": "Companion",
-      "icon": "img/items/summonwolfpup.png"
-    },
-    "/SF/Types/Items/Consumables/WolfSummon": {
-      "name": "Summon Wolf",
-      "desc": "Summon your Wolf. Through blood and bitter dark has your familiar followed. Ride now as kindred. What began in fondness now runs marrow-deep.",
-      "kind": "Companion",
-      "icon": null
     }
   }
 }

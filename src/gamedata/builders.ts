@@ -1,5 +1,6 @@
 import { matchArmourStem } from "./armour";
 import type { Dict, TypeTree } from "./formats";
+import { isGear } from "../server/upgradeItems";
 
 export function withRetired(fresh: Record<string, string>, previous: Record<string, string> | undefined): Record<string, string> {
   if (!previous) return fresh;
@@ -369,7 +370,7 @@ export interface UpgradeData {
 }
 
 const JOINERY_FAMILIES = ["Verite", "Quicksilver", "Feybalt", "Gildaur"];
-const COMPANION_GEAR = /\/PetConsumeables\/|PetFood|\/Wolf\w*Summon$/;
+const COMPANION_GEAR = /\/PetConsumeables\/|PetFood/;
 const localized = (dict: Dict, tag: string | undefined): string | null => (tag && usable(dict[tag]) ? dict[tag]!.trim().replace(/\s+/g, " ") : null);
 
 export interface ArsenalWeapon {
@@ -467,10 +468,12 @@ export async function buildUpgrades(
   }
   const gear: Record<string, GearEntry> = {};
   for (const [type, { t, cat, name }] of items) {
-    if (cat !== "Consumables" || !type.startsWith("/SF/Types/Items/Consumables/")) continue;
+    if (cat !== "Consumables" || !type.startsWith("/SF/Types/Items/Consumables/") || !isGear(type)) continue;
+    const desc = loc(field(t, "LocalizeDescTag"));
+    if (!desc || field(t, "ShowInInventory") === "0") continue;
     gear[type] = {
       name,
-      desc: loc(field(t, "LocalizeDescTag")),
+      desc,
       kind: type.includes("/Tackle/") || type.includes("FishingSpool") ? "Fishing" : COMPANION_GEAR.test(type) ? "Companion" : "Supplies",
       icon: iconByName.get(name) ?? null,
     };

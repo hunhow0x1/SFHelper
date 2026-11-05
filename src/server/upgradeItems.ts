@@ -27,6 +27,8 @@ const entries = (v: unknown): Entry[] => (Array.isArray(v) ? v.filter((e): e is 
 const count = (e: Entry): number => (typeof e.ItemCount === "number" && e.ItemCount > 0 ? e.ItemCount : 0);
 const isRune = (t: string) => t.startsWith("/SF/Upgrades/Runes/");
 const isJoinery = (t: string) => t.startsWith("/SF/Types/Items/Kintsugi/");
+const UNRELEASED_GEAR = new Set(["LesserChampionVirtueElixir", "LesserFeyVirtueElixir", "LesserSilentRoseVirtueElixir"]);
+export const isGear = (t: string) => !t.endsWith("Summon") && !UNRELEASED_GEAR.has(t.slice(t.lastIndexOf("/") + 1));
 
 function rankOf(fingerprint: unknown): number {
   if (typeof fingerprint !== "string") return 0;
@@ -55,9 +57,9 @@ export function parseUpgradeItems(raw: Record<string, unknown>): UpgradeItems {
   const equipped = new Set(Array.isArray(raw.EquippedGear) ? raw.EquippedGear.filter((g): g is string => typeof g === "string") : []);
   const gear = new Map<string, number>();
   for (const e of entries(raw.Consumables)) {
-    if (typeof e.ItemType === "string" && count(e)) gear.set(e.ItemType, (gear.get(e.ItemType) ?? 0) + count(e));
+    if (typeof e.ItemType === "string" && count(e) && isGear(e.ItemType)) gear.set(e.ItemType, (gear.get(e.ItemType) ?? 0) + count(e));
   }
-  for (const type of equipped) if (!gear.has(type)) gear.set(type, 0);
+  for (const type of equipped) if (!gear.has(type) && isGear(type)) gear.set(type, 0);
 
   return {
     runes: [...runes.values()].map((r) => ({ ...r, ranks: r.ranks.sort((a, b) => b - a) })),

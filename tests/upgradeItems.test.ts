@@ -20,8 +20,10 @@ describe("runes, joineries and gear", () => {
     Consumables: [
       { ItemCount: 99, ItemType: "/SF/Types/Items/Consumables/VerminiaPotion" },
       { ItemCount: 8, ItemType: "/SF/Types/Items/Consumables/Tackle/FishLureUncommon" },
+      { ItemCount: 1, ItemType: "/SF/Types/Items/Consumables/WolfCubSummon" },
+      { ItemCount: 2, ItemType: "/SF/Types/Items/Consumables/Syndicates/LesserFeyVirtueElixir" },
     ],
-    EquippedGear: ["/SF/Types/Items/Consumables/VerminiaPotion", "/SF/Types/Items/Consumables/HealingPotion"],
+    EquippedGear: ["/SF/Types/Items/Consumables/VerminiaPotion", "/SF/Types/Items/Consumables/HealingPotion", "/SF/Types/Items/Consumables/WolfCubSummon"],
   };
 
   it("keeps ranked runes and their unranked copies together", () => {
@@ -32,7 +34,7 @@ describe("runes, joineries and gear", () => {
     ]);
   });
 
-  it("counts joineries, and gear with what's equipped", () => {
+  it("counts joineries, and gear with what's equipped, leaving out the Wolfpup summon and unreleased elixirs", () => {
     const u = parseUpgradeItems(raw);
     expect(u.joineries).toEqual([
       { type: "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeC", count: 150 },

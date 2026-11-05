@@ -168,7 +168,7 @@ async function importFromMemory(): Promise<void> {
     if (result.ok) {
       try {
         const inventory = await getInventory();
-        await recordHistory(inventory);
+        await recordHistory(inventory, session?.accountId);
         timerAlarms.set(await withAgariNames(inventory?.timers ?? []));
       } catch (err) {
         log(`Recording pickups/trades failed: ${(err as Error).message}`);

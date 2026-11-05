@@ -17,7 +17,7 @@ import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "
 import { appFile, dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
 import { gameBeingRefused, gameRefusedMessage, loggedCollector } from "./gameLog";
-import { getEnvoyRank } from "./envoyRank";
+import { gameLevel, getEnvoyRank } from "./envoyRank";
 import { getRoster } from "./roster";
 import { virtuePoints } from "./loadouts";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
@@ -302,7 +302,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         snap.items
           .filter((it) => it.category === "soul" && typeof it.rank === "number")
           .map((it) => ({ key: it.key, xp: it.rank ?? 0 }));
-      const { trades, pickups } = await recordHistory(inventory);
+      const { trades, pickups } = await recordHistory(inventory, accountId);
       const standingNow: Record<string, number> = {};
       for (const p of snap.progression) {
         if (p.kind === "affiliation" && typeof p.xp === "number") standingNow[p.key.replace(/^affiliation:/, "")] = p.xp;
@@ -366,13 +366,14 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
   await serveStatic(res, url.pathname);
 }
 
-export async function recordHistory(inventory?: InventoryView | null) {
+export async function recordHistory(inventory?: InventoryView | null, accountId?: string | null) {
   if (inventory === undefined) inventory = await getInventory();
   if (!inventory) {
     const [history, pickups] = await Promise.all([tradeHistory(), pickupHistory()]);
     return { trades: history.length ? { history, remaining: null, max: null } : null, pickups };
   }
-  const trades = await recordTrades(inventory.holdings, inventory.updatedAt);
+  const holdings = { ...inventory.holdings, envoyRank: await gameLevel(accountId, inventory.holdings.envoyRank, inventory.mastery) };
+  const trades = await recordTrades(holdings, inventory.updatedAt);
   const pickups = await recordPickups(inventory.weaponInstances, inventory.acquisition, tradedIds(trades.history));
   return { trades, pickups };
 }

@@ -140,7 +140,7 @@
         }
       ],
       "desc": "A thick, layered biscuit to feed to a wholly-trained pup so that they may grow into Omen Wolf. Baked of young yolk and aged Wevetgrain, 'tis a celebration that would make a wolf of any whelp.",
-      "icon": null,
+      "icon": "img/items/bairndaybiscuit.png",
       "bond": null
     },
     "/SF/Types/Recipes/Consumeables/PetFood/WolfMealBlueprint": {
@@ -204,7 +204,7 @@
         }
       ],
       "desc": "Dried Will-o-frond leaves to be served to a Wolfpup's whose talent be ill-suited to their calling. One nibble of a Follyfrond Treat shall grant you leave to train their strengths once again! For even the cleverest pup deserves a second chance to find their paws.",
-      "icon": null,
+      "icon": "img/items/follyfrondtreat.png",
       "bond": null
     },
     "/SF/Types/Recipes/Consumeables/PetFood/WolfSnackBlueprint": {
@@ -332,7 +332,7 @@
         }
       ],
       "desc": null,
-      "icon": null,
+      "icon": "img/items/cloudswell.png",
       "bond": null
     },
     "/SF/Types/Recipes/Elixers/FeyElixirRecipe": {
