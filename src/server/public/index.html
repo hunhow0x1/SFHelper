@@ -138,6 +138,9 @@
       }
       .panel { display: grid; gap: 28px; }
       .panel:not(.active) { content-visibility: hidden; }
+      .subtabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: -8px; }
+      .subtabs .fchip { padding: 9px 20px; font-size: 12px; }
+      .panel > section.offview { display: none; }
       .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
       .ov-col { display: contents; }
       .ov-account { order: 1; }
@@ -819,27 +822,34 @@
       </div>
 
       <div class="panel" id="panel-upgrades">
-        <section>
+        <div class="subtabs" id="upgradeTabs" role="tablist" aria-label="Upgrades">
+          <button class="fchip" role="tab" data-view="tempers">Tempers</button>
+          <button class="fchip" role="tab" data-view="runes">Runes</button>
+          <button class="fchip" role="tab" data-view="joineries">Joineries</button>
+          <button class="fchip" role="tab" data-view="gear">Gear</button>
+          <button class="fchip" role="tab" data-view="totems">Totems</button>
+        </div>
+        <section data-view="tempers">
           <h2>Tempers · Tuvalkane</h2>
           <div class="daily" id="temperSummary"></div>
           <div id="tempers" class="rows"><span class="muted">Dismantle weapons to teach Tuvalkane their tempers (10 to learn each).</span></div>
         </section>
-        <section id="runesSection" hidden>
+        <section id="runesSection" data-view="runes" hidden>
           <h2>Runes</h2>
           <div class="daily" id="runeSummary"></div>
           <div id="runes"></div>
         </section>
-        <section id="joinerySection" hidden>
+        <section id="joinerySection" data-view="joineries" hidden>
           <h2>Joineries</h2>
           <div class="daily" id="joinerySummary"></div>
           <div id="joineries"></div>
         </section>
-        <section id="gearSection" hidden>
+        <section id="gearSection" data-view="gear" hidden>
           <h2>Gear</h2>
           <div class="daily" id="gearSummary"></div>
           <div id="gear"></div>
         </section>
-        <section>
+        <section data-view="totems">
           <h2>Totems</h2>
           <input id="totemSearch" class="wsearch" placeholder="Search names or effects, e.g. rune damage, pull smite, armour…" spellcheck="false" />
           <div class="tfilters" id="totemFilters"></div>
@@ -974,6 +984,31 @@
         const RENAMED_TAB = { totems: "upgrades", weapons: "mastery" };
         if (savedTab) activateTab(RENAMED_TAB[savedTab] || savedTab);
       } catch {}
+
+      let upgradeView = "tempers";
+      try { upgradeView = localStorage.getItem("sfhelper.upgradesView") || upgradeView; } catch {}
+      const upgradeSections = [...document.querySelectorAll("#panel-upgrades > section[data-view]")];
+      function syncUpgradeView() {
+        const shown = upgradeSections.filter((s) => !s.hidden).map((s) => s.dataset.view);
+        const view = shown.includes(upgradeView) ? upgradeView : shown[0];
+        for (const s of upgradeSections) s.classList.toggle("offview", s.dataset.view !== view);
+        for (const b of document.querySelectorAll("#upgradeTabs .fchip")) {
+          const off = !shown.includes(b.dataset.view);
+          if (b.hidden !== off) b.hidden = off;
+          b.classList.toggle("active", b.dataset.view === view);
+          b.setAttribute("aria-selected", String(b.dataset.view === view));
+        }
+      }
+      $("upgradeTabs").addEventListener("click", (e) => {
+        const b = e.target.closest(".fchip");
+        if (!b) return;
+        upgradeView = b.dataset.view;
+        try { localStorage.setItem("sfhelper.upgradesView", upgradeView); } catch {}
+        syncUpgradeView();
+      });
+      const upgradeWatch = new MutationObserver(syncUpgradeView);
+      for (const s of upgradeSections) upgradeWatch.observe(s, { attributes: true, attributeFilter: ["hidden"] });
+      syncUpgradeView();
 
       let DICT = { items: {}, factions: {}, factionTokens: {}, currencies: {} };
       let DICT_LC = {};
