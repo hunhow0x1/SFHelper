@@ -80,6 +80,23 @@ export interface GameRefusals {
   last: number;
 }
 
+export interface RefusalDetail {
+  at: number;
+  status: string;
+  server: string | null;
+  before: string;
+  after: string | null;
+}
+
+interface OpenRefusal {
+  logAt: number;
+  at: number | null;
+  status: string;
+  server: string | null;
+  before: string;
+  lines: number;
+}
+
 export interface LoggedCollector {
   at: number;
   x: number;
@@ -103,6 +120,13 @@ const TIME_RE = /^(\d+\.\d+) /;
 const STILL_REFUSED_MS = 5 * 60_000;
 const REFUSED_RE = /^(\d+\.\d+) .*HTTP\/1\.[01] (?:403|429)\b/;
 const HTTP_DATE_RE = /Date: (\w{3}, \d{1,2} \w{3} \d{4} \d{2}:\d{2}:\d{2} GMT)/;
+const HTTP_STATUS_RE = /HTTP\/1\.[01] (\d{3}[^\r\n]*)/;
+const HTTP_HEADER_RE = /^\d+\.\d+ \w+ \[\w+\]: [A-Za-z][\w-]*: /;
+const HTTP_SERVER_RE = /: Server: (.+)$/;
+const LOG_MESSAGE_RE = /^\d+\.\d+ \w+ \[\w+\]: (.*)$/;
+const MAX_HEADER_LINES = 12;
+const MAX_REFUSAL_DETAILS = 50;
+const MAX_CONTEXT_CHARS = 160;
 const AGARI_SPAWN_RE = /SubBossEncounter\.lua: \[[^\]-]*-([^\]]+)\] Spawning sub-boss/;
 const AGENT_RE = /OnAgentCreated \/Npc\/(\w+?Agent)\d*\s/;
 const AGENT_WITHIN = 5;
@@ -128,7 +152,7 @@ interface Scan {
   start: number | null;
   game: { build: string | null; cacheDir: string | null };
   collector: Omit<LoggedCollector, "logAt"> | null;
-  refusals: { count: number; first: number; last: number; pending: number | null; headerLines: number };
+  refusals: { count: number; first: number; last: number; open: OpenRefusal | null; before: string; details: RefusalDetail[] };
   agari: { spawned: Record<string, string>; spot: string | null; since: number };
   mastery: { other: number | null; items: number | null };
   trades: { out: LoggedTrade[]; collecting: string[] | null; confirm: Omit<LoggedTrade, "at"> | null; invitedBy: string | null };
@@ -146,7 +170,7 @@ function newScan(path: string, head: string): Scan {
     start: null,
     game: { build: null, cacheDir: null },
     collector: null,
-    refusals: { count: 0, first: 0, last: 0, pending: null, headerLines: 0 },
+    refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [] },
     agari: { spawned: {}, spot: null, since: 0 },
     mastery: { other: null, items: null },
     trades: { out: [], collecting: null, confirm: null, invitedBy: null },
@@ -189,25 +213,36 @@ function noteRefusal(r: Scan["refusals"], t: number): void {
   r.last = Math.max(r.last, t);
 }
 
+const logMessage = (line: string): string => (LOG_MESSAGE_RE.exec(line)?.[1] ?? line).trim().slice(0, MAX_CONTEXT_CHARS);
+
+function closeRefusal(r: Scan["refusals"], after: string | null): void {
+  const o = r.open!;
+  r.open = null;
+  const at = o.at ?? o.logAt;
+  noteRefusal(r, at);
+  if (r.details.length < MAX_REFUSAL_DETAILS) r.details.push({ at, status: o.status, server: o.server, before: o.before, after });
+}
+
 function feedRefusals(r: Scan["refusals"], line: string, start: number): void {
-  if (r.pending !== null) {
-    const d = line.includes("Date: ") ? HTTP_DATE_RE.exec(line) : null;
-    if (d) {
-      noteRefusal(r, Date.parse(d[1]!));
-      r.pending = null;
+  const http = line.includes("HTTP/1.");
+  if (r.open) {
+    if (!http && HTTP_HEADER_RE.test(line) && ++r.open.lines <= MAX_HEADER_LINES) {
+      const d = line.includes("Date: ") ? HTTP_DATE_RE.exec(line) : null;
+      if (d) r.open.at = Date.parse(d[1]!);
+      const server = line.includes("Server: ") ? HTTP_SERVER_RE.exec(line) : null;
+      if (server) r.open.server = server[1]!.trim().slice(0, MAX_CONTEXT_CHARS);
       return;
     }
-    if (++r.headerLines > 10) {
-      noteRefusal(r, r.pending);
-      r.pending = null;
-    }
+    closeRefusal(r, http || !line.trim() ? null : logMessage(line));
   }
-  if (!line.includes("HTTP/1.")) return;
-  const m = REFUSED_RE.exec(line);
-  if (!m) return;
-  if (r.pending !== null) noteRefusal(r, r.pending);
-  r.pending = start + Math.round(Number(m[1]) * 1000);
-  r.headerLines = 0;
+  const m = http ? REFUSED_RE.exec(line) : null;
+  if (m) {
+    const status = HTTP_STATUS_RE.exec(line)?.[1]?.trim() ?? "";
+    r.open = { logAt: start + Math.round(Number(m[1]) * 1000), at: null, status, server: null, before: r.before, lines: 0 };
+    r.before = logMessage(line);
+    return;
+  }
+  if (line.trim() && !HTTP_HEADER_RE.test(line)) r.before = logMessage(line);
 }
 
 function feedTrades(x: Scan["trades"], line: string, start: number): void {
@@ -341,12 +376,18 @@ export async function gameRefusals(path?: string): Promise<GameRefusals | null> 
   if (!s) return null;
   const r = s.refusals;
   let { count, first, last } = r;
-  if (r.pending !== null) {
+  if (r.open) {
+    const at = r.open.at ?? r.open.logAt;
     count += 1;
-    if (!first) first = r.pending;
-    last = Math.max(last, r.pending);
+    if (!first) first = at;
+    last = Math.max(last, at);
   }
   return count ? { count, first, last } : null;
+}
+
+export async function refusalDetails(path?: string): Promise<RefusalDetail[]> {
+  const s = await currentScan(path);
+  return s ? [...s.refusals.details] : [];
 }
 
 export async function gameBeingRefused(now = Date.now(), path?: string): Promise<GameRefusals | null> {

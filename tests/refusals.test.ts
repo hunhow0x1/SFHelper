@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { gameBeingRefused, gameRefusals } from "../src/server/gameLog";
+import { gameBeingRefused, gameRefusals, refusalDetails } from "../src/server/gameLog";
 
 const LOG = `0.040 Sys [Diag]: Build Label: 2026.10.08.15.20 Retail Windows x64 [Stripped]
 0.041 Sys [Diag]: Current time: Mon Oct 26 16:06:24 2026 [UTC: Mon Oct 26 20:06:24 2026]
@@ -51,5 +51,25 @@ describe("the game being refused by DE's servers", () => {
     const path = await logFile(LOG.split("\n").filter((l) => !/HTTP\/1\.1 4/.test(l)).join("\n"));
     expect(await gameRefusals(path)).toBeNull();
     expect(await gameBeingRefused(START, path)).toBeNull();
+  });
+
+  it("keeps what each refusal was about: status, server, and the game's lines around it", async () => {
+    expect(await refusalDetails(await logFile(LOG))).toEqual([
+      {
+        at: Date.parse("Mon, 26 Oct 2026 21:06:09 GMT"),
+        status: "403 Forbidden",
+        server: "AkamaiGHost",
+        before: "CheckEntitlements started!",
+        after: "Could not get credits:",
+      },
+      { at: Date.parse("Mon, 26 Oct 2026 21:46:24 GMT"), status: "429 Too Many Requests", server: null, before: "HTTP/1.1 200 OK", after: null },
+      {
+        at: START + 7278398,
+        status: "403 Forbidden",
+        server: "AkamaiGHost",
+        before: "HTTP/1.1 429 Too Many Requests",
+        after: "Failed to commit challenge progress to DB. Retrying (#356) in 10",
+      },
+    ]);
   });
 });

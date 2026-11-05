@@ -15,7 +15,7 @@ import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "
 import { AVAKOT_VENDOR, avakotDue, avakotDueAt, noteAvakotAttempt, parseVendorInfo, recordAvakot, type AvakotOffer } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameRefusedMessage, loggedCollector, loggedGame } from "../src/server/gameLog";
+import { gameBeingRefused, gameRefusedMessage, loggedCollector, loggedGame, refusalDetails } from "../src/server/gameLog";
 import { readDataJson } from "../src/server/paths";
 import { findCacheDir } from "../src/gamedata/cache";
 import { GameDataWatcher } from "../src/gamedata/watch";
@@ -110,6 +110,18 @@ let importing = false;
 let session: ImportSession | undefined;
 let lastImportOk = 0;
 let gameWasRefused = false;
+const loggedRefusals = new Set<string>();
+async function logRefusalDetails(): Promise<void> {
+  for (const d of await refusalDetails().catch(() => [])) {
+    const key = `${d.at}|${d.status}|${d.before}`;
+    if (loggedRefusals.has(key)) continue;
+    loggedRefusals.add(key);
+    const from = d.server ? ` from ${d.server}` : " (no Server header)";
+    const after = d.after ? `; after it: "${d.after}"` : "";
+    log(`Refused at ${new Date(d.at).toLocaleTimeString()}: ${d.status}${from}; before it: "${d.before}"${after}`);
+  }
+}
+
 async function importFromMemory(): Promise<void> {
   if (importing) return;
   const paused = apiPausedUntil();
@@ -122,10 +134,14 @@ async function importFromMemory(): Promise<void> {
     const message = gameRefusedMessage(refused);
     if (!gameWasRefused) log(`Holding off: ${message} (${refused.count} refusals in the game log so far.)`);
     gameWasRefused = true;
+    await logRefusalDetails();
     setImportStatus({ state: "error", code: 9, message });
     return;
   }
-  if (gameWasRefused) log("The game's requests are getting through again; resuming imports.");
+  if (gameWasRefused) {
+    await logRefusalDetails();
+    log("The game's requests are getting through again; resuming imports.");
+  }
   gameWasRefused = false;
   importing = true;
   setImportStatus({ state: "scanning", message: "Looking for Soulframe…" });
