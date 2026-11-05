@@ -480,8 +480,9 @@
       .tfilters .fchip.active img { filter: brightness(0.25); }
       .tfilters .fchip.active img.keep { filter: none; }
       .histnote { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; margin: -6px 0 20px; color: var(--muted); font-size: 14px; }
-      .histnote > span { flex: 1; min-width: 240px; }
-      .histnote .histmsg { color: var(--muted); }
+      .histnote > span:first-child { margin-right: 6px; }
+      .histnote .histmsg { color: var(--muted); margin-left: 6px; }
+      .histnote .histmsg:empty { display: none; }
       .histnote .histmsg.done { color: var(--accent-2); }
       .histnote .histmsg.err { color: var(--courage); }
       .tbar { display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; margin: 4px 0 20px; }
@@ -879,9 +880,10 @@
             </label>
           </div>
           <div class="histnote">
-            <span>Your pickup history is saved only on this computer. <span class="histmsg"></span></span>
+            <span>Your pickup history is saved only on this computer.</span>
             <button class="mini" data-hist="export" title="Save your pickup and trade history to a file">Export</button>
             <button class="mini" data-hist="import" title="Add pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
+            <span class="histmsg"></span>
           </div>
           <input id="pickupSearch" class="wsearch" placeholder="Search name, craftwork, or temper…" spellcheck="false" />
           <div class="daily" id="pickupSummary"></div>
@@ -893,9 +895,10 @@
         <section>
           <h2>Trades</h2>
           <div class="histnote">
-            <span>Your trade history is saved only on this computer. <span class="histmsg"></span></span>
+            <span>Your trade history is saved only on this computer.</span>
             <button class="mini" data-hist="export" title="Save your pickup and trade history to a file">Export</button>
             <button class="mini" data-hist="import" title="Add pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
+            <span class="histmsg"></span>
           </div>
           <input type="file" id="historyFile" accept=".json,application/json" hidden />
           <div class="grid" id="tradeTiles"></div>
