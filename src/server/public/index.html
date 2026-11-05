@@ -466,6 +466,8 @@
       .upgroups .avrow.plain { grid-template-columns: minmax(0, 1fr) auto; }
       .upgroups .avr .mempips { justify-content: flex-end; }
       .avn small.equipped { color: #a6dcc0; }
+      .upgroups .avrow.miss .avn, .upgroups .avrow.miss .avr { color: var(--faint); }
+      .upgroups .avrow.miss .avicn { opacity: 0.45; }
       .poprow { cursor: help; }
       #timers .avrow { grid-template-columns: minmax(0, 1fr) auto; }
       #timers .avrow.starrable { grid-template-columns: auto minmax(0, 1fr) auto; }
@@ -837,6 +839,7 @@
         <section id="runesSection" data-view="runes" hidden>
           <h2>Runes</h2>
           <div class="daily" id="runeSummary"></div>
+          <div class="tfilters" id="runeFilters"></div>
           <div id="runes"></div>
         </section>
         <section id="joinerySection" data-view="joineries" hidden>
@@ -847,6 +850,7 @@
         <section id="gearSection" data-view="gear" hidden>
           <h2>Gear</h2>
           <div class="daily" id="gearSummary"></div>
+          <div class="tfilters" id="gearFilters"></div>
           <div id="gear"></div>
         </section>
         <section data-view="totems">
@@ -1056,7 +1060,7 @@
         return `${p(Math.floor(s / 3600))}:${p(Math.floor((s % 3600) / 60))}:${p(s % 60)}`;
       }
 
-      const WEAPON_RANK_C = 250, PACT_RANK_C = 500;
+      const WEAPON_RANK_C = 125, PACT_RANK_C = 500;
       function levelOf(xp, C) {
         const MAX = 30;
         if (!(xp > 0)) return { rank: 0, pct: 0, maxed: false };
@@ -1169,7 +1173,7 @@
             <div class="ebar"><i style="width:${fill}%"></i></div>
             <div class="esub">${sub}</div>
             ${items}
-            ${e.serverRank != null && e.serverRank !== e.rank ? `<div class="esub" title="SFHelper shows the rank your Mastery reaches, like the game's Arsenal. Soulframe's servers report a different rank in your profile and inventory; the daily standing cap and trades per day follow the servers.">Soulframe's servers report rank <b>${e.serverRank}</b></div>` : ""}
+            ${e.serverRank != null && e.serverRank !== e.rank ? `<div class="esub" title="Your profile and inventory say rank ${e.serverRank}, but your Mastery only reaches rank ${e.rank}. The game caps your rank to your Mastery (its log says &quot;Player level too high for current xp&quot;), and SFHelper does the same.">Soulframe's servers report rank <b>${e.serverRank}</b></div>` : ""}
           </div>
           ${max}
         </div>`;
@@ -1755,34 +1759,63 @@
           .map((g) => `<div class="avgroup"><h3>${g.icon ? upIcon(g.icon, "") : ""}${escHtml(g.name)} <span class="count">${g.count ?? g.rows.length}</span></h3>${g.rows.join("")}</div>`)
           .join("")}</div>`;
 
+      const UPGRADE_UI = { runes: "all", gear: "all" };
+      try { Object.assign(UPGRADE_UI, JSON.parse(localStorage.getItem("sfhelper.upgradeItems") || "{}")); } catch {}
+      const withUnowned = (owned, known, blank) => {
+        const have = new Set(owned.map((o) => o.type));
+        return [...owned.map((o) => ({ ...o, owned: true })), ...Object.keys(known || {}).filter((t) => !have.has(t)).map((t) => ({ ...blank(t), owned: false }))];
+      };
+      const passOwned = (key, o) => UPGRADE_UI[key] === "all" || (UPGRADE_UI[key] === "owned") === o.owned;
+      function ownFilter(key, list) {
+        if (!["all", "owned", "unowned"].includes(UPGRADE_UI[key])) UPGRADE_UI[key] = "all";
+        const chip = (v, label, n) =>
+          `<button class="fchip${UPGRADE_UI[key] === v ? " active" : ""}" data-k="${key}" data-v="${v}">${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
+        const owned = list.filter((o) => o.owned).length;
+        return `<span class="fl">Owned</span><div class="wfilter">${chip("all", "All")}${chip("owned", "Owned", owned)}${chip("unowned", "Unowned", list.length - owned)}</div>`;
+      }
+      for (const id of ["runeFilters", "gearFilters"]) {
+        $(id).addEventListener("click", (e) => {
+          const b = e.target.closest(".fchip");
+          if (!b) return;
+          UPGRADE_UI[b.dataset.k] = b.dataset.v;
+          try { localStorage.setItem("sfhelper.upgradeItems", JSON.stringify(UPGRADE_UI)); } catch {}
+          renderUpgradeItems();
+        });
+      }
+
       function renderUpgradeItems() {
         const u = LAST_UPGRADE_ITEMS;
         for (const id of ["runesSection", "joinerySection", "gearSection"]) $(id).hidden = !u;
         if (!u) return;
 
-        const runes = u.runes.map((o) => ({ ...o, d: runeInfo(o.type) }));
-        const maxed = runes.filter((o) => runeTop(o) != null && runeMax(o.d) && runeTop(o) >= runeMax(o.d)).length;
-        const unranked = runes.reduce((n, o) => n + o.unranked, 0);
+        const runes = withUnowned(u.runes, UPGRADES.runes, (type) => ({ type, ranks: [], unranked: 0 })).map((o) => ({ ...o, d: runeInfo(o.type) }));
+        const ownedRunes = runes.filter((o) => o.owned);
+        const maxed = ownedRunes.filter((o) => runeTop(o) != null && runeMax(o.d) && runeTop(o) >= runeMax(o.d)).length;
+        const unranked = ownedRunes.reduce((n, o) => n + o.unranked, 0);
         $("runeSummary").innerHTML = runes.length
-          ? `Owned <b>${runes.length}</b> &nbsp;·&nbsp; At max rank <b>${maxed}</b> &nbsp;·&nbsp; Unranked copies <b>${unranked}</b>`
+          ? `Owned <b>${ownedRunes.length}/${runes.length}</b> &nbsp;·&nbsp; At max rank <b>${maxed}</b> &nbsp;·&nbsp; Unranked copies <b>${unranked}</b>`
           : "";
+        $("runeFilters").innerHTML = runes.length ? ownFilter("runes", runes) : "";
         const runeRow = (o) => {
           const max = runeMax(o.d);
           const r = runeTop(o);
-          const pips = max
-            ? `<span class="mempips" title="Rank ${r ?? 0} of ${max}">${Array.from({ length: max }, (_, i) => `<i${r != null && i < r ? ' class="on"' : ""}></i>`).join("")}</span>`
+          const pips = !o.owned ? "Unowned"
+            : max ? `<span class="mempips" title="Rank ${r ?? 0} of ${max}">${Array.from({ length: max }, (_, i) => `<i${r != null && i < r ? ' class="on"' : ""}></i>`).join("")}</span>`
             : r != null ? `Rank ${r}` : "";
-          const extra = o.unranked ? `<small>${o.unranked} unranked</small>` : r == null ? "<small>Unranked</small>" : "";
+          const extra = !o.owned ? "" : o.unranked ? `<small>${o.unranked} unranked</small>` : r == null ? "<small>Unranked</small>" : "";
           const sub = [slotHtml(o.d.slot), o.ranks.length > 1 ? `${o.ranks.length} ranked` : ""].filter(Boolean).join(" · ");
-          return `<div class="avrow poprow" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}${extra}</div></div>`;
+          return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}${extra}</div></div>`;
         };
-        const arts = [...new Set(runes.map((o) => o.d.art || "Other"))].sort((a, b) => (a === "Other") - (b === "Other") || a.localeCompare(b));
-        $("runes").innerHTML = runes.length
-          ? upGroups(arts.map((art) => ({
-              name: art,
-              rows: runes.filter((o) => (o.d.art || "Other") === art).sort((a, b) => a.d.name.localeCompare(b.d.name)).map(runeRow),
-            })))
-          : '<span class="muted">No runes in your inventory.</span>';
+        const shownRunes = runes.filter((o) => passOwned("runes", o));
+        const arts = [...new Set(shownRunes.map((o) => o.d.art || "Other"))].sort((a, b) => (a === "Other") - (b === "Other") || a.localeCompare(b));
+        $("runes").innerHTML = !runes.length
+          ? '<span class="muted">No runes in your inventory.</span>'
+          : shownRunes.length
+            ? upGroups(arts.map((art) => ({
+                name: art,
+                rows: shownRunes.filter((o) => (o.d.art || "Other") === art).sort((a, b) => a.d.name.localeCompare(b.d.name)).map(runeRow),
+              })))
+            : '<span class="muted">Nothing matches these filters.</span>';
 
         const joins = u.joineries.map((o) => ({ ...o, d: UPGRADES.joineries[o.type] || { name: shortName(o.type), family: null } }));
         $("joinerySummary").innerHTML = joins.length
@@ -1804,18 +1837,24 @@
           ? upGroups([...JOINERY_FAMILIES, null].map(joinGroup))
           : '<span class="muted">No joineries in your inventory.</span>';
 
-        const gear = u.gear.map((o) => ({ ...o, d: UPGRADES.gear[o.type] || { name: shortName(o.type), kind: "Supplies", icon: null } }));
+        const gear = withUnowned(u.gear, UPGRADES.gear, (type) => ({ type, count: 0, equipped: false }))
+          .map((o) => ({ ...o, d: UPGRADES.gear[o.type] || { name: shortName(o.type), kind: "Supplies", icon: null } }));
+        const ownedGear = gear.filter((o) => o.owned);
         $("gearSummary").innerHTML = gear.length
-          ? `Items <b>${gear.length}</b> &nbsp;·&nbsp; Equipped <b>${gear.filter((o) => o.equipped).length}</b>`
+          ? `Owned <b>${ownedGear.length}/${gear.length}</b> &nbsp;·&nbsp; Equipped <b>${ownedGear.filter((o) => o.equipped).length}</b>`
           : "";
+        $("gearFilters").innerHTML = gear.length ? ownFilter("gear", gear) : "";
         const gearRow = (o) =>
-          `<div class="avrow poprow" data-kind="gear" data-type="${escHtml(o.type)}">${upIcon(o.d.icon || ITEM_ICONS[o.d.name])}<div class="avn">${escHtml(o.d.name)}${o.equipped ? '<small class="equipped">Equipped</small>' : ""}</div><div class="avr">${o.count.toLocaleString()}</div></div>`;
-        $("gear").innerHTML = gear.length
-          ? upGroups(GEAR_KINDS.map((kind) => ({
-              name: kind,
-              rows: gear.filter((o) => (GEAR_KINDS.includes(o.d.kind) ? o.d.kind : "Supplies") === kind).sort((a, b) => b.equipped - a.equipped || a.d.name.localeCompare(b.d.name)).map(gearRow),
-            })))
-          : '<span class="muted">No gear in your inventory.</span>';
+          `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="gear" data-type="${escHtml(o.type)}">${upIcon(o.d.icon || ITEM_ICONS[o.d.name])}<div class="avn">${escHtml(o.d.name)}${o.equipped ? '<small class="equipped">Equipped</small>' : ""}</div><div class="avr">${o.owned ? o.count.toLocaleString() : "Unowned"}</div></div>`;
+        const shownGear = gear.filter((o) => passOwned("gear", o));
+        $("gear").innerHTML = !gear.length
+          ? '<span class="muted">No gear in your inventory.</span>'
+          : shownGear.length
+            ? upGroups(GEAR_KINDS.map((kind) => ({
+                name: kind,
+                rows: shownGear.filter((o) => (GEAR_KINDS.includes(o.d.kind) ? o.d.kind : "Supplies") === kind).sort((a, b) => b.equipped - a.equipped || a.d.name.localeCompare(b.d.name)).map(gearRow),
+              })))
+            : '<span class="muted">Nothing matches these filters.</span>';
       }
 
       function upgradePopHtml(kind, type) {
@@ -1823,13 +1862,14 @@
         const u = LAST_UPGRADE_ITEMS || { runes: [], joineries: [], gear: [] };
         if (kind === "rune") {
           const d = runeInfo(type);
-          const o = u.runes.find((x) => x.type === type) || { ranks: [], unranked: 0 };
+          const held = u.runes.find((x) => x.type === type);
+          const o = held || { ranks: [], unranked: 0 };
           const r = runeTop(o);
           const max = runeMax(d);
-          const rank = r == null ? "Unranked" : max ? `Rank ${r} of ${max}` : `Rank ${r}`;
+          const rank = !held ? "Unowned" : r == null ? "Unranked" : max ? `Rank ${r} of ${max}` : `Rank ${r}`;
           const stats = r != null ? d.stats.map((st) => `<div class="tp-eff">${runeStat(st, r)}</div>`).join("") : "";
           const art = d.art ? `${escHtml(d.art)} rune · ` : "";
-          return `<div class="tp-head">${upIcon(d.icon, "ticn")}<div class="tp-name">${escHtml(d.name)}</div></div>` +
+          return `<div class="tp-head">${d.icon ? upIcon(d.icon, "ticn") : ""}<div class="tp-name">${escHtml(d.name)}</div></div>` +
             `<div class="tp-rank">${art}${rank}</div>${d.desc ? `<div class="tp-quote">${escHtml(d.desc)}</div>` : ""}` +
             stats + (d.does ? `<div class="tp-eff">${escHtml(d.does)}</div>` : "") +
             (d.slot ? `<div class="tp-eff">Adds a ${slotHtml(d.slot)}.</div>` : "") +
@@ -1837,7 +1877,9 @@
         }
         const d = (kind === "joinery" ? UPGRADES.joineries : UPGRADES.gear)[type] || { name: shortName(type) };
         const icon = d.icon || ITEM_ICONS[d.name];
-        return `<div class="tp-head">${upIcon(icon, "ticn")}<div class="tp-name">${kind === "joinery" ? deityHtml(d.name) : escHtml(d.name)}</div></div>` +
+        const unowned = kind === "gear" && !u.gear.some((x) => x.type === type);
+        return `<div class="tp-head">${icon ? upIcon(icon, "ticn") : ""}<div class="tp-name">${kind === "joinery" ? deityHtml(d.name) : escHtml(d.name)}</div></div>` +
+          (unowned ? '<div class="tp-rank">Unowned</div>' : "") +
           (d.desc ? `<div class="${kind === "joinery" ? "tp-quote" : "tp-eff"}">${escHtml(d.desc)}</div>` : "");
       }
 
@@ -2899,7 +2941,7 @@
       }
       const DATA_FILES = [
         "names", "faction-ranks", "totems", "totemdata", "runes", "tempers", "pactarts", "itemicons",
-        "pactartvalues", "talismans", "armour", "weapons", "pacts", "upgrades", "recipes", "avakot",
+        "pactartvalues", "talismans", "armour", "roster", "upgrades", "recipes", "avakot",
       ];
       async function loadDict() {
         dictLoadedAt = Date.now();
@@ -2922,8 +2964,10 @@
         if (d.pactartvalues) PACT_ART_VALUES = d.pactartvalues;
         if (d.talismans) TALISMANS = d.talismans;
         if (d.armour) ARMOUR = d.armour;
-        if (d.weapons) WEAPON_ROSTER = d.weapons;
-        if (d.pacts) PACT_ROSTER = d.pacts;
+        if (d.roster) {
+          WEAPON_ROSTER = d.roster.weapons || {};
+          PACT_ROSTER = d.roster.pacts || {};
+        }
         if (d.upgrades) UPGRADES = d.upgrades;
         if (d.recipes) RECIPES = d.recipes.recipes || {};
         if (d.avakot) AV_POOL = new Map((d.avakot.items || []).map((it) => [it.storeItem, it]));

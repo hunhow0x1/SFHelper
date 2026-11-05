@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { findCacheDir, findRootEntry, hostPath, readEntry } from "../src/gamedata/cache";
 import { readLanguages } from "../src/gamedata/formats";
-import { buildNames, buildPactArtValues, parseFactionCaps, withRetired } from "../src/gamedata/builders";
+import { buildArsenal, buildNames, buildPactArtValues, buildUpgrades, parseFactionCaps, withRetired } from "../src/gamedata/builders";
 import { loggedGame } from "../src/server/gameLog";
 
 function tocEntry(name: string, parent: number, offset: number, size: number, stamp = 123n): Buffer {
@@ -170,6 +170,46 @@ describe("building SFHelper's data from the game", () => {
     const table = ["| 0 || [[File:FactionStanding.png|20px]] '''5,000'''", "| 1 || [[File:FactionStanding.png]] 20,000"].join("\n");
     expect(parseFactionCaps(table)).toEqual([5000, 20000]);
     expect(parseFactionCaps("no table")).toBeNull();
+  });
+});
+
+describe("weapons, Pacts and gear straight from the game files", () => {
+  const item = (fields: Record<string, string>, tags: string[] = []) =>
+    Object.entries(fields).map(([k, v]) => `${k}=${v}`).join("\n") + (tags.length ? `\nSearchTags={\n${tags.join("\n")}\n}` : "");
+  const dict = {
+    "/L/Loksprik": "Loksprik",
+    "/L/Goody": "Goody's Edge",
+    "/L/Shrike": "Ode Shrike",
+    "/L/Hidden": "Hidden Blade",
+    "/L/Bullet": "ANY",
+    "/L/Summon": "Summon Wolf",
+    "/L/Biscuit": "Bairnday Biscuit",
+    "/L/Elixir": "Life Elixir",
+  };
+
+  it("lists every named weapon and Pact with its slot, style and damage type", () => {
+    const texts = [
+      item({ ProductCategory: "Melee", LocalizeTag: "/L/Loksprik", TypeName: "/SF/Weapons/Melee/OneHand/LockSuitDagger/LockSuitDaggerMeleeWeapon", MeleeStyle: "MS_DAGGER" }, ["/SF/Language/Game/DT_SLASH_NoIcon"]),
+      item({ ProductCategory: "LongGuns", LocalizeTag: "/L/Goody", TypeName: "/SF/Weapons/Melee/OneHand/BitasEdge/SecondaryBitasEdgeDualSickleMeleeWeapon", MeleeStyle: "MS_AKIMBO_SHORT_SWORD" }),
+      item({ ProductCategory: "Melee", LocalizeTag: "/L/Hidden", TypeName: "/SF/Weapons/Melee/Hidden", ExcludeFromCodex: "1" }),
+      item({ ProductCategory: "MiscItems", LocalizeTag: "/L/Bullet", TypeName: "/SF/Weapons/Guns/SFBulletWeapon" }),
+      item({ ProductCategory: "Suits", LocalizeTag: "/L/Shrike", TypeName: "/SF/Souls/OdeHunter/OdeHunterSoul" }),
+      item({ ProductCategory: "Suits", LocalizeTag: "/L/Missing", TypeName: "/SF/Souls/Sparrow/SparrowSoul" }),
+    ];
+    expect(buildArsenal(dict, texts)).toEqual({
+      weapons: {
+        "/SF/Weapons/Melee/OneHand/BitasEdge/SecondaryBitasEdgeDualSickleMeleeWeapon": { name: "Goody's Edge", slot: "Sidearm", style: "MS_AKIMBO_SHORT_SWORD", damage: null },
+        "/SF/Weapons/Melee/OneHand/LockSuitDagger/LockSuitDaggerMeleeWeapon": { name: "Loksprik", slot: "Primary", style: "MS_DAGGER", damage: "SLASH" },
+      },
+      pacts: { "/SF/Souls/OdeHunter/OdeHunterSoul": "Ode Shrike" },
+    });
+  });
+
+  it("files wolf summons and treats under Companion gear", async () => {
+    const consumable = (type: string, tag: string) => item({ ProductCategory: "Consumables", LocalizeTag: tag, TypeName: `/SF/Types/Items/Consumables/${type}` });
+    const texts = [consumable("WolfSummon", "/L/Summon"), consumable("PetConsumeables/WoldAdultUpgradePetFood", "/L/Biscuit"), consumable("HealingPotion", "/L/Elixir")];
+    const { gear } = await buildUpgrades(dict, texts, null, null, {}, async () => null);
+    expect(Object.fromEntries(Object.values(gear).map((g) => [g.name, g.kind]))).toEqual({ "Summon Wolf": "Companion", "Bairnday Biscuit": "Companion", "Life Elixir": "Supplies" });
   });
 });
 

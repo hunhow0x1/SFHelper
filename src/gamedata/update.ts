@@ -4,6 +4,7 @@ import { writeFileAtomic } from "../server/files";
 import { readGameFiles, type GameFiles } from "./cache";
 import { readLanguages, readPackageTexts, readTypeTree } from "./formats";
 import {
+  buildArsenal,
   buildAvakot,
   buildEnemies,
   buildLocations,
@@ -17,6 +18,7 @@ import {
   parseWikiImages,
   parseWikiRunes,
   withRetired,
+  type ArsenalData,
   type AvakotPool,
   type RecipeDef,
   type UpgradeData,
@@ -34,6 +36,7 @@ export const GAME_DATA_FILES = [
   "avakot.json",
   "faction-ranks.json",
   "recipes.json",
+  "arsenal.json",
 ];
 
 const MAX_DOWNLOADS = 60;
@@ -179,6 +182,14 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     enough("locations", Object.keys(locations).length, Object.keys((await previous<{ locations: object }>("locations.json"))?.locations ?? {}).length);
     await put("locations.json", `${JSON.stringify({ locations }, null, 2)}\n`);
     return `${Object.keys(locations).length} locations`;
+  });
+
+  await step("arsenal.json", async () => {
+    const arsenal = buildArsenal(dict, unique);
+    const size = (a: Partial<ArsenalData> | null) => Object.keys(a?.weapons ?? {}).length + Object.keys(a?.pacts ?? {}).length;
+    enough("weapons and Pacts", size(arsenal), size(await previous<Partial<ArsenalData>>("arsenal.json")));
+    await put("arsenal.json", `${JSON.stringify(arsenal, null, 2)}\n`);
+    return `${Object.keys(arsenal.weapons).length} weapons, ${Object.keys(arsenal.pacts).length} Pacts`;
   });
 
   await step("pactartvalues.json", async () => {

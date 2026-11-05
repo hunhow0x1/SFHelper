@@ -369,6 +369,41 @@ export interface UpgradeData {
 }
 
 const JOINERY_FAMILIES = ["Verite", "Quicksilver", "Feybalt", "Gildaur"];
+const COMPANION_GEAR = /\/PetConsumeables\/|PetFood|\/Wolf\w*Summon$/;
+const localized = (dict: Dict, tag: string | undefined): string | null => (tag && usable(dict[tag]) ? dict[tag]!.trim().replace(/\s+/g, " ") : null);
+
+export interface ArsenalWeapon {
+  name: string;
+  slot: "Primary" | "Sidearm";
+  style: string | null;
+  damage: string | null;
+}
+
+export interface ArsenalData {
+  weapons: Record<string, ArsenalWeapon>;
+  pacts: Record<string, string>;
+}
+
+const WEAPON_SLOTS: Record<string, ArsenalWeapon["slot"]> = { Melee: "Primary", LongGuns: "Sidearm", Pistols: "Sidearm" };
+
+export function buildArsenal(dict: Dict, texts: string[]): ArsenalData {
+  const weapons: Record<string, ArsenalWeapon> = {};
+  const pacts: Record<string, string> = {};
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    const cat = field(t, "ProductCategory");
+    const name = localized(dict, field(t, "LocalizeTag"));
+    if (!type || !cat || !name || field(t, "ExcludeFromCodex") === "1" || type in weapons || type in pacts) continue;
+    const slot = WEAPON_SLOTS[cat];
+    if (slot && type.startsWith("/SF/Weapons/")) {
+      const tags = /^SearchTags=\{\n([\s\S]*?)\n\}/m.exec(t)?.[1] ?? "";
+      weapons[type] = { name, slot, style: field(t, "MeleeStyle") ?? null, damage: /\/DT_([A-Z]+)/.exec(tags)?.[1] ?? null };
+    } else if (cat === "Suits" && type.startsWith("/SF/Souls/")) {
+      pacts[type] = name;
+    }
+  }
+  return { weapons: sortedKeys(weapons), pacts: sortedKeys(pacts) };
+}
 
 export async function buildUpgrades(
   dict: Dict,
@@ -378,7 +413,7 @@ export async function buildUpgrades(
   itemIcons: Record<string, string>,
   runeIcon: (file: string) => Promise<string | null>,
 ): Promise<UpgradeData & { missingIcons: string[] }> {
-  const loc = (tag: string | undefined) => (tag && usable(dict[tag]) ? dict[tag]!.trim().replace(/\s+/g, " ") : null);
+  const loc = (tag: string | undefined) => localized(dict, tag);
   const searchTags = (t: string) =>
     (/^SearchTags=\{\n([\s\S]*?)\n\}/m.exec(t)?.[1] ?? "").split("\n").map((x) => loc(x.replace(/,$/, ""))).filter((x): x is string => !!x);
 
@@ -436,7 +471,7 @@ export async function buildUpgrades(
     gear[type] = {
       name,
       desc: loc(field(t, "LocalizeDescTag")),
-      kind: type.includes("/Tackle/") || type.includes("FishingSpool") ? "Fishing" : type.includes("/PetConsumeables/") || type.includes("PetFood") ? "Companion" : "Supplies",
+      kind: type.includes("/Tackle/") || type.includes("FishingSpool") ? "Fishing" : COMPANION_GEAR.test(type) ? "Companion" : "Supplies",
       icon: iconByName.get(name) ?? null,
     };
   }

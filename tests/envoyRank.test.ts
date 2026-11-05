@@ -20,23 +20,24 @@ describe("Envoy Rank", () => {
   });
 
   it("counts 100 Mastery per weapon rank and 200 per pact rank, capped at 30", () => {
-    expect(itemMastery({ [W(1)]: 2_000_000, [W(2)]: 250 * 10 * 10, [P(1)]: XP30, "/SF/Other/X": 9e9 })).toEqual({
+    expect(itemMastery({ [W(1)]: 2_000_000, [W(2)]: 125 * 10 * 10, [P(1)]: XP30, "/SF/Other/X": 9e9 })).toEqual({
       weaponRanks: 40,
       pactRanks: 30,
       xp: 40 * 100 + 30 * 200,
     });
   });
 
-  it("ranks weapons at 250 * r^2 and pacts at 500 * r^2", () => {
-    expect(itemMastery({ [W(1)]: 232_074 })).toMatchObject({ weaponRanks: 30 });
+  it("ranks weapons at 125 * r^2 since Preludes 17 halved their XP, and pacts at 500 * r^2", () => {
+    expect(itemMastery({ [W(1)]: 112_500 })).toMatchObject({ weaponRanks: 30 });
+    expect(itemMastery({ [W(1)]: 112_499 })).toMatchObject({ weaponRanks: 29 });
     expect(itemMastery({ [P(1)]: 232_074 })).toMatchObject({ pactRanks: 21 });
-    expect(itemMastery({ [W(1)]: 224_999 })).toMatchObject({ weaponRanks: 29 });
+    expect(itemMastery({ [W(1)]: 177_096, [W(2)]: 6_920 })).toMatchObject({ weaponRanks: 37 });
   });
 
   const base = { weaponCount: 62, pactCount: 13, maxMastery: 19.1, patch: "P16" };
   const checked = Object.fromEntries([
     ...Array.from({ length: 41 }, (_, i) => [W(i), XP30]),
-    [W(41), 250 * 4 * 4],
+    [W(41), 125 * 4 * 4],
     ...Array.from({ length: 12 }, (_, i) => [P(i), XP30]),
   ]);
 

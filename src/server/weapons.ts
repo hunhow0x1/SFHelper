@@ -1,4 +1,4 @@
-export const WEAPON_RANK_CONST = 250;
+export const WEAPON_RANK_CONST = 125;
 export const PACT_RANK_CONST = 500;
 export const MAX_RANK = 30;
 

@@ -1,0 +1,409 @@
+{
+  "weapons": {
+    "/SF/Weapons/Melee/OneHand/BitasEdge/SecondaryBitasEdgeDualSickleMeleeWeapon": {
+      "name": "Goody's Edge",
+      "slot": "Sidearm",
+      "style": "MS_AKIMBO_SHORT_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/BromiusCleaver/BromiusCleaverMeleeWeapon": {
+      "name": "Marrow's Bane",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/CorruptedScimitar/CorruptedScimitarMeleeWeapon": {
+      "name": "Cenotaph",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/DendritSword/DendritSwordMeleeWeapon": {
+      "name": "Vetch",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/DendritSwordAndBoard/DendritSwordAndBoardMeleeWeapon": {
+      "name": "Bog & Myrtle",
+      "slot": "Primary",
+      "style": "MS_SWORD_SHIELD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/FennJotarSword/FennJotarSwordMeleeWeapon": {
+      "name": "Igne Mora",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/FeySword/FeySwordMeleeWeapon": {
+      "name": "Dewelion",
+      "slot": "Primary",
+      "style": "MS_RAPIER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/GarrenSword/GarrenSwordMeleeWeapon": {
+      "name": "The Royal Tines",
+      "slot": "Primary",
+      "style": "MS_AKIMBO_SHORT_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/LockSuitDagger/LockSuitDaggerMeleeWeapon": {
+      "name": "Loksprik",
+      "slot": "Primary",
+      "style": "MS_DAGGER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/MendicantSwordandBoard/MendicantSwordAndBoardMeleeWeapon": {
+      "name": "Lyke-Wake",
+      "slot": "Primary",
+      "style": "MS_SWORD_SHIELD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/MockeryBrazard/MockeryBrazardMeleeWeapon": {
+      "name": "Tessard",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/MockeryStultion/MockeryStultionMeleeWeapon": {
+      "name": "Stultin",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/MockeryTurash/MockeryTurashMeleeWeapon": {
+      "name": "Nurash",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/OdeEliteSoldierSword/OdeEliteSoldierSwordMeleeWeapon": {
+      "name": "Ilverac",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/OdeSoldierSword/OdeSoldierSwordMeleeWeapon": {
+      "name": "Falx",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/OrengalSecondarySword/OrengallSecondarySwordMeleeWeapon": {
+      "name": "Grimana",
+      "slot": "Sidearm",
+      "style": "MS_RAPIER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/PirateFencingSword/PirateFencingSwordMeleeWeapon": {
+      "name": "Espadarte",
+      "slot": "Primary",
+      "style": "MS_RAPIER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/PothiaLongSword/PothiaLongSwordMeleeWeapon": {
+      "name": "The Ivor",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SecondaryDagger/SecondaryDaggerMeleeWeapon": {
+      "name": "Nettle",
+      "slot": "Sidearm",
+      "style": "MS_DAGGER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SecondaryDendritDagger/SecondaryDendritDaggerMeleeWeapon": {
+      "name": "Virdigris",
+      "slot": "Sidearm",
+      "style": "MS_DAGGER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SecondaryFeyDagger/SecondaryFeyDaggerMeleeWeapon": {
+      "name": "Witan",
+      "slot": "Sidearm",
+      "style": "MS_DAGGER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SecondaryJosalfarDagger/SecondaryJosalfarDaggerMeleeWeapon": {
+      "name": "Cobladh",
+      "slot": "Sidearm",
+      "style": "MS_DAGGER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SecondaryOdeSawDagger/SecondaryOdeSawDaggerMeleeWeapon": {
+      "name": "Grinn",
+      "slot": "Sidearm",
+      "style": "MS_DAGGER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SecondaryVineDagger/SecondaryVineDaggerMeleeWeapon": {
+      "name": "Rostrum",
+      "slot": "Primary",
+      "style": "MS_DAGGER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SeedRapier/SeedRapierMeleeWeapon": {
+      "name": "Navalha",
+      "slot": "Primary",
+      "style": "MS_RAPIER",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SinecureDagger/SinecureDualDaggersMeleeWeapon": {
+      "name": "Unsula",
+      "slot": "Primary",
+      "style": "MS_AKIMBO_SHORT_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SinecureDualAxes/SinecureDualAxesMeleeWeapon": {
+      "name": "Dhrullai",
+      "slot": "Primary",
+      "style": "MS_AKIMBO_SHORT_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SinecureHammerAndBoard/SinecureHammerAndBoardMeleeWeapon": {
+      "name": "Nazilk-Urytes-III",
+      "slot": "Primary",
+      "style": "MS_SWORD_SHIELD",
+      "damage": "IMPACT"
+    },
+    "/SF/Weapons/Melee/OneHand/SphereDualSwords/SphereDualSwordsMeleeWeapon": {
+      "name": "Rivt-II",
+      "slot": "Primary",
+      "style": "MS_AKIMBO_SHORT_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SphereSword/SphereSwordMeleeWeapon": {
+      "name": "Sollos-I",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/StarterSplitSwords/StarterSplitSwordsMeleeWeapon": {
+      "name": "Clivers",
+      "slot": "Sidearm",
+      "style": "MS_AKIMBO_SHORT_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/StarterSword/StarterSwordMeleeWeapon": {
+      "name": "Wulder",
+      "slot": "Primary",
+      "style": "MS_LONG_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/OneHand/SwordandBoard/SphereSwordAndBoardMeleeWeapon": {
+      "name": "Oryn-Umbr",
+      "slot": "Primary",
+      "style": "MS_SWORD_SHIELD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/TwoHand/CleansedSpear/CleansedSpearMeleeWeapon": {
+      "name": "Duhk Halic",
+      "slot": "Primary",
+      "style": "MS_BO_STAFF",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/TwoHand/DendritAraGreatSword/DendritAraGreatSwordMeleeWeapon": {
+      "name": "Needleseye",
+      "slot": "Primary",
+      "style": "MS_HEAVY_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/TwoHand/DeoraPolearm/DeoraPolearmMeleeWeapon": {
+      "name": "Rook",
+      "slot": "Primary",
+      "style": "MS_BO_STAFF",
+      "damage": "IMPACT"
+    },
+    "/SF/Weapons/Melee/TwoHand/FoundersGreatSword/FoundersGreatSwordMeleeWeapon": {
+      "name": "The Paragon",
+      "slot": "Primary",
+      "style": "MS_HEAVY_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/TwoHand/GarrenPolearm/GarrenPolearmMeleeWeapon": {
+      "name": "Gathannan",
+      "slot": "Primary",
+      "style": "MS_BO_STAFF",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/TwoHand/InquisitorMace/InquisitorMaceMeleeWeapon": {
+      "name": "Creance",
+      "slot": "Primary",
+      "style": "MS_HEAVY_SWORD",
+      "damage": "IMPACT"
+    },
+    "/SF/Weapons/Melee/TwoHand/MendicantGreatSword/MendicantGreatSwordMeleeWeapon": {
+      "name": "Purity",
+      "slot": "Primary",
+      "style": "MS_HEAVY_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/TwoHand/MendicantLance/MendicantLanceMeleeWeapon": {
+      "name": "Farilwyd",
+      "slot": "Primary",
+      "style": "MS_BO_STAFF",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/TwoHand/MendicantMace/MendicantTwoHandedMaceMeleeWeapon": {
+      "name": "Wreath",
+      "slot": "Primary",
+      "style": "MS_HEAVY_SWORD",
+      "damage": "IMPACT"
+    },
+    "/SF/Weapons/Melee/TwoHand/MockeryAxe/MockeryAxeMeleeWeapon": {
+      "name": "Fulkrom",
+      "slot": "Primary",
+      "style": "MS_HEAVY_SWORD",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/TwoHand/SinecureKnightAxe/SinecureKnightTwoHandedAxeMeleeWeapon": {
+      "name": "Veilk",
+      "slot": "Primary",
+      "style": "MS_BO_STAFF",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Melee/TwoHand/SinecureKnightMace/SinecureKnightTwoHandedMaceMeleeWeapon": {
+      "name": "Orst-III",
+      "slot": "Primary",
+      "style": "MS_HEAVY_SWORD",
+      "damage": "IMPACT"
+    },
+    "/SF/Weapons/Melee/TwoHand/SinecureSpikedMace/SinecureTwoHandedSpikedMaceMeleeWeapon": {
+      "name": "Vrusht-IX",
+      "slot": "Primary",
+      "style": "MS_HEAVY_SWORD",
+      "damage": "IMPACT"
+    },
+    "/SF/Weapons/Melee/TwoHand/SpherePolearm/SpherePolearmMeleeWeapon": {
+      "name": "Vasp-IV",
+      "slot": "Primary",
+      "style": "MS_BO_STAFF",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Ranged/OneHand/DendritStaffCaster/DendritStaffCasterRangedMeleeWeapon": {
+      "name": "Seathorn",
+      "slot": "Primary",
+      "style": "MS_SAW_HEAVY",
+      "damage": "RADIANT"
+    },
+    "/SF/Weapons/Ranged/OneHand/FennCastingDevice/FennCastingDeviceRangedMeleeWeapon": {
+      "name": "Basker's Wrest",
+      "slot": "Sidearm",
+      "style": "MS_WARFAN",
+      "damage": "RADIANT"
+    },
+    "/SF/Weapons/Ranged/OneHand/GaleneCastingDevice/GaleneCastingDeviceRangedMeleeWeapon": {
+      "name": "Esthelle",
+      "slot": "Sidearm",
+      "style": "MS_WARFAN",
+      "damage": "RADIANT"
+    },
+    "/SF/Weapons/Ranged/OneHand/GaleneStaffCaster/GaleneStaffCasterRangedMeleeWeapon": {
+      "name": "The Alder",
+      "slot": "Primary",
+      "style": "MS_SAW_HEAVY",
+      "damage": "RADIANT"
+    },
+    "/SF/Weapons/Ranged/OneHand/OdeCastingDevice/OdeCastingDeviceRangedMeleeWeapon": {
+      "name": "Odiac",
+      "slot": "Sidearm",
+      "style": "MS_WARFAN",
+      "damage": "ELECTRICITY"
+    },
+    "/SF/Weapons/Ranged/OneHand/OdeStaffCaster/OdeStaffCasterRangedMeleeWeapon": {
+      "name": "Silistavf",
+      "slot": "Primary",
+      "style": "MS_MONKEY_STAFF",
+      "damage": "ELECTRICITY"
+    },
+    "/SF/Weapons/Ranged/OneHand/OdeZapStaffCaster/OdeZapStaffCasterRangedMeleeWeapon": {
+      "name": "Gystalt",
+      "slot": "Primary",
+      "style": "MS_SAW_HEAVY",
+      "damage": "ELECTRICITY"
+    },
+    "/SF/Weapons/Ranged/OneHand/StarterStaffCaster/StarterStaffCasterRangedMeleeWeapon": {
+      "name": "Gwylen",
+      "slot": "Primary",
+      "style": "MS_SAW_HEAVY",
+      "damage": "RADIANT"
+    },
+    "/SF/Weapons/Ranged/OneHand/WazzardStaff/WazzardStaffCasterRangedMeleeWeapon": {
+      "name": "The Erstroot",
+      "slot": "Primary",
+      "style": "MS_SAW_HEAVY",
+      "damage": "RADIANT"
+    },
+    "/SF/Weapons/Ranged/Thrown/PothiaThrowingKnives/PothiaThrowingKnivesRangedMeleeWeapon": {
+      "name": "Thrice Spurns",
+      "slot": "Sidearm",
+      "style": null,
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Ranged/Thrown/SecondaryStarterThrowingKnives/SecondaryStarterThrowingKnivesRangedMeleeWeapon": {
+      "name": "Precklies",
+      "slot": "Sidearm",
+      "style": null,
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Ranged/Thrown/SecondaryThrowingKnives/SecondaryThrowingKnivesRangedMeleeWeapon": {
+      "name": "Skílter",
+      "slot": "Sidearm",
+      "style": null,
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Ranged/TwoHand/DendritBow/DendritBowRangedMeleeWeapon": {
+      "name": "Maestro",
+      "slot": "Primary",
+      "style": "MS_BOW",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Ranged/TwoHand/GrandFatherBow/GrandFatherBowRangedMeleeWeapon": {
+      "name": "Juniper",
+      "slot": "Primary",
+      "style": "MS_BOW",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Ranged/TwoHand/JosalfarBow/JosalfarBowRangedMeleeWeapon": {
+      "name": "The Starling",
+      "slot": "Primary",
+      "style": "MS_BOW",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Ranged/TwoHand/OdeBow/OdeBowRangedMeleeWeapon": {
+      "name": "Blitzel",
+      "slot": "Primary",
+      "style": "MS_BOW",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Ranged/TwoHand/SinecureBow/SinecureBowRangedMeleeWeapon": {
+      "name": "Avex",
+      "slot": "Primary",
+      "style": "MS_BOW",
+      "damage": "SLASH"
+    },
+    "/SF/Weapons/Ranged/TwoHand/StarterBow/StarterBowRangedMeleeWeapon": {
+      "name": "Thistle",
+      "slot": "Primary",
+      "style": "MS_BOW",
+      "damage": "SLASH"
+    }
+  },
+  "pacts": {
+    "/SF/Souls/Bromius/BromiusSoul": "Bromius",
+    "/SF/Souls/Default/ChampionSoul": "Tethren",
+    "/SF/Souls/Default/GaleneSoul": "Wyld Oscelda",
+    "/SF/Souls/Default/JolsafarSoul": "Wyld Sirin",
+    "/SF/Souls/Default/PothiaSoul": "Wyld Tethren",
+    "/SF/Souls/Default/SaboteurSoul": "Sirin",
+    "/SF/Souls/Default/WardSoul": "Oscelda",
+    "/SF/Souls/Fencer/FencerSoul": "Duelo",
+    "/SF/Souls/Fenn/FennSoul": "Mora's Hand",
+    "/SF/Souls/Ode/OdeSoul": "Ode Tempest",
+    "/SF/Souls/OdeHunter/OdeHunterSoul": "Ode Shrike",
+    "/SF/Souls/Stag/StagSoul": "Garren Rood",
+    "/SF/Souls/Wolf/WolfSoul": "Orengall"
+  }
+}

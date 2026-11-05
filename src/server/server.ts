@@ -18,6 +18,7 @@ import { appFile, dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
 import { gameBeingRefused, gameRefusedMessage, loggedCollector } from "./gameLog";
 import { getEnvoyRank } from "./envoyRank";
+import { getRoster } from "./roster";
 import { virtuePoints } from "./loadouts";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
 import { getDiscoveries } from "./discoveries";
@@ -181,6 +182,11 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
 
   if (url.pathname === "/names.json") {
     sendJson(res, 200, await getNames());
+    return;
+  }
+
+  if (url.pathname === "/roster.json") {
+    sendJson(res, 200, await getRoster());
     return;
   }
 

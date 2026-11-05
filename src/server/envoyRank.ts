@@ -3,6 +3,7 @@ import { appFile, readDataJson } from "./paths";
 import { loggedMastery } from "./gameLog";
 import { MAX_RANK as MAX_ITEM_RANK, PACT_RANK_CONST, xpToRank } from "./weapons";
 import { writeFileAtomic } from "./files";
+import { getRoster } from "./roster";
 
 const WEAPON_RANK_XP = 100;
 const PACT_RANK_XP = 200;
@@ -103,10 +104,9 @@ export async function getEnvoyRank(
   rank: number,
   mastery: Record<string, number> | null,
 ): Promise<EnvoyRank> {
-  const [max, weapons, pacts] = await Promise.all([
+  const [max, roster] = await Promise.all([
     readDataJson<{ maxMastery?: number; patch?: string }>("masteryrank.json"),
-    readDataJson<Record<string, unknown>>("weapons.json"),
-    readDataJson<Record<string, unknown>>("pacts.json"),
+    getRoster(),
   ]);
   const maxMastery = typeof max?.maxMastery === "number" ? max.maxMastery : null;
   const patch = typeof max?.patch === "string" ? max.patch : null;
@@ -119,8 +119,8 @@ export async function getEnvoyRank(
   return estimateEnvoyRank({
     rank,
     mastery,
-    weaponCount: weapons ? Object.keys(weapons).length : 0,
-    pactCount: pacts ? Object.keys(pacts).length : 0,
+    weaponCount: Object.keys(roster.weapons).length,
+    pactCount: Object.keys(roster.pacts).length,
     maxMastery,
     patch,
     other: logged?.other ?? saved,
