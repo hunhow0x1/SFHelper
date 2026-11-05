@@ -1169,6 +1169,7 @@
             <div class="ebar"><i style="width:${fill}%"></i></div>
             <div class="esub">${sub}</div>
             ${items}
+            ${e.serverRank != null && e.serverRank !== e.rank ? `<div class="esub" title="SFHelper shows the rank your Mastery reaches, like the game's Arsenal. Soulframe's servers report a different rank in your profile and inventory; the daily standing cap and trades per day follow the servers.">Soulframe's servers report rank <b>${e.serverRank}</b></div>` : ""}
           </div>
           ${max}
         </div>`;

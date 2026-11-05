@@ -111,6 +111,38 @@
       "icon": "img/items/palettesilentrose.png",
       "bond": 1
     },
+    "/SF/Types/Recipes/Consumeables/PetFood/WolfAdultUpgradeFoodBlueprint": {
+      "name": "Bairnday Biscuit",
+      "station": "Brewing",
+      "kind": "Pup Treats",
+      "result": "/SF/Types/Items/Consumables/PetConsumeables/WoldAdultUpgradePetFood",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 200,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Food/MinnowSnackResource",
+          "name": "Plaited Freshfish",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Essence/FishEssenceResource",
+          "name": "Swell O' Tides",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Food/FishChumResource",
+          "name": "Clappie Pail",
+          "count": 10
+        }
+      ],
+      "desc": "A thick, layered biscuit to feed to a wholly-trained pup so that they may grow into Omen Wolf. Baked of young yolk and aged Wevetgrain, 'tis a celebration that would make a wolf of any whelp.",
+      "icon": null,
+      "bond": null
+    },
     "/SF/Types/Recipes/Consumeables/PetFood/WolfMealBlueprint": {
       "name": "Canid Kibble",
       "station": "Brewing",
@@ -143,6 +175,38 @@
       "icon": "img/items/canidkibble.png",
       "bond": 1
     },
+    "/SF/Types/Recipes/Consumeables/PetFood/WolfRespecFoodBlueprint": {
+      "name": "Follyfrond Treat",
+      "station": "Brewing",
+      "kind": "Pup Treats",
+      "result": "/SF/Types/Items/Consumables/PetConsumeables/WolfRespecPetFood",
+      "rarity": "RARE",
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 200,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Food/MinnowSnackResource",
+          "name": "Plaited Freshfish",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/DewSporeResource",
+          "name": "Dewspore",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/Fish/Essence/FishEssenceResource",
+          "name": "Swell O' Tides",
+          "count": 10
+        }
+      ],
+      "desc": "Dried Will-o-frond leaves to be served to a Wolfpup's whose talent be ill-suited to their calling. One nibble of a Follyfrond Treat shall grant you leave to train their strengths once again! For even the cleverest pup deserves a second chance to find their paws.",
+      "icon": null,
+      "bond": null
+    },
     "/SF/Types/Recipes/Consumeables/PetFood/WolfSnackBlueprint": {
       "name": "Canid Biscuit",
       "station": "Brewing",
@@ -171,7 +235,7 @@
           "count": 1
         }
       ],
-      "desc": "A handful of fishie-biscuits, bound with Brineflour. Feed to your Wolfpup to inspire obedience and resolve, boosting Training progress for a short time. Though do dole in rations or your Pup will tire all the quicker!  Best paired with a whine or a beg.",
+      "desc": "A handful of fishie-biscuits, bound with Brineflour. Feed to your Wolfpup to inspire obedience and resolve, boosting Training progress for a short time. Though do dole in rations or your Pup will tire all the quicker! Best paired with a whine or a beg.",
       "icon": "img/items/canidbiscuit.png",
       "bond": 1
     },
@@ -238,6 +302,38 @@
       "desc": "A vial of sun. Cast it skyward to dry out a storm. Effective against lightning-charged foes.",
       "icon": "img/items/consumables-clayale.png",
       "bond": 1
+    },
+    "/SF/Types/Recipes/Elixers/CloudswellElixerRecipe": {
+      "name": "Cloudswell",
+      "station": "Brewing",
+      "kind": "Elixirs",
+      "result": "/SF/Types/Items/Consumables/Elixers/CloudSwellElixer",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": false,
+      "gives": 1,
+      "dracs": 250,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Flowers/WeepinDrisResource",
+          "name": "Weepin' Dris",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Mushrooms/ToeOfOdeResource",
+          "name": "Toe of Ode",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/BrineflossResource",
+          "name": "Brinefloss",
+          "count": 10
+        }
+      ],
+      "desc": null,
+      "icon": null,
+      "bond": null
     },
     "/SF/Types/Recipes/Elixers/FeyElixirRecipe": {
       "name": "Dancing Galdre",

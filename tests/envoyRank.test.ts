@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { estimateEnvoyRank, itemMastery, rankStart } from "../src/server/envoyRank";
+import { estimateEnvoyRank, itemMastery, rankFor, rankStart } from "../src/server/envoyRank";
 import { loggedMastery } from "../src/server/gameLog";
 import { parseMaxMastery } from "../scripts/build_data";
 
@@ -49,12 +49,28 @@ describe("Envoy Rank", () => {
     expect(r.maxRank).toBe(19);
   });
 
-  it("shows no progress without the log's part, below the rank's start, or at the top rank", () => {
-    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked }).progress).toBeNull();
-    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked }).mastery).toBeNull();
-    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 100_000 }).progress).toBeNull();
-    expect(estimateEnvoyRank({ ...base, rank: 16, mastery: checked, other: 180_000 }).progress).toBe(0.99);
-    expect(estimateEnvoyRank({ ...base, rank: 19, mastery: checked, other: 180_000 }).progress).toBeNull();
+  it("uses the servers' rank until it knows the Mastery from the game's log", () => {
+    const r = estimateEnvoyRank({ ...base, rank: 19, mastery: checked });
+    expect(r).toMatchObject({ rank: 19, serverRank: 19, progress: null, mastery: null });
+  });
+
+  it("ranks by Mastery like the Arsenal, keeping the servers' rank beside it", () => {
+    expect(rankFor(361_249)).toBe(16);
+    expect(rankFor(361_250)).toBe(17);
+    expect(rankFor(404_999)).toBe(17);
+    expect(rankFor(0)).toBe(0);
+    const r = estimateEnvoyRank({ ...base, rank: 19, mastery: checked, other: 180_000 });
+    expect(r).toMatchObject({ rank: 17, serverRank: 19 });
+    expect(r.progress).toBeCloseTo(0.323, 3);
+    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 100_000 })).toMatchObject({ rank: 15, serverRank: 17 });
+    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 280_000 })).toMatchObject({ rank: 19, serverRank: 17, progress: null });
+  });
+
+  it("takes the game's own item Mastery when it counts more than the inventory", () => {
+    const r = estimateEnvoyRank({ ...base, rank: 19, mastery: checked, other: 185_000, loggedItems: 196_500 });
+    expect(r.mastery).toEqual({ total: 381_500, items: 196_500, other: 185_000, next: rankStart(18) });
+    expect(r.rank).toBe(17);
+    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 185_000, loggedItems: 0 }).mastery?.items).toBe(195_400);
   });
 
   it("reads the latest Mastery figures from the game log", async () => {

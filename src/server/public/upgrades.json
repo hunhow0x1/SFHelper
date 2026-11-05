@@ -1,5 +1,23 @@
 {
   "runes": {
+    "/SF/Upgrades/Runes/Weapon/Bow/BowBestoneProjectileRune": {
+      "name": "Carrionite",
+      "desc": "The rune of ardent stone, petrifying in wake.",
+      "art": "Bow",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
+    "/SF/Upgrades/Runes/Weapon/Bow/BowKnockdownProjectileRune": {
+      "name": "Dissever",
+      "desc": "The rune of garnet stupors, a clandestine strike.",
+      "art": "Bow",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
     "/SF/Upgrades/Runes/Weapon/Bow/FlameRune/FlameRune": {
       "name": "Blazingbolt",
       "desc": "The rune of the arrowhead, aglow in flame",
@@ -47,6 +65,15 @@
       ],
       "icon": "img/runes/alcacourage005.png"
     },
+    "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeEmpoweredThrowRune": {
+      "name": "Flamepitch",
+      "desc": "The soaring spark, igniting all.",
+      "art": "Short Blade",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeInvisRune": {
       "name": "The Flitsmoke",
       "desc": "The rune of smoke ephemeral",
@@ -65,6 +92,15 @@
         }
       ],
       "icon": "img/runes/alcagrace001.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeLeechStrikeRune": {
+      "name": "Parapelt",
+      "desc": "The rune of leeching stone, maiming and mending, both.",
+      "art": "Short Blade",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/StarterRune": {
       "name": "Emberaught",
@@ -93,6 +129,24 @@
       "slot": null,
       "stats": [],
       "icon": "img/runes/alcacourage012.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeBestoneProjectileRune": {
+      "name": "Mortrite",
+      "desc": "The rune of stunning stone, shackling when thrown.",
+      "art": "Flyblade",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
+    "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeKnockdownProjectileRune": {
+      "name": "Reaproot",
+      "desc": "The rune of singing flame, making daggers of embers.",
+      "art": "Flyblade",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeSeekingRune": {
       "name": "Picktrix",
@@ -131,6 +185,24 @@
         }
       ],
       "icon": "img/runes/alcacourage013.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordArcaneBullwarkRune": {
+      "name": "Wardwark",
+      "desc": "The rune of steadfast trunks, of bursting bark.",
+      "art": "Heavy",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
+    "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordLeapAttackRune": {
+      "name": "Crimsonfell",
+      "desc": "The rune of leaden vaults, a staggering kill.",
+      "art": "Heavy",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordRangeRune": {
       "name": "Treefell",
@@ -188,6 +260,24 @@
       ],
       "icon": "img/runes/alcacourage010.png"
     },
+    "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeEmpoweredThrowRune": {
+      "name": "Smeltsquall",
+      "desc": "The rune of flying death, explosive in force.",
+      "art": "Long Blade",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
+    "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeLeechStrikeRune": {
+      "name": "Fortflank",
+      "desc": "The rune of archaic balance, ‘twixt mend and maul.",
+      "art": "Long Blade",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeProjectileRune": {
       "name": "The Mistgale",
       "desc": "The rune of the phantoms formed in mist",
@@ -234,6 +324,24 @@
         }
       ],
       "icon": "img/runes/alcacourage006.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune": {
+      "name": "Lunarcure",
+      "desc": "The rune of spiritsalve, ease your rally.",
+      "art": "Magick",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
+    "/SF/Upgrades/Runes/Weapon/Magiks/CasterKnockdownProjectileRune": {
+      "name": "Vexipare",
+      "desc": "The rune of radiation, a flying flame.",
+      "art": "Magick",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/ExplosiveBuildUpRune": {
       "name": "The Hollowing",
@@ -291,6 +399,24 @@
       ],
       "icon": "img/runes/alcacourage002.png"
     },
+    "/SF/Upgrades/Runes/Weapon/Polearm/PolearmArcaneBulwarkRune": {
+      "name": "Cragprick",
+      "desc": "The rune of mighty cliffs, steadfast and craggy.",
+      "art": "Polearm",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
+    "/SF/Upgrades/Runes/Weapon/Polearm/PolearmLeapAttackRune": {
+      "name": "Astralflare",
+      "desc": "The rune of shooting stars, crashing to earth.",
+      "art": "Polearm",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmMultiThrowRune": {
       "name": "Splitbolt",
       "desc": "The rune of forked lightning, strengthened in its fragmentation",
@@ -347,6 +473,24 @@
         }
       ],
       "icon": "img/runes/alcagrace008.png"
+    },
+    "/SF/Upgrades/Runes/Weapon/Shield/ShieldArcaneBulwarkRune": {
+      "name": "Soothesayer",
+      "desc": "The rune of verdant ward, of fortifying spirit.",
+      "art": "Shield",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
+    },
+    "/SF/Upgrades/Runes/Weapon/Shield/ShieldEmpoweredThrowRune": {
+      "name": "Scarletsling",
+      "desc": "The rune of whim and flux, sway your munition.",
+      "art": "Shield",
+      "does": null,
+      "slot": null,
+      "stats": [],
+      "icon": null
     },
     "/SF/Upgrades/Runes/Weapon/Shield/StarterRune": {
       "name": "Forburn",
@@ -629,17 +773,35 @@
       "kind": "Fishing",
       "icon": "img/items/doyensspool.png"
     },
+    "/SF/Types/Items/Consumables/Elixers/CloudSwellElixer": {
+      "name": "Cloudswell",
+      "desc": null,
+      "kind": "Supplies",
+      "icon": null
+    },
     "/SF/Types/Items/Consumables/HealingPotion": {
       "name": "Life Elixir",
       "desc": "Essence of life. Drink to regain health.",
       "kind": "Supplies",
       "icon": "img/avakot/healingpotion.png"
     },
+    "/SF/Types/Items/Consumables/PetConsumeables/WoldAdultUpgradePetFood": {
+      "name": "Bairnday Biscuit",
+      "desc": "A thick, layered biscuit to feed to a wholly-trained pup so that they may grow into Omen Wolf. Baked of young yolk and aged Wevetgrain, 'tis a celebration that would make a wolf of any whelp.",
+      "kind": "Companion",
+      "icon": null
+    },
     "/SF/Types/Items/Consumables/PetConsumeables/WolfMealPetFood": {
       "name": "Canid Kibble",
       "desc": "A bowl of hearty finners and grain. Feed to your Wolfpup to grant them Energy ‘betwixt romps around the Isle. Orengall warns not to let her brood overeat… Lest a tummy too full lull them to silvern sleep.",
       "kind": "Companion",
       "icon": "img/items/canidkibble.png"
+    },
+    "/SF/Types/Items/Consumables/PetConsumeables/WolfRespecPetFood": {
+      "name": "Follyfrond Treat",
+      "desc": "Dried Will-o-frond leaves to be served to a Wolfpup's whose talent be ill-suited to their calling. One nibble of a Follyfrond Treat shall grant you leave to train their strengths once again! For even the cleverest pup deserves a second chance to find their paws.",
+      "kind": "Companion",
+      "icon": null
     },
     "/SF/Types/Items/Consumables/PetConsumeables/WolfTreatPetFood": {
       "name": "Canid Biscuit",
@@ -745,13 +907,13 @@
     },
     "/SF/Types/Items/Consumables/WolfCubSummon": {
       "name": "Summon Wolfpup",
-      "desc": null,
+      "desc": "Summon your Wolfpup. A little fangling of the wild, all wayward paws and mottled mane. Though it may still yip and stumble, 'tis bound to follow your footfalls through leaf and loam.",
       "kind": "Supplies",
       "icon": "img/items/summonwolfpup.png"
     },
     "/SF/Types/Items/Consumables/WolfSummon": {
       "name": "Summon Wolf",
-      "desc": null,
+      "desc": "Summon your Wolf. Through blood and bitter dark has your familiar followed. Ride now as kindred. What began in fondness now runs marrow-deep.",
       "kind": "Supplies",
       "icon": null
     }

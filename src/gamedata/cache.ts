@@ -29,19 +29,21 @@ const FILES = [PACKAGES, LANGUAGES];
 export function findRootEntry(toc: Buffer, name: string): TocEntry | null {
   if (toc.length < TOC_HEADER || toc.readUInt32LE(0) !== TOC_MAGIC) throw new Error("not a Soulframe cache index");
   const want = Buffer.from(`${name}\0`, "latin1");
+  let best: { at: number; stamp: bigint } | null = null;
   for (let at = TOC_HEADER; at + TOC_ENTRY <= toc.length; at += TOC_ENTRY) {
     if (toc.readInt32LE(at + 28) !== 0 || toc.compare(want, 0, want.length, at + NAME_AT, at + NAME_AT + want.length) !== 0) continue;
-    const offset = Number(toc.readBigInt64LE(at));
-    if (offset < 0) continue;
-    return {
-      name,
-      offset,
-      stamp: toc.readBigInt64LE(at + 8).toString(),
-      compSize: toc.readInt32LE(at + 16),
-      decSize: toc.readInt32LE(at + 20),
-    };
+    if (toc.readBigInt64LE(at) < 0n) continue;
+    const stamp = toc.readBigInt64LE(at + 8);
+    if (!best || stamp >= best.stamp) best = { at, stamp };
   }
-  return null;
+  if (!best) return null;
+  return {
+    name,
+    offset: Number(toc.readBigInt64LE(best.at)),
+    stamp: best.stamp.toString(),
+    compSize: toc.readInt32LE(best.at + 16),
+    decSize: toc.readInt32LE(best.at + 20),
+  };
 }
 
 export async function readEntry(cachePath: string, e: TocEntry): Promise<Buffer> {

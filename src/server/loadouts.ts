@@ -40,6 +40,7 @@ export interface Build {
   name: string;
   favorite: boolean;
   virtues?: VirtuePoints | null;
+  virtueShares?: { vu: number; vv: number } | null;
   talisman?: string | null;
   armour?: ArmourSet | null;
   fables?: VirtuePoints | null;
@@ -290,6 +291,7 @@ export function parseBuilds(raw: unknown): Build[] {
       name: typeof preset.n === "string" && preset.n ? preset.n : "Unnamed",
       favorite: preset.Favorite === true,
       virtues: virtuePoints(preset.vu, preset.vv, record.PlayerLevel),
+      virtueShares: typeof preset.vu === "number" && typeof preset.vv === "number" ? { vu: preset.vu, vv: preset.vv } : null,
       talisman: inFolder(worn, "Totem"),
       armour: worn.length
         ? { helm: inFolder(worn, "Helmets"), cuirass: inFolder(worn, "Body"), leggings: inFolder(worn, "Legs") }

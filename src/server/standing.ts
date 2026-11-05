@@ -31,13 +31,22 @@ export interface DailyCaps {
 
 const ODE_TAG = "OdeSyndicate";
 
+const PRELUDES_17_FIRST_DAY = Date.UTC(2026, 10, 6);
+
+export const preludes17Caps = (now = Date.now()): boolean => now >= PRELUDES_17_FIRST_DAY;
+
+export function fullDailyCap(level: number, now = Date.now()): number {
+  return preludes17Caps(now) ? 30_000 + 1_000 * level : 16_000 + 500 * level;
+}
+
 export function dailyCaps(
   level: number | null,
   reported: { affiliation: number | null; affiliationOde: number | null },
   today: StandingToday | null,
+  now = Date.now(),
 ): DailyCaps | null {
   if (reported.affiliation == null && level == null) return null;
-  const full = level != null ? 16_000 + 500 * level : 0;
+  const full = level != null ? fullDailyCap(level, now) : 0;
   const trackedOde = today?.factions[ODE_TAG] ?? 0;
   const trackedMain = (today?.total ?? 0) - trackedOde;
 

@@ -10,8 +10,16 @@ const RANK_XP = 1250;
 
 export const rankStart = (rank: number): number => RANK_XP * rank * rank;
 
+export function rankFor(total: number): number {
+  let rank = Math.floor(Math.sqrt(Math.max(0, total) / RANK_XP));
+  while (rankStart(rank + 1) <= total) rank++;
+  while (rank > 0 && rankStart(rank) > total) rank--;
+  return rank;
+}
+
 export interface EnvoyRank {
   rank: number;
+  serverRank: number;
   maxMastery: number | null;
   patch: string | null;
   maxRank: number | null;
@@ -28,6 +36,7 @@ export interface MasteryInputs {
   maxMastery: number | null;
   patch: string | null;
   other?: number | null;
+  loggedItems?: number | null;
 }
 
 export function itemMastery(mastery: Record<string, number>): { weaponRanks: number; pactRanks: number; xp: number } {
@@ -51,16 +60,17 @@ export function estimateEnvoyRank(i: MasteryInputs): EnvoyRank {
     pactMax: pactCount * MAX_ITEM_RANK,
   };
   const maxRank = i.maxMastery ? Math.floor(i.maxMastery) : null;
-  const base = { rank: i.rank, maxMastery: i.maxMastery, patch: i.patch, maxRank, items };
+  const base = { rank: i.rank, serverRank: i.rank, maxMastery: i.maxMastery, patch: i.patch, maxRank, items };
   if (i.other == null) return { ...base, progress: null, mastery: null };
 
-  const total = earned.xp + i.other;
-  const next = rankStart(i.rank + 1);
-  const mastery = { total, items: earned.xp, other: i.other, next };
-  if (maxRank !== null && i.rank >= maxRank) return { ...base, progress: null, mastery };
-  const start = rankStart(i.rank);
-  const progress = total >= start ? Math.min(0.99, (total - start) / (next - start)) : null;
-  return { ...base, progress, mastery };
+  const itemXp = Math.max(earned.xp, i.loggedItems ?? 0);
+  const total = itemXp + i.other;
+  const rank = rankFor(total);
+  const next = rankStart(rank + 1);
+  const mastery = { total, items: itemXp, other: i.other, next };
+  if (maxRank !== null && rank >= maxRank) return { ...base, rank, progress: null, mastery };
+  const start = rankStart(rank);
+  return { ...base, rank, progress: Math.min(0.99, (total - start) / (next - start)), mastery };
 }
 
 const STATE_VERSION = 3;
@@ -101,7 +111,7 @@ export async function getEnvoyRank(
   const maxMastery = typeof max?.maxMastery === "number" ? max.maxMastery : null;
   const patch = typeof max?.patch === "string" ? max.patch : null;
   if (!mastery) {
-    return { rank, maxMastery, patch, maxRank: maxMastery ? Math.floor(maxMastery) : null, progress: null, mastery: null, items: null };
+    return { rank, serverRank: rank, maxMastery, patch, maxRank: maxMastery ? Math.floor(maxMastery) : null, progress: null, mastery: null, items: null };
   }
   const logged = await loggedMastery();
   const saved = await loadOther(accountId);
@@ -114,5 +124,6 @@ export async function getEnvoyRank(
     maxMastery,
     patch,
     other: logged?.other ?? saved,
+    loggedItems: logged?.items ?? null,
   });
 }

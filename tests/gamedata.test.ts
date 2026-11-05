@@ -5,13 +5,13 @@ import { join } from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { findCacheDir, findRootEntry, hostPath, readEntry } from "../src/gamedata/cache";
 import { readLanguages } from "../src/gamedata/formats";
-import { buildNames, buildPactArtValues, parseFactionCaps } from "../src/gamedata/builders";
+import { buildNames, buildPactArtValues, parseFactionCaps, withRetired } from "../src/gamedata/builders";
 import { loggedGame } from "../src/server/gameLog";
 
-function tocEntry(name: string, parent: number, offset: number, size: number): Buffer {
+function tocEntry(name: string, parent: number, offset: number, size: number, stamp = 123n): Buffer {
   const e = Buffer.alloc(96);
   e.writeBigInt64LE(BigInt(offset), 0);
-  e.writeBigInt64LE(123n, 8);
+  e.writeBigInt64LE(stamp, 8);
   e.writeInt32LE(size, 16);
   e.writeInt32LE(size, 20);
   e.writeInt32LE(offset < 0 ? -1 : 0, 24);
@@ -53,6 +53,21 @@ describe("reading Soulframe's cache", () => {
     const dir = await mkdtemp(join(tmpdir(), "sfh-cache-"));
     await writeFile(join(dir, "H.Misc.cache"), Buffer.from("xxxxxdata"));
     expect((await readEntry(join(dir, "H.Misc.cache"), e!)).toString()).toBe("data");
+  });
+
+  it("reads the newest copy after a patch appends a new one", () => {
+    const index = toc(
+      tocEntry("Packages.bin", 0, 27268465, 3, 0n),
+      tocEntry("SF", 0, -1, 0),
+      tocEntry("Packages.bin", 0, 35661503, 4, 134383816323410000n),
+    );
+    expect(findRootEntry(index, "Packages.bin")).toMatchObject({ offset: 35661503, stamp: "134383816323410000", compSize: 4 });
+  });
+
+  it("keeps names for types a patch removed, so old kill stats still have names", () => {
+    expect(withRetired({ b: "New B", c: "C" }, { a: "Old A", b: "Old B" })).toEqual({ a: "Old A", b: "New B", c: "C" });
+    expect(Object.keys(withRetired({ z: "Z", y: "Y" }, { a: "A" }))).toEqual(["z", "y", "a"]);
+    expect(withRetired({ z: "Z" }, undefined)).toEqual({ z: "Z" });
   });
 
   it("maps the game's Windows paths into the Proton prefix", () => {

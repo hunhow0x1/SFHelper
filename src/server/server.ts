@@ -10,7 +10,7 @@ import { pickupHistory, recordPickups } from "./pickups";
 import { recordTrades, tradedIds, tradeHistory } from "./trades";
 import { exportHistory, historyFileName, importHistory } from "./history";
 import { getSettings, updateSettings } from "./settings";
-import { recordStanding, dailyCaps } from "./standing";
+import { recordStanding, dailyCaps, preludes17Caps } from "./standing";
 import { getDataRefreshedAt, getImportStatus } from "./importStatus";
 import { getUpdateStatus, requestUpdateAction } from "./updateStatus";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
@@ -18,6 +18,7 @@ import { appFile, dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
 import { gameBeingRefused, gameRefusedMessage, loggedCollector } from "./gameLog";
 import { getEnvoyRank } from "./envoyRank";
+import { virtuePoints } from "./loadouts";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
 import { getDiscoveries } from "./discoveries";
 import { withAgariNames, withCollector, withStarred } from "./timers";
@@ -305,17 +306,23 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         a == null ? (b ?? null) : b == null ? a : Math.min(a, b);
       const resetMs = Date.parse(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
       const invDaily = inventory && Date.parse(inventory.updatedAt) >= resetMs ? inventory.daily : null;
+      const envoyRank = PlayerLevel != null ? await getEnvoyRank(accountId, PlayerLevel, inventory?.mastery ?? null) : null;
       const caps = dailyCaps(
-        PlayerLevel ?? null,
+        (preludes17Caps() ? PlayerLevel : envoyRank?.rank ?? PlayerLevel) ?? null,
         {
           affiliation: lowest(snap.daily.affiliation, invDaily?.affiliation),
           affiliationOde: lowest(snap.daily.affiliationOde, invDaily?.affiliationOde),
         },
         standingToday,
       );
+      const builds = (inventory?.builds ?? []).map((b) =>
+        envoyRank && envoyRank.rank !== envoyRank.serverRank && b.virtueShares
+          ? { ...b, virtues: virtuePoints(b.virtueShares.vu, b.virtueShares.vv, envoyRank.rank) }
+          : b,
+      );
       sendJson(res, 200, {
         account: snap.account,
-        level: PlayerLevel ?? null,
+        level: envoyRank?.rank ?? PlayerLevel ?? null,
         items: snap.items.map((it) =>
           ownedCounts.has(it.key) ? { ...it, count: ownedCounts.get(it.key) } : it,
         ),
@@ -330,7 +337,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         weapons,
         pacts,
         mastery: inventory?.mastery ?? null,
-        envoyRank: PlayerLevel != null ? await getEnvoyRank(accountId, PlayerLevel, inventory?.mastery ?? null) : null,
+        envoyRank,
         timers: inventory ? withCollector(await withAgariNames(withStarred(inventory.timers, (await getSettings()).timerWatch)), await loggedCollector()) : [],
         discoveries: inventory ? await getDiscoveries(inventory.loreScans) : null,
         temperProgress: inventory?.temperProgress ?? [],
@@ -338,7 +345,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         crafting: inventory?.crafting ?? null,
         pickups,
         trades,
-        builds: inventory?.builds ?? [],
+        builds,
         totems: inventory?.totems ?? null,
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,

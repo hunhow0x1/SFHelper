@@ -1,6 +1,13 @@
 import { matchArmourStem } from "./armour";
 import type { Dict, TypeTree } from "./formats";
 
+export function withRetired(fresh: Record<string, string>, previous: Record<string, string> | undefined): Record<string, string> {
+  if (!previous) return fresh;
+  const out = { ...fresh };
+  for (const [key, value] of Object.entries(previous)) if (!(key in out)) out[key] = value;
+  return out;
+}
+
 export interface NameData {
   items: Record<string, string>;
   factions: Record<string, string>;

@@ -16,6 +16,7 @@ import {
   parseWikiIcons,
   parseWikiImages,
   parseWikiRunes,
+  withRetired,
   type AvakotPool,
   type RecipeDef,
   type UpgradeData,
@@ -156,15 +157,19 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
 
   let names = buildNames(dict, tree);
   await step("names.json", async () => {
-    enough("names", Object.keys(names.items).length, Object.keys((await previous<typeof names>("names.json"))?.items ?? {}).length);
+    const prev = await previous<typeof names>("names.json");
+    enough("names", Object.keys(names.items).length, Object.keys(prev?.items ?? {}).length);
+    names = { ...names, items: withRetired(names.items, prev?.items) };
     await put("names.json", JSON.stringify(names, null, 2));
     return `${Object.keys(names.items).length} names`;
   });
   if (failed.includes("names.json")) names = (await previous<typeof names>("names.json")) ?? names;
 
   await step("enemies.json", async () => {
-    const enemies = buildEnemies(dict, tree);
-    enough("enemies", Object.keys(enemies.names).length, Object.keys((await previous<{ names: object }>("enemies.json"))?.names ?? {}).length);
+    const fresh = buildEnemies(dict, tree);
+    const prev = await previous<Partial<typeof fresh>>("enemies.json");
+    enough("enemies", Object.keys(fresh.names).length, Object.keys(prev?.names ?? {}).length);
+    const enemies = { names: withRetired(fresh.names, prev?.names), parents: withRetired(fresh.parents, prev?.parents) };
     await put("enemies.json", `${JSON.stringify(enemies, null, 1)}\n`);
     return `${Object.keys(enemies.names).length} enemies`;
   });

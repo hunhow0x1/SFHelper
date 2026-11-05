@@ -11,7 +11,7 @@
       "map": false
     },
     "BrackenBraeLocationLoreFragment": {
-      "name": "Pigwen Skerry",
+      "name": "Bracken Brae",
       "memories": 3,
       "map": false
     },
@@ -31,7 +31,7 @@
       "map": false
     },
     "CryptCastleMapLoreFragment": {
-      "name": "Crypt of The Circade",
+      "name": "The Crypt of The Circade",
       "memories": 0,
       "map": true
     },
@@ -41,12 +41,17 @@
       "map": false
     },
     "CryptFuirlandsMapLoreFragment": {
-      "name": "Crypt of The Circade",
+      "name": "The Crypt of The Circade",
       "memories": 0,
       "map": true
     },
     "CryptKearnholdMapLoreFragment": {
-      "name": "Crypt of The Circade",
+      "name": "The Crypt of The Circade",
+      "memories": 0,
+      "map": true
+    },
+    "CurlailMinesMapLoreFragment": {
+      "name": "Carntyne Colliery",
       "memories": 0,
       "map": true
     },
@@ -79,6 +84,11 @@
       "name": "Fort Curlail",
       "memories": 3,
       "map": false
+    },
+    "FuirlandMinesMapLoreFragment": {
+      "name": "Carntyne Colliery",
+      "memories": 0,
+      "map": true
     },
     "GladeEntranceCampLoreFragment": {
       "name": "Garren Shrine",
@@ -164,6 +174,11 @@
       "name": "Fort Kearnhold",
       "memories": 3,
       "map": false
+    },
+    "KearnholdMinesMapLoreFragment": {
+      "name": "Carntyne Colliery",
+      "memories": 0,
+      "map": true
     },
     "KearnholdVillageLocationLoreFragment": {
       "name": "Bradan Bank",
@@ -434,6 +449,11 @@
       "name": "Wyndoun",
       "memories": 3,
       "map": false
+    },
+    "WyndounMinesMapLoreFragment": {
+      "name": "Carntyne Colliery",
+      "memories": 0,
+      "map": true
     }
   }
 }
