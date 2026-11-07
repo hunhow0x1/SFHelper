@@ -93,16 +93,27 @@ describe("updating game data after Soulframe updates", () => {
     expect(t.calls.updates).toBe(3);
   });
 
+  it("drops the previous version's copies before rebuilding them", async () => {
+    const t = await setup();
+    expect(await new GameDataWatcher(t.opts()).check()).toBe("updated");
+    await writeFile(join(t.out, "upgrades.json"), "{}");
+    await mkdir(join(t.out, "img", "items"), { recursive: true });
+    await writeFile(join(t.out, "img", "items", "old.png"), "");
+    expect(await new GameDataWatcher(t.opts("1.0.1")).check()).toBe("updated");
+    await expect(readFile(join(t.out, "upgrades.json"))).rejects.toThrow();
+    await expect(readFile(join(t.out, "img", "items", "old.png"))).rejects.toThrow();
+  });
+
   it("drops its copies when the app updates and the game can't be found", async () => {
     const t = await setup();
     expect(await new GameDataWatcher(t.opts()).check()).toBe("updated");
     await writeFile(join(t.out, "names.json"), "{}");
-    await writeFile(join(t.out, "totems.json"), "{}");
+    await writeFile(join(t.out, "weapons.json"), "{}");
     t.setDir(null);
     expect(await new GameDataWatcher(t.opts()).check()).toBe("no-game");
     expect(await new GameDataWatcher(t.opts("1.0.1")).check()).toBe("cleared");
     await expect(readFile(join(t.out, "names.json"))).rejects.toThrow();
-    expect(await readFile(join(t.out, "totems.json"), "utf8")).toBe("{}");
+    expect(await readFile(join(t.out, "weapons.json"), "utf8")).toBe("{}");
     expect(t.calls.changed).toBe(2);
   });
 

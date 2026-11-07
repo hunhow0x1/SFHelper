@@ -105,7 +105,14 @@
       "name": "Blazingbolt",
       "desc": "The rune of the arrowhead, aglow in flame",
       "text": "Inflicts +|DAMAGE|% Flame Damage.",
-      "vals": null,
+      "vals": {
+        "DAMAGE": [
+          "100",
+          "150",
+          "200",
+          "250"
+        ]
+      },
       "art": "Bow",
       "does": null,
       "slot": "Courage",
@@ -215,7 +222,20 @@
       "name": "The Flitsmoke",
       "desc": "The rune of smoke ephemeral",
       "text": "Creates a cloaking shadow for |DURATION| seconds. Cloak duration increases with each stealth kill by |BONUS| seconds.",
-      "vals": null,
+      "vals": {
+        "DURATION": [
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "BONUS": [
+          "3",
+          "3",
+          "3",
+          "3"
+        ]
+      },
       "art": "Short Blade",
       "does": "Grants invisibility on activation. Stealth kills while active extend the duration.",
       "slot": "Grace",
@@ -307,7 +327,14 @@
       "name": "Emberlash",
       "desc": "The rune of the ember glowing in wait",
       "text": "Inflicts +|DAMAGE|% Flame Damage.",
-      "vals": null,
+      "vals": {
+        "DAMAGE": [
+          "100",
+          "150",
+          "200",
+          "250"
+        ]
+      },
       "art": "Flyblade",
       "does": null,
       "slot": "Courage",
@@ -419,7 +446,20 @@
       "name": "Picktrix",
       "desc": "The rune of the Picktrix, swarming smells of blood",
       "text": "Creates a flock of |COUNT| seeking sprites that inflicts |MULT|% Damage.",
-      "vals": null,
+      "vals": {
+        "COUNT": [
+          "4",
+          "4",
+          "4",
+          "4"
+        ],
+        "MULT": [
+          "60",
+          "80",
+          "100",
+          "120"
+        ]
+      },
       "art": "Flyblade",
       "does": "Releases a flock of four seeking sprites that strike nearby foes.",
       "slot": "Spirit",
@@ -926,7 +966,14 @@
       "name": "Wickwell",
       "desc": "The rune of a waxed wick, ready to ignite",
       "text": "Inflicts +|DAMAGE|% Flame Damage.",
-      "vals": null,
+      "vals": {
+        "DAMAGE": [
+          "100",
+          "150",
+          "200",
+          "250"
+        ]
+      },
       "art": "Magick",
       "does": null,
       "slot": "Courage",
@@ -1092,7 +1139,20 @@
       "name": "The Durglint",
       "desc": "The rune of sharp reflections",
       "text": "Creates a beam of light that inflicts |BONUS| damage for |DURATION| seconds and enhances the power of the next melee attack.",
-      "vals": null,
+      "vals": {
+        "BONUS": [
+          "75",
+          "100",
+          "125",
+          "125"
+        ],
+        "DURATION": [
+          "8",
+          "8",
+          "8",
+          "8"
+        ]
+      },
       "art": "Shield",
       "does": "For 8 seconds, blocking fires a beam of energy which deals 125 damage and increases damage dealt on the next melee attack.",
       "slot": "Spirit",

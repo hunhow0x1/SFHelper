@@ -169,118 +169,6 @@ export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Pr
   return { ok, archived, unparsed };
 }
 
-const TEMPER_NAME: Record<string, string> = {
-  AerialAttackDamageAMod: "From Above",
-  AttackSpeedMod: "Swift Strike",
-  BlockingLessStaggerMod: "Fortified",
-  CassidDamageOnNearDeathMod: "Invader",
-  CassidDamageOnUndamagedMod: "First Strike",
-  CassidParryStaggerMod: "Clam's Foot",
-  CassidPoisonMod: "Sickness",
-  ChargeRateMod: "Quick Draw",
-  ConsecutiveAfterHeavyMod: "Follow Up",
-  CritChanceMod: "Sullying Force",
-  DamageNoSidearmMod: "Unencumbered",
-  DamageWhenFullHealthMod: "Hale and Hearty",
-  DeflectDamageMod: "Arcane Rebound",
-  DendritFireDamageMod: "Enkindled",
-  DendritHealOnKillMod: "Renewed Slayer",
-  DendritRegainDecayMod: "Well Woven",
-  DendritRegainMod: "Hunter's Relish",
-  DodgeAttackDamageMod: "Rejoinder",
-  DodgeFocusMod: "Grounding Spell",
-  FeyDuplicateProjMod: "Duplicate",
-  FeykinArcanicDamageMod: "Aftershock",
-  FeykinDamageToNearbyMod: "Sympathy Pang",
-  FocusedHeavyAttackDamageMod: "Conjuration",
-  HeavyAttackDamageAndStaggerMod: "Full Force",
-  HeavyAttackWindUpMod: "Breakneck",
-  HeavyCastWindUpMod: "Arcane Alacrity",
-  LegShotMod: "Severed Root",
-  MagickHeavyAttackDamageAndStaggerMod: "Arcane Barrage",
-  MendicantBleedDamageMod: "Savagery",
-  MendicantFearMod: "Unnerving Blow",
-  MendicantFearThrowMod: "Sinister Volley",
-  MendicantWeaknessMod: "Hollowed",
-  OdeReduceDefenseMod: "Bypass",
-  OdeStaggerToKnockdownMod: "Slinger's Tempo",
-  OdeVoltaicDamageMod: "Galvanic Strike",
-  ParryWindowMod: "Heightened Parry",
-  RiposteDamageMod: "Vengeance",
-  ShatterDamageMod: "Rupture",
-  SprintAttackDamageMod: "Bounding Swipe",
-  StaggerCritMod: "Cowp",
-  StaggerMod: "Swooning Blow",
-  ThrowSpeedMod: "Streamlined",
-};
-
-function temperEffect(extract: string): string | null {
-  let m = extract.match(/==+\s*Mechanics\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i);
-  let t = m ? m[1]! : "";
-  if (!t) {
-    const ov = extract.match(/==+\s*Overview\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i);
-    t = ov ? ov[1]!.replace(/^[\s\S]*?Temper[^.]*\.\s*/i, "") : "";
-  }
-  t = t
-    .replace(/\s+/g, " ")
-    .replace(/\s+%/g, "%")
-    .replace(/\s+by an unknown amount/gi, "")
-    .replace(/\s+by an unspecified amount/gi, "")
-    .replace(/,?\s*and\s+\?\?\?[^.,]*/gi, "")
-    .replace(/\s*\?\?\?[^.,]*/g, "")
-    .replace(/\s*\([^)]*\b(?:need|needs|seem|confirm|approx|unconfirm|citation|TODO|unknown|assum)\w*[^)]*\)/gi, "")
-    .replace(/\s+,/g, ",")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-  const sentences = t.match(/(?:[^.]|\.(?!\s|$))*\.(?=\s|$)/g);
-  if (sentences) t = sentences.slice(0, 2).map((x) => x.trim()).join(" ").trim();
-  return t && t.length > 6 ? t : null;
-}
-
-const GAME_EFFECT: Record<string, string> = {
-  LegShotMod:
-    "Severed Root increases the Stagger dealt by leg shots by 20%. When Double-Stacked, this bonus will be doubled to 40%.",
-  MendicantFearMod:
-    "Unnerving Blow provides a 10% chance on hit to inflict the Fear status for 6 seconds. When Double-Stacked, this chance will be doubled to 20%.",
-  MendicantFearThrowMod:
-    "Sinister Volley provides a 10% chance to inflict the Fear status for 6 seconds on a Foe struck by a Thrown attack. When Double-Stacked, this chance will be doubled to 20%.",
-  CassidDamageOnNearDeathMod:
-    "Invader causes attacks on Foes with less than 30% Life to deal 20 more base Damage before multipliers. When Double-Stacked, this bonus will be doubled to 40.",
-  DodgeAttackDamageMod:
-    "Rejoinder causes all Dodge Attacks, including Spectre Strikes, to deal 10 more base Damage and 12 more Stagger before multipliers. When Double-Stacked, these bonuses will be doubled to 20 and 24.",
-};
-const PLACEHOLDER_RE = /\b2?X\b|\bTBD\b|\b[Uu]nknown\b|\b[Uu]ndocumented\b/;
-
-export function withGameValues(tag: string, effect: string | null): string | null {
-  const fallback = GAME_EFFECT[tag];
-  return fallback && (!effect || PLACEHOLDER_RE.test(effect)) ? fallback : effect;
-}
-
-export async function buildTempers(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
-  const tags = Object.keys(TEMPER_NAME).sort();
-  const out: Record<string, { name: string; effect: string | null }> = {};
-  let ok = 0;
-  const unparsed: string[] = [];
-  for (let i = 0; i < tags.length; i++) {
-    const tag = tags[i]!;
-    const name = TEMPER_NAME[tag]!;
-    onProgress?.(i, tags.length, name);
-    try {
-      const r = await j(`${API}?action=query&format=json&prop=extracts&explaintext=1&titles=${encodeURIComponent(name)}`);
-      const pages = r.query?.pages ?? {};
-      const extract = pages[Object.keys(pages)[0] ?? ""]?.extract ?? "";
-      out[tag] = { name, effect: withGameValues(tag, temperEffect(extract)) };
-      if (out[tag].effect) ok++; else unparsed.push(name);
-    } catch {
-      out[tag] = { name, effect: withGameValues(tag, null) };
-      unparsed.push(name);
-    }
-  }
-  onProgress?.(tags.length, tags.length, "done");
-  await writeSorted(outPath, out);
-  return { ok, archived: 0, unparsed };
-}
-
 type ArtSlot =
   | "passiveA" | "passiveB" | "virtueTop" | "virtueMid" | "virtueRight"
   | "rooted" | "physic" | "forestall" | "wingspan" | "stalwart";
@@ -391,68 +279,6 @@ export async function buildPactArts(outPath: string, onProgress?: ProgressFn): P
   return { ok, archived: 0, unparsed };
 }
 
-export interface TotemData {
-  animal: string;
-  enhances: string;
-  description: string;
-  effect: string;
-  base: string[][];
-  grip: (string | null)[][];
-}
-
-const placeholders = (effect: string): number => new Set(effect.match(/\$\d/g) ?? []).size;
-const fillRows = (rows: (string | null)[][], known: (string | null)[][]): (string | null)[][] =>
-  rows.map((row, i) => row.map((v, j) => v ?? known[i]?.[j] ?? null));
-const complete = (rows: (string | null)[][]): boolean => rows.every((row) => row.every((v) => v !== null));
-
-export interface PartialTotemData extends Omit<TotemData, "base"> {
-  base: (string | null)[][];
-}
-
-export function mergeTotemData(fresh: Record<string, PartialTotemData>, known: Record<string, TotemData> | null): Record<string, TotemData> {
-  const out: Record<string, TotemData> = { ...(known ?? {}) };
-  for (const [name, d] of Object.entries(fresh)) {
-    const k = known?.[name];
-    const same = k && placeholders(k.effect) === placeholders(d.effect) && k.base.length === d.base.length && k.grip.length === d.grip.length;
-    const base = same ? fillRows(d.base, k.base) : d.base;
-    const grip = same ? fillRows(d.grip, k.grip) : d.grip;
-    if (complete(base)) out[name] = { ...d, base: base as string[][], grip };
-  }
-  return out;
-}
-
-const statGroups = (s: string): (string | null)[][] =>
-  s.split(",").map((g) => g.split("/").map((v) => (/^[\d.]+$/.test(v.trim()) ? v.trim() : null)));
-
-export async function buildTotemData(outPath: string, onProgress?: ProgressFn, knownPath?: string): Promise<{ ok: number; unparsed: string[] }> {
-  onProgress?.(0, 1, "Module:Data/Totems");
-  const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Totems")}&prop=wikitext&format=json`);
-  const lua: string = r.parse?.wikitext?.["*"] ?? "";
-  const out: Record<string, PartialTotemData> = {};
-  const unparsed: string[] = [];
-  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s{4}\}/g)) {
-    const name = m[1]!;
-    const f: Record<string, string> = {};
-    for (const kv of m[2]!.matchAll(/(\w+)\s*=\s*"((?:[^"\\]|\\.)*)"/g)) f[kv[1]!] = kv[2]!.replace(/\\"/g, '"');
-    if (!f.Animal || !f.effect || !f.base) { unparsed.push(name); continue; }
-    const base = statGroups(f.base);
-    out[name] = {
-      animal: f.Animal,
-      enhances: f.Enhances ?? "",
-      description: f.description ?? "",
-      effect: f.effect,
-      base,
-      grip: f.gripBonusBase ? statGroups(f.gripBonusBase) : base,
-    };
-  }
-  onProgress?.(1, 1, "done");
-  const merged = mergeTotemData(out, await readKnown<TotemData>(knownPath));
-  for (const name of Object.keys(out)) if (!merged[name] || merged[name]!.effect !== out[name]!.effect) unparsed.push(name);
-  if (Object.keys(merged).length < 10) throw new Error(`Module:Data/Totems parsed only ${Object.keys(merged).length} totems`);
-  await writeSorted(outPath, merged);
-  return { ok: Object.keys(merged).length, unparsed };
-}
-
 export interface MasteryRankData {
   maxMastery: number;
   patch: string;
@@ -533,18 +359,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/weapons.json";
       const r = await buildWeapons(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} weapons (${r.archived} archived skipped, ${r.unparsed.length} unparsed).\n`);
-    } else if (kind === "tempers") {
-      const out = process.argv[3] ?? "src/server/public/tempers.json";
-      const r = await buildTempers(out, bar);
-      process.stderr.write(`\nWrote ${out}: ${r.ok} temper effects (${r.unparsed.length} without effect).\n`);
     } else if (kind === "tempericons") {
       const out = process.argv[3] ?? "src/server/public/img/tempers";
       const r = await buildTemperIcons(out, bar);
       process.stderr.write(`\nWrote ${r.ok} temper icons to ${out} (${r.unparsed.length} missing: ${r.unparsed.join(", ")}).\n`);
-    } else if (kind === "totemdata") {
-      const out = process.argv[3] ?? "src/server/public/totemdata.json";
-      const r = await buildTotemData(out, bar);
-      process.stderr.write(`\nWrote ${out}: ${r.ok} totems (${r.unparsed.length} unparsed: ${r.unparsed.join(", ")}).\n`);
     } else if (kind === "masteryrank") {
       const out = process.argv[3] ?? "src/server/public/masteryrank.json";
       await buildMasteryRank(out, bar);
@@ -554,7 +372,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const r = await buildPactArts(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} pact arts with text (${r.unparsed.length} without: ${r.unparsed.join(", ")}).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|weapons|tempers|pactarts|masteryrank> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|tempericons|weapons|pactarts|masteryrank> [outPath]\n");
       process.exit(2);
     }
   };

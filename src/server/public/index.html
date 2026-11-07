@@ -1020,6 +1020,7 @@
       let TOTEMS = {};
       let TEMPER_DB = {};
       let PACT_ARTS = {};
+      let PACT_ART_TEXT = {};
       let PACT_ART_VALUES = {};
       let ITEM_ICONS = {};
       let TALISMANS = {};
@@ -1744,19 +1745,15 @@
         escHtml(label).replace(/\b(Mora|Iridis|Saphene)\b/, (d) => `<span style="color:${VIRTUE_COLOR[DEITY_VIRTUE[d]]}">${d}</span>`);
       const upIcon = (src, cls = "avicn") => (src ? `<img class="${cls}" src="${escHtml(src)}" alt="" loading="lazy">` : `<span class="${cls}"></span>`);
       const runeInfo = (type) => UPGRADES.runes[type] || { name: shortName(type), art: null, stats: [], icon: null };
-      const runeMax = (d) => Math.max(0, ...(d.stats || []).map((st) => st.values.length - 1));
+      const runeMax = (d) => Math.max(0, ...Object.values((d && d.vals) || {}).map((v) => v.length - 1));
       const runeTop = (o) => (o.ranks.length ? o.ranks[0] : null);
       function runeText(d, rank) {
-        if (!d || !d.text || !d.vals) return "";
+        if (!d || !d.text) return "";
         return escHtml(d.text).replace(/\|(\w+)\|/g, (m, k) => {
-          const v = d.vals[k];
-          if (!v || !v.length) return m;
+          const v = d.vals && d.vals[k];
+          if (!v || !v.length) return "?";
           return `<b>${escHtml(rank == null ? v.join("/") : v[Math.min(rank, v.length - 1)])}</b>`;
         });
-      }
-      function runeStat(st, rank) {
-        const v = st.values[Math.min(rank, st.values.length - 1)];
-        return st.effect.includes("$1") ? escHtml(st.effect).replace("$1", `<b>${escHtml(v)}</b>`) : `${escHtml(st.effect)} <b>${escHtml(v)}</b>`;
       }
       const slotHtml = (virtue) => (virtue ? `<span style="color:${VIRTUE_COLOR[virtue] || "inherit"}">${escHtml(virtue)}</span> Totem slot` : "");
       const upGroups = (groups) =>
@@ -1874,8 +1871,7 @@
           const max = runeMax(d);
           const rank = !held ? "Unowned" : r == null ? "Unranked" : max ? `Rank ${r} of ${max}` : `Rank ${r}`;
           const text = runeText(d, r);
-          const stats = text ? `<div class="tp-eff">${text}</div>`
-            : (r != null ? d.stats.map((st) => `<div class="tp-eff">${runeStat(st, r)}</div>`).join("") : "") + (d.does ? `<div class="tp-eff">${escHtml(d.does)}</div>` : "");
+          const stats = text ? `<div class="tp-eff">${text}</div>` : "";
           const art = d.art ? `${escHtml(d.art)} rune · ` : "";
           return `<div class="tp-head">${d.icon ? upIcon(d.icon, "ticn") : ""}<div class="tp-name">${escHtml(d.name)}</div></div>` +
             `<div class="tp-rank">${art}${rank}</div>${d.desc ? `<div class="tp-quote">${escHtml(d.desc)}</div>` : ""}` +
@@ -2208,8 +2204,7 @@
             const name = shortName(t);
             const d = UPGRADES.runes[t];
             const lvl = slot.runeLevels ? slot.runeLevels[i] : null;
-            const stats = d && d.stats.length && lvl != null ? d.stats.map((st) => runeStat(st, lvl)).join(" · ") : "";
-            const eff = runeText(d, lvl) || stats || (d && d.does ? escHtml(d.does) : "");
+            const eff = runeText(d, lvl);
             return `<div class="totemrow"><span class="tname">${escHtml(name)}</span>${eff ? `<span class="teff">${eff}</span>` : ""}</div>`;
           })
           .join("");
@@ -2232,7 +2227,8 @@
         if (!arr || !arr.length) return '<span class="muted">—</span>';
         const body = (t) => {
           const name = totemName(t.type);
-          const eff = effectAtRank(TOTEMS[name], t.rank);
+          const d = TOTEM_DATA[name];
+          const eff = d ? totemEffectHtml(d, t.rank, !!t.grip && t.grip !== "Universal") : effectAtRank(TOTEMS[name], t.rank);
           const virt = t.virtue ? `<span class="tvirt" style="color:${VIRTUE_COLOR[t.virtue]}">${t.virtue}</span>` : "";
           return `<span class="tname">${name}${virt}</span>${eff ? `<span class="teff">${eff}</span>` : ""}`;
         };
@@ -2441,22 +2437,12 @@
         return `<div class="pactarts"><div class="pa-sum">${sum}</div>
           <svg class="pacttree" viewBox="0 0 700 280" role="img" aria-label="Pact Arts tree">${edges}${nodeSvg}</svg></div>`;
       }
-      function artDetailAtRank(text, rank, max) {
-        if (!text || !(rank > 0)) return text || "";
-        return text.replace(/\[?\s*(\d+(?:\.\d+)?%?(?:\s*\/\s*\d+(?:\.\d+)?%?)+)\s*\]?/g, (m, list) => {
-          const vals = list.split("/").map((v) => v.trim());
-          if (vals.length !== max) return m;
-          return `<b>${vals[rank - 1]}</b> <span class="muted">(${vals.join(" / ")})</span>`;
-        });
-      }
       function artPopHtml(key, rank) {
         const def = PACT_ARTS[key];
         if (!def) return `<div class="tp-name">Passive</div><div class="tp-eff muted">This Pact's passive hasn't been unlocked.</div>`;
         const rankLine = rank ? `Rank ${rank} / ${def.max}` : `Locked · ${def.max} ranks`;
-        const quote = def.desc ? `<div class="tp-quote">${def.desc}</div>` : "";
-        let detail = def.virtue
-          ? `Grants <b>+${VIRTUE_POINTS[rank]} ${def.virtue}</b> <span class="muted">(1 / 3 / 6)</span>.`
-          : artDetailAtRank(def.detail, rank, def.max);
+        const quote = PACT_ART_TEXT[def.name] ? `<div class="tp-quote">${escHtml(PACT_ART_TEXT[def.name])}</div>` : "";
+        const detail = def.virtue ? `Grants <b>+${VIRTUE_POINTS[rank]} ${def.virtue}</b> <span class="muted">(1 / 3 / 6)</span>.` : "";
         const eff = detail ? `<div class="tp-eff">${detail}</div>` : "";
         return `<div class="tp-name">${def.name}</div><div class="tp-rank">${rankLine}</div>${quote}${eff}${artNumbers(key, rank)}`;
       }
@@ -2950,7 +2936,7 @@
       }
       const DATA_FILES = [
         "names", "faction-ranks", "totems", "totemdata", "tempers", "pactarts", "itemicons",
-        "pactartvalues", "talismans", "armour", "roster", "upgrades", "recipes", "avakot",
+        "pactartvalues", "pactarttext", "talismans", "armour", "roster", "upgrades", "recipes", "avakot",
       ];
       async function loadDict() {
         dictLoadedAt = Date.now();
@@ -2968,6 +2954,7 @@
         if (d.totemdata) TOTEM_DATA = d.totemdata;
         if (d.tempers) TEMPER_DB = d.tempers;
         if (d.pactarts) PACT_ARTS = d.pactarts;
+        if (d.pactarttext) PACT_ART_TEXT = d.pactarttext;
         if (d.itemicons) ITEM_ICONS = d.itemicons;
         if (d.pactartvalues) PACT_ART_VALUES = d.pactartvalues;
         if (d.talismans) TALISMANS = d.talismans;

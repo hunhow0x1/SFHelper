@@ -69,20 +69,20 @@ export class GameDataWatcher {
   private async run(): Promise<CheckOutcome> {
     const o = this.o;
     const now = o.now ?? Date.now;
-    const state = await readState(o.statePath);
-    const appChanged = state !== null && state.app !== o.appVersion;
-    const { dir, build } = await o.locate();
-    if (!dir) {
-      if (!appChanged) return "no-game";
+    const saved = await readState(o.statePath);
+    const appChanged = saved !== null && saved.app !== o.appVersion;
+    if (appChanged) {
       await clearGameData(o.outDir);
       await rm(o.statePath, { force: true });
       o.onChanged();
-      return "cleared";
     }
+    const state = appChanged ? null : saved;
+    const { dir, build } = await o.locate();
+    if (!dir) return appChanged ? "cleared" : "no-game";
     const stamp = await cacheStamp(dir);
     if (!stamp || now() - stamp.changedAt < SETTLE_MS) return "settling";
     const retry = state !== null && !state.complete && now() - state.at > RETRY_MS;
-    const current = state !== null && !appChanged && !retry;
+    const current = state !== null && !retry;
     if (current && state.stamp === stamp.id) return "current";
     const files = await (o.readFiles ?? readGameFiles)(dir);
     if (current && state.hash === files.hash) {

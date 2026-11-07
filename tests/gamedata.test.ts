@@ -5,7 +5,8 @@ import { join } from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { findCacheDir, findRootEntry, hostPath, readEntry, tocIndex } from "../src/gamedata/cache";
 import { readLanguages } from "../src/gamedata/formats";
-import { buildArmour, buildArsenal, buildEnemies, buildNames, buildPactArtValues, buildTalismans, buildUpgrades, itemIconPaths, parseFactionCaps, runeValues, withRetired } from "../src/gamedata/builders";
+import { buildArmour, buildArsenal, buildEnemies, buildNames, buildPactArtTexts, buildPactArtValues, buildTalismans, buildTempers, buildTotemData, buildUpgrades, itemIconPaths, mergeRuneValues, parseFactionCaps, runeValues, withRetired } from "../src/gamedata/builders";
+import { locValues, parseChunk, parseLocScript } from "../src/gamedata/luau";
 import { decodeBC3, encodePng, mipChain, textureImage } from "../src/gamedata/textures";
 import { loggedGame } from "../src/server/gameLog";
 
@@ -389,5 +390,79 @@ describe("icons drawn from the game's textures", () => {
     const index = tocIndex(toc(tocEntry("SF", 0, -1, 0), tocEntry("Interface", 1, -1, 0), tocEntry("Rat.png", 2, 100, 10, 5n), tocEntry("Rat.png", 2, 200, 10, 9n)));
     expect([...index.keys()]).toEqual(["/SF/Interface/Rat.png"]);
     expect(index.get("/SF/Interface/Rat.png")).toMatchObject({ offset: 200, stamp: "9" });
+  });
+});
+
+describe("rune numbers from the game's scripts", () => {
+  const abc = (op: number, a = 0, b = 0, c = 0) => (op | (a << 8) | (b << 16) | (c << 24)) >>> 0;
+  const ad = (op: number, a: number, d: number) => (op | (a << 8) | ((d & 0xffff) << 16)) >>> 0;
+  const proto = (o: { stack: number; params: number; vararg?: boolean; code: number[]; k: number[][]; children?: number[] }): number[] => {
+    const code = Buffer.alloc(o.code.length * 4);
+    o.code.forEach((w, i) => code.writeUInt32LE(w, i * 4));
+    return [o.stack, o.params, 0, o.vararg ? 1 : 0, 0, 0, o.code.length, ...code, o.k.length, ...o.k.flat(), (o.children ?? []).length, ...(o.children ?? []), 0, 0, 0, 0];
+  };
+  const num = (n: number) => {
+    const b = Buffer.alloc(8);
+    b.writeDoubleLE(n);
+    return [2, ...b];
+  };
+  const str = (name: string) => [name.length, ...Buffer.from(name, "latin1")];
+  const stats = proto({
+    stack: 3,
+    params: 1,
+    code: [abc(0x0e, 1), 0, ad(0x1d, 0, 3), 0x80000000, ad(0x29, 2, 50), ad(0x47, 0, 1), abc(0x4b, 2, 0, 1), abc(0x3f, 2, 1, 0), 2, abc(0x3c, 1, 2)],
+    k: [num(1), num(25), [3, 1]],
+  });
+  const main = proto({ stack: 1, params: 0, vararg: true, code: [abc(0x09), ad(0x36, 0, 0), abc(0x00), 0, abc(0x3c, 0, 1)], k: [[3, 2]], children: [0] });
+  const bytes = Buffer.from([6, 3, 2, ...str("DAMAGE"), ...str("GetAbilityStats"), 0, 2, ...stats, ...main, 1]);
+  const path = "/SF/Upgrades/Runes/Weapon/Test/TestRune.lua";
+
+  it("reads a compiled script and runs its per-rank function", async () => {
+    const chunk = parseChunk(bytes);
+    expect(chunk.protos).toHaveLength(2);
+    const scripts = new Map([[path, chunk]]);
+    const source = { chunk: async (p: string) => scripts.get(p) ?? null, loaded: () => scripts };
+    const def = "EnhancementTag=/SF/Test\nEnhancementTagLocScript={\nScript=TestRune.lua\nFunction=GetAbilityStats\n_damageType=DT_FIRE\n_fx=\"\"\n}\n";
+    const ls = parseLocScript(def, "/SF/Upgrades/Runes/Weapon/Test/Rune");
+    expect(ls).toEqual({ script: path, fn: "GetAbilityStats", params: { _damageType: "DT_FIRE", _fx: "" } });
+    expect(await locValues(source, ls!)).toEqual({ DAMAGE: ["50", "50", "75", "100"] });
+    expect(await locValues(source, { ...ls!, fn: "Missing" })).toBeNull();
+  });
+
+  it("prefers the game's numbers and fills gaps from the wiki", () => {
+    const text = "Deals |DAMAGE|% for |DURATION| seconds.";
+    expect(mergeRuneValues(text, { DAMAGE: ["1", "2", "3", "4"] }, { DAMAGE: ["9", "9", "9", "9"], DURATION: ["5", "6", "7", "8"] })).toEqual({ DAMAGE: ["1", "2", "3", "4"], DURATION: ["5", "6", "7", "8"] });
+    expect(mergeRuneValues(text, { DAMAGE: ["1", "2", "3", "4"] }, null)).toBeNull();
+    expect(mergeRuneValues(null, { DAMAGE: ["1"] }, null)).toBeNull();
+  });
+});
+
+describe("Tempers, Totem cards and Pact Arts in the game's own words", () => {
+  const dict = {
+    "/T/N": "From Above",
+    "/T/D": "Increases Weapon Damage during Aerial Attacks.",
+    "/M/N": "Far Foul",
+    "/M/D": "Within feather's reach",
+    "/M/E": "Increases Pull Smite Range by +|RANGE|m.",
+    "/SF/Language/Pacts/XName": "Barkbare",
+    "/SF/Language/Pacts/XDesc": "Like grafting tree bark.",
+  };
+  const icon = "Icon=/SF/Interface/Graphics/Animotes/Animals/Rabbit.png\n";
+  const texts = [
+    "LocalizeTag=/T/N\nLocalizeDescTag=/T/D\nTypeName=/SF/Types/Items/Aspects/Tempers/AerialAttackDamageAMod\n",
+    `LocalizeTag=/M/N\nLocalizeDescTag=/M/D\n${icon}TypeName=/SF/Upgrades/Totems/FarFoul\n`,
+    `LocalizeTag=/M/N\nLocalizeDescTag=/M/D\n${icon}EnhancementTag=/M/E\n`,
+    "LocalizeTag=/SF/Language/Pacts/XName\nLocalizeDescTag=/SF/Language/Pacts/XDesc\nFusionLimit=QA_MEDIUM\n",
+  ];
+
+  it("uses the game's descriptions and script numbers", async () => {
+    expect(buildTempers(dict, texts)).toEqual({ AerialAttackDamageAMod: { name: "From Above", effect: "Increases Weapon Damage during Aerial Attacks." } });
+    const values = async (_type: string, _def: string, variant?: number) => ({ RANGE: variant === 1 ? ["3", "4", "6", "8"] : ["2", "3", "4", "5"] });
+    const prev = { "Far Foul": { animal: "Hare", enhances: "Pull Smite", description: "", effect: "", base: [], grip: [] } };
+    expect(await buildTotemData(dict, texts, prev, values)).toEqual({
+      "Far Foul": { animal: "Hare", enhances: "Pull Smite", description: "Within feather's reach", effect: "Increases Pull Smite Range by +$1m.", base: [["2", "3", "4", "5"]], grip: [["3", "4", "6", "8"]] },
+    });
+    expect((await buildTotemData(dict, texts, null, async () => null))["Far Foul"]).toMatchObject({ animal: "Rabbit", base: [[]] });
+    expect(buildPactArtTexts(dict, texts)).toEqual({ Barkbare: "Like grafting tree bark." });
   });
 });

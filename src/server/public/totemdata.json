@@ -3,7 +3,7 @@
     "animal": "Rat",
     "enhances": "Smite Proc",
     "description": "Just a nibble",
-    "effect": "Increases Arcanic damage by +$1 on Smite",
+    "effect": "Increases Arcanic Damage by +$1 on Pull Smite.",
     "base": [
       [
         "5",
@@ -17,7 +17,7 @@
         "10",
         "20",
         "25",
-        "30"
+        "35"
       ]
     ]
   },
@@ -25,7 +25,7 @@
     "animal": "Beaver",
     "enhances": "Runes (Passive)",
     "description": "Sheltered by thick hide",
-    "effect": "Increase Physical Armour by +$1 per Rune Charge",
+    "effect": "Increases Physical Armour by +$1 per Rune Charge.",
     "base": [
       [
         "2",
@@ -47,7 +47,7 @@
     "animal": "Rat",
     "enhances": "Smite Proc",
     "description": "Small and stout",
-    "effect": "Smite creates a blast that Staggers and deals +$1 Stagger damage to nearby enemies",
+    "effect": "Creates a blast that Staggers and inflicts +$1 Stagger Damage to nearby foes on Pull Smite.",
     "base": [
       [
         "100",
@@ -69,7 +69,7 @@
     "animal": "Rabbit",
     "enhances": "Pull Smite",
     "description": "Swift thud by rabbit foot",
-    "effect": "Pull Smite causes a +$1 damage explosion $2 m around the Envoy",
+    "effect": "Pull Smite causes a +$1 damage explosion $2m around the Envoy",
     "base": [
       [
         "50",
@@ -103,7 +103,7 @@
     "animal": "Squirrel",
     "enhances": "Smite Proc",
     "description": "Shining luster in buck teeth",
-    "effect": "Creates a bright flash that blinds foes within a $1 m radius on Smite",
+    "effect": "Creates a bright flash that blinds foes within a $1m radius on Pull Smite.",
     "base": [
       [
         "8",
@@ -125,7 +125,7 @@
     "animal": "Fawn",
     "enhances": "Runes (Passive)",
     "description": "Protection of cloven hoof",
-    "effect": "Increase Magick Armour by +$1 per Rune Charge",
+    "effect": "Increases Magick Armour by +$1 per Rune Charge.",
     "base": [
       [
         "2",
@@ -147,7 +147,7 @@
     "animal": "Duck",
     "enhances": "Pull Smite",
     "description": "Squirming prey, freshly caught",
-    "effect": "Restore +$1 Life on Pull Smite",
+    "effect": "Restores +$1 Life on Pull Smite.",
     "base": [
       [
         "50",
@@ -169,7 +169,7 @@
     "animal": "Rabbit",
     "enhances": "Runes (Passive)",
     "description": "Soft paw, fierce claw",
-    "effect": "Runes deal $1 % additional damage",
+    "effect": "Inflicts $1% additional Damage with Runes.",
     "base": [
       [
         "5",
@@ -183,7 +183,7 @@
         "8",
         "10",
         "15",
-        "23"
+        "20"
       ]
     ]
   },
@@ -191,7 +191,7 @@
     "animal": "Duck",
     "enhances": "Pull Smite",
     "description": "Dredged from the mud",
-    "effect": "Pull Smite deals +$1 additional damage",
+    "effect": "Inflicts +$1 additional Damage on Pull Smite.",
     "base": [
       [
         "30",
@@ -213,7 +213,7 @@
     "animal": "Beaver",
     "enhances": "Rune Activation",
     "description": "Restraining current's flow",
-    "effect": "Reduce Rune drain by $1 %",
+    "effect": "Reduces Rune Drain by $1%.",
     "base": [
       [
         "10",
@@ -235,7 +235,7 @@
     "animal": "Duck",
     "enhances": "Pull Smite",
     "description": "Within feather's reach",
-    "effect": "Increase Pull Smite Range by +$1 m",
+    "effect": "Increases Pull Smite Range by +$1m.",
     "base": [
       [
         "2",
@@ -257,7 +257,7 @@
     "animal": "Rabbit",
     "enhances": "Pull Smite",
     "description": "Tremors 'neath rabbit foot",
-    "effect": "Pull Smite causes +$1 damage explosion $2 m around the Enemy",
+    "effect": "Creates a +$1 Damage explosion in a $2m radius around the foe on Pull Smite.",
     "base": [
       [
         "30",
@@ -268,7 +268,7 @@
       [
         "5",
         "6",
-        "7",
+        "6",
         "8"
       ]
     ],
@@ -291,33 +291,33 @@
     "animal": "Duck",
     "enhances": "Pull Smite",
     "description": "A flock alight in rippling waves",
-    "effect": "Heals all allies within $1 m for +$2 Life on Pull Smite",
+    "effect": "Creates a +$1 Damage explosion $2m around the Envoy on Pull Smite.",
     "base": [
-      [
-        "8",
-        "10",
-        "12",
-        "15"
-      ],
       [
         "50",
         "75",
         "100",
         "125"
-      ]
-    ],
-    "grip": [
+      ],
       [
         "8",
         "10",
         "12",
         "15"
-      ],
+      ]
+    ],
+    "grip": [
       [
         "50",
         "100",
         "125",
         "150"
+      ],
+      [
+        "8",
+        "10",
+        "12",
+        "15"
       ]
     ]
   },
@@ -325,7 +325,7 @@
     "animal": "Fawn",
     "enhances": "Pull Smite",
     "description": "No fawn grazes alone",
-    "effect": "Create a Decoy for $1 seconds on Pull Smite",
+    "effect": "Creates a Decoy for $1 seconds on Pull Smite.",
     "base": [
       [
         "2",
@@ -347,7 +347,7 @@
     "animal": "Rat",
     "enhances": "Smite Proc",
     "description": "Tracked by beady eyes",
-    "effect": "Increase Smite duration by +$1 seconds",
+    "effect": "Increases Smite duration by +$1 seconds.",
     "base": [
       [
         "1",
@@ -369,7 +369,7 @@
     "animal": "Fawn",
     "enhances": "Pull Smite",
     "description": "The scent of fearful prey",
-    "effect": "Drag enemies towards the Envoy on Pull Smite dealing +$1 damage",
+    "effect": "Inflicts +$1 Damage and drags foes towards the Envoy on Pull Smite.",
     "base": [
       [
         "20",
@@ -391,7 +391,7 @@
     "animal": "Rat",
     "enhances": "Pull Smite",
     "description": "Beady dignity",
-    "effect": "Buff Virtue $1 % associated with enemy soul colour on Pull Smite",
+    "effect": "Increases the Virtue associated with a foe's soul colour by $1% on Pull Smite.",
     "base": [
       [
         "5",
@@ -413,7 +413,7 @@
     "animal": "Squirrel",
     "enhances": "Pull Smite",
     "description": "Razor-quick from nest's embrace",
-    "effect": "Increase attack speed by $1 % on Pull Smite",
+    "effect": "Increases attack speed by $1% upon Pull Smite.",
     "base": [
       [
         "10",
@@ -435,7 +435,7 @@
     "animal": "Beaver",
     "enhances": "Rune Activation",
     "description": "Mended by webbed paw",
-    "effect": "Restore +$1 Life per second for $2 seconds upon unleashing a Rune",
+    "effect": "Restores +$1 Life per second for $2 seconds on unleashing a Rune.",
     "base": [
       [
         "15",
@@ -469,7 +469,7 @@
     "animal": "Fawn",
     "enhances": "Runes (Passive)",
     "description": "Charged forth in bone wreath",
-    "effect": "Increase Smite Chance by $1 % per Rune Charge",
+    "effect": "Increases Smite Chance by $1% per Rune Charge.",
     "base": [
       [
         "0.5",
@@ -491,13 +491,13 @@
     "animal": "Squirrel",
     "enhances": "Pull Smite",
     "description": "Unfurled and ready",
-    "effect": "$1 % chance to Smite another enemy within $2 m of Pull Smite",
+    "effect": "Applies a 1 in $1 chance to Smite another foe within $2m radius of Pull Smite.",
     "base": [
       [
         "10",
-        "12.5",
-        "16.7",
-        "20"
+        "8",
+        "6",
+        "5"
       ],
       [
         "5",
@@ -508,10 +508,10 @@
     ],
     "grip": [
       [
-        "12.5",
-        "14.3",
-        "20",
-        "25"
+        "8",
+        "7",
+        "5",
+        "4"
       ],
       [
         "5",
@@ -525,21 +525,21 @@
     "animal": "Rabbit",
     "enhances": "Pull Smite",
     "description": "One field feeds many",
-    "effect": "Effects of Pull Smite has a $1 % chance of spreading to all allies",
+    "effect": "Applies a 1 in $1 chance of Pull Smite effects spreading to the nearest ally.",
     "base": [
       [
-        "20",
-        "33.3",
-        "33.3",
-        "50"
+        "5",
+        "3",
+        "3",
+        "2"
       ]
     ],
     "grip": [
       [
-        "20",
-        "33.3",
-        "33.3",
-        "50"
+        "5",
+        "3",
+        "3",
+        "2"
       ]
     ]
   },
@@ -547,7 +547,7 @@
     "animal": "Beaver",
     "enhances": "Rune Activation",
     "description": "Tough of tooth and paw",
-    "effect": "+$1 Armour upon unleashing Rune",
+    "effect": "Increases Armour by +$1 on unleashing a Rune.",
     "base": [
       [
         "12",
@@ -569,7 +569,7 @@
     "animal": "Beaver",
     "enhances": "Rune Activation",
     "description": "Laid low by flat tail",
-    "effect": "Unleashing a Rune deals +$1 Stagger damage within $2 m",
+    "effect": "Inflicts +$1 Stagger Damage within a $2m radius on unleashing a Rune.",
     "base": [
       [
         "70",
@@ -603,21 +603,21 @@
     "animal": "Fawn",
     "enhances": "Pull Smite",
     "description": "Mesmerized by tail's flick",
-    "effect": "Temporarily turn enemies into allies for $1 seconds on Pull Smite",
+    "effect": "Turns foes into allies for $1 seconds on Pull Smite.",
     "base": [
       [
-        "2",
-        "3",
-        "3",
-        "4"
+        "4",
+        "6",
+        "8",
+        "10"
       ]
     ],
     "grip": [
       [
-        "2",
-        "3",
-        "4",
-        "5"
+        "5",
+        "7",
+        "9",
+        "11"
       ]
     ]
   },
@@ -625,7 +625,7 @@
     "animal": "Squirrel",
     "enhances": "Smite Proc",
     "description": "Lightning quick pitter-patter",
-    "effect": "Increase Voltaic Damage by +$1 on Smitten enemies",
+    "effect": "Increases Voltaic Damage by +$1 on Smited foes.",
     "base": [
       [
         "5",

@@ -10,23 +10,27 @@ import {
   buildEnemies,
   buildLocations,
   buildNames,
+  buildPactArtTexts,
   buildPactArtValues,
   buildRecipes,
   buildTalismans,
+  buildTempers,
+  buildTotemData,
   buildUpgrades,
   itemIconPaths,
   parseCraftingTable,
   parseFactionCaps,
-  parseWikiRunes,
   typeIcons,
   withRetired,
   type ArmourEntry,
   type ArsenalData,
   type AvakotPool,
+  type GameValues,
   type RecipeDef,
+  type TotemEntry,
   type UpgradeData,
-  type WikiRune,
 } from "./builders";
+import { GameScripts, locValues, parseLocScript } from "./luau";
 import { GameIcons } from "./textures";
 import type { Wiki } from "./wiki";
 
@@ -43,6 +47,9 @@ export const GAME_DATA_FILES = [
   "arsenal.json",
   "talismans.json",
   "armour.json",
+  "tempers.json",
+  "totemdata.json",
+  "pactarttext.json",
 ];
 
 const CURRENCY_ICONS: [string, string][] = [
@@ -97,6 +104,11 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   let incomplete = false;
   let drawn = 0;
   const gameIcons = o.cacheDir ? new GameIcons(o.cacheDir) : null;
+  const gameScripts = o.cacheDir ? new GameScripts(o.cacheDir) : null;
+  const scriptValues: GameValues = async (type, def, variant) => {
+    const ls = gameScripts ? parseLocScript(def, type) : null;
+    return ls && gameScripts ? await locValues(gameScripts, ls, 4, variant).catch(() => null) : null;
+  };
 
   const dict = await readLanguages(files.languages);
   if (Object.keys(dict).length < 1000) throw new Error(`Languages.bin: only ${Object.keys(dict).length} texts`);
@@ -203,15 +215,35 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   });
 
   await step("upgrades.json", async () => {
-    const lua = wiki ? await wiki.wikitext("Module:Data/Runes") : null;
-    const parsed = lua ? parseWikiRunes(lua).filter((r) => r.id) : [];
-    const wikiRunes = parsed.length >= 10 ? new Map<string, WikiRune>(parsed.map((r) => [r.id!, r])) : null;
-    if (!wikiRunes && wiki) incomplete = true;
     const prev = await previous<UpgradeData>("upgrades.json");
-    const upgrades = await buildUpgrades(dict, unique, wikiRunes, prev, (path) => icon(path));
+    const upgrades = await buildUpgrades(dict, unique, null, prev, (path) => icon(path), scriptValues);
     enough("upgrades", Object.keys(upgrades.runes).length + Object.keys(upgrades.gear).length, prev ? Object.keys(prev.runes).length + Object.keys(prev.gear).length : undefined);
     await put("upgrades.json", `${JSON.stringify(upgrades, null, 2)}\n`);
     return `${Object.keys(upgrades.runes).length} runes, ${Object.keys(upgrades.joineries).length} joineries, ${Object.keys(upgrades.gear).length} gear`;
+  });
+
+  await step("tempers.json", async () => {
+    const tempers = buildTempers(dict, unique);
+    const prev = await previous<Record<string, unknown>>("tempers.json");
+    enough("tempers", Object.keys(tempers).length, prev ? Object.keys(prev).length : undefined);
+    await put("tempers.json", `${JSON.stringify(tempers, null, 2)}\n`);
+    return `${Object.keys(tempers).length} Tempers`;
+  });
+
+  await step("totemdata.json", async () => {
+    const prev = await previous<Record<string, TotemEntry>>("totemdata.json");
+    const totems = await buildTotemData(dict, unique, prev, scriptValues);
+    enough("totems", Object.keys(totems).length, prev ? Object.keys(prev).length : undefined);
+    await put("totemdata.json", `${JSON.stringify(totems, null, 2)}\n`);
+    return `${Object.keys(totems).length} Totems`;
+  });
+
+  await step("pactarttext.json", async () => {
+    const arts = buildPactArtTexts(dict, unique);
+    const prev = await previous<Record<string, unknown>>("pactarttext.json");
+    enough("Pact Art texts", Object.keys(arts).length, prev ? Object.keys(prev).length : undefined);
+    await put("pactarttext.json", `${JSON.stringify(arts, null, 2)}\n`);
+    return `${Object.keys(arts).length} Pact Art texts`;
   });
 
   await step("avakot.json", async () => {
@@ -286,6 +318,8 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   return { hash: files.hash, changed, failed, incomplete, drawn, summary };
 }
 
+const RETIRED = ["runes.json", "pacts.json", "totems.json", "img/items", "img/runes", "img/avakot"];
+
 export async function clearGameData(outDir: string): Promise<void> {
-  for (const name of GAME_DATA_FILES) await rm(join(outDir, name), { force: true });
+  for (const name of [...GAME_DATA_FILES, ...RETIRED]) await rm(join(outDir, name), { force: true, recursive: true });
 }

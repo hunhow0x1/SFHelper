@@ -439,6 +439,17 @@ const STAT_RULES: [RegExp, RegExp][] = [
   [/^DAMAGE$/, /damage/i],
 ];
 
+export function mergeRuneValues(template: string | null, game: Record<string, string[]> | null, wiki: Record<string, string[]> | null): Record<string, string[]> | null {
+  if (!template || (!game && !wiki)) return null;
+  const out: Record<string, string[]> = {};
+  for (const name of new Set([...template.matchAll(/\|(\w+)\|/g)].map((m) => m[1]!))) {
+    const v = game?.[name] ?? wiki?.[name];
+    if (!v) return null;
+    out[name] = v;
+  }
+  return Object.keys(out).length ? out : null;
+}
+
 export function runeValues(template: string | null, stats: WikiRune["stats"]): Record<string, string[]> | null {
   if (!template) return null;
   const names = [...new Set([...template.matchAll(/\|(\w+)\|/g)].map((m) => m[1]!))];
@@ -518,6 +529,7 @@ export async function buildUpgrades(
   wikiRunes: Map<string, WikiRune> | null,
   previous: UpgradeData | null,
   icon: (path: string | null) => Promise<string | null>,
+  gameValues: GameValues = async () => null,
 ): Promise<UpgradeData> {
   const loc = (tag: string | undefined) => localized(dict, tag);
   const searchTags = (t: string) =>
@@ -546,7 +558,7 @@ export async function buildUpgrades(
       name,
       desc: loc(field(t, "LocalizeDescTag")),
       text,
-      vals: runeValues(text, stats),
+      vals: mergeRuneValues(text, def ? await gameValues(type, def) : null, runeValues(text, stats)),
       art: searchTags(t)[0] ?? w?.art ?? prev?.art ?? null,
       does: w?.does ?? prev?.does ?? null,
       slot: RUNE_SLOTS[/^BonusArtifactSlots=\{\n(\w+)/m.exec(def ?? "")?.[1] ?? ""] ?? w?.slot ?? prev?.slot ?? null,
@@ -789,4 +801,71 @@ export function parseWikiImages(lua: string, into: Map<string, string>): void {
     const file = /\b(?:Img)?(?:Icon|Image|Preview)\s*=\s*"([^"]+\.png)"/.exec(m[2]!)?.[1];
     if (file && !into.has(m[1]!.trim())) into.set(m[1]!.trim(), file);
   }
+}
+
+export interface TemperEntry {
+  name: string;
+  effect: string;
+}
+
+export function buildTempers(dict: Dict, texts: string[]): Record<string, TemperEntry> {
+  const out: Record<string, TemperEntry> = {};
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    if (!type?.startsWith("/SF/Types/Items/Aspects/Tempers/")) continue;
+    const name = localized(dict, field(t, "LocalizeTag"));
+    const effect = localized(dict, field(t, "LocalizeDescTag"));
+    if (name && effect) out[type.slice(type.lastIndexOf("/") + 1)] = { name, effect };
+  }
+  return sortedKeys(out);
+}
+
+export interface TotemEntry {
+  animal: string;
+  enhances: string;
+  description: string;
+  effect: string;
+  base: string[][];
+  grip: string[][];
+}
+
+export type GameValues = (type: string, def: string, variant?: number) => Promise<Record<string, string[]> | null>;
+
+export async function buildTotemData(dict: Dict, texts: string[], previous: Record<string, TotemEntry> | null, values: GameValues): Promise<Record<string, TotemEntry>> {
+  const defs = definitions(texts);
+  const out: Record<string, TotemEntry> = {};
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    if (!type?.startsWith("/SF/Upgrades/Totems/")) continue;
+    const name = localized(dict, field(t, "LocalizeTag"));
+    const key = defKey(t);
+    const def = key ? defs.get(key) : undefined;
+    const text = def ? localized(dict, field(def, "EnhancementTag")) : null;
+    if (!name || !def || !text || out[name]) continue;
+    const order = [...new Set([...text.matchAll(/\|(\w+)\|/g)].map((m) => m[1]!))];
+    const base = order.length ? await values(type, def) : null;
+    const grip = order.length ? await values(type, def, 1) : null;
+    const prev = previous?.[name];
+    out[name] = {
+      animal: prev?.animal ?? /\/Animals\/(\w+)\.png$/.exec(field(t, "Icon") ?? "")?.[1] ?? "",
+      enhances: prev?.enhances ?? "",
+      description: localized(dict, field(t, "LocalizeDescTag")) ?? "",
+      effect: text.replace(/\|(\w+)\|/g, (_m, k: string) => `$${order.indexOf(k) + 1}`),
+      base: order.map((k) => base?.[k] ?? []),
+      grip: order.map((k) => grip?.[k] ?? base?.[k] ?? []),
+    };
+  }
+  return sortedKeys(out);
+}
+
+export function buildPactArtTexts(dict: Dict, texts: string[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const t of texts) {
+    const tag = /^LocalizeTag=(\/SF\/Language\/Pacts\/\S+)$/m.exec(t)?.[1];
+    if (!tag || !/^FusionLimit=/m.test(t)) continue;
+    const name = localized(dict, tag);
+    const desc = localized(dict, field(t, "LocalizeDescTag"));
+    if (name && desc && !out[name]) out[name] = desc;
+  }
+  return sortedKeys(out);
 }
