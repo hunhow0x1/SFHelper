@@ -1,4 +1,3 @@
-import { spawnSync } from "node:child_process";
 import { parseArgs } from "node:util";
 import { findCacheDir } from "../src/gamedata/cache";
 import { updateGameData } from "../src/gamedata/update";
@@ -15,11 +14,6 @@ const { values } = parseArgs({
   },
 });
 
-function shrinkIcon(png: Buffer): Buffer {
-  const res = spawnSync("magick", ["png:-", "-resize", "64x64", "-strip", "png:-"], { input: png, maxBuffer: 16 << 20 });
-  return res.status === 0 && res.stdout.length ? res.stdout : png;
-}
-
 const logged = await loggedGame();
 const cacheDir = values.cache ?? (await findCacheDir(logged?.log ?? null, logged?.cacheDir ?? null));
 if (!cacheDir) {
@@ -32,8 +26,6 @@ const result = await updateGameData({
   outDir: values.out,
   bundledDir: PUBLIC_DIR,
   wiki: values["no-wiki"] ? null : new Wiki(),
-  shrinkIcon,
-  maxDownloads: Infinity,
   log: (m) => console.error(m),
 });
 console.log(result.summary);

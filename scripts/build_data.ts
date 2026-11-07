@@ -75,12 +75,6 @@ function totemEffect(txt: string, name: string): string | null {
   return null;
 }
 
-function runeEffect(extract: string): string | null {
-  const m = extract.match(/==+\s*Overview\s*==+\s*([\s\S]*?)(?=\n\s*==|$)/i);
-  const t = (m ? m[1]! : extract).replace(/\s+/g, " ").replace(/\s+%/g, "%").replace(/\+\s+/g, "+").trim();
-  return t && t.length > 6 ? t : null;
-}
-
 const UNKNOWN_VALUE = /\?\s*\/|\/\s*\?/;
 
 export function mergeTotemTexts(fresh: Record<string, string>, known: Record<string, string> | null): Record<string, string> {
@@ -167,26 +161,6 @@ export async function buildWeapons(outPath: string, onProgress?: ProgressFn): Pr
         if (WEAPON_TYPES.has(c) && !klass) klass = c;
       }
       out[names[i]!] = { class: klass || "Other", slot: slot || "" };
-      ok++;
-    } catch { unparsed.push(names[i]!); }
-  }
-  onProgress?.(names.length, names.length, "done");
-  await writeSorted(outPath, out);
-  return { ok, archived, unparsed };
-}
-
-export async function buildPacts(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
-  const [names, live] = await Promise.all([categoryMembers("Pacts"), currentPatch()]);
-  const out: Record<string, Record<string, never>> = {};
-  let ok = 0, archived = 0;
-  const unparsed: string[] = [];
-  for (let i = 0; i < names.length; i++) {
-    onProgress?.(i, names.length, names[i]!);
-    try {
-      const cats = await pageCategories(names[i]!);
-      if (cats.includes("Abilities") || !cats.includes("Items")) continue;
-      if (notInGame(cats, live)) { archived++; continue; }
-      out[names[i]!] = {};
       ok++;
     } catch { unparsed.push(names[i]!); }
   }
@@ -417,25 +391,6 @@ export async function buildPactArts(outPath: string, onProgress?: ProgressFn): P
   return { ok, archived: 0, unparsed };
 }
 
-export async function buildRunes(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; archived: number; unparsed: string[] }> {
-  const names = await categoryMembers("Runes");
-  const out: Record<string, string> = {};
-  let ok = 0, archived = 0;
-  const unparsed: string[] = [];
-  for (let i = 0; i < names.length; i++) {
-    onProgress?.(i, names.length, names[i]!);
-    try {
-      const text = await pageExtract(names[i]!);
-      if (isArchived(text)) { archived++; continue; }
-      const eff = runeEffect(text);
-      if (eff) { out[names[i]!] = eff; ok++; } else unparsed.push(names[i]!);
-    } catch { unparsed.push(names[i]!); }
-  }
-  onProgress?.(names.length, names.length, "done");
-  await writeSorted(outPath, out);
-  return { ok, archived, unparsed };
-}
-
 export interface TotemData {
   animal: string;
   enhances: string;
@@ -496,117 +451,6 @@ export async function buildTotemData(outPath: string, onProgress?: ProgressFn, k
   if (Object.keys(merged).length < 10) throw new Error(`Module:Data/Totems parsed only ${Object.keys(merged).length} totems`);
   await writeSorted(outPath, merged);
   return { ok: Object.keys(merged).length, unparsed };
-}
-
-export const TALISMAN_NAMES: Record<string, string> = {
-  AncientSpriteTotem: "Heartwood Soams",
-  CardinalTotem: "Cardinal Charm",
-  ChampionHubTotem: "Medallion of Mora",
-  ChampionHubUpgradedTotem: "Molten Mora",
-  CircadeBlueTotem: "Dawn Pendant",
-  CircadeCompleteTotem: "Triune Talisman",
-  CircadeGreenTotem: "Midnight Pendant",
-  CircadeRedTotem: "Dusk Pendant",
-  CogahCorruptedTotem: "The Cogah Grod",
-  CogahCreatureTotem: "The Cogah Creutair",
-  CogahHumanTotem: "The Cogah Lorcaan",
-  CorruptCasterTotem: "Callous Crust",
-  FeyHubTotem: "Sproutfolk Seed",
-  FeyHubUpgradedTotem: "Sproutfolk Shoot",
-  GaleneTotem: "Wylding's Heart",
-  IchorousTotem: "Wazzard's Wish",
-  JosalfarTotem: "Wylding's Hush",
-  OdeSoulBoonTotem: "Synod's Bell Jar",
-  OrengalIdolTotem: "Direskull",
-  OrengalSoulBoonTotem: "Orengall's Fang",
-  PothiaTotem: "Wylding's Hilt",
-  PreludesHonorMoteTotem: "Prelude Honour",
-  PrimordialTotem: "Paragon Periapt",
-  SilentRoseHubTotem: "Rose's Bodkin",
-  SilentRoseHubUpgradedTotem: "Bloomin' Bodkin",
-  SparrowTotem: "Chirrup Charm",
-  WolfPrintTotem: "Packblood's Tribute",
-};
-
-export interface TalismanData {
-  name: string;
-  Courage: number;
-  Spirit: number;
-  Grace: number;
-}
-
-export function parseTalismans(lua: string): Record<string, TalismanData> {
-  const byName = new Map<string, Omit<TalismanData, "name">>();
-  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\t\},/g)) {
-    const body = m[2]!;
-    if (!/Slot\s*=\s*"Talisman"/.test(body)) continue;
-    const stats = body.match(/Stats\s*=\s*\{([\s\S]*?)\}/)?.[1] ?? "";
-    const v = { Courage: 0, Spirit: 0, Grace: 0 };
-    for (const s of stats.matchAll(/\b(Courage|Spirit|Grace)\s*=\s*(\d+)/g)) v[s[1] as keyof typeof v] = Number(s[2]);
-    byName.set(m[1]!.trim(), v);
-  }
-  const out: Record<string, TalismanData> = {};
-  for (const [leaf, name] of Object.entries(TALISMAN_NAMES)) {
-    const v = byName.get(name);
-    if (v) out[leaf] = { name, ...v };
-  }
-  return out;
-}
-export async function buildTalismans(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
-  onProgress?.(0, 1, "Module:Data/Armour");
-  const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Armour")}&prop=wikitext&format=json`);
-  const out = parseTalismans(r.parse?.wikitext?.["*"] ?? "");
-  onProgress?.(1, 1, "done");
-  if (Object.keys(out).length < 10) throw new Error(`Module:Data/Armour gave only ${Object.keys(out).length} talismans`);
-  await writeSorted(outPath, out as Record<string, unknown>);
-  return { ok: Object.keys(out).length, unparsed: Object.keys(TALISMAN_NAMES).filter((k) => !out[k]) };
-}
-
-export interface ArmourData {
-  slot: "Helm" | "Cuirass" | "Leggings";
-  set: string | null;
-  rarity: string | null;
-  physical: number;
-  magick: number;
-  stability: number;
-  requires: { virtue: "Courage" | "Spirit" | "Grace"; value: number } | null;
-}
-
-const VIRTUE_LETTER: Record<string, "Courage" | "Spirit" | "Grace"> = {
-  C: "Courage",
-  S: "Spirit",
-  G: "Grace",
-};
-
-export function parseArmour(lua: string): Record<string, ArmourData> {
-  const out: Record<string, ArmourData> = {};
-  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\t\},/g)) {
-    const body = m[2]!;
-    const slot = body.match(/Slot\s*=\s*"(Helm|Cuirass|Leggings)"/)?.[1] as ArmourData["slot"] | undefined;
-    if (!slot) continue;
-    const str = (key: string) => body.match(new RegExp(`\\b${key}\\s*=\\s*"([^"]*)"`))?.[1]?.trim() || null;
-    const num = (key: string) => Number(body.match(new RegExp(`\\b${key}\\s*=\\s*(-?[\\d.]+)`))?.[1] ?? 0);
-    const req = str("VirtueReq")?.match(/^(\d+)\s*([CSG])$/);
-    out[m[1]!.trim()] = {
-      slot,
-      set: str("ArmorSet"),
-      rarity: str("Rarity"),
-      physical: num("PhysicalDefence"),
-      magick: num("MagickDefence"),
-      stability: num("StabilityIncrease"),
-      requires: req ? { virtue: VIRTUE_LETTER[req[2]!]!, value: Number(req[1]) } : null,
-    };
-  }
-  return out;
-}
-export async function buildArmour(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
-  onProgress?.(0, 1, "Module:Data/Armour");
-  const r = await j(`${API}?action=parse&page=${encodeURIComponent("Module:Data/Armour")}&prop=wikitext&format=json`);
-  const out = parseArmour(r.parse?.wikitext?.["*"] ?? "");
-  onProgress?.(1, 1, "done");
-  if (Object.keys(out).length < 30) throw new Error(`Module:Data/Armour gave only ${Object.keys(out).length} armour pieces`);
-  await writeSorted(outPath, out as Record<string, unknown>);
-  return { ok: Object.keys(out).length, unparsed: [] };
 }
 
 export interface MasteryRankData {
@@ -685,18 +529,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/totems.json";
       const r = await buildTotems(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} totem effects (${r.archived} archived skipped, ${r.unparsed.length} unparsed).\n`);
-    } else if (kind === "runes") {
-      const out = process.argv[3] ?? "src/server/public/runes.json";
-      const r = await buildRunes(out, bar);
-      process.stderr.write(`\nWrote ${out}: ${r.ok} rune effects (${r.archived} archived skipped, ${r.unparsed.length} unparsed).\n`);
     } else if (kind === "weapons") {
       const out = process.argv[3] ?? "src/server/public/weapons.json";
       const r = await buildWeapons(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} weapons (${r.archived} archived skipped, ${r.unparsed.length} unparsed).\n`);
-    } else if (kind === "pacts") {
-      const out = process.argv[3] ?? "src/server/public/pacts.json";
-      const r = await buildPacts(out, bar);
-      process.stderr.write(`\nWrote ${out}: ${r.ok} pacts (${r.unparsed.length} unparsed).\n`);
     } else if (kind === "tempers") {
       const out = process.argv[3] ?? "src/server/public/tempers.json";
       const r = await buildTempers(out, bar);
@@ -709,14 +545,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/totemdata.json";
       const r = await buildTotemData(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} totems (${r.unparsed.length} unparsed: ${r.unparsed.join(", ")}).\n`);
-    } else if (kind === "talismans") {
-      const out = process.argv[3] ?? "src/server/public/talismans.json";
-      const r = await buildTalismans(out, bar);
-      process.stderr.write(`\nWrote ${out}: ${r.ok} talismans (${r.unparsed.length} not on the wiki: ${r.unparsed.join(", ")}).\n`);
-    } else if (kind === "armour") {
-      const out = process.argv[3] ?? "src/server/public/armour.json";
-      const r = await buildArmour(out, bar);
-      process.stderr.write(`\nWrote ${out}: ${r.ok} armour pieces.\n`);
     } else if (kind === "masteryrank") {
       const out = process.argv[3] ?? "src/server/public/masteryrank.json";
       await buildMasteryRank(out, bar);
@@ -726,7 +554,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const r = await buildPactArts(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} pact arts with text (${r.unparsed.length} without: ${r.unparsed.join(", ")}).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|runes|weapons|pacts|tempers|pactarts|talismans|armour|masteryrank> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|totemdata|tempericons|weapons|tempers|pactarts|masteryrank> [outPath]\n");
       process.exit(2);
     }
   };

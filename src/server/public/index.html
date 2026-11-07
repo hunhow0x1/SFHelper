@@ -1018,7 +1018,6 @@
       let DICT_LC = {};
       let FACTION_RANKS = {};
       let TOTEMS = {};
-      let RUNES = {};
       let TEMPER_DB = {};
       let PACT_ARTS = {};
       let PACT_ART_VALUES = {};
@@ -1464,7 +1463,7 @@
           ? history
               .map((x) => {
                 const deals = x.deals || [];
-                const dracsIcon = (n) => `<span class="avprice" title="Dracs"><img src="img/avakot/dracs.png" alt="">${fmt(n)}</span>`;
+                const dracsIcon = (n) => `<span class="avprice" title="Dracs"><img src="img/game/dracs.png" alt="">${fmt(n)}</span>`;
                 const dracs = x.dracs < 0 ? `${dracsIcon(-x.dracs)}spent on Scutage` : x.dracs > 0 ? `${dracsIcon(x.dracs)}gained` : "";
                 const merged = Math.max(x.count || 1, deals.length) > 1 ? "Made between the same two inventory refreshes, so they're shown together" : "";
                 const note = x.logOnly ? "From the game log, before SFHelper saw your inventory: no counts or Dracs" : "";
@@ -1607,7 +1606,7 @@
         const text = Array.isArray(amount)
           ? amount[0] === amount[1] ? amount[0].toLocaleString() : amount[0].toLocaleString() + "–" + amount[1].toLocaleString()
           : amount.toLocaleString();
-        return `<span class="avprice" title="${currency}"><img src="img/avakot/${currency === "Arcs" ? "arcs" : "dracs"}.png" alt="${currency}">${text}</span>`;
+        return `<span class="avprice" title="${currency}"><img src="img/game/${currency === "Arcs" ? "arcs" : "dracs"}.png" alt="${currency}">${text}</span>`;
       }
       const avIcon = (it, cls = "avicn") => (it.icon ? `<img class="${cls}" src="${escHtml(it.icon)}" alt="">` : `<span class="${cls}"></span>`);
       function avStar(it) {
@@ -1747,6 +1746,14 @@
       const runeInfo = (type) => UPGRADES.runes[type] || { name: shortName(type), art: null, stats: [], icon: null };
       const runeMax = (d) => Math.max(0, ...(d.stats || []).map((st) => st.values.length - 1));
       const runeTop = (o) => (o.ranks.length ? o.ranks[0] : null);
+      function runeText(d, rank) {
+        if (!d || !d.text || !d.vals) return "";
+        return escHtml(d.text).replace(/\|(\w+)\|/g, (m, k) => {
+          const v = d.vals[k];
+          if (!v || !v.length) return m;
+          return `<b>${escHtml(rank == null ? v.join("/") : v[Math.min(rank, v.length - 1)])}</b>`;
+        });
+      }
       function runeStat(st, rank) {
         const v = st.values[Math.min(rank, st.values.length - 1)];
         return st.effect.includes("$1") ? escHtml(st.effect).replace("$1", `<b>${escHtml(v)}</b>`) : `${escHtml(st.effect)} <b>${escHtml(v)}</b>`;
@@ -1866,11 +1873,13 @@
           const r = runeTop(o);
           const max = runeMax(d);
           const rank = !held ? "Unowned" : r == null ? "Unranked" : max ? `Rank ${r} of ${max}` : `Rank ${r}`;
-          const stats = r != null ? d.stats.map((st) => `<div class="tp-eff">${runeStat(st, r)}</div>`).join("") : "";
+          const text = runeText(d, r);
+          const stats = text ? `<div class="tp-eff">${text}</div>`
+            : (r != null ? d.stats.map((st) => `<div class="tp-eff">${runeStat(st, r)}</div>`).join("") : "") + (d.does ? `<div class="tp-eff">${escHtml(d.does)}</div>` : "");
           const art = d.art ? `${escHtml(d.art)} rune · ` : "";
           return `<div class="tp-head">${d.icon ? upIcon(d.icon, "ticn") : ""}<div class="tp-name">${escHtml(d.name)}</div></div>` +
             `<div class="tp-rank">${art}${rank}</div>${d.desc ? `<div class="tp-quote">${escHtml(d.desc)}</div>` : ""}` +
-            stats + (d.does ? `<div class="tp-eff">${escHtml(d.does)}</div>` : "") +
+            stats +
             (d.slot ? `<div class="tp-eff">Adds a ${slotHtml(d.slot)}.</div>` : "") +
             (o.unranked ? `<div class="tp-dbl">${o.unranked} unranked ${o.unranked === 1 ? "copy" : "copies"}</div>` : "");
         }
@@ -1926,7 +1935,7 @@
           })
           .join("");
         const foot = [
-          r.dracs ? `<span class="avprice${c.dracs < r.dracs ? " short" : ""}" title="Dracs"><img src="img/avakot/dracs.png" alt="">${fmt(r.dracs)}</span>` : "",
+          r.dracs ? `<span class="avprice${c.dracs < r.dracs ? " short" : ""}" title="Dracs"><img src="img/game/dracs.png" alt="">${fmt(r.dracs)}</span>` : "",
           `<span>${craftTime(r.seconds)}</span>`,
           r.consumed ? `<span>Fragments ${fmt(s.fragments)} / ${fmt(r.fragments)}</span>` : "",
         ].join("");
@@ -2200,7 +2209,7 @@
             const d = UPGRADES.runes[t];
             const lvl = slot.runeLevels ? slot.runeLevels[i] : null;
             const stats = d && d.stats.length && lvl != null ? d.stats.map((st) => runeStat(st, lvl)).join(" · ") : "";
-            const eff = RUNES[name] || stats || (d && d.does) || "";
+            const eff = runeText(d, lvl) || stats || (d && d.does ? escHtml(d.does) : "");
             return `<div class="totemrow"><span class="tname">${escHtml(name)}</span>${eff ? `<span class="teff">${eff}</span>` : ""}</div>`;
           })
           .join("");
@@ -2215,9 +2224,7 @@
       }
       const runeSlotVirtue = (runes) => {
         if (!runes || !runes.length) return null;
-        const eff = RUNES[shortName(runes[0])] || "";
-        const m = /additional (Courage|Spirit|Grace)\b[^.]*\bslot/i.exec(eff);
-        return m ? m[1][0].toUpperCase() + m[1].slice(1).toLowerCase() : UPGRADES.runes[runes[0]]?.slot || null;
+        return UPGRADES.runes[runes[0]]?.slot || null;
       };
       const totemRows = (arr, runes) => {
         const hasRune = !!(runes && runes.length);
@@ -2348,7 +2355,7 @@
         const bonus = talismanBonus(tal);
         const talRow = tal ? `<div class="atal"><span class="aslot">Talisman</span><span class="aname">${tal.name}</span>${bonus ? `<span>${bonus}</span>` : ""}</div>` : "";
         return `<div class="ablock">
-          <div class="vhead"><span class="h">Armour</span><span class="vtot">stats from the Soulframe Wiki</span></div>
+          <div class="vhead"><span class="h">Armour</span></div>
           <table class="vtable atable"><tr><th></th>${ARMOUR_STATS.map(([, l]) => `<th>${l}</th>`).join("")}<th>Requires</th></tr>${rows}${total}</table>
           ${talRow}
         </div>`;
@@ -2942,7 +2949,7 @@
         }
       }
       const DATA_FILES = [
-        "names", "faction-ranks", "totems", "totemdata", "runes", "tempers", "pactarts", "itemicons",
+        "names", "faction-ranks", "totems", "totemdata", "tempers", "pactarts", "itemicons",
         "pactartvalues", "talismans", "armour", "roster", "upgrades", "recipes", "avakot",
       ];
       async function loadDict() {
@@ -2959,7 +2966,6 @@
         if (d["faction-ranks"]) FACTION_RANKS = d["faction-ranks"];
         if (d.totems) TOTEMS = d.totems;
         if (d.totemdata) TOTEM_DATA = d.totemdata;
-        if (d.runes) RUNES = d.runes;
         if (d.tempers) TEMPER_DB = d.tempers;
         if (d.pactarts) PACT_ARTS = d.pactarts;
         if (d.itemicons) ITEM_ICONS = d.itemicons;

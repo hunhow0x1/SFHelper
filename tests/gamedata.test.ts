@@ -3,9 +3,10 @@ import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { zstdCompressSync } from "node:zlib";
-import { findCacheDir, findRootEntry, hostPath, readEntry } from "../src/gamedata/cache";
+import { findCacheDir, findRootEntry, hostPath, readEntry, tocIndex } from "../src/gamedata/cache";
 import { readLanguages } from "../src/gamedata/formats";
-import { buildArsenal, buildEnemies, buildNames, buildPactArtValues, buildUpgrades, parseFactionCaps, withRetired } from "../src/gamedata/builders";
+import { buildArmour, buildArsenal, buildEnemies, buildNames, buildPactArtValues, buildTalismans, buildUpgrades, itemIconPaths, parseFactionCaps, runeValues, withRetired } from "../src/gamedata/builders";
+import { decodeBC3, encodePng, mipChain, textureImage } from "../src/gamedata/textures";
 import { loggedGame } from "../src/server/gameLog";
 
 function tocEntry(name: string, parent: number, offset: number, size: number, stamp = 123n): Buffer {
@@ -258,7 +259,7 @@ describe("weapons, Pacts and gear straight from the game files", () => {
       consumable("Tackle/Hidden", "/L/Hidden", { ShowInInventory: "0" }),
     ];
     const names = { ...dict, "/L/Desc": "A description.", "/L/Pup": "Summon Wolfpup", "/L/Whisp": "Curaidh's Whisp", "/L/Swell": "Cloudswell", "/L/Hidden": "Hidden Lure" };
-    const { gear } = await buildUpgrades(names, texts, null, null, {}, async () => null);
+    const { gear } = await buildUpgrades(names, texts, null, null, async () => null);
     expect(Object.fromEntries(Object.values(gear).map((g) => [g.name, g.kind]))).toEqual({ "Bairnday Biscuit": "Companion", "Life Elixir": "Supplies" });
   });
 });
@@ -276,5 +277,117 @@ describe("what the game log says about the install", () => {
       ].join("\n"),
     );
     expect(await loggedGame(log)).toEqual({ log, build: "2026.10.08.15.20", cacheDir: "C:\\Soulframe\\Downloaded\\Public\\Cache.Windows\\" });
+  });
+});
+
+describe("runes, Talismans and armour from the game files", () => {
+  const def = (fields: Record<string, string>, extra = "") => Object.entries(fields).map(([k, v]) => `${k}=${v}`).join("\n") + (extra ? `\n${extra}` : "");
+  const dict = {
+    "/L/Lunar": "Lunarcure",
+    "/L/LunarDesc": "The rune of spiritsalve, ease your rally.",
+    "/L/LunarText": "Cast enchanted magick that deals +|DAMAGE|% Arcanic Damage and heals Envoys for |HEAL|% of their Health.",
+    "/L/Charm": "Cardinal Charm",
+    "/L/Braes": "Ceptet's Gaiters",
+    "/L/Mask": "Ceptet's Headstone",
+    "/L/Old": "Arbearer's Braes",
+  };
+
+  it("takes a rune's in-game description and Totem slot from its definition", async () => {
+    const icon = "/SF/Interface/Graphics/Runes/Alca/AlcaSpirit012.png";
+    const type = "/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune";
+    const texts = [
+      def({ ProductCategory: "Upgrades", LocalizeTag: "/L/Lunar", LocalizeDescTag: "/L/LunarDesc", Icon: icon, TypeName: type }, "SearchTags={\n/L/Magick\n}"),
+      def({ LocalizeTag: "/L/Lunar", Icon: icon, EnhancementTag: "/L/LunarText" }, "BonusArtifactSlots={\nAP_DEFENSE\n}"),
+    ];
+    const stats = [
+      { effect: "$1 Arcanic Damage Bonus", values: ["50%", "75%", "100%", "125%"] },
+      { effect: "Healing", values: ["20%", "25%", "30%", "35%"] },
+    ];
+    const wiki = new Map([[type, { name: "Lunarcure", id: type, icon: null, art: null, does: null, slot: null, stats }]]);
+    const drawn: (string | null)[] = [];
+    const { runes } = await buildUpgrades({ ...dict, "/L/Magick": "Magick" }, texts, wiki, null, async (p) => {
+      drawn.push(p);
+      return "img/game/rune.png";
+    });
+    expect(runes[type]).toMatchObject({
+      name: "Lunarcure",
+      text: dict["/L/LunarText"],
+      vals: { DAMAGE: ["50", "75", "100", "125"], HEAL: ["20", "25", "30", "35"] },
+      slot: "Spirit",
+      art: "Magick",
+      icon: "img/game/rune.png",
+    });
+    expect(drawn).toEqual([icon]);
+  });
+
+  it("matches the wiki's numbers to a description's placeholders by what they measure", () => {
+    const treefell = "Increases the speed of charging Heavy Attacks by |BONUS|%, and bypasses |BONUS2| Defence for |DURATION| seconds.";
+    const stats = [
+      { effect: "Charge Speed", values: ["40%", "60%", "80%", "100%"] },
+      { effect: "Duration", values: ["5s", "6s", "7s", "8s"] },
+      { effect: "$1 Armour Penetration", values: ["10", "30", "50", "70"] },
+    ];
+    expect(runeValues(treefell, stats)).toEqual({ BONUS: ["40", "60", "80", "100"], BONUS2: ["10", "30", "50", "70"], DURATION: ["5", "6", "7", "8"] });
+    expect(runeValues("Creates a cloaking shadow for |DURATION| seconds, extended by |BONUS| seconds.", [stats[1]!])).toBeNull();
+    expect(runeValues("Throw for |STAGGER|% Stagger.", [{ effect: "Stagger Bonus", values: ["x%", "x%", "x%", "350%"] }])).toBeNull();
+  });
+
+  it("reads Talisman Virtues and armour stats, keeping set names it already had", () => {
+    const charm = "/SF/Interface/Graphics/StoreItems/Totems/CardinalTalisman.png";
+    const virtue = (v: string, n: number) => `UpgradeType=AVATAR_ATTRIBUTE_PRIMARY_${v}\nOperationType=ADD_BASE\nValue=${n}`;
+    const piece = (folder: string, leaf: string, tag: string, body: string) => [
+      def({ ProductCategory: "WeaponSkins", LocalizeTag: tag, Icon: `/I/${leaf}.png`, TypeName: `/SF/Upgrades/Skins/${folder}/${leaf}` }),
+      def({ LocalizeTag: tag, Icon: `/I/${leaf}.png` }, body),
+    ];
+    const texts = [
+      def({ ProductCategory: "WeaponSkins", LocalizeTag: "/L/Charm", Icon: charm, TypeName: "/SF/Upgrades/Skins/Totem/CardinalTotem" }),
+      def({ LocalizeTag: "/L/Charm", Icon: charm }, `Upgrades={\n{\n${virtue("GRACE", 1)}\n},\n{\n${virtue("SPIRIT", 2)}\n},\n{\n${virtue("COURAGE", 1)}\n}\n}`),
+      ...piece("Legs", "MockeryStoneLegs", "/L/Braes", "Rarity=RARE\nArmour={\nPhysical=5\nMagick=1\nStability=4\n}\nRequirements={\nAT_COURAGE=19\n}"),
+      ...piece("Helmets", "MockeryStoneHelmet", "/L/Mask", "Armour={\nPhysical=4\nMagick=2\nStability=2\n}"),
+      ...piece("Legs", "BromiusLegs", "/L/Old", "Rarity=RARE\nArmour={\nPhysical=5\nMagick=1\nStability=4\n}\nRequirements={\nAT_COURAGE=19\n}"),
+    ];
+    expect(buildTalismans(dict, texts)).toEqual({ CardinalTotem: { name: "Cardinal Charm", Courage: 1, Spirit: 2, Grace: 1 } });
+    const previous = { "Arbearer's Braes": { slot: "Leggings" as const, set: "Arbearer", rarity: "Rare", physical: 5, magick: 1, stability: 4, requires: null }, "Helmless": { slot: "Helm" as const, set: "Underwear", rarity: "Common", physical: 0, magick: 0, stability: 0, requires: null } };
+    expect(buildArmour(dict, texts, previous)).toEqual({
+      "Arbearer's Braes": { slot: "Leggings", set: "Arbearer", rarity: "Rare", physical: 5, magick: 1, stability: 4, requires: { virtue: "Courage", value: 19 } },
+      "Ceptet's Gaiters": { slot: "Leggings", set: "Ceptet", rarity: "Rare", physical: 5, magick: 1, stability: 4, requires: { virtue: "Courage", value: 19 } },
+      "Ceptet's Headstone": { slot: "Helm", set: "Ceptet", rarity: "Common", physical: 4, magick: 2, stability: 2, requires: null },
+      "Helmless": { slot: "Helm", set: "Underwear", rarity: "Common", physical: 0, magick: 0, stability: 0, requires: null },
+    });
+  });
+
+  it("lists item icons by name, preferring items over other things with the same name", () => {
+    const texts = [
+      def({ ProductCategory: "Recipes", LocalizeTag: "/L/Lunar", Icon: "/I/Recipe.png", TypeName: "/SF/Types/Recipes/X" }),
+      def({ ProductCategory: "Upgrades", LocalizeTag: "/L/Lunar", Icon: "/I/Rune.png", TypeName: "/SF/Upgrades/Runes/X" }),
+      def({ ProductCategory: "MiscItems", LocalizeTag: "/L/Charm", Icon: "/I/Charm.png", TypeName: "/SF/Types/Charm" }),
+    ];
+    expect(Object.fromEntries(itemIconPaths(dict, texts))).toEqual({ "Cardinal Charm": "/I/Charm.png", Lunarcure: "/I/Rune.png" });
+  });
+});
+
+describe("icons drawn from the game's textures", () => {
+  it("knows the mip layout of the small texture parts", () => {
+    expect(mipChain(21872)).toEqual({ top: 128, blockBytes: 16 });
+    expect(mipChain(5488)).toEqual({ top: 64, blockBytes: 16 });
+    expect(mipChain(43704)).toEqual({ top: 256, blockBytes: 8 });
+    expect(mipChain(1000)).toBeNull();
+  });
+
+  it("decodes BC3 blocks, keeps the largest level and writes a PNG", () => {
+    const block = Buffer.from([0xff, 0x00, 0, 0, 0, 0, 0, 0, 0x00, 0xf8, 0x1f, 0x00, 0, 0, 0, 0]);
+    expect([...decodeBC3(block, 4, 4).subarray(0, 4)]).toEqual([255, 0, 0, 255]);
+    const chain = Buffer.concat([Buffer.alloc(16 * 3, 0), Buffer.concat(Array.from({ length: 4 }, () => block))]);
+    const img = textureImage(chain, 64);
+    expect(img?.side).toBe(8);
+    const png = encodePng(img!.rgba, img!.side, img!.side);
+    expect(png.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
+    expect(png.readUInt32BE(16)).toBe(8);
+  });
+
+  it("finds files in nested cache folders by their full path", () => {
+    const index = tocIndex(toc(tocEntry("SF", 0, -1, 0), tocEntry("Interface", 1, -1, 0), tocEntry("Rat.png", 2, 100, 10, 5n), tocEntry("Rat.png", 2, 200, 10, 9n)));
+    expect([...index.keys()]).toEqual(["/SF/Interface/Rat.png"]);
+    expect(index.get("/SF/Interface/Rat.png")).toMatchObject({ offset: 200, stamp: "9" });
   });
 });

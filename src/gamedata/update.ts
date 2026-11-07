@@ -4,6 +4,7 @@ import { writeFileAtomic } from "../server/files";
 import { readGameFiles, type GameFiles } from "./cache";
 import { readLanguages, readPackageTexts, readTypeTree } from "./formats";
 import {
+  buildArmour,
   buildArsenal,
   buildAvakot,
   buildEnemies,
@@ -11,19 +12,22 @@ import {
   buildNames,
   buildPactArtValues,
   buildRecipes,
+  buildTalismans,
   buildUpgrades,
+  itemIconPaths,
   parseCraftingTable,
   parseFactionCaps,
-  parseWikiIcons,
-  parseWikiImages,
   parseWikiRunes,
+  typeIcons,
   withRetired,
+  type ArmourEntry,
   type ArsenalData,
   type AvakotPool,
   type RecipeDef,
   type UpgradeData,
   type WikiRune,
 } from "./builders";
+import { GameIcons } from "./textures";
 import type { Wiki } from "./wiki";
 
 export const GAME_DATA_FILES = [
@@ -37,10 +41,14 @@ export const GAME_DATA_FILES = [
   "faction-ranks.json",
   "recipes.json",
   "arsenal.json",
+  "talismans.json",
+  "armour.json",
 ];
 
-const MAX_DOWNLOADS = 60;
-const RECIPE_IMAGE_MODULES = ["Weapons", "Armour", "Pacts", "Cosmetics", "Misc", "CraftingResources", "Consumables"];
+const CURRENCY_ICONS: [string, string][] = [
+  ["/SF/Interface/Graphics/Market/DracsCurrencyIcon.png", "img/game/dracs.png"],
+  ["/SF/Interface/Graphics/StoreItems/Currency/PremiumCurrency.png", "img/game/arcs.png"],
+];
 const MIN_KEPT = 0.8;
 const DEFAULT_CAPS = [5000, 5000, 20000, 20000, 30000, 30000];
 
@@ -50,8 +58,6 @@ export interface UpdateOptions {
   outDir: string;
   bundledDir: string;
   wiki?: Wiki | null;
-  shrinkIcon?: (png: Buffer) => Buffer | Promise<Buffer>;
-  maxDownloads?: number;
   log?: (msg: string) => void;
 }
 
@@ -60,11 +66,12 @@ export interface UpdateResult {
   changed: string[];
   failed: string[];
   incomplete: boolean;
-  downloads: number;
+  drawn: number;
   summary: string;
 }
 
 const slug = (s: string): string => s.toLowerCase().replace(/\.png$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+export const iconFile = (path: string): string => `img/game/${slug(path.replace(/^\/(?:SF|Lotus)\/Interface\/(?:Graphics\/)?/, ""))}.png`;
 const exists = (p: string): Promise<boolean> => access(p).then(() => true, () => false);
 const readText = (p: string): Promise<string | null> => readFile(p, "utf8").catch(() => null);
 
@@ -88,7 +95,8 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   const failed: string[] = [];
   const counts: string[] = [];
   let incomplete = false;
-  let downloads = 0;
+  let drawn = 0;
+  const gameIcons = o.cacheDir ? new GameIcons(o.cacheDir) : null;
 
   const dict = await readLanguages(files.languages);
   if (Object.keys(dict).length < 1000) throw new Error(`Languages.bin: only ${Object.keys(dict).length} texts`);
@@ -127,36 +135,17 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     }
   };
 
-  const icon = async (dir: string, file: string, as = slug(file)): Promise<string | null> => {
-    const rel = `${dir}/${as}.png`;
-    if ((await exists(join(o.outDir, rel))) || (await exists(join(o.bundledDir, rel)))) return rel;
-    if (!wiki || downloads >= (o.maxDownloads ?? MAX_DOWNLOADS)) return null;
-    const png = await wiki.image(file);
+  const icon = async (path: string | null, as = path ? iconFile(path) : ""): Promise<string | null> => {
+    if (!path) return null;
+    if ((await exists(join(o.outDir, as))) || (await exists(join(o.bundledDir, as)))) return as;
+    const png = gameIcons ? await gameIcons.png(path).catch(() => null) : null;
     if (!png) return null;
-    await writeFileAtomic(join(o.outDir, rel), o.shrinkIcon ? await o.shrinkIcon(png) : png);
-    downloads += 1;
-    return rel;
+    await writeFileAtomic(join(o.outDir, as), png);
+    drawn += 1;
+    return as;
   };
-  const iconTable = async (modules: string[]): Promise<Map<string, string> | null> => {
-    if (!wiki) return null;
-    const table = new Map<string, string>();
-    for (const mod of modules) {
-      const lua = await wiki.wikitext(`Module:Data/${mod}`);
-      if (lua === null) return null;
-      parseWikiIcons(lua, table);
-    }
-    return table;
-  };
-  const imageTable = async (modules: string[]): Promise<Map<string, string> | null> => {
-    if (!wiki) return null;
-    const table = new Map<string, string>();
-    for (const mod of modules) {
-      const lua = await wiki.wikitext(`Module:Data/${mod}`);
-      if (lua === null) return null;
-      parseWikiImages(lua, table);
-    }
-    return table;
-  };
+  const iconOfType = typeIcons(unique);
+  const iconOfName = itemIconPaths(dict, unique);
 
   let names = buildNames(dict, tree, unique);
   await step("names.json", async () => {
@@ -200,26 +189,15 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     return `${Object.keys(values).length} Pact Art values`;
   });
 
-  let itemIcons = (await previous<Record<string, string>>("itemicons.json")) ?? {};
   await step("itemicons.json", async () => {
-    const table = await iconTable(["CraftingResources", "Consumables", "Fish", "Weapons"]);
-    if (!table) {
-      if (wiki) incomplete = true;
-      return null;
-    }
-    if (table.size < 50) throw new Error(`only ${table.size} icons listed on the wiki`);
+    const prev = (await previous<Record<string, string>>("itemicons.json")) ?? {};
     const icons: Record<string, string> = {};
-    const byFile = new Map<string, string | null>();
-    for (const [name, file] of [...table].sort(([a], [b]) => a.localeCompare(b))) {
-      if (!byFile.has(file)) {
-        const s = slug(file);
-        const avakot = `img/avakot/${s}.png`;
-        byFile.set(file, (await exists(join(o.outDir, avakot))) || (await exists(join(o.bundledDir, avakot))) ? avakot : await icon("img/items", file));
-      }
-      const rel = byFile.get(file) ?? itemIcons[name];
+    for (const [name, path] of [...iconOfName].sort(([a], [b]) => a.localeCompare(b))) {
+      const rel = (await icon(path)) ?? prev[name];
       if (rel) icons[name] = rel;
     }
-    itemIcons = icons;
+    for (const [path, as] of CURRENCY_ICONS) await icon(path, as);
+    enough("item icons", Object.keys(icons).length, Object.keys(prev).length);
     await put("itemicons.json", `${JSON.stringify(icons, null, 2)}\n`);
     return `${Object.keys(icons).length} item icons`;
   });
@@ -230,9 +208,8 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     const wikiRunes = parsed.length >= 10 ? new Map<string, WikiRune>(parsed.map((r) => [r.id!, r])) : null;
     if (!wikiRunes && wiki) incomplete = true;
     const prev = await previous<UpgradeData>("upgrades.json");
-    const data = await buildUpgrades(dict, unique, wikiRunes, prev, itemIcons, (file) => icon("img/runes", file));
-    enough("upgrades", Object.keys(data.runes).length + Object.keys(data.gear).length, prev ? Object.keys(prev.runes).length + Object.keys(prev.gear).length : undefined);
-    const { missingIcons, ...upgrades } = data;
+    const upgrades = await buildUpgrades(dict, unique, wikiRunes, prev, (path) => icon(path));
+    enough("upgrades", Object.keys(upgrades.runes).length + Object.keys(upgrades.gear).length, prev ? Object.keys(prev.runes).length + Object.keys(prev.gear).length : undefined);
     await put("upgrades.json", `${JSON.stringify(upgrades, null, 2)}\n`);
     return `${Object.keys(upgrades.runes).length} runes, ${Object.keys(upgrades.joineries).length} joineries, ${Object.keys(upgrades.gear).length} gear`;
   });
@@ -242,17 +219,14 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     const prev = await previous<AvakotPool>("avakot.json");
     enough("Avakot's items", pool.items.length, prev?.items.length);
     const prevIcon = new Map((prev?.items ?? []).map((i) => [i.storeItem, i.icon]));
-    const table = await iconTable(["CraftingResources", "Consumables", "Fish", "Misc", "Pacts"]);
-    if (!table && wiki) incomplete = true;
     for (const it of pool.items) {
       if (it.group === "Joineries") {
         it.icon = `img/joineries/${it.name.split(":")[0]!.trim().toLowerCase()}.png`;
         continue;
       }
-      const file = table?.get(it.name) ?? table?.get(/ of (.+ Lampyrite)$/.exec(it.name)?.[1] ?? "");
-      it.icon = (file ? await icon("img/avakot", file) : null) ?? prevIcon.get(it.storeItem) ?? null;
+      const path = iconOfType.get(it.storeItem.replace("/SF/StoreItems/", "/SF/")) ?? iconOfName.get(/ of (.+)$/.exec(it.name)?.[1] ?? "") ?? null;
+      it.icon = (await icon(path)) ?? prevIcon.get(it.storeItem) ?? null;
     }
-    if (table) for (const [file, as] of [["DracsCurrencyIcon.png", "dracs"], ["Arcs.png", "arcs"]] as const) await icon("img/avakot", file, as);
     await put("avakot.json", `${JSON.stringify(pool, null, 2)}\n`);
     return `${pool.items.length} Avakot items`;
   });
@@ -263,16 +237,29 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     enough("recipes", Object.keys(recipes).length, prev ? Object.keys(prev).length : undefined);
     const lua = wiki ? await wiki.wikitext("Module:Data/CraftingTable") : null;
     const crafts = lua ? parseCraftingTable(lua) : null;
-    const images = await imageTable(RECIPE_IMAGE_MODULES);
-    if (wiki && (!crafts?.size || !images)) incomplete = true;
+    if (wiki && !crafts?.size) incomplete = true;
     for (const [type, r] of Object.entries(recipes)) {
       const old = prev?.[type];
       r.bond = crafts?.size ? (wikiEntry(crafts, r) ?? null) : (old?.bond ?? null);
-      const file = images ? (wikiEntry(images, r) ?? images.get(r.name)) : undefined;
-      r.icon = itemIcons[r.name] ?? (file ? await icon("img/items", file) : null) ?? old?.icon ?? null;
+      r.icon = (await icon(iconOfType.get(r.result) ?? iconOfType.get(type) ?? null)) ?? old?.icon ?? null;
     }
     await put("recipes.json", `${JSON.stringify({ recipes }, null, 2)}\n`);
     return `${Object.keys(recipes).length} recipes`;
+  });
+
+  await step("talismans.json", async () => {
+    const talismans = buildTalismans(dict, unique);
+    enough("Talismans", Object.keys(talismans).length, Object.keys((await previous<object>("talismans.json")) ?? {}).length);
+    await put("talismans.json", `${JSON.stringify(talismans, null, 2)}\n`);
+    return `${Object.keys(talismans).length} Talismans`;
+  });
+
+  await step("armour.json", async () => {
+    const prev = await previous<Record<string, ArmourEntry>>("armour.json");
+    const armour = buildArmour(dict, unique, prev);
+    enough("armour pieces", Object.keys(armour).length, Object.keys(prev ?? {}).length);
+    await put("armour.json", `${JSON.stringify(armour, null, 2)}\n`);
+    return `${Object.keys(armour).length} armour pieces`;
   });
 
   await step("faction-ranks.json", async () => {
@@ -292,11 +279,11 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
 
   const summary =
     `Game data: ${counts.join(", ")}` +
-    (downloads ? `; ${downloads} new icons` : "") +
+    (drawn ? `; ${drawn} new icons` : "") +
     (changed.length ? `; updated ${changed.join(", ")}` : "; nothing changed") +
     (failed.length ? `; kept the old ${failed.join(", ")}` : "") +
     ".";
-  return { hash: files.hash, changed, failed, incomplete, downloads, summary };
+  return { hash: files.hash, changed, failed, incomplete, drawn, summary };
 }
 
 export async function clearGameData(outDir: string): Promise<void> {

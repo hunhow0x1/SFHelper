@@ -24,7 +24,6 @@ export interface WatcherOptions {
   appVersion: string;
   locate: () => Promise<{ dir: string | null; build: string | null }>;
   wiki?: () => Wiki | null;
-  shrinkIcon?: UpdateOptions["shrinkIcon"];
   log: (msg: string) => void;
   onChanged: () => void;
   readFiles?: (dir: string) => Promise<GameFiles>;
@@ -93,10 +92,10 @@ export class GameDataWatcher {
     o.log(`Updating names, locations and items from Soulframe's game files${build ? ` (build ${build})` : ""}…`);
     const result = await (o.update ?? updateGameData)({
       files,
+      cacheDir: dir,
       outDir: o.outDir,
       bundledDir: o.bundledDir,
       wiki: o.wiki?.() ?? null,
-      ...(o.shrinkIcon ? { shrinkIcon: o.shrinkIcon } : {}),
       log: o.log,
     });
     const next: GameDataState = { app: o.appVersion, hash: files.hash, stamp: stamp.id, at: now(), complete: !result.incomplete };

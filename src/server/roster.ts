@@ -45,11 +45,7 @@ function classGuesser(game: GameWeapon[], wiki: Record<string, RosterWeapon>): (
   };
 }
 
-export function buildRoster(
-  wikiWeapons: Record<string, RosterWeapon> | null,
-  wikiPacts: Record<string, Record<string, never>> | null,
-  arsenal: Arsenal | null,
-): Roster {
+export function buildRoster(wikiWeapons: Record<string, RosterWeapon> | null, arsenal: Arsenal | null): Roster {
   const wiki = wikiWeapons ?? {};
   const game = Object.values(arsenal?.weapons ?? {});
   const gamePacts = Object.values(arsenal?.pacts ?? {});
@@ -60,15 +56,11 @@ export function buildRoster(
         return [w.name, { class: known && known !== OTHER ? known : guess(w), slot: w.slot }];
       }))
     : wiki;
-  const pacts = gamePacts.length ? byName(gamePacts.map((n): [string, Record<string, never>] => [n, {}])) : (wikiPacts ?? {});
+  const pacts = byName(gamePacts.map((n): [string, Record<string, never>] => [n, {}]));
   return { weapons, pacts };
 }
 
 export async function getRoster(): Promise<Roster> {
-  const [weapons, pacts, arsenal] = await Promise.all([
-    readDataJson<Record<string, RosterWeapon>>("weapons.json"),
-    readDataJson<Record<string, Record<string, never>>>("pacts.json"),
-    readDataJson<Arsenal>("arsenal.json"),
-  ]);
-  return buildRoster(weapons, pacts, arsenal);
+  const [weapons, arsenal] = await Promise.all([readDataJson<Record<string, RosterWeapon>>("weapons.json"), readDataJson<Arsenal>("arsenal.json")]);
+  return buildRoster(weapons, arsenal);
 }

@@ -18,7 +18,7 @@
       ],
       "weight": 0.3,
       "limit": 100,
-      "icon": "img/avakot/healingpotion.png"
+      "icon": "img/game/storeitems-consumables-healingpotion.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/CricketLureRare",
@@ -36,7 +36,7 @@
       ],
       "weight": 0.2,
       "limit": 3,
-      "icon": "img/avakot/spindledbugger.png"
+      "icon": "img/game/storeitems-fishing-cricketlure.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/TurtleLureRare",
@@ -54,7 +54,7 @@
       ],
       "weight": 0.2,
       "limit": 3,
-      "icon": "img/avakot/scuter.png"
+      "icon": "img/game/storeitems-fishing-turtlelure.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/LobsterLureRare",
@@ -72,7 +72,7 @@
       ],
       "weight": 0.2,
       "limit": 3,
-      "icon": "img/avakot/locustaxstreamer.png"
+      "icon": "img/game/storeitems-fishing-lobsterlure.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/FrogLureUncommon",
@@ -90,7 +90,7 @@
       ],
       "weight": 0.35,
       "limit": 5,
-      "icon": "img/avakot/sirinshopper.png"
+      "icon": "img/game/storeitems-fishing-froglure.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/FishLureUncommon",
@@ -108,7 +108,7 @@
       ],
       "weight": 0.35,
       "limit": 5,
-      "icon": "img/avakot/snelledswimmer.png"
+      "icon": "img/game/storeitems-fishing-fishlure.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/CarpLureUncommon",
@@ -126,7 +126,7 @@
       ],
       "weight": 0.35,
       "limit": 5,
-      "icon": "img/avakot/pluckfinskimmer.png"
+      "icon": "img/game/storeitems-fishing-carplurea.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
@@ -144,7 +144,7 @@
       ],
       "weight": 0.3,
       "limit": 100,
-      "icon": "img/avakot/textile04.png"
+      "icon": "img/game/storeitems-materials-textile04.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
@@ -162,7 +162,7 @@
       ],
       "weight": 0.3,
       "limit": 100,
-      "icon": "img/avakot/organic05.png"
+      "icon": "img/game/storeitems-materials-organic05.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Textiles/WornLeatherResource",
@@ -180,7 +180,7 @@
       ],
       "weight": 0.3,
       "limit": 100,
-      "icon": "img/avakot/textile05.png"
+      "icon": "img/game/storeitems-materials-textile05.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Textiles/DendritWeaveResource",
@@ -198,7 +198,7 @@
       ],
       "weight": 0.3,
       "limit": 100,
-      "icon": "img/avakot/textile02.png"
+      "icon": "img/game/storeitems-materials-textile02.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/GossamerQuartzResource",
@@ -216,7 +216,7 @@
       ],
       "weight": 0.2,
       "limit": 10,
-      "icon": "img/avakot/organic03.png"
+      "icon": "img/game/storeitems-materials-organic03.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
@@ -234,7 +234,7 @@
       ],
       "weight": 0.2,
       "limit": 10,
-      "icon": "img/avakot/scrapmetal02.png"
+      "icon": "img/game/storeitems-materials-scrapmetal02.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
@@ -252,7 +252,7 @@
       ],
       "weight": 0.2,
       "limit": 10,
-      "icon": "img/avakot/scrapmetal01.png"
+      "icon": "img/game/storeitems-materials-scrapmetal01.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
@@ -270,7 +270,7 @@
       ],
       "weight": 0.2,
       "limit": 10,
-      "icon": "img/avakot/scrapmetal.png"
+      "icon": "img/game/storeitems-materials-scrapmetal.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/RiverPearlResource",
@@ -288,7 +288,7 @@
       ],
       "weight": 0.1,
       "limit": 2,
-      "icon": "img/avakot/riverpearl.png"
+      "icon": "img/game/storeitems-materials-riverpearl.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/SapphelineResource",
@@ -306,7 +306,7 @@
       ],
       "weight": 0.1,
       "limit": 2,
-      "icon": "img/avakot/organic08.png"
+      "icon": "img/game/storeitems-materials-organic08.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/MoraniteResource",
@@ -324,7 +324,7 @@
       ],
       "weight": 0.1,
       "limit": 2,
-      "icon": "img/avakot/organic06.png"
+      "icon": "img/game/storeitems-materials-organic06.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRC",
@@ -540,7 +540,7 @@
       ],
       "weight": 0.8,
       "limit": null,
-      "icon": "img/avakot/odeshrike.png"
+      "icon": "img/game/storeitems-pacts-odehunter.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/GarrenPactBlueprint",
@@ -558,7 +558,7 @@
       ],
       "weight": 0.8,
       "limit": null,
-      "icon": "img/avakot/garrenrood.png"
+      "icon": "img/game/storeitems-pacts-garren.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/OrengalPactBlueprint",
@@ -576,7 +576,7 @@
       ],
       "weight": 0.8,
       "limit": null,
-      "icon": "img/avakot/orengallpact.png"
+      "icon": "img/game/storeitems-pacts-orengal.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/BromiusPactBlueprint",
@@ -594,7 +594,7 @@
       ],
       "weight": 0.8,
       "limit": null,
-      "icon": "img/avakot/bromiuspact.png"
+      "icon": "img/game/storeitems-pacts-bromius.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/FencerPactBlueprint",
@@ -612,7 +612,7 @@
       ],
       "weight": 0.8,
       "limit": null,
-      "icon": "img/avakot/fencerpact.png"
+      "icon": "img/game/storeitems-pacts-duelo.png"
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystAMediumBundle",
@@ -630,7 +630,7 @@
       ],
       "weight": 0.35,
       "limit": 2,
-      "icon": "img/avakot/glowlampyrite.png"
+      "icon": "img/game/storeitems-materials-catalysta.png"
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystBMediumBundle",
@@ -648,7 +648,7 @@
       ],
       "weight": 0.25,
       "limit": 2,
-      "icon": "img/avakot/amberlampyrite.png"
+      "icon": "img/game/storeitems-materials-catalystb.png"
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystCMediumBundle",
@@ -666,7 +666,7 @@
       ],
       "weight": 0.15,
       "limit": 2,
-      "icon": "img/avakot/faerlampyrite.png"
+      "icon": "img/game/storeitems-materials-catalystc.png"
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystALargeBundle",
@@ -684,7 +684,7 @@
       ],
       "weight": 0.15,
       "limit": null,
-      "icon": "img/avakot/glowlampyrite.png"
+      "icon": "img/game/storeitems-materials-catalysta.png"
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystBLargeBundle",
@@ -702,7 +702,7 @@
       ],
       "weight": 0.1,
       "limit": null,
-      "icon": "img/avakot/amberlampyrite.png"
+      "icon": "img/game/storeitems-materials-catalystb.png"
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystCLargeBundle",
@@ -720,7 +720,7 @@
       ],
       "weight": 0.05,
       "limit": null,
-      "icon": "img/avakot/faerlampyrite.png"
+      "icon": "img/game/storeitems-materials-catalystc.png"
     }
   ]
 }

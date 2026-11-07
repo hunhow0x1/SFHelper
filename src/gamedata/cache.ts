@@ -46,6 +46,52 @@ export function findRootEntry(toc: Buffer, name: string): TocEntry | null {
   };
 }
 
+export function tocIndex(toc: Buffer): Map<string, TocEntry> {
+  if (toc.length < TOC_HEADER || toc.readUInt32LE(0) !== TOC_MAGIC) throw new Error("not a Soulframe cache index");
+  const count = Math.floor((toc.length - TOC_HEADER) / TOC_ENTRY);
+  const names: string[] = [];
+  const parents: number[] = [];
+  const dirs: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const at = TOC_HEADER + i * TOC_ENTRY;
+    names.push(toc.toString("latin1", at + NAME_AT, at + TOC_ENTRY).split("\0")[0]!);
+    parents.push(toc.readInt32LE(at + 28));
+    if (toc.readBigInt64LE(at) < 0n) dirs.push(i);
+  }
+  const dirPaths = new Map<number, string>();
+  const pathOf = (i: number): string => {
+    const parts = [names[i]!];
+    let p = parents[i]!;
+    while (p > 0 && parts.length < 64) {
+      const d = dirs[p - 1];
+      if (d === undefined) break;
+      const known = dirPaths.get(d);
+      if (known !== undefined) return `${known}/${parts.reverse().join("/")}`;
+      parts.push(names[d]!);
+      p = parents[d]!;
+    }
+    return `/${parts.reverse().join("/")}`;
+  };
+  for (const d of dirs) dirPaths.set(d, pathOf(d));
+  const out = new Map<string, TocEntry>();
+  for (let i = 0; i < count; i++) {
+    const at = TOC_HEADER + i * TOC_ENTRY;
+    if (toc.readBigInt64LE(at) < 0n) continue;
+    const path = pathOf(i);
+    const stamp = toc.readBigInt64LE(at + 8);
+    const prev = out.get(path);
+    if (prev && BigInt(prev.stamp) > stamp) continue;
+    out.set(path, {
+      name: path,
+      offset: Number(toc.readBigInt64LE(at)),
+      stamp: stamp.toString(),
+      compSize: toc.readInt32LE(at + 16),
+      decSize: toc.readInt32LE(at + 20),
+    });
+  }
+  return out;
+}
+
 export async function readEntry(cachePath: string, e: TocEntry): Promise<Buffer> {
   const fh = await open(cachePath, "r");
   try {

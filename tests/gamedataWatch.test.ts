@@ -38,7 +38,7 @@ async function setup() {
     },
     update: async (_o: UpdateOptions): Promise<UpdateResult> => {
       calls.updates += 1;
-      return { hash, changed: ["names.json"], failed: [], incomplete, downloads: 0, summary: "ok" };
+      return { hash, changed: ["names.json"], failed: [], incomplete, drawn: 0, summary: "ok" };
     },
     now: () => clock,
   });

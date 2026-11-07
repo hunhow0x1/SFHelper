@@ -3,6 +3,21 @@
     "/SF/Upgrades/Runes/Weapon/Bow/BowBestoneProjectileRune": {
       "name": "Carrionite",
       "desc": "The rune of ardent stone, petrifying in wake.",
+      "text": "Fire an enchanted arrow that freezes the target in stone for |DURATION| seconds and causes them to take |DAMAGEMULT|% more Damage.",
+      "vals": {
+        "DURATION": [
+          "4",
+          "5",
+          "6",
+          "7"
+        ],
+        "DAMAGEMULT": [
+          "125",
+          "150",
+          "175",
+          "200"
+        ]
+      },
       "art": "Bow",
       "does": "",
       "slot": "Spirit",
@@ -26,11 +41,32 @@
           ]
         }
       ],
-      "icon": "img/runes/carrionite.png"
+      "icon": "img/game/runes-alca-alcaspirit011.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/BowKnockdownProjectileRune": {
       "name": "Dissever",
       "desc": "The rune of garnet stupors, a clandestine strike.",
+      "text": "Fire a strengthened arrow that deals +|DAMAGE|% Arcanic Damage and +|STAGGER|% Stagger and creates an explosion that knocks down foes and deals |AREADAMAGE|% of the Damage.",
+      "vals": {
+        "DAMAGE": [
+          "125",
+          "150",
+          "175",
+          "200"
+        ],
+        "STAGGER": [
+          "200",
+          "250",
+          "300",
+          "350"
+        ],
+        "AREADAMAGE": [
+          "40",
+          "60",
+          "80",
+          "100"
+        ]
+      },
       "art": "Bow",
       "does": "",
       "slot": "Spirit",
@@ -63,20 +99,31 @@
           ]
         }
       ],
-      "icon": "img/runes/dissever.png"
+      "icon": "img/game/runes-alca-alcacourage019.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/FlameRune/FlameRune": {
       "name": "Blazingbolt",
       "desc": "The rune of the arrowhead, aglow in flame",
+      "text": "Inflicts +|DAMAGE|% Flame Damage.",
+      "vals": null,
       "art": "Bow",
       "does": null,
-      "slot": null,
+      "slot": "Courage",
       "stats": [],
-      "icon": "img/runes/alcacourage012.png"
+      "icon": "img/game/runes-alca-alcacourage012.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/RainRune": {
       "name": "The Torrent",
       "desc": "The rune of the mighty hail",
+      "text": "Creates a volley of arrows from the sky that inflicts |BONUS|% Damage.",
+      "vals": {
+        "BONUS": [
+          "50",
+          "60",
+          "70",
+          "80"
+        ]
+      },
       "art": "Bow",
       "does": "Summon a volley of arrows from the sky where The Torrent strikes.",
       "slot": "Courage",
@@ -91,11 +138,20 @@
           ]
         }
       ],
-      "icon": "img/runes/the-torrent.png"
+      "icon": "img/game/runes-alca-alcaspirit008.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/StarterRune": {
       "name": "Alca's Breath",
       "desc": "The rune of stirring Magicks, ever flowing",
+      "text": "Inflicts +|DAMAGE|% Arcanic Damage.",
+      "vals": {
+        "DAMAGE": [
+          "90",
+          "110",
+          "130",
+          "150"
+        ]
+      },
       "art": "Bow",
       "does": "Performs a Charged Shot imbued with an additional instance of Arcanic damage.",
       "slot": "Grace",
@@ -110,11 +166,26 @@
           ]
         }
       ],
-      "icon": "img/runes/alca-s-breath.png"
+      "icon": "img/game/runes-alca-alcacourage005.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeEmpoweredThrowRune": {
       "name": "Flamepitch",
       "desc": "The soaring spark, igniting all.",
+      "text": "Throw your blade with mystic strength, causing it to pass through enemies, deal Arcanic Damage, deal |STAGGER|% Stagger, and explode on recall for |AREADAMAGE|% of the Damage.",
+      "vals": {
+        "STAGGER": [
+          "200",
+          "250",
+          "300",
+          "350"
+        ],
+        "AREADAMAGE": [
+          "40",
+          "60",
+          "80",
+          "100"
+        ]
+      },
       "art": "Short Blade",
       "does": "",
       "slot": "Courage",
@@ -138,11 +209,13 @@
           ]
         }
       ],
-      "icon": "img/runes/flamepitch.png"
+      "icon": "img/game/runes-alca-alcacourage018.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeInvisRune": {
       "name": "The Flitsmoke",
       "desc": "The rune of smoke ephemeral",
+      "text": "Creates a cloaking shadow for |DURATION| seconds. Cloak duration increases with each stealth kill by |BONUS| seconds.",
+      "vals": null,
       "art": "Short Blade",
       "does": "Grants invisibility on activation. Stealth kills while active extend the duration.",
       "slot": "Grace",
@@ -157,11 +230,26 @@
           ]
         }
       ],
-      "icon": "img/runes/the-flitsmoke.png"
+      "icon": "img/game/runes-alca-alcagrace001.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeLeechStrikeRune": {
       "name": "Parapelt",
       "desc": "The rune of leeching stone, maiming and mending, both.",
+      "text": "Enchant your blade to strike with +|DAMAGE|% Arcanic Damage and burst with power that heals Envoys for |HEAL|% of their Health.",
+      "vals": {
+        "DAMAGE": [
+          "75",
+          "100",
+          "125",
+          "150"
+        ],
+        "HEAL": [
+          "15",
+          "20",
+          "25",
+          "30"
+        ]
+      },
       "art": "Short Blade",
       "does": "",
       "slot": "Courage",
@@ -185,11 +273,20 @@
           ]
         }
       ],
-      "icon": "img/runes/parapelt.png"
+      "icon": "img/game/runes-alca-alcaspirit013.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/StarterRune": {
       "name": "Emberaught",
       "desc": "The rune of the ember, ready to be stoked",
+      "text": "Inflicts +|DAMAGE|% Flame Damage.",
+      "vals": {
+        "DAMAGE": [
+          "100",
+          "150",
+          "200",
+          "250"
+        ]
+      },
       "art": "Short Blade",
       "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
@@ -204,20 +301,37 @@
           ]
         }
       ],
-      "icon": "img/runes/emberaught.png"
+      "icon": "img/game/runes-alca-alcacourage011.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlameRune/FlameRune": {
       "name": "Emberlash",
       "desc": "The rune of the ember glowing in wait",
+      "text": "Inflicts +|DAMAGE|% Flame Damage.",
+      "vals": null,
       "art": "Flyblade",
       "does": null,
-      "slot": null,
+      "slot": "Courage",
       "stats": [],
-      "icon": "img/runes/alcacourage012.png"
+      "icon": "img/game/runes-alca-alcacourage012.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeBestoneProjectileRune": {
       "name": "Mortrite",
       "desc": "The rune of stunning stone, shackling when thrown.",
+      "text": "Launch enchanted blades that freezes the target in stone for |DURATION| seconds and causes them to take |DAMAGEMULT|% more Damage.",
+      "vals": {
+        "DURATION": [
+          "4",
+          "5",
+          "6",
+          "7"
+        ],
+        "DAMAGEMULT": [
+          "125",
+          "150",
+          "175",
+          "200"
+        ]
+      },
       "art": "Flyblade",
       "does": "",
       "slot": "Spirit",
@@ -241,11 +355,32 @@
           ]
         }
       ],
-      "icon": "img/runes/mortrite.png"
+      "icon": "img/game/runes-alca-alcaspirit016.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeKnockdownProjectileRune": {
       "name": "Reaproot",
       "desc": "The rune of singing flame, making daggers of embers.",
+      "text": "Launch strengthened blades that deal +|DAMAGE|% Arcanic Damage and +|STAGGER|% Stagger and create an explosion that knocks down foes and deals |AREADAMAGE|% of the Damage.",
+      "vals": {
+        "DAMAGE": [
+          "125",
+          "150",
+          "175",
+          "200"
+        ],
+        "STAGGER": [
+          "200",
+          "250",
+          "300",
+          "350"
+        ],
+        "AREADAMAGE": [
+          "40",
+          "60",
+          "80",
+          "100"
+        ]
+      },
       "art": "Flyblade",
       "does": "",
       "slot": "Spirit",
@@ -278,11 +413,13 @@
           ]
         }
       ],
-      "icon": "img/runes/reaproot.png"
+      "icon": "img/game/runes-alca-alcacourage021.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeSeekingRune": {
       "name": "Picktrix",
       "desc": "The rune of the Picktrix, swarming smells of blood",
+      "text": "Creates a flock of |COUNT| seeking sprites that inflicts |MULT|% Damage.",
+      "vals": null,
       "art": "Flyblade",
       "does": "Releases a flock of four seeking sprites that strike nearby foes.",
       "slot": "Spirit",
@@ -297,11 +434,20 @@
           ]
         }
       ],
-      "icon": "img/runes/picktrix-rune.png"
+      "icon": "img/game/runes-alca-alcacourage017.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/StarterRune": {
       "name": "Hurlwind",
       "desc": "The rune of the gusts ever-whirling",
+      "text": "Inflicts +|DAMAGE|% Arcanic Damage.",
+      "vals": {
+        "DAMAGE": [
+          "40",
+          "60",
+          "80",
+          "100"
+        ]
+      },
       "art": "Flyblade",
       "does": "Launches a single, powerful blast of Arcanic energy towards the target.",
       "slot": "Spirit",
@@ -316,11 +462,20 @@
           ]
         }
       ],
-      "icon": "img/runes/hurlwind.png"
+      "icon": "img/game/runes-alca-alcacourage013.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordArcaneBullwarkRune": {
       "name": "Wardwark",
       "desc": "The rune of steadfast trunks, of bursting bark.",
+      "text": "Enchant yourself with a shield that makes you immune to Stagger until you have lost |HEALTH|% of your Health, at which point it explodes.",
+      "vals": {
+        "HEALTH": [
+          "20",
+          "25",
+          "30",
+          "35"
+        ]
+      },
       "art": "Heavy",
       "does": "",
       "slot": "Courage",
@@ -335,11 +490,26 @@
           ]
         }
       ],
-      "icon": "img/runes/wardwark.png"
+      "icon": "img/game/runes-alca-alcaspirit017.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordLeapAttackRune": {
       "name": "Crimsonfell",
       "desc": "The rune of leaden vaults, a staggering kill.",
+      "text": "Leap and strike down with your weapon with mystic strength, dealing |DAMAGE|% Arcanic Damage and creating an explosion of power that deals |AREADAMAGE|% of the Damage.",
+      "vals": {
+        "DAMAGE": [
+          "125",
+          "150",
+          "175",
+          "200"
+        ],
+        "AREADAMAGE": [
+          "100",
+          "125",
+          "150",
+          "175"
+        ]
+      },
       "art": "Heavy",
       "does": "",
       "slot": "Courage",
@@ -363,11 +533,32 @@
           ]
         }
       ],
-      "icon": "img/runes/crimsonfell.png"
+      "icon": "img/game/runes-alca-alcacourage023.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordRangeRune": {
       "name": "Treefell",
       "desc": "The rune of the falling tree, heavy yet rapid",
+      "text": "Treefell begins. Increases the speed of charging Heavy Attacks by |BONUS|%, enhances reach, and bypasses |BONUS2| Defence for |DURATION| seconds. Treefell duration resets with each foe slain.",
+      "vals": {
+        "BONUS": [
+          "40",
+          "60",
+          "80",
+          "100"
+        ],
+        "BONUS2": [
+          "10",
+          "30",
+          "50",
+          "70"
+        ],
+        "DURATION": [
+          "5",
+          "6",
+          "7",
+          "8"
+        ]
+      },
       "art": "Heavy",
       "does": "Enhances the range, charge rate, and armour piercing of charged Heavy Attacks.",
       "slot": "Courage",
@@ -400,11 +591,20 @@
           ]
         }
       ],
-      "icon": "img/runes/treefell.png"
+      "icon": "img/game/runes-alca-alcacourage016.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/StarterRune": {
       "name": "Cindermore",
       "desc": "The rune of the eternal flame, never to be stifled",
+      "text": "Inflicts +|DAMAGE|% Flame Damage.",
+      "vals": {
+        "DAMAGE": [
+          "100",
+          "150",
+          "200",
+          "250"
+        ]
+      },
       "art": "Heavy",
       "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
@@ -419,11 +619,26 @@
           ]
         }
       ],
-      "icon": "img/runes/cindermore.png"
+      "icon": "img/game/runes-alca-alcacourage010.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeEmpoweredThrowRune": {
       "name": "Smeltsquall",
       "desc": "The rune of flying death, explosive in force.",
+      "text": "Throw your blade with mystic strength, causing it to pass through enemies, deal Arcanic Damage, deal |STAGGER|% Stagger, and explode on recall for |AREADAMAGE|% of the Damage.",
+      "vals": {
+        "STAGGER": [
+          "200",
+          "250",
+          "300",
+          "350"
+        ],
+        "AREADAMAGE": [
+          "40",
+          "60",
+          "80",
+          "100"
+        ]
+      },
       "art": "Long Blade",
       "does": "",
       "slot": "Grace",
@@ -447,11 +662,26 @@
           ]
         }
       ],
-      "icon": "img/runes/smeltsquall.png"
+      "icon": "img/game/runes-alca-alcacourage024.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeLeechStrikeRune": {
       "name": "Fortflank",
       "desc": "The rune of archaic balance, ‘twixt mend and maul.",
+      "text": "Enchant your blade to strike with +|DAMAGE|% Arcanic Damage and burst with power that heals Envoys for |HEAL|% of their Health.",
+      "vals": {
+        "DAMAGE": [
+          "75",
+          "100",
+          "125",
+          "150"
+        ],
+        "HEAL": [
+          "15",
+          "20",
+          "25",
+          "30"
+        ]
+      },
       "art": "Long Blade",
       "does": "",
       "slot": "Grace",
@@ -475,11 +705,26 @@
           ]
         }
       ],
-      "icon": "img/runes/fortflank.png"
+      "icon": "img/game/runes-alca-alcaspirit014.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeProjectileRune": {
       "name": "The Mistgale",
       "desc": "The rune of the phantoms formed in mist",
+      "text": "Creates a magick gale that inflicts +|DAMAGE|% Damage and +|STAGGER|% Stagger.",
+      "vals": {
+        "DAMAGE": [
+          "125",
+          "150",
+          "175",
+          "200"
+        ],
+        "STAGGER": [
+          "150",
+          "200",
+          "250",
+          "300"
+        ]
+      },
       "art": "Long Blade",
       "does": "Sends forth a wave of energy, passing through and dealing damage to all foes in its path.",
       "slot": "Grace",
@@ -503,11 +748,20 @@
           ]
         }
       ],
-      "icon": "img/runes/the-mistgale.png"
+      "icon": "img/game/runes-alca-alcacourage008.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/StarterRune": {
       "name": "Everflame",
       "desc": "The rune of the eternal flame, never to be stifled",
+      "text": "Inflicts +|DAMAGE|% Flame Damage.",
+      "vals": {
+        "DAMAGE": [
+          "100",
+          "150",
+          "200",
+          "250"
+        ]
+      },
       "art": "Long Blade",
       "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
@@ -522,11 +776,26 @@
           ]
         }
       ],
-      "icon": "img/runes/everflame.png"
+      "icon": "img/game/runes-alca-alcacourage006.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune": {
       "name": "Lunarcure",
       "desc": "The rune of spiritsalve, ease your rally.",
+      "text": "Cast enchanted magick that deals +|DAMAGE|% Arcanic Damage and bursts with power that heals Envoys for |HEAL|% of their Health.",
+      "vals": {
+        "DAMAGE": [
+          "50",
+          "75",
+          "100",
+          "125"
+        ],
+        "HEAL": [
+          "20",
+          "25",
+          "30",
+          "35"
+        ]
+      },
       "art": "Magick",
       "does": "",
       "slot": "Spirit",
@@ -550,11 +819,32 @@
           ]
         }
       ],
-      "icon": "img/runes/lunarcure.png"
+      "icon": "img/game/runes-alca-alcaspirit012.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/CasterKnockdownProjectileRune": {
       "name": "Vexipare",
       "desc": "The rune of radiation, a flying flame.",
+      "text": "Cast strengthened magick that deals +|DAMAGE|% Arcanic Damage and +|STAGGER|% Stagger and creates an explosion that knocks down foes and deals |AREADAMAGE|% of the Damage.",
+      "vals": {
+        "DAMAGE": [
+          "125",
+          "150",
+          "175",
+          "200"
+        ],
+        "STAGGER": [
+          "200",
+          "250",
+          "300",
+          "350"
+        ],
+        "AREADAMAGE": [
+          "40",
+          "60",
+          "80",
+          "100"
+        ]
+      },
       "art": "Magick",
       "does": "",
       "slot": "Spirit",
@@ -587,11 +877,26 @@
           ]
         }
       ],
-      "icon": "img/runes/vexipare.png"
+      "icon": "img/game/runes-alca-alcacourage022.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/ExplosiveBuildUpRune": {
       "name": "The Hollowing",
       "desc": "The rune of held breath bursting free",
+      "text": "Inflicts Hollowed on a foe. Creates an explosion that inflicts |BONUS|% Damage when |VALUE| attacks are struck on Hollowed foe.",
+      "vals": {
+        "BONUS": [
+          "200",
+          "235",
+          "265",
+          "300"
+        ],
+        "VALUE": [
+          "6",
+          "5",
+          "4",
+          "3"
+        ]
+      },
       "art": "Magick",
       "does": "Marks foes on hit. Once marked enemies are struck a sufficient number of times, they trigger a radial explosion dealing damage to nearby foes.",
       "slot": "Courage",
@@ -615,20 +920,31 @@
           ]
         }
       ],
-      "icon": "img/runes/the-hollowing.png"
+      "icon": "img/game/runes-alca-alcacourage004.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/FlameRune/FlameRune": {
       "name": "Wickwell",
       "desc": "The rune of a waxed wick, ready to ignite",
+      "text": "Inflicts +|DAMAGE|% Flame Damage.",
+      "vals": null,
       "art": "Magick",
       "does": null,
-      "slot": null,
+      "slot": "Courage",
       "stats": [],
-      "icon": "img/runes/alcacourage012.png"
+      "icon": "img/game/runes-alca-alcacourage012.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/StarterRune": {
       "name": "Archstorm",
       "desc": "The rune of the erst storm, the root of all rain",
+      "text": "Inflicts +|DAMAGE|% Arcanic Damage.",
+      "vals": {
+        "DAMAGE": [
+          "125",
+          "150",
+          "175",
+          "200"
+        ]
+      },
       "art": "Magick",
       "does": "Performs a Charged Cast imbued with additional Arcanic damage.",
       "slot": "Spirit",
@@ -643,11 +959,20 @@
           ]
         }
       ],
-      "icon": "img/runes/archstorm.png"
+      "icon": "img/game/runes-alca-alcacourage002.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmArcaneBulwarkRune": {
       "name": "Cragprick",
       "desc": "The rune of mighty cliffs, steadfast and craggy.",
+      "text": "Enchant yourself with a shield that makes you immune to Stagger until you have lost |HEALTH|% of your Health, at which point it explodes.",
+      "vals": {
+        "HEALTH": [
+          "20",
+          "25",
+          "30",
+          "35"
+        ]
+      },
       "art": "Polearm",
       "does": "",
       "slot": "Courage",
@@ -662,11 +987,26 @@
           ]
         }
       ],
-      "icon": "img/runes/cragprick.png"
+      "icon": "img/game/runes-alca-alcaspirit015.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmLeapAttackRune": {
       "name": "Astralflare",
       "desc": "The rune of shooting stars, crashing to earth.",
+      "text": "Leap and strike down with your weapon with mystic strength, dealing |DAMAGE|% Arcanic Damage and creating an explosion of power that deals |AREADAMAGE|% of the Damage.",
+      "vals": {
+        "DAMAGE": [
+          "125",
+          "150",
+          "175",
+          "200"
+        ],
+        "AREADAMAGE": [
+          "100",
+          "125",
+          "150",
+          "175"
+        ]
+      },
       "art": "Polearm",
       "does": "",
       "slot": "Courage",
@@ -690,11 +1030,20 @@
           ]
         }
       ],
-      "icon": "img/runes/astralflare.png"
+      "icon": "img/game/runes-alca-alcacourage020.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmMultiThrowRune": {
       "name": "Splitbolt",
       "desc": "The rune of forked lightning, strengthened in its fragmentation",
+      "text": "Creates a barrage of spears that inflicts |BONUS|% Weapon Damage for each spear.",
+      "vals": {
+        "BONUS": [
+          "40",
+          "60",
+          "80",
+          "100"
+        ]
+      },
       "art": "Polearm",
       "does": "Calls down a barrage of spears, which strike in an area of effect around the target.",
       "slot": "Grace",
@@ -709,11 +1058,20 @@
           ]
         }
       ],
-      "icon": "img/runes/splitbolt.png"
+      "icon": "img/game/runes-alca-alcacourage015.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/StarterRune": {
       "name": "Torcheternal",
       "desc": "The rune of the Fey Torch, alight 'yond the veil",
+      "text": "Inflicts +|DAMAGE|% Flame Damage.",
+      "vals": {
+        "DAMAGE": [
+          "100",
+          "150",
+          "200",
+          "250"
+        ]
+      },
       "art": "Polearm",
       "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
@@ -728,11 +1086,13 @@
           ]
         }
       ],
-      "icon": "img/runes/torcheternal.png"
+      "icon": "img/game/runes-alca-alcacourage014.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/SBLaserRune": {
       "name": "The Durglint",
       "desc": "The rune of sharp reflections",
+      "text": "Creates a beam of light that inflicts |BONUS| damage for |DURATION| seconds and enhances the power of the next melee attack.",
+      "vals": null,
       "art": "Shield",
       "does": "For 8 seconds, blocking fires a beam of energy which deals 125 damage and increases damage dealt on the next melee attack.",
       "slot": "Spirit",
@@ -747,11 +1107,20 @@
           ]
         }
       ],
-      "icon": "img/runes/the-durglint.png"
+      "icon": "img/game/runes-alca-alcagrace008.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/ShieldArcaneBulwarkRune": {
       "name": "Soothesayer",
       "desc": "The rune of verdant ward, of fortifying spirit.",
+      "text": "Enchant yourself with a shield that makes you immune to Stagger until you have lost |HEALTH|% of your Health, at which point it explodes.",
+      "vals": {
+        "HEALTH": [
+          "20",
+          "25",
+          "30",
+          "35"
+        ]
+      },
       "art": "Shield",
       "does": "",
       "slot": "Courage",
@@ -766,11 +1135,26 @@
           ]
         }
       ],
-      "icon": "img/runes/soothesayer.png"
+      "icon": "img/game/runes-alca-alcaspirit010.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/ShieldEmpoweredThrowRune": {
       "name": "Scarletsling",
       "desc": "The rune of whim and flux, sway your munition.",
+      "text": "Throw your shield with mystic strength, causing it to pass through enemies, deal Arcanic Damage, deal |STAGGER|% Stagger, and explode on recall for |AREADAMAGE|% of the Damage.",
+      "vals": {
+        "STAGGER": [
+          "200",
+          "250",
+          "300",
+          "350"
+        ],
+        "AREADAMAGE": [
+          "40",
+          "60",
+          "80",
+          "100"
+        ]
+      },
       "art": "Shield",
       "does": "",
       "slot": "Courage",
@@ -794,11 +1178,20 @@
           ]
         }
       ],
-      "icon": "img/runes/scarletsling.png"
+      "icon": "img/game/runes-alca-alcacourage025.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/StarterRune": {
       "name": "Forburn",
       "desc": "The rune of the Fey Torch, alight 'yond the veil",
+      "text": "Inflicts +|DAMAGE|% Flame Damage.",
+      "vals": {
+        "DAMAGE": [
+          "100",
+          "150",
+          "200",
+          "250"
+        ]
+      },
       "art": "Shield",
       "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
@@ -813,7 +1206,7 @@
           ]
         }
       ],
-      "icon": "img/runes/forburn.png"
+      "icon": "img/game/runes-alca-alcacourage012.png"
     }
   },
   "joineries": {
@@ -1075,115 +1468,115 @@
       "name": "Doyen's Spool",
       "desc": "Grandfa's fishing spindle, painted with pigments of crushed Lullily and Sangelia. Doyen carved the spool himself, in the likeness of the Lumenelli. ‘Twas always his favoured fish for the way its whiskers willow.",
       "kind": "Fishing",
-      "icon": "img/items/doyensspool.png"
+      "icon": "img/game/storeitems-fishing-fishingrod.png"
     },
     "/SF/Types/Items/Consumables/HealingPotion": {
       "name": "Life Elixir",
       "desc": "Essence of life. Drink to regain health.",
       "kind": "Supplies",
-      "icon": "img/avakot/healingpotion.png"
+      "icon": "img/game/storeitems-consumables-healingpotion.png"
     },
     "/SF/Types/Items/Consumables/PetConsumeables/WoldAdultUpgradePetFood": {
       "name": "Bairnday Biscuit",
       "desc": "A thick, layered biscuit to feed to a wholly-trained pup so that they may grow into Omen Wolf. Baked of young yolk and aged Wevetgrain, 'tis a celebration that would make a wolf of any whelp.",
       "kind": "Companion",
-      "icon": "img/items/bairndaybiscuit.png"
+      "icon": "img/game/storeitems-pets-petmaturitytreat.png"
     },
     "/SF/Types/Items/Consumables/PetConsumeables/WolfMealPetFood": {
       "name": "Canid Kibble",
       "desc": "A bowl of hearty finners and grain. Feed to your Wolfpup to grant them Energy ‘betwixt romps around the Isle. Orengall warns not to let her brood overeat… Lest a tummy too full lull them to silvern sleep.",
       "kind": "Companion",
-      "icon": "img/items/canidkibble.png"
+      "icon": "img/game/storeitems-pets-meal.png"
     },
     "/SF/Types/Items/Consumables/PetConsumeables/WolfRespecPetFood": {
       "name": "Follyfrond Treat",
       "desc": "Dried Will-o-frond leaves to be served to a Wolfpup's whose talent be ill-suited to their calling. One nibble of a Follyfrond Treat shall grant you leave to train their strengths once again! For even the cleverest pup deserves a second chance to find their paws.",
       "kind": "Companion",
-      "icon": "img/items/follyfrondtreat.png"
+      "icon": "img/game/storeitems-pets-petrespectreat.png"
     },
     "/SF/Types/Items/Consumables/PetConsumeables/WolfTreatPetFood": {
       "name": "Canid Biscuit",
       "desc": "A handful of fishie-biscuits, bound with Brineflour. Feed to your Wolfpup to inspire obedience and resolve, boosting Training progress for a short time. Though do dole in rations or your Pup will tire all the quicker! Best paired with a whine or a beg.",
       "kind": "Companion",
-      "icon": "img/items/canidbiscuit.png"
+      "icon": "img/game/storeitems-pets-treat.png"
     },
     "/SF/Types/Items/Consumables/RedNightElixir": {
       "name": "The Cogah",
       "desc": "An ancient fey rite to be drunk before battle. Seek out Agari lost, and soon you'll taste the cost.",
       "kind": "Supplies",
-      "icon": "img/items/rednightelixir.png"
+      "icon": "img/game/storeitems-consumables-rednightelixir.png"
     },
     "/SF/Types/Items/Consumables/Syndicates/ChampionVirtueElixir": {
       "name": "Curaidh's Breath",
       "desc": "A vial of liquid Courage. Drink to your virtue.",
       "kind": "Supplies",
-      "icon": "img/items/courageelixir.png"
+      "icon": "img/game/storeitems-consumables-courageelixir.png"
     },
     "/SF/Types/Items/Consumables/Syndicates/FeyVirtueElixir": {
       "name": "Dancing Galdre",
       "desc": "A vial of liquid Spirit. Drink to your virtue.",
       "kind": "Supplies",
-      "icon": "img/items/spiritelixir.png"
+      "icon": "img/game/storeitems-consumables-spiritelixir.png"
     },
     "/SF/Types/Items/Consumables/Syndicates/SilentRoseVirtueElixir": {
       "name": "Shademaker",
       "desc": "A vial of liquid Grace. Drink to your virtue.",
       "kind": "Supplies",
-      "icon": "img/items/graceelixir.png"
+      "icon": "img/game/storeitems-consumables-graceelixir.png"
     },
     "/SF/Types/Items/Consumables/Tackle/BugLureStarterCommon": {
       "name": "Feathered Flier",
       "desc": "A wispy critter and a line is all one needs for a convincing little morsel. The Feathered Flier is favoured by fledgling anglers for its simple assembly. An unassuming caricature, yet what swims 'neath seldom knows the difference.",
       "kind": "Fishing",
-      "icon": "img/items/featheredflier.png"
+      "icon": "img/game/storeitems-fishing-buglure.png"
     },
     "/SF/Types/Items/Consumables/Tackle/CarpLureUncommon": {
       "name": "Pluckfin Skimmer",
       "desc": "Its Curfret-like shape makes surface water prey take flight, yet its cerulean glow entices them back. Pluckfin Skimmer sways to a siren song of deceit that some say makes for a more appetizing catch.",
       "kind": "Fishing",
-      "icon": "img/avakot/pluckfinskimmer.png"
+      "icon": "img/game/storeitems-fishing-carplurea.png"
     },
     "/SF/Types/Items/Consumables/Tackle/CricketLureRare": {
       "name": "Spindled Bugger",
       "desc": "With limbs and appendages aplenty, this verdant decoy is sure to tempt the most docile of foragers. Its living counterpart favours lurking in pockets of moon-cooled dew, such placid habits makes the Spindled Bugger enticing bait indeed.",
       "kind": "Fishing",
-      "icon": "img/avakot/spindledbugger.png"
+      "icon": "img/game/storeitems-fishing-cricketlure.png"
     },
     "/SF/Types/Items/Consumables/Tackle/FishLureUncommon": {
       "name": "Snelled Swimmer",
       "desc": "Whittled with care and beaded through skill, this fish-like lure performs best by trawling among the lakebed. The Snelled Swimmer's sunken dance draws bottom-feeders from the murk, eager to swallow their wooden kin.",
       "kind": "Fishing",
-      "icon": "img/avakot/snelledswimmer.png"
+      "icon": "img/game/storeitems-fishing-fishlure.png"
     },
     "/SF/Types/Items/Consumables/Tackle/FrogLureUncommon": {
       "name": "Sirin's Hopper",
       "desc": "Sirin's mischief embodied in toad's form. Best released in swamps or stillwater, the mimicry of the Hopper's twitching limbs proves a cruel temptation to any hungry thing beneath.",
       "kind": "Fishing",
-      "icon": "img/avakot/sirinshopper.png"
+      "icon": "img/game/storeitems-fishing-froglure.png"
     },
     "/SF/Types/Items/Consumables/Tackle/LobsterLureRare": {
       "name": "Locustax Streamer",
       "desc": "Bait revered by ambush feeders for its crustaceous frame and mother-of-pearl twinkle. The Locustax Streamer proves most able at the shoreline, its slim body floating elegantly; all for the biting.",
       "kind": "Fishing",
-      "icon": "img/avakot/locustaxstreamer.png"
+      "icon": "img/game/storeitems-fishing-lobsterlure.png"
     },
     "/SF/Types/Items/Consumables/Tackle/TurtleLureRare": {
       "name": "Scuter",
       "desc": "Rudimentary in make yet rare for its shellback body, a mimic made for basking in sunlit waters. Cast a Scuter 'pon the lake's gleaming face and rest; for in idle drift does this lure calls its quarry.",
       "kind": "Fishing",
-      "icon": "img/avakot/scuter.png"
+      "icon": "img/game/storeitems-fishing-turtlelure.png"
     },
     "/SF/Types/Items/Consumables/VerminiaPotion": {
       "name": "Cloudquell",
       "desc": "A vial of sun. Cast it skyward to dry out a storm. Effective against lightning-charged foes.",
       "kind": "Supplies",
-      "icon": "img/items/consumables-clayale.png"
+      "icon": "img/game/storeitems-consumables-clayale.png"
     },
     "/SF/Types/Items/Consumables/WevetSeed": {
       "name": "Wevetseed",
       "desc": "The sacred child of the Wevetwood. Contained within is the wisdom of the ancients, of the ever-reaching Wevetroots that tunnel beneath all of Midrath.",
       "kind": "Supplies",
-      "icon": "img/items/acorn.png"
+      "icon": "img/game/storeitems-pickups-acorn.png"
     }
   }
 }

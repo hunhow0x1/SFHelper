@@ -1,4 +1,10 @@
 {
+  "AncientSpriteTotem": {
+    "name": "Heartwood Soams",
+    "Courage": 4,
+    "Spirit": 3,
+    "Grace": 0
+  },
   "CardinalTotem": {
     "name": "Cardinal Charm",
     "Courage": 1,
@@ -59,6 +65,18 @@
     "Spirit": 0,
     "Grace": 0
   },
+  "DendritKalimbaTotem": {
+    "name": "Faidh's Harpling",
+    "Courage": 0,
+    "Spirit": 4,
+    "Grace": 3
+  },
+  "FeyBroachTotem": {
+    "name": "Tears of Alora",
+    "Courage": 0,
+    "Spirit": 3,
+    "Grace": 4
+  },
   "FeyHubTotem": {
     "name": "Sproutfolk Seed",
     "Courage": 0,
@@ -69,6 +87,12 @@
     "name": "Sproutfolk Shoot",
     "Courage": 0,
     "Spirit": 6,
+    "Grace": 0
+  },
+  "FeyIncenseBurnerTotem": {
+    "name": "Feykin Ward",
+    "Courage": 5,
+    "Spirit": 0,
     "Grace": 0
   },
   "GaleneTotem": {
@@ -88,6 +112,12 @@
     "Courage": 0,
     "Spirit": 0,
     "Grace": 3
+  },
+  "MandrakeTotem": {
+    "name": "Mandragora",
+    "Courage": 0,
+    "Spirit": 5,
+    "Grace": 0
   },
   "OdeSoulBoonTotem": {
     "name": "Synod's Bell Jar",
@@ -137,10 +167,28 @@
     "Spirit": 0,
     "Grace": 6
   },
+  "ThreeMoonGodsTotem": {
+    "name": "Selenelion",
+    "Courage": 3,
+    "Spirit": 3,
+    "Grace": 3
+  },
   "WolfPrintTotem": {
     "name": "Packblood's Tribute",
     "Courage": 2,
     "Spirit": 3,
     "Grace": 4
+  },
+  "WoodenFluteTotem": {
+    "name": "Featherfife",
+    "Courage": 0,
+    "Spirit": 0,
+    "Grace": 5
+  },
+  "WovenTotem": {
+    "name": "Incubu",
+    "Courage": 2,
+    "Spirit": 4,
+    "Grace": 0
   }
 }

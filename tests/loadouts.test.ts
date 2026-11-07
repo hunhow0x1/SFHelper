@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { decodeJoinery, fableVirtues, parseBuilds, virtuePoints } from "../src/server/loadouts";
-import { parseArmour, parseTalismans } from "../scripts/build_data";
 import { matchArmourStem } from "../src/gamedata/armour";
 
 const K = "/SF/Types/Items/Kintsugi/Weapons/";
@@ -52,11 +51,6 @@ describe("loadout Virtues", () => {
       fableVirtues({ BonusAttributes: [{ key: "OrengallQuest", value: "AT_COURAGE" }, { key: "BromiusQuest", value: "AT_COURAGE" }] }),
     ).toEqual({ Courage: 2, Spirit: 0, Grace: 0 });
   });
-
-  it("reads Talisman Virtues from the wiki's armour data, by ItemType", () => {
-    const lua = `return {\n\t["Paragon Periapt"] = {\n\t\t\tSlot = "Talisman",\n\t\t\tStats = {\n\t\t\t\t\tCourage = 3, Grace = 3, Spirit = 3\n\t\t\t}\n\t},\n\t["Bascinet"] = {\n\t\t\tSlot = "Helm",\n\t\t\tStats = { PhysicalDefence = 3 }\n\t},\n}`;
-    expect(parseTalismans(lua)).toEqual({ PrimordialTotem: { name: "Paragon Periapt", Courage: 3, Spirit: 3, Grace: 3 } });
-  });
 });
 
 describe("loadout weapons", () => {
@@ -106,15 +100,6 @@ describe("loadout armour", () => {
     expect(b!.talisman).toBe("/SF/Upgrades/Skins/Totem/PrimordialTotem");
   });
 
-  it("reads armour stats from the wiki's armour data, by in-game name", () => {
-    const lua = `return {\n\t["Bascinet of The Mendicant King"] = {\n\t\t\tSlot = "Helm",\n\t\t\tArmorSet = "Mendicant King",\n\t\t\tRarity = "Rare",\n\t\t\tStats = {\n\t\t\t\t\tPhysicalDefence = 3,\n\t\t\t\t\tMagickDefence = 1,\n\t\t\t\t\tStabilityIncrease = 3,\n\t\t\t\t\tVirtueReq = "17 C"\n\t\t\t}\n\t},\n\t["Paragon Periapt"] = {\n\t\t\tSlot = "Talisman",\n\t\t\tStats = { Courage = 3 }\n\t},\n}`;
-    expect(parseArmour(lua)).toEqual({
-      "Bascinet of The Mendicant King": {
-        slot: "Helm", set: "Mendicant King", rarity: "Rare", physical: 3, magick: 1, stability: 3,
-        requires: { virtue: "Courage", value: 17 },
-      },
-    });
-  });
 
   it("matches armour leaves to their names despite DE's naming differences", () => {
     const stems = ["ForgetFireBody", "ForgetFireBodyAlt", "CircadeHelm", "TuvalkaneLegs", "TuvalkanetBody", "ThawTideSinecureHelmet", "BromiusHelmet", "NoHelmet", "WazzardBody"];

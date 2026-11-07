@@ -80,6 +80,42 @@
       "value": 15
     }
   },
+  "Ceptet's Carapace": {
+    "slot": "Cuirass",
+    "set": "Ceptet",
+    "rarity": "Rare",
+    "physical": 6,
+    "magick": 3,
+    "stability": 3,
+    "requires": {
+      "virtue": "Courage",
+      "value": 18
+    }
+  },
+  "Ceptet's Gaiters": {
+    "slot": "Leggings",
+    "set": "Ceptet",
+    "rarity": "Rare",
+    "physical": 5,
+    "magick": 3,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 18
+    }
+  },
+  "Ceptet's Headstone": {
+    "slot": "Helm",
+    "set": "Ceptet",
+    "rarity": "Rare",
+    "physical": 3,
+    "magick": 3,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 18
+    }
+  },
   "Circade's Greaves": {
     "slot": "Leggings",
     "set": "Circade",
@@ -274,6 +310,42 @@
     "magick": 0,
     "stability": 0,
     "requires": null
+  },
+  "Inquisitor's Belfry": {
+    "slot": "Helm",
+    "set": "Inquisitor",
+    "rarity": "Rare",
+    "physical": 3,
+    "magick": 2,
+    "stability": 2,
+    "requires": {
+      "virtue": "Courage",
+      "value": 21
+    }
+  },
+  "Inquisitor's Birze": {
+    "slot": "Cuirass",
+    "set": "Inquisitor",
+    "rarity": "Rare",
+    "physical": 5,
+    "magick": 4,
+    "stability": 4,
+    "requires": {
+      "virtue": "Courage",
+      "value": 21
+    }
+  },
+  "Inquisitor's Pulpit": {
+    "slot": "Leggings",
+    "set": "Inquisitor",
+    "rarity": "Rare",
+    "physical": 4,
+    "magick": 2,
+    "stability": 4,
+    "requires": {
+      "virtue": "Courage",
+      "value": 21
+    }
   },
   "Laid Bare": {
     "slot": "Cuirass",
@@ -539,6 +611,33 @@
       "value": 12
     }
   },
+  "Shrike's Claes": {
+    "slot": "Cuirass",
+    "set": "Shrike",
+    "rarity": "Rare",
+    "physical": 4,
+    "magick": 3,
+    "stability": 3,
+    "requires": null
+  },
+  "Shrike's Clavisons": {
+    "slot": "Leggings",
+    "set": "Shrike",
+    "rarity": "Rare",
+    "physical": 3,
+    "magick": 2,
+    "stability": 3,
+    "requires": null
+  },
+  "Shrike's Lockmaw": {
+    "slot": "Helm",
+    "set": "Shrike",
+    "rarity": "Uncommon",
+    "physical": 2,
+    "magick": 2,
+    "stability": 2,
+    "requires": null
+  },
   "Sirin's Plainhide": {
     "slot": "Cuirass",
     "set": "Sirin",
@@ -680,7 +779,7 @@
   "Thawtide Meltcap": {
     "slot": "Helm",
     "set": "Thawtide",
-    "rarity": "Common",
+    "rarity": "Uncommon",
     "physical": 3,
     "magick": 0,
     "stability": 2,
@@ -692,7 +791,7 @@
   "Thawtide Shingles": {
     "slot": "Leggings",
     "set": "Thawtide",
-    "rarity": "Common",
+    "rarity": "Uncommon",
     "physical": 4,
     "magick": 0,
     "stability": 3,
@@ -704,13 +803,43 @@
   "Thawtide Thermals": {
     "slot": "Cuirass",
     "set": "Thawtide",
-    "rarity": "Common",
+    "rarity": "Uncommon",
     "physical": 5,
     "magick": 0,
     "stability": 4,
     "requires": {
       "virtue": "Grace",
       "value": 14
+    }
+  },
+  "Vadagar Platemail": {
+    "slot": "Cuirass",
+    "set": "Vadagar",
+    "rarity": "Rare",
+    "physical": 5,
+    "magick": 3,
+    "stability": 4,
+    "requires": null
+  },
+  "Vadagar Schynbalds": {
+    "slot": "Leggings",
+    "set": "Vadagar",
+    "rarity": "Rare",
+    "physical": 4,
+    "magick": 2,
+    "stability": 4,
+    "requires": null
+  },
+  "Veltruska Mask": {
+    "slot": "Helm",
+    "set": null,
+    "rarity": "Common",
+    "physical": 3,
+    "magick": 2,
+    "stability": 3,
+    "requires": {
+      "virtue": "Spirit",
+      "value": 9
     }
   },
   "Wazzard's Bycoket": {

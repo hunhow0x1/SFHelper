@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeImage, Notification, screen, shell } from "electron";
+import { app, BrowserWindow, ipcMain, Notification, screen, shell } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
@@ -20,7 +20,7 @@ import { readDataJson } from "../src/server/paths";
 import { findCacheDir } from "../src/gamedata/cache";
 import { GameDataWatcher } from "../src/gamedata/watch";
 import { Wiki } from "../src/gamedata/wiki";
-import { buildTotems, buildTotemData, buildRunes, buildWeapons, buildPacts, buildTempers, buildPactArts, buildTalismans, buildArmour, buildMasteryRank } from "../scripts/build_data";
+import { buildTotems, buildTotemData, buildWeapons, buildTempers, buildPactArts, buildMasteryRank } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ICON_PATH = join(HERE, "public", "img", "icon-256.png");
@@ -56,21 +56,17 @@ function log(msg: string): void {
 async function refreshData(): Promise<void> {
   try {
     await mkdir(DATA_DIR, { recursive: true });
-    log("Refreshing totem/rune/weapon/pact/temper/pact-art data…");
-    const [t, r, w, p, tp, pa, td, tl, ar, mr] = await Promise.all([
+    log("Refreshing totem, weapon class, temper and Pact Art data from the wiki…");
+    const [t, w, tp, pa, td, mr] = await Promise.all([
       buildTotems(join(DATA_DIR, "totems.json"), undefined, join(HERE, "public", "totems.json")),
-      buildRunes(join(DATA_DIR, "runes.json")),
       buildWeapons(join(DATA_DIR, "weapons.json")),
-      buildPacts(join(DATA_DIR, "pacts.json")),
       buildTempers(join(DATA_DIR, "tempers.json")),
       buildPactArts(join(DATA_DIR, "pactarts.json")),
       buildTotemData(join(DATA_DIR, "totemdata.json"), undefined, join(HERE, "public", "totemdata.json")),
-      buildTalismans(join(DATA_DIR, "talismans.json")),
-      buildArmour(join(DATA_DIR, "armour.json")).catch(() => ({ ok: 0 })),
       buildMasteryRank(join(DATA_DIR, "masteryrank.json")).catch(() => ({ ok: 0 })),
     ]);
     noteDataRefreshed();
-    log(`Data updated: ${t.ok} totems, ${r.ok} runes, ${w.ok} weapons, ${p.ok} pacts, ${tp.ok} tempers, ${pa.ok} pact arts, ${td.ok} totem cards, ${tl.ok} talismans, ${ar.ok} armour pieces${mr.ok ? ", max Envoy Rank" : ""}.`);
+    log(`Wiki data updated: ${t.ok} totems, ${w.ok} weapon classes, ${tp.ok} tempers, ${pa.ok} pact arts, ${td.ok} totem cards${mr.ok ? ", max Envoy Rank" : ""}.`);
   } catch (err) {
     log(`Effect data refresh failed (using bundled data): ${(err as Error).message}`);
   }
@@ -78,16 +74,6 @@ async function refreshData(): Promise<void> {
 
 const GAME_DATA_FIRST_MS = 30_000;
 const GAME_DATA_CHECK_MS = 10 * 60_000;
-const ICON_PX = 64;
-
-function shrinkIcon(png: Buffer): Buffer {
-  const img = nativeImage.createFromBuffer(png);
-  const { width, height } = img.getSize();
-  const side = Math.max(width, height);
-  if (img.isEmpty() || side <= ICON_PX) return png;
-  return img.resize({ width: Math.round((width * ICON_PX) / side), height: Math.round((height * ICON_PX) / side), quality: "best" }).toPNG();
-}
-
 const gameData = new GameDataWatcher({
   statePath: GAME_DATA_STATE_PATH,
   outDir: DATA_DIR,
@@ -98,7 +84,6 @@ const gameData = new GameDataWatcher({
     return { dir: await findCacheDir(logged?.log ?? null, logged?.cacheDir ?? null), build: logged?.build ?? null };
   },
   wiki: () => new Wiki(),
-  shrinkIcon,
   log,
   onChanged: () => {
     resetNameCaches();

@@ -38,7 +38,7 @@ describe("the Mastery roster", () => {
   };
 
   it("lists what the game files have, with the wiki's class or one guessed from similar weapons", () => {
-    const roster = buildRoster(wiki, { "Ode Tempest": {} }, arsenal);
+    const roster = buildRoster(wiki, arsenal);
     expect(roster.weapons).toEqual({
       Creance: { class: "Heavy Maces", slot: "Primary" },
       "Goody's Edge": { class: "Short Blades", slot: "Sidearm" },
@@ -51,7 +51,7 @@ describe("the Mastery roster", () => {
     expect(Object.keys(roster.pacts)).toEqual(["Ode Shrike", "Ode Tempest"]);
   });
 
-  it("falls back to the wiki without game files", () => {
-    expect(buildRoster(wiki, { Sirin: {} }, null)).toEqual({ weapons: wiki, pacts: { Sirin: {} } });
+  it("falls back to the wiki's weapons without game files", () => {
+    expect(buildRoster(wiki, null)).toEqual({ weapons: wiki, pacts: {} });
   });
 });

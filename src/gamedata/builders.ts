@@ -361,6 +361,8 @@ export function parseWikiIcons(lua: string, into: Map<string, string>): void {
 export interface RuneEntry {
   name: string;
   desc: string | null;
+  text: string | null;
+  vals: Record<string, string[]> | null;
   art: string | null;
   does: string | null;
   slot: string | null;
@@ -426,17 +428,101 @@ export function buildArsenal(dict: Dict, texts: string[]): ArsenalData {
   return { weapons: sortedKeys(weapons), pacts: sortedKeys(pacts) };
 }
 
+const RUNE_SLOTS: Record<string, string> = { AP_ATTACK: "Courage", AP_DEFENSE: "Spirit", AP_TACTIC: "Grace" };
+const STAT_RULES: [RegExp, RegExp][] = [
+  [/^DURATION$/, /duration/i],
+  [/^HEAL$/, /heal/i],
+  [/^HEALTH$/, /health/i],
+  [/^STAGGER$/, /stagger/i],
+  [/^AREADAMAGE$/, /explosion/i],
+  [/^DAMAGEMULT$/, /damage taken/i],
+  [/^DAMAGE$/, /damage/i],
+];
+
+export function runeValues(template: string | null, stats: WikiRune["stats"]): Record<string, string[]> | null {
+  if (!template) return null;
+  const names = [...new Set([...template.matchAll(/\|(\w+)\|/g)].map((m) => m[1]!))];
+  if (!names.length || names.length !== stats.length) return null;
+  const left = stats.map((_, i) => i);
+  const picked = new Map<string, number>();
+  const take = (name: string, i: number) => {
+    picked.set(name, i);
+    left.splice(left.indexOf(i), 1);
+  };
+  for (const [placeholder, label] of STAT_RULES) {
+    for (const name of names) {
+      if (picked.has(name) || !placeholder.test(name)) continue;
+      const i = left.find((j) => label.test(stats[j]!.effect));
+      if (i !== undefined) take(name, i);
+    }
+  }
+  for (const name of names) if (!picked.has(name) && left.length) take(name, left[0]!);
+  if (picked.size !== names.length) return null;
+  const out: Record<string, string[]> = {};
+  for (const name of names) {
+    const after = template.slice(template.indexOf(`|${name}|`) + name.length + 2);
+    const unit = after.startsWith("%") ? "%" : /^ seconds?\b/.test(after) ? "s" : "";
+    const values = stats[picked.get(name)!]!.values.map((v) => (unit && v.endsWith(unit) ? v.slice(0, -unit.length) : v));
+    if (!values.every((v) => /^[\d.]+$/.test(v))) return null;
+    out[name] = values;
+  }
+  return out;
+}
+
+const defKey = (t: string): string | null => {
+  const tag = field(t, "LocalizeTag");
+  return tag ? `${tag}|${field(t, "Icon") ?? ""}` : null;
+};
+
+function definitions(texts: string[]): Map<string, string> {
+  const defs = new Map<string, string>();
+  for (const t of texts) {
+    if (field(t, "TypeName")) continue;
+    const k = defKey(t);
+    if (k && !defs.has(k)) defs.set(k, t);
+  }
+  return defs;
+}
+
+export function typeIcons(texts: string[]): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    const icon = field(t, "Icon");
+    if (type && icon && !out.has(type)) out.set(type, icon);
+  }
+  return out;
+}
+
+const ICON_CATEGORIES = ["MiscItems", "Consumables", "Melee", "LongGuns", "Pistols", "Suits", "Upgrades", "WeaponSkins"];
+
+export function itemIconPaths(dict: Dict, texts: string[]): Map<string, string> {
+  const ranked: [number, string, string][] = [];
+  for (const t of texts) {
+    const cat = field(t, "ProductCategory") ?? "";
+    const rank = ICON_CATEGORIES.indexOf(cat);
+    const type = field(t, "TypeName");
+    const name = localized(dict, field(t, "LocalizeTag"));
+    const icon = field(t, "Icon");
+    if (cat === "WeaponSkins" && !/\/Skins\/(Helmets|Body|Legs|Totem)\//.test(type ?? "")) continue;
+    if (rank >= 0 && name && icon && type) ranked.push([rank, name, icon]);
+  }
+  const out = new Map<string, string>();
+  for (const [, name, icon] of ranked.sort((a, b) => a[0] - b[0])) if (!out.has(name)) out.set(name, icon);
+  return out;
+}
+
 export async function buildUpgrades(
   dict: Dict,
   texts: string[],
   wikiRunes: Map<string, WikiRune> | null,
   previous: UpgradeData | null,
-  itemIcons: Record<string, string>,
-  runeIcon: (file: string) => Promise<string | null>,
-): Promise<UpgradeData & { missingIcons: string[] }> {
+  icon: (path: string | null) => Promise<string | null>,
+): Promise<UpgradeData> {
   const loc = (tag: string | undefined) => localized(dict, tag);
   const searchTags = (t: string) =>
     (/^SearchTags=\{\n([\s\S]*?)\n\}/m.exec(t)?.[1] ?? "").split("\n").map((x) => loc(x.replace(/,$/, ""))).filter((x): x is string => !!x);
+  const defs = definitions(texts);
 
   const items = new Map<string, { t: string; cat: string; name: string }>();
   for (const t of texts) {
@@ -448,22 +534,24 @@ export async function buildUpgrades(
   }
 
   const runes: Record<string, RuneEntry> = {};
-  const missingIcons: string[] = [];
   for (const [type, { t, cat, name }] of items) {
     if (cat !== "Upgrades" || !type.startsWith("/SF/Upgrades/Runes/Weapon/")) continue;
     const w = wikiRunes?.get(type);
     const prev = wikiRunes ? undefined : previous?.runes[type];
-    const iconFile = w?.icon ?? field(t, "Icon")?.split("/").pop() ?? null;
-    const icon = prev?.icon ?? (iconFile ? await runeIcon(iconFile) : null);
-    if (iconFile && !icon) missingIcons.push(name);
+    const key = defKey(t);
+    const def = key ? defs.get(key) : undefined;
+    const text = def ? loc(field(def, "EnhancementTag")) : null;
+    const stats = w?.stats ?? prev?.stats ?? [];
     runes[type] = {
       name,
       desc: loc(field(t, "LocalizeDescTag")),
+      text,
+      vals: runeValues(text, stats),
       art: searchTags(t)[0] ?? w?.art ?? prev?.art ?? null,
       does: w?.does ?? prev?.does ?? null,
-      slot: w?.slot ?? prev?.slot ?? null,
-      stats: w?.stats ?? prev?.stats ?? [],
-      icon,
+      slot: RUNE_SLOTS[/^BonusArtifactSlots=\{\n(\w+)/m.exec(def ?? "")?.[1] ?? ""] ?? w?.slot ?? prev?.slot ?? null,
+      stats,
+      icon: (await icon(field(t, "Icon") ?? null)) ?? prev?.icon ?? null,
     };
   }
 
@@ -480,12 +568,6 @@ export async function buildUpgrades(
     };
   }
 
-  const iconByName = new Map<string, string>();
-  for (const [k, v] of Object.entries(itemIcons)) {
-    iconByName.set(k, v);
-    const base = k.replace(/\s*\([^)]*\)$/, "");
-    if (!iconByName.has(base)) iconByName.set(base, v);
-  }
   const gear: Record<string, GearEntry> = {};
   for (const [type, { t, cat, name }] of items) {
     if (cat !== "Consumables" || !type.startsWith("/SF/Types/Items/Consumables/") || !isGear(type)) continue;
@@ -495,11 +577,99 @@ export async function buildUpgrades(
       name,
       desc,
       kind: type.includes("/Tackle/") || type.includes("FishingSpool") ? "Fishing" : COMPANION_GEAR.test(type) ? "Companion" : "Supplies",
-      icon: iconByName.get(name) ?? null,
+      icon: (await icon(field(t, "Icon") ?? null)) ?? previous?.gear[type]?.icon ?? null,
     };
   }
 
-  return { runes: sortedKeys(runes), joineries: sortedKeys(joineries), gear: sortedKeys(gear), missingIcons };
+  return { runes: sortedKeys(runes), joineries: sortedKeys(joineries), gear: sortedKeys(gear) };
+}
+
+export interface TalismanEntry {
+  name: string;
+  Courage: number;
+  Spirit: number;
+  Grace: number;
+}
+
+const VIRTUES: Record<string, "Courage" | "Spirit" | "Grace"> = { COURAGE: "Courage", SPIRIT: "Spirit", GRACE: "Grace" };
+
+export function buildTalismans(dict: Dict, texts: string[]): Record<string, TalismanEntry> {
+  const defs = definitions(texts);
+  const out: Record<string, TalismanEntry> = {};
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    const name = localized(dict, field(t, "LocalizeTag"));
+    const key = defKey(t);
+    if (!type?.startsWith("/SF/Upgrades/Skins/Totem/") || !name || !key || out[leafOf(type)]) continue;
+    const def = defs.get(key) ?? "";
+    const entry: TalismanEntry = { name, Courage: 0, Spirit: 0, Grace: 0 };
+    let found = false;
+    for (const m of def.matchAll(/^UpgradeType=AVATAR_ATTRIBUTE_PRIMARY_(\w+)\nOperationType=ADD_BASE\nValue=([\d.]+)$/gm)) {
+      const virtue = VIRTUES[m[1]!];
+      if (!virtue) continue;
+      entry[virtue] += Number(m[2]);
+      found = true;
+    }
+    if (found) out[leafOf(type)] = entry;
+  }
+  return sortedKeys(out);
+}
+
+export interface ArmourEntry {
+  slot: "Helm" | "Cuirass" | "Leggings";
+  set: string | null;
+  rarity: string;
+  physical: number;
+  magick: number;
+  stability: number;
+  requires: { virtue: string; value: number } | null;
+}
+
+const ARMOUR_SLOTS: Record<string, ArmourEntry["slot"]> = { Helmets: "Helm", Body: "Cuirass", Legs: "Leggings" };
+const AT_VIRTUES: Record<string, string> = { AT_COURAGE: "Courage", AT_SPIRIT: "Spirit", AT_GRACE: "Grace" };
+const armourStem = (type: string): string => leafOf(type).replace(/(?:Closed|Open|Melee|Alt)*(?:Helmet|Helm|Body|Torso|Legs)$/, "");
+const setWords = (name: string): string[] => name.replace(/'s\b/g, "").split(/\s+/).filter(Boolean);
+
+export function buildArmour(dict: Dict, texts: string[], previous: Record<string, ArmourEntry> | null): Record<string, ArmourEntry> {
+  const defs = definitions(texts);
+  const pieces: { type: string; name: string; entry: ArmourEntry }[] = [];
+  const seen = new Set<string>();
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    const slot = ARMOUR_SLOTS[/^\/SF\/Upgrades\/Skins\/(\w+)\//.exec(type ?? "")?.[1] ?? ""];
+    const name = localized(dict, field(t, "LocalizeTag"));
+    const key = defKey(t);
+    if (!type || !slot || !name || !key || seen.has(name)) continue;
+    const def = defs.get(key) ?? "";
+    const stats = /^Armour=\{\n([^}]*)\}/m.exec(def)?.[1];
+    if (!stats) continue;
+    seen.add(name);
+    const stat = (k: string) => Number(new RegExp(`^${k}=([\\d.]+)$`, "m").exec(stats)?.[1] ?? 0);
+    const req = /^Requirements=\{\n(AT_\w+)=(\d+)\n\}/m.exec(def);
+    const rarity = (field(def, "Rarity") ?? "COMMON").toLowerCase();
+    pieces.push({
+      type,
+      name,
+      entry: {
+        slot,
+        set: null,
+        rarity: rarity.charAt(0).toUpperCase() + rarity.slice(1),
+        physical: stat("Physical"),
+        magick: stat("Magick"),
+        stability: stat("Stability"),
+        requires: req && AT_VIRTUES[req[1]!] ? { virtue: AT_VIRTUES[req[1]!]!, value: Number(req[2]) } : null,
+      },
+    });
+  }
+  const byStem = new Map<string, string[]>();
+  for (const p of pieces) byStem.set(armourStem(p.type), [...(byStem.get(armourStem(p.type)) ?? []), p.name]);
+  const out: Record<string, ArmourEntry> = { ...(previous ?? {}) };
+  for (const p of pieces) {
+    const group = byStem.get(armourStem(p.type)) ?? [];
+    const common = group.length > 1 ? setWords(group[0]!).filter((w) => !["of", "The", "Mask"].includes(w) && group.every((n) => setWords(n).includes(w))) : [];
+    out[p.name] = { ...p.entry, set: previous?.[p.name]?.set ?? (common.length ? common.join(" ") : null) };
+  }
+  return sortedKeys(out);
 }
 
 export function parseFactionCaps(text: string): number[] | null {
