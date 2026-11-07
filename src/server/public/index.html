@@ -1417,16 +1417,27 @@
         const chips = temperChips(i.weapon.tempers);
         return `<li class="tweapon">${tradeIcon(name)}<div><div>${escHtml(name)} ${cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : ""}${i.weapon.moonsteel ? '<span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : ""}</div>${chips ? `<div class="wtempers">${chips}</div>` : ""}</div></li>`;
       }
-      function tradeList(items) {
-        if (!items.length) return '<div class="none">Nothing</div>';
+      const tradeNameRow = (n) => `<li>${tradeIcon(n)}<span>${escHtml(n)}</span><span></span></li>`;
+      function tradeList(items, extra = []) {
+        if (!items.length && !extra.length) return '<div class="none">Nothing</div>';
         return `<ul>${items
           .map((i) => ({ ...i, name: tradeItemName(i.key) }))
           .sort((a, b) => !!b.weapon - !!a.weapon || a.name.localeCompare(b.name))
           .map(tradeItem)
-          .join("")}</ul>`;
+          .join("")}${extra.map(tradeNameRow).join("")}</ul>`;
       }
       function tradeNames(names) {
-        return names.length ? `<ul>${names.map((n) => `<li>${tradeIcon(n)}<span>${escHtml(n)}</span><span></span></li>`).join("")}</ul>` : '<div class="none">Nothing</div>';
+        return tradeList([], names);
+      }
+      function tradeSide(x, side) {
+        const items = x[side] || [];
+        const deals = x.deals || [];
+        const known = deals.length >= Math.max(x.count || 1, 1) && deals.every((d) => d.offered.length || d.received.length);
+        if (!known) return tradeList(items);
+        const names = new Set(deals.flatMap((d) => (side === "received" ? d.received : d.offered)));
+        const kept = items.filter((i) => names.has(tradeItemName(i.key)));
+        const found = new Set(kept.map((i) => tradeItemName(i.key)));
+        return tradeList(kept, [...names].filter((n) => !found.has(n)));
       }
       function tradeWhen(t) {
         const deals = t.deals || [];
@@ -1468,8 +1479,8 @@
                 const dracs = x.dracs < 0 ? `${dracsIcon(-x.dracs)}spent on Scutage` : x.dracs > 0 ? `${dracsIcon(x.dracs)}gained` : "";
                 const merged = Math.max(x.count || 1, deals.length) > 1 ? "Made between the same two inventory refreshes, so they're shown together" : "";
                 const note = x.logOnly ? "From the game log, before SFHelper saw your inventory: no counts or Dracs" : "";
-                const received = x.logOnly ? tradeNames(deals.flatMap((d) => d.received)) : tradeList(x.received || []);
-                const given = x.logOnly ? tradeNames(deals.flatMap((d) => d.offered)) : tradeList(x.given || []);
+                const received = x.logOnly ? tradeNames(deals.flatMap((d) => d.received)) : tradeSide(x, "received");
+                const given = x.logOnly ? tradeNames(deals.flatMap((d) => d.offered)) : tradeSide(x, "given");
                 const subs = [dracs, merged, note].filter(Boolean);
                 return `<div class="tradecard">
                   <div class="pickhead"><span class="pickname">${tradeTitle(x)}</span>${tradeWhen(x)}</div>
