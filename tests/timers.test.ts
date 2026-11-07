@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { KNOWN_AGARI, nameAgari, parseTimers, rememberedAgari, resetRememberedAgari, timerLabel, TimerAlarms, withStarred, type GameTimer } from "../src/server/timers";
+import { mergeAgariSpots, nameAgari, parseTimers, rememberedAgari, resetRememberedAgari, timerLabel, TimerAlarms, withStarred, type GameTimer } from "../src/server/timers";
 import { getSettings, updateSettings } from "../src/server/settings";
 import { loggedAgari } from "../src/server/gameLog";
 import { agentName } from "../src/server/enemies";
@@ -146,7 +146,8 @@ describe("the game's timers", () => {
     expect(alarms.due(80_000)).toEqual([]);
   });
 
-  it("names known Agari on a computer that hasn't seen them spawn", () => {
+  it("names known Agari on a computer that hasn't seen them spawn", async () => {
+    const KNOWN_AGARI = JSON.parse(await readFile("src/server/public/agari-spots.json", "utf8")) as Record<string, string>;
     const enemies = {
       names: {
         mendicantknightbellcleaversubbossavatar: "Knell Knight",
@@ -164,5 +165,13 @@ describe("the game's timers", () => {
       "Etheldred The Weaver",
     ]);
     expect(Object.values(KNOWN_AGARI).every((agent) => /SubBoss/.test(agent))).toBe(true);
+  });
+
+  it("adds the Agari spots this computer has learned to the built-in list", () => {
+    const learned = { PSStoneMockery: "MockeryStoneWomanArmoredSubBossAgent", TurretJotarFortFinal: "MeleeAxeAgent", StoneHengeA: "RangedHunterBowSubBossAgent" };
+    expect(mergeAgariSpots({ StoneHengeA: "RangedHunterBowSubBossAgent", LargeRuinsCamp: "MeleeMaceOfficerSubBossAgent" }, learned)).toEqual({
+      spots: { LargeRuinsCamp: "MeleeMaceOfficerSubBossAgent", PSStoneMockery: "MockeryStoneWomanArmoredSubBossAgent", StoneHengeA: "RangedHunterBowSubBossAgent" },
+      added: ["PSStoneMockery"],
+    });
   });
 });

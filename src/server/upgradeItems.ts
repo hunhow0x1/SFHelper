@@ -27,7 +27,7 @@ const entries = (v: unknown): Entry[] => (Array.isArray(v) ? v.filter((e): e is 
 const count = (e: Entry): number => (typeof e.ItemCount === "number" && e.ItemCount > 0 ? e.ItemCount : 0);
 const isRune = (t: string) => t.startsWith("/SF/Upgrades/Runes/");
 const isJoinery = (t: string) => t.startsWith("/SF/Types/Items/Kintsugi/");
-const UNRELEASED_GEAR = new Set(["LesserChampionVirtueElixir", "LesserFeyVirtueElixir", "LesserSilentRoseVirtueElixir"]);
+const UNRELEASED_GEAR = new Set(["CloudSwellElixer", "LesserChampionVirtueElixir", "LesserFeyVirtueElixir", "LesserSilentRoseVirtueElixir"]);
 export const isGear = (t: string) => !t.endsWith("Summon") && !UNRELEASED_GEAR.has(t.slice(t.lastIndexOf("/") + 1));
 
 function rankOf(fingerprint: unknown): number {

@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { loggedAgari, type LoggedCollector } from "./gameLog";
 import { collectorRegion } from "./collector";
 import { getAgentNamer } from "./enemies";
-import { appFile } from "./paths";
+import { appFile, readDataJson } from "./paths";
 import { writeFileAtomic } from "./files";
 
 export interface GameTimer {
@@ -32,16 +32,6 @@ const COLLECTOR_STALE_MS = 10 * 60_000;
 const COLLECTOR_STAY_MS = 15 * 60_000;
 const COLLECTOR_FIGHT_MS = 30 * 60_000;
 
-export const KNOWN_AGARI: Record<string, string> = {
-  GalvinarCorruptedB: "MendicantKnightBellCleaverSubBossAgent",
-  LargeRuinsCamp: "MeleeMaceOfficerSubBossAgent",
-  NimrodSubboss: "NimrodSubBossAgent",
-  RockCastleCourtyardCamp: "MeleeMaceOfficerSubBossSiegeAgent",
-  RockCastleMidCamp: "MeleeMaceOfficerSubBossSiegeAgent",
-  SlaneCenoteCave: "SpiderSubBossAgent",
-  StoneHengeA: "RangedHunterBowSubBossAgent",
-  TurretJotarFortInterior: "MeleeMaceOfficerSubBossSiegeAgent",
-};
 const ORGAN_REGIONS: Record<string, string> = { Airdelands: "Fuirlands", Kearnhold: "Kearnhold Lowlands", ODell: "O'Dell", Odell: "O'Dell" };
 
 const KNOWN: [RegExp, (m: RegExpExecArray) => Label][] = [
@@ -82,7 +72,8 @@ export function nameAgari(
   });
 }
 
-const agariPath = () => appFile("agari.json");
+export const AGARI_SPOTS = "agari-spots.json";
+export const agariPath = () => appFile("agari.json");
 let savedAgari: Record<string, string> | null = null;
 
 export async function rememberedAgari(logged: Record<string, string>): Promise<Record<string, string>> {
@@ -104,14 +95,25 @@ export async function rememberedAgari(logged: Record<string, string>): Promise<R
   return savedAgari;
 }
 
+export function mergeAgariSpots(known: Record<string, string>, learned: Record<string, string>): { spots: Record<string, string>; added: string[] } {
+  const spots = { ...known };
+  const added: string[] = [];
+  for (const [spot, agent] of Object.entries(learned)) {
+    if (!/sub ?boss/i.test(agent) || spots[spot] === agent) continue;
+    spots[spot] = agent;
+    added.push(spot);
+  }
+  return { spots: Object.fromEntries(Object.entries(spots).sort(([a], [b]) => a.localeCompare(b))), added: added.sort() };
+}
+
 export function resetRememberedAgari(): void {
   savedAgari = null;
 }
 
 export async function withAgariNames(timers: GameTimer[]): Promise<GameTimer[]> {
   if (!timers.some((t) => t.spot)) return timers;
-  const [spawned, agentName] = await Promise.all([loggedAgari().then(rememberedAgari), getAgentNamer()]);
-  return nameAgari(timers, { ...KNOWN_AGARI, ...spawned }, agentName);
+  const [known, spawned, agentName] = await Promise.all([readDataJson<Record<string, string>>(AGARI_SPOTS), loggedAgari().then(rememberedAgari), getAgentNamer()]);
+  return nameAgari(timers, { ...known, ...spawned }, agentName);
 }
 
 export function dockedCollector(c: LoggedCollector | null, now = Date.now()): GameTimer["docked"] | null {

@@ -4,19 +4,66 @@
       "name": "Carrionite",
       "desc": "The rune of ardent stone, petrifying in wake.",
       "art": "Bow",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "Duration",
+          "values": [
+            "4s",
+            "5s",
+            "6s",
+            "7s"
+          ]
+        },
+        {
+          "effect": "Damage Taken",
+          "values": [
+            "125%",
+            "150%",
+            "175%",
+            "200%"
+          ]
+        }
+      ],
+      "icon": "img/runes/carrionite.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/BowKnockdownProjectileRune": {
       "name": "Dissever",
       "desc": "The rune of garnet stupors, a clandestine strike.",
       "art": "Bow",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "125%",
+            "150%",
+            "175%",
+            "200%"
+          ]
+        },
+        {
+          "effect": "Stagger Bonus",
+          "values": [
+            "200%",
+            "250%",
+            "300%",
+            "350%"
+          ]
+        },
+        {
+          "effect": "Explosion Damage",
+          "values": [
+            "40%",
+            "60%",
+            "80%",
+            "100%"
+          ]
+        }
+      ],
+      "icon": "img/runes/dissever.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/FlameRune/FlameRune": {
       "name": "Blazingbolt",
@@ -44,7 +91,7 @@
           ]
         }
       ],
-      "icon": "img/runes/alcaspirit008.png"
+      "icon": "img/runes/the-torrent.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/StarterRune": {
       "name": "Alca's Breath",
@@ -63,16 +110,35 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage005.png"
+      "icon": "img/runes/alca-s-breath.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeEmpoweredThrowRune": {
       "name": "Flamepitch",
       "desc": "The soaring spark, igniting all.",
       "art": "Short Blade",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "Stagger Bonus",
+          "values": [
+            "200%",
+            "250%",
+            "300%",
+            "350%"
+          ]
+        },
+        {
+          "effect": "Explosion Damage",
+          "values": [
+            "40%",
+            "60%",
+            "80%",
+            "100%"
+          ]
+        }
+      ],
+      "icon": "img/runes/flamepitch.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeInvisRune": {
       "name": "The Flitsmoke",
@@ -91,16 +157,35 @@
           ]
         }
       ],
-      "icon": "img/runes/alcagrace001.png"
+      "icon": "img/runes/the-flitsmoke.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeLeechStrikeRune": {
       "name": "Parapelt",
       "desc": "The rune of leeching stone, maiming and mending, both.",
       "art": "Short Blade",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "75%",
+            "100%",
+            "125%",
+            "150%"
+          ]
+        },
+        {
+          "effect": "Healing",
+          "values": [
+            "15%",
+            "20%",
+            "25%",
+            "30%"
+          ]
+        }
+      ],
+      "icon": "img/runes/parapelt.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/StarterRune": {
       "name": "Emberaught",
@@ -119,7 +204,7 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage011.png"
+      "icon": "img/runes/emberaught.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlameRune/FlameRune": {
       "name": "Emberlash",
@@ -134,19 +219,66 @@
       "name": "Mortrite",
       "desc": "The rune of stunning stone, shackling when thrown.",
       "art": "Flyblade",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "Duration",
+          "values": [
+            "4s",
+            "5s",
+            "6s",
+            "7s"
+          ]
+        },
+        {
+          "effect": "Damage Taken",
+          "values": [
+            "125%",
+            "150%",
+            "175%",
+            "200%"
+          ]
+        }
+      ],
+      "icon": "img/runes/mortrite.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeKnockdownProjectileRune": {
       "name": "Reaproot",
       "desc": "The rune of singing flame, making daggers of embers.",
       "art": "Flyblade",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "125%",
+            "150%",
+            "175%",
+            "200%"
+          ]
+        },
+        {
+          "effect": "Stagger Bonus",
+          "values": [
+            "200%",
+            "250%",
+            "300%",
+            "350%"
+          ]
+        },
+        {
+          "effect": "Explosion Damage",
+          "values": [
+            "40%",
+            "60%",
+            "80%",
+            "100%"
+          ]
+        }
+      ],
+      "icon": "img/runes/reaproot.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeSeekingRune": {
       "name": "Picktrix",
@@ -165,7 +297,7 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage017.png"
+      "icon": "img/runes/picktrix-rune.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/StarterRune": {
       "name": "Hurlwind",
@@ -184,25 +316,54 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage013.png"
+      "icon": "img/runes/hurlwind.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordArcaneBullwarkRune": {
       "name": "Wardwark",
       "desc": "The rune of steadfast trunks, of bursting bark.",
       "art": "Heavy",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "Health",
+          "values": [
+            "20%",
+            "25%",
+            "30%",
+            "35%"
+          ]
+        }
+      ],
+      "icon": "img/runes/wardwark.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordLeapAttackRune": {
       "name": "Crimsonfell",
       "desc": "The rune of leaden vaults, a staggering kill.",
       "art": "Heavy",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "125%",
+            "150%",
+            "175%",
+            "200%"
+          ]
+        },
+        {
+          "effect": "Explosion Damage",
+          "values": [
+            "100%",
+            "125%",
+            "150%",
+            "175%"
+          ]
+        }
+      ],
+      "icon": "img/runes/crimsonfell.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordRangeRune": {
       "name": "Treefell",
@@ -239,7 +400,7 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage016.png"
+      "icon": "img/runes/treefell.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/StarterRune": {
       "name": "Cindermore",
@@ -258,25 +419,63 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage010.png"
+      "icon": "img/runes/cindermore.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeEmpoweredThrowRune": {
       "name": "Smeltsquall",
       "desc": "The rune of flying death, explosive in force.",
       "art": "Long Blade",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Grace",
+      "stats": [
+        {
+          "effect": "Stagger Bonus",
+          "values": [
+            "200%",
+            "250%",
+            "300%",
+            "350%"
+          ]
+        },
+        {
+          "effect": "Explosion Damage",
+          "values": [
+            "40%",
+            "60%",
+            "80%",
+            "100%"
+          ]
+        }
+      ],
+      "icon": "img/runes/smeltsquall.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeLeechStrikeRune": {
       "name": "Fortflank",
       "desc": "The rune of archaic balance, ‘twixt mend and maul.",
       "art": "Long Blade",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Grace",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "75%",
+            "100%",
+            "125%",
+            "150%"
+          ]
+        },
+        {
+          "effect": "Healing",
+          "values": [
+            "15%",
+            "20%",
+            "25%",
+            "30%"
+          ]
+        }
+      ],
+      "icon": "img/runes/fortflank.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeProjectileRune": {
       "name": "The Mistgale",
@@ -304,7 +503,7 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage008.png"
+      "icon": "img/runes/the-mistgale.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/StarterRune": {
       "name": "Everflame",
@@ -323,25 +522,72 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage006.png"
+      "icon": "img/runes/everflame.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune": {
       "name": "Lunarcure",
       "desc": "The rune of spiritsalve, ease your rally.",
       "art": "Magick",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "50%",
+            "75%",
+            "100%",
+            "125%"
+          ]
+        },
+        {
+          "effect": "Healing",
+          "values": [
+            "20%",
+            "25%",
+            "30%",
+            "35%"
+          ]
+        }
+      ],
+      "icon": "img/runes/lunarcure.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/CasterKnockdownProjectileRune": {
       "name": "Vexipare",
       "desc": "The rune of radiation, a flying flame.",
       "art": "Magick",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Spirit",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "125%",
+            "150%",
+            "175%",
+            "200%"
+          ]
+        },
+        {
+          "effect": "Stagger Bonus",
+          "values": [
+            "200%",
+            "250%",
+            "300%",
+            "350%"
+          ]
+        },
+        {
+          "effect": "Explosion Damage",
+          "values": [
+            "40%",
+            "60%",
+            "80%",
+            "100%"
+          ]
+        }
+      ],
+      "icon": "img/runes/vexipare.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/ExplosiveBuildUpRune": {
       "name": "The Hollowing",
@@ -369,7 +615,7 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage004.png"
+      "icon": "img/runes/the-hollowing.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/FlameRune/FlameRune": {
       "name": "Wickwell",
@@ -397,25 +643,54 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage002.png"
+      "icon": "img/runes/archstorm.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmArcaneBulwarkRune": {
       "name": "Cragprick",
       "desc": "The rune of mighty cliffs, steadfast and craggy.",
       "art": "Polearm",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "Health",
+          "values": [
+            "20%",
+            "25%",
+            "30%",
+            "35%"
+          ]
+        }
+      ],
+      "icon": "img/runes/cragprick.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmLeapAttackRune": {
       "name": "Astralflare",
       "desc": "The rune of shooting stars, crashing to earth.",
       "art": "Polearm",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "$1 Arcanic Damage Bonus",
+          "values": [
+            "125%",
+            "150%",
+            "175%",
+            "200%"
+          ]
+        },
+        {
+          "effect": "Explosion Damage",
+          "values": [
+            "100%",
+            "125%",
+            "150%",
+            "175%"
+          ]
+        }
+      ],
+      "icon": "img/runes/astralflare.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmMultiThrowRune": {
       "name": "Splitbolt",
@@ -434,7 +709,7 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage015.png"
+      "icon": "img/runes/splitbolt.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/StarterRune": {
       "name": "Torcheternal",
@@ -453,7 +728,7 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage014.png"
+      "icon": "img/runes/torcheternal.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/SBLaserRune": {
       "name": "The Durglint",
@@ -472,25 +747,54 @@
           ]
         }
       ],
-      "icon": "img/runes/alcagrace008.png"
+      "icon": "img/runes/the-durglint.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/ShieldArcaneBulwarkRune": {
       "name": "Soothesayer",
       "desc": "The rune of verdant ward, of fortifying spirit.",
       "art": "Shield",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "Health",
+          "values": [
+            "20%",
+            "25%",
+            "30%",
+            "35%"
+          ]
+        }
+      ],
+      "icon": "img/runes/soothesayer.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/ShieldEmpoweredThrowRune": {
       "name": "Scarletsling",
       "desc": "The rune of whim and flux, sway your munition.",
       "art": "Shield",
-      "does": null,
-      "slot": null,
-      "stats": [],
-      "icon": null
+      "does": "",
+      "slot": "Courage",
+      "stats": [
+        {
+          "effect": "Stagger Bonus",
+          "values": [
+            "200%",
+            "250%",
+            "300%",
+            "350%"
+          ]
+        },
+        {
+          "effect": "Explosion Damage",
+          "values": [
+            "40%",
+            "60%",
+            "80%",
+            "100%"
+          ]
+        }
+      ],
+      "icon": "img/runes/scarletsling.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/StarterRune": {
       "name": "Forburn",
@@ -509,7 +813,7 @@
           ]
         }
       ],
-      "icon": "img/runes/alcacourage012.png"
+      "icon": "img/runes/forburn.png"
     }
   },
   "joineries": {

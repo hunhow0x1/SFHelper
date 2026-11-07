@@ -41,7 +41,7 @@ function weaponAliases(stem: string): Set<string> {
   return out;
 }
 
-export function buildNames(dict: Dict, tree: TypeTree): NameData {
+export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): NameData {
   const factions: Record<string, string> = {};
   const factionTokens: Record<string, string> = {};
   for (const tag of FACTION_TAGS) {
@@ -98,6 +98,14 @@ export function buildNames(dict: Dict, tree: TypeTree): NameData {
   for (const [key, value] of Object.entries(overrides)) {
     if (value) items[key] = value;
   }
+  const arsenal = buildArsenal(dict, texts);
+  for (const [type, w] of Object.entries(arsenal.weapons)) items[leafOf(type)] = w.name;
+  for (const [type, name] of Object.entries(arsenal.pacts)) items[leafOf(type)] = name;
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    const name = type?.startsWith("/SF/Upgrades/Runes/Weapon/") && field(t, "ProductCategory") === "Upgrades" ? localized(dict, field(t, "LocalizeTag")) : null;
+    if (type && name && !(type in items)) items[type] = name;
+  }
   return { items, factions, factionTokens, currencies };
 }
 
@@ -121,9 +129,13 @@ export function buildEnemies(dict: Dict, tree: TypeTree): EnemyData {
   }
 
   const names: Record<string, string> = {};
+  const byWords = new Map<string, string | null>();
   const add = (leaf: string, value: unknown) => {
     const k = leaf.toLowerCase();
-    if (usable(value) && !(k in names)) names[k] = value.trim();
+    if (!usable(value) || k in names) return;
+    names[k] = value.trim();
+    const w = wordKey(leaf);
+    byWords.set(w, byWords.has(w) && byWords.get(w) !== names[k] ? null : names[k]);
   };
   const CODEX = "/SF/Language/Codex/";
   const TITLES = "/SF/Language/Titles/";
@@ -142,8 +154,16 @@ export function buildEnemies(dict: Dict, tree: TypeTree): EnemyData {
     const leaf = k.slice(CHARACTERS.length) + "Avatar";
     if (enemyLeaves.has(leaf.toLowerCase())) add(leaf, v);
   }
+  for (const leaf of Object.keys(parents)) {
+    if (!leaf.endsWith("Avatar") || leaf.toLowerCase() in names) continue;
+    const name = byWords.get(wordKey(leaf));
+    if (name) names[leaf.toLowerCase()] = name;
+  }
   return { names: sortedKeys(names), parents: sortedKeys(parents) };
 }
+
+const wordKey = (leaf: string): string =>
+  (leaf.replace(/SubBoss/g, "Subboss").match(/[A-Z][a-z0-9]*|[a-z0-9]+/g) ?? []).map((w) => w.toLowerCase()).sort().join(" ");
 
 export interface LocationDef {
   name: string;

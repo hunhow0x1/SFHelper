@@ -23,6 +23,7 @@ export interface TotemRef {
 export interface SlotGear {
   type: string | null;
   runes: string[];
+  runeLevels: (number | null)[];
   totems: TotemRef[];
   joinery: Joinery | null;
   craftwork: string | null;
@@ -64,7 +65,7 @@ export interface GearInfo {
   tempers: string[];
 }
 
-const EMPTY_SLOT: SlotGear = { type: null, runes: [], totems: [], joinery: null, craftwork: null, tempers: [] };
+const EMPTY_SLOT: SlotGear = { type: null, runes: [], runeLevels: [], totems: [], joinery: null, craftwork: null, tempers: [] };
 
 const POL_VIRTUE: Record<string, TotemRef["virtue"]> = { AP_COURAGE: "Courage", AP_SPIRIT: "Spirit", AP_GRACE: "Grace" };
 function parseFingerprint(fp: unknown): { lvl: number | null; virtue: TotemRef["virtue"] } {
@@ -265,12 +266,15 @@ export function parseBuilds(raw: unknown): Build[] {
     if (!info) return { ...EMPTY_SLOT };
     const cfg = info.configs[typeof s.mod === "number" ? s.mod : 0] ?? info.configs[0] ?? [];
     const runes: string[] = [];
+    const runeLevels: (number | null)[] = [];
     const totems: TotemRef[] = [];
     cfg.forEach((upId, i) => {
       const info = upgrades.get(upId);
       if (!info) return;
-      if (info.type.includes("/Upgrades/Runes/")) runes.push(info.type);
-      else if (info.type.includes("/Upgrades/Totems/")) {
+      if (info.type.includes("/Upgrades/Runes/")) {
+        runes.push(info.type);
+        runeLevels.push(info.lvl ?? null);
+      } else if (info.type.includes("/Upgrades/Totems/")) {
         totems.push({
           type: info.type,
           rank: info.lvl != null ? info.lvl + 1 : null,
@@ -279,7 +283,7 @@ export function parseBuilds(raw: unknown): Build[] {
         });
       }
     });
-    return { type: info.type, runes, totems, joinery: decodeJoinery(info.upgradeType), craftwork: info.craftwork, tempers: info.tempers };
+    return { type: info.type, runes, runeLevels, totems, joinery: decodeJoinery(info.upgradeType), craftwork: info.craftwork, tempers: info.tempers };
   };
 
   const withArts = (slot: SlotGear): SlotGear => (slot.type ? { ...slot, arts: artsFor(slot.type, trees) } : slot);

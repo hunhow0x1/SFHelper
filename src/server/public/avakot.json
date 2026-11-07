@@ -525,6 +525,24 @@
       "icon": "img/joineries/feybalt.png"
     },
     {
+      "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/LocksuitPactBlueprint",
+      "name": "Ode Shrike",
+      "group": "Pact Fragments",
+      "kind": "always",
+      "currency": "Dracs",
+      "price": [
+        3000,
+        3000
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.8,
+      "limit": null,
+      "icon": "img/avakot/odeshrike.png"
+    },
+    {
       "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/GarrenPactBlueprint",
       "name": "Garren Rood",
       "group": "Pact Fragments",
@@ -541,6 +559,24 @@
       "weight": 0.8,
       "limit": null,
       "icon": "img/avakot/garrenrood.png"
+    },
+    {
+      "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/OrengalPactBlueprint",
+      "name": "Orengall",
+      "group": "Pact Fragments",
+      "kind": "always",
+      "currency": "Dracs",
+      "price": [
+        3000,
+        3000
+      ],
+      "hours": [
+        24,
+        24
+      ],
+      "weight": 0.8,
+      "limit": null,
+      "icon": "img/avakot/orengallpact.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/BromiusPactBlueprint",

@@ -158,7 +158,7 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     return table;
   };
 
-  let names = buildNames(dict, tree);
+  let names = buildNames(dict, tree, unique);
   await step("names.json", async () => {
     const prev = await previous<typeof names>("names.json");
     enough("names", Object.keys(names.items).length, Object.keys(prev?.items ?? {}).length);

@@ -99,14 +99,6 @@ async function saveOther(accountId: string, other: number): Promise<void> {
   }
 }
 
-export async function gameLevel(accountId: string | null | undefined, serverLevel: number | null, mastery: Record<string, number> | null): Promise<number | null> {
-  if (serverLevel == null || !mastery) return serverLevel;
-  const logged = await loggedMastery();
-  const other = logged?.other ?? (accountId ? await loadOther(accountId) : null);
-  if (other == null) return serverLevel;
-  return Math.min(serverLevel, rankFor(Math.max(itemMastery(mastery).xp, logged?.items ?? 0) + other));
-}
-
 export async function getEnvoyRank(
   accountId: string,
   rank: number,

@@ -1173,7 +1173,6 @@
             <div class="ebar"><i style="width:${fill}%"></i></div>
             <div class="esub">${sub}</div>
             ${items}
-            ${e.serverRank != null && e.serverRank !== e.rank ? `<div class="esub" title="Your profile and inventory say rank ${e.serverRank}, but your Mastery only reaches rank ${e.rank}. The game caps your rank to your Mastery (its log says &quot;Player level too high for current xp&quot;), and SFHelper does the same.">Soulframe's servers report rank <b>${e.serverRank}</b></div>` : ""}
           </div>
           ${max}
         </div>`;
@@ -2157,12 +2156,13 @@
       try { IMPORTED_BUILDS = JSON.parse(localStorage.getItem("sfhelper.builds") || "[]"); } catch {}
 
       function normSlot(x) {
-        const empty = { type: null, runes: [], totems: [], joinery: null, craftwork: null, tempers: [] };
+        const empty = { type: null, runes: [], runeLevels: [], totems: [], joinery: null, craftwork: null, tempers: [] };
         if (x == null) return empty;
         if (typeof x === "string") return { ...empty, type: x };
         return {
           type: x.type ?? null,
           runes: Array.isArray(x.runes) ? x.runes : [],
+          runeLevels: Array.isArray(x.runeLevels) ? x.runeLevels.map((n) => (typeof n === "number" ? n : null)) : [],
           totems: (Array.isArray(x.totems) ? x.totems : []).map((t) =>
             typeof t === "string"
               ? { type: t, rank: null, slot: null, virtue: null }
@@ -2193,16 +2193,17 @@
         arr && arr.length
           ? arr.map((t) => `<span class="chip">${shortName(t)}</span>`).join("")
           : '<span class="muted">—</span>';
-      const effectRows = (arr, table) => {
-        if (!arr || !arr.length) return '<span class="muted">—</span>';
-        return arr
-          .map((t) => {
+      const runeRows = (slot) =>
+        slot.runes
+          .map((t, i) => {
             const name = shortName(t);
-            const eff = table[name];
-            return `<div class="totemrow"><span class="tname">${name}</span>${eff ? `<span class="teff">${eff}</span>` : ""}</div>`;
+            const d = UPGRADES.runes[t];
+            const lvl = slot.runeLevels ? slot.runeLevels[i] : null;
+            const stats = d && d.stats.length && lvl != null ? d.stats.map((st) => runeStat(st, lvl)).join(" · ") : "";
+            const eff = RUNES[name] || stats || (d && d.does) || "";
+            return `<div class="totemrow"><span class="tname">${escHtml(name)}</span>${eff ? `<span class="teff">${eff}</span>` : ""}</div>`;
           })
           .join("");
-      };
       function effectAtRank(effect, rank) {
         if (!effect) return "";
         if (!rank) return effect;
@@ -2213,9 +2214,10 @@
         return `${shown} (Rank ${rank})`;
       }
       const runeSlotVirtue = (runes) => {
-        const eff = runes && runes.length ? RUNES[shortName(runes[0])] || "" : "";
+        if (!runes || !runes.length) return null;
+        const eff = RUNES[shortName(runes[0])] || "";
         const m = /additional (Courage|Spirit|Grace)\b[^.]*\bslot/i.exec(eff);
-        return m ? m[1][0].toUpperCase() + m[1].slice(1).toLowerCase() : null;
+        return m ? m[1][0].toUpperCase() + m[1].slice(1).toLowerCase() : UPGRADES.runes[runes[0]]?.slot || null;
       };
       const totemRows = (arr, runes) => {
         const hasRune = !!(runes && runes.length);
@@ -2471,7 +2473,7 @@
             <span class="gear-name">${shortName(slot.type)}</span><span class="gear-kind">${label}</span>${extra}
           </div>`;
         const joinery = slot.joinery ? prop("Joinery", `<div class="joinery">${joineryLabel(slot.joinery)}</div>`) : "";
-        const runes = slot.runes.length ? prop("Runes", `<div class="fxlist">${effectRows(slot.runes, RUNES)}</div>`) : "";
+        const runes = slot.runes.length ? prop("Runes", `<div class="fxlist">${runeRows(slot)}</div>`) : "";
         const totems = slot.totems.length ? prop("Totems", `<div class="fxlist">${totemRows(slot.totems, slot.runes)}</div>`) : "";
         if (slot.arts) {
           return `<div class="gear pact">${head()}${joinery}${runes}${totems}${pactTreeHtml(slot.arts)}</div>`;

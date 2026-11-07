@@ -15,6 +15,7 @@
     "start": "tsx src/server/start.ts",
     "helper": "tsx helper/cli.ts",
     "build-game-data": "tsx scripts/build_game_data.ts",
+    "update-agari": "tsx scripts/update_agari.ts",
     "build-totems": "tsx scripts/build_data.ts totems",
     "build-runes": "tsx scripts/build_data.ts runes",
     "build-weapons": "tsx scripts/build_data.ts weapons",

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { findCacheDir, findRootEntry, hostPath, readEntry } from "../src/gamedata/cache";
 import { readLanguages } from "../src/gamedata/formats";
-import { buildArsenal, buildNames, buildPactArtValues, buildUpgrades, parseFactionCaps, withRetired } from "../src/gamedata/builders";
+import { buildArsenal, buildEnemies, buildNames, buildPactArtValues, buildUpgrades, parseFactionCaps, withRetired } from "../src/gamedata/builders";
 import { loggedGame } from "../src/server/gameLog";
 
 function tocEntry(name: string, parent: number, offset: number, size: number, stamp = 123n): Buffer {
@@ -158,6 +158,46 @@ describe("building SFHelper's data from the game", () => {
     expect(names.items.Lantern).toBeUndefined();
     expect(names.factions).toEqual({ SilentRoseSyndicate: "The Silent Rose" });
     expect(names.currencies).toEqual({ RegularCredits: "Dracs" });
+  });
+
+  it("takes weapon, Pact and rune names from the items themselves", () => {
+    const texts = [
+      "ProductCategory=Melee\nLocalizeTag=/L/Fulkrom\nTypeName=/SF/Weapons/Melee/TwoHand/MockeryAxe/MockeryAxeMeleeWeapon",
+      "ProductCategory=Upgrades\nLocalizeTag=/L/Lunarcure\nTypeName=/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune",
+      "ProductCategory=Upgrades\nLocalizeTag=/L/Breath\nTypeName=/SF/Upgrades/Runes/Weapon/Bow/StarterRune",
+      "ProductCategory=Upgrades\nLocalizeTag=/L/Hurlwind\nTypeName=/SF/Upgrades/Runes/Weapon/Flyblade/StarterRune",
+    ];
+    const dict = {
+      "/SF/Language/Weapons/MockeryAxeMeleeWeaponName": "Dolush",
+      "/L/Fulkrom": "Fulkrom",
+      "/L/Lunarcure": "Lunarcure",
+      "/L/Breath": "Alca's Breath",
+      "/L/Hurlwind": "Hurlwind",
+    };
+    expect(buildNames(dict, new Map(), texts).items).toMatchObject({
+      MockeryAxeMeleeWeapon: "Fulkrom",
+      "/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune": "Lunarcure",
+      "/SF/Upgrades/Runes/Weapon/Bow/StarterRune": "Alca's Breath",
+      "/SF/Upgrades/Runes/Weapon/Flyblade/StarterRune": "Hurlwind",
+    });
+  });
+
+  it("names enemies whose type lists the same words as their codex entry in another order", () => {
+    const base = "/SF/Types/Enemies/Wildlife/Mockeries";
+    const tree = new Map<string, string | null>([
+      [`${base}/MockeryStoneWomanArmoredSubBossAvatar`, `${base}/MockeryStoneWomanAvatar`],
+      [`${base}/MockeryStoneWomanAvatar`, `${base}/MockeryBaseAvatar`],
+      [`${base}/MockeryStoneManArmoredAvatar`, `${base}/MockeryBaseAvatar`],
+    ]);
+    const enemies = buildEnemies(
+      {
+        "/SF/Language/Codex/MockeryStoneArmoredWomanSubbossAvatarName": "Ceptet",
+        "/SF/Language/Codex/MockeryStoneArmoredManAvatarName": "Gravestone Mockery",
+      },
+      tree,
+    );
+    expect(enemies.names).toMatchObject({ mockerystonewomanarmoredsubbossavatar: "Ceptet", mockerystonemanarmoredavatar: "Gravestone Mockery" });
+    expect(enemies.names.mockerystonewomanavatar).toBeUndefined();
   });
 
   it("reads Pact Art numbers and faction rank caps", () => {

@@ -1,0 +1,11 @@
+{
+  "GalvinarCorruptedB": "MendicantKnightBellCleaverSubBossAgent",
+  "LargeRuinsCamp": "MeleeMaceOfficerSubBossAgent",
+  "NimrodSubboss": "NimrodSubBossAgent",
+  "PSStoneMockery": "MockeryStoneWomanArmoredSubBossAgent",
+  "RockCastleCourtyardCamp": "MeleeMaceOfficerSubBossSiegeAgent",
+  "RockCastleMidCamp": "MeleeMaceOfficerSubBossSiegeAgent",
+  "SlaneCenoteCave": "SpiderSubBossAgent",
+  "StoneHengeA": "RangedHunterBowSubBossAgent",
+  "TurretJotarFortInterior": "MeleeMaceOfficerSubBossSiegeAgent"
+}

@@ -59,6 +59,27 @@ describe("loadout Virtues", () => {
   });
 });
 
+describe("loadout weapons", () => {
+  it("keeps each rune's level next to it, for its stats at that level", () => {
+    const oid = (n: number) => ({ $oid: n.toString(16).padStart(24, "0") });
+    const id = (n: number) => oid(n).$oid;
+    const raw = {
+      Upgrades: [
+        { ItemType: "/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune", ItemId: oid(1), UpgradeFingerprint: '{"lvl":2}' },
+        { ItemType: "/SF/Upgrades/Totems/Bear/BearTotem", ItemId: oid(2), UpgradeFingerprint: '{"lvl":3,"virtue":"AT_SPIRIT"}' },
+      ],
+      Melee: [{ ItemType: "/SF/Weapons/Melee/OneHand/OdeStaffCaster/OdeStaffCasterRangedMeleeWeapon", ItemId: oid(10), Configs: [{ Upgrades: [id(1), id(2)] }] }],
+      LoadOutPresets: { NORMAL: [{ n: "Oscelda", m: { ItemId: oid(10), mod: 0 } }] },
+    };
+    const [b] = parseBuilds(raw);
+    expect(b!.melee).toMatchObject({
+      runes: ["/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune"],
+      runeLevels: [2],
+      totems: [{ type: "/SF/Upgrades/Totems/Bear/BearTotem", rank: 4, slot: 1 }],
+    });
+  });
+});
+
 describe("loadout armour", () => {
   it("reads each loadout's Helm, Cuirass, Leggings and Talisman from its Pact's appearance", () => {
     const oid = (n: number) => ({ $oid: n.toString(16).padStart(24, "0") });
