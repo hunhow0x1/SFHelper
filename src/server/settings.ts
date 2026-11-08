@@ -9,9 +9,22 @@ export interface Settings {
   avakotWatch: string[];
   timerNotify: boolean;
   timerWatch: string[];
+  blessedNotify: boolean;
+  recipeNotify: boolean;
+  recipeWatch: string[];
 }
 
-const DEFAULTS: Settings = { moonsteelNotify: true, avakotNotify: true, avakotResetNotify: false, avakotWatch: [], timerNotify: true, timerWatch: [] };
+const DEFAULTS: Settings = {
+  moonsteelNotify: true,
+  avakotNotify: true,
+  avakotResetNotify: false,
+  avakotWatch: [],
+  timerNotify: true,
+  timerWatch: [],
+  blessedNotify: false,
+  recipeNotify: true,
+  recipeWatch: [],
+};
 
 function storeItems(v: unknown): string[] | null {
   if (!Array.isArray(v) || v.length > 200) return null;
@@ -37,9 +50,12 @@ export async function getSettings(): Promise<Settings> {
       avakotWatch: storeItems(s.avakotWatch) ?? [],
       timerNotify: typeof s.timerNotify === "boolean" ? s.timerNotify : DEFAULTS.timerNotify,
       timerWatch: timerTags(s.timerWatch) ?? [],
+      blessedNotify: typeof s.blessedNotify === "boolean" ? s.blessedNotify : DEFAULTS.blessedNotify,
+      recipeNotify: typeof s.recipeNotify === "boolean" ? s.recipeNotify : DEFAULTS.recipeNotify,
+      recipeWatch: storeItems(s.recipeWatch) ?? [],
     };
   } catch {
-    return { ...DEFAULTS, avakotWatch: [], timerWatch: [] };
+    return { ...DEFAULTS, avakotWatch: [], timerWatch: [], recipeWatch: [] };
   }
 }
 
@@ -52,10 +68,14 @@ export function updateSettings(patch: Record<string, unknown>): Promise<Settings
     if (typeof patch.avakotNotify === "boolean") s.avakotNotify = patch.avakotNotify;
     if (typeof patch.avakotResetNotify === "boolean") s.avakotResetNotify = patch.avakotResetNotify;
     if (typeof patch.timerNotify === "boolean") s.timerNotify = patch.timerNotify;
+    if (typeof patch.blessedNotify === "boolean") s.blessedNotify = patch.blessedNotify;
+    if (typeof patch.recipeNotify === "boolean") s.recipeNotify = patch.recipeNotify;
     const watch = storeItems(patch.avakotWatch);
     if (watch) s.avakotWatch = watch;
     const timerWatch = timerTags(patch.timerWatch);
     if (timerWatch) s.timerWatch = timerWatch;
+    const recipeWatch = storeItems(patch.recipeWatch);
+    if (recipeWatch) s.recipeWatch = recipeWatch;
     await writeFileAtomic(settingsPath(), `${JSON.stringify(s, null, 2)}\n`);
     return s;
   });

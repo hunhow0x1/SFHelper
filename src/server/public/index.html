@@ -176,7 +176,8 @@
       }
       h2::after { content: ""; flex: 1; order: 1; height: 1px; background: linear-gradient(90deg, var(--frame), transparent); }
       h2.hdr .mini { order: 2; }
-      h2.hdr .notifytoggle { order: 2; font: 400 13.5px/1 var(--body); letter-spacing: 0; text-transform: none; }
+      h2.hdr { flex-wrap: wrap; justify-content: flex-end; row-gap: 10px; }
+      h2.hdr .notifytoggle { order: 2; font: 400 13.5px/1 var(--body); letter-spacing: 0; text-transform: none; white-space: nowrap; }
       h3.sub { font: 600 13px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2); margin: 0 0 12px; }
 
       .setup { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
@@ -345,7 +346,7 @@
       #tempers .row .label { font-size: 15px; }
       #tempers { display: block; columns: 6 240px; column-gap: 40px; }
       #tempers .row { break-inside: avoid; margin-bottom: 12px; }
-      #tempers .temperrow { cursor: help; }
+      #tempers .temperrow { cursor: pointer; }
       #tempers .temperrow:hover .label { color: var(--accent-hi); }
       .xpgroup h3.wclass {
         display: flex; align-items: baseline; gap: 10px;
@@ -488,6 +489,18 @@
       .rtag { display: inline-block; margin-left: 8px; padding: 1px 6px; border: 1px solid rgba(201, 120, 92, 0.55); color: #e0a189; font: 500 10.5px/1.4 var(--body); letter-spacing: 0.12em; text-transform: uppercase; vertical-align: 2px; }
       .temperpop .tp-on { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
       .temperpop .tp-on .tp-rank { margin-bottom: 4px; }
+      .temperpop .tp-hint { color: var(--faint); font-size: 13px; }
+      .temperpop.pinned { width: 440px; max-width: calc(100vw - 24px); }
+      .tp-weapons { max-height: 300px; overflow-y: auto; overscroll-behavior: contain; margin: 6px -6px 0 0; padding-right: 6px; }
+      .tp-weapons h4 {
+        position: sticky; top: 0; z-index: 1; display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 8px 0 6px;
+        background: #1f1812; font: 600 12px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: #a6dcc0;
+      }
+      .tp-weapons h4 span { font: 400 12px/1 var(--body); letter-spacing: 0; color: var(--faint); }
+      .tp-weapons ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin: 0 0 8px; padding: 0; }
+      .tp-weapons li { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; align-items: center; color: var(--text); font-size: 14px; line-height: 1.25; }
+      .tp-weapons li img { width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)); }
+      .tp-weapons li small { display: block; color: var(--faint); font-size: 12px; }
       .upgroups .avgroup h3 img { width: 22px; height: 22px; object-fit: contain; align-self: center; }
       .upgroups .avrow.plain { grid-template-columns: minmax(0, 1fr) auto; }
       .upgroups .avr .mempips { justify-content: flex-end; }
@@ -720,6 +733,9 @@
       .rings .rq b { color: var(--muted); font-weight: 600; }
       .rings li.short .rq b { color: var(--courage); }
       .rcard .tradesub { margin-top: auto; padding-top: 10px; }
+      .rtop { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: start; }
+      .rtop button.star { margin: -2px -6px 0 0; }
+      .rcard.starred { --tick: rgba(232, 201, 126, 0.7); border-color: rgba(232, 201, 126, 0.5); box-shadow: inset 0 0 18px rgba(201, 165, 92, 0.08); }
       .avprice.short { color: var(--courage); }
 
       .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard {
@@ -800,6 +816,11 @@
                 <input type="checkbox" id="timerNotify" />
                 <span class="sw"></span>
                 Notify
+              </label>
+              <label class="notifytoggle" id="blessedNotifyWrap" hidden title="Desktop notification with sound when a Blessed Meeting starts near your Envoy while today's boon is still available">
+                <input type="checkbox" id="blessedNotify" />
+                <span class="sw"></span>
+                Blessed Meeting nearby
               </label>
             </h2>
             <div id="timers"></div>
@@ -903,7 +924,14 @@
 
       <div class="panel" id="panel-recipes">
         <section>
-          <h2>Recipes</h2>
+          <div class="picktop">
+            <h2>Recipes</h2>
+            <label class="notifytoggle" id="recipeNotifyWrap" hidden title="Desktop notification with sound when you can craft a recipe you starred">
+              <input type="checkbox" id="recipeNotify" />
+              <span class="sw"></span>
+              Notify me when starred recipes are ready
+            </label>
+          </div>
           <div class="daily" id="recipeSummary"></div>
           <div class="tfilters" id="recipeFilters"></div>
           <div id="recipes"><span class="muted">Import your inventory to see what you can brew and cast.</span></div>
@@ -1118,18 +1146,25 @@
       const temperIcon = (tag) =>
         `<img class="ticn" src="${(TEMPER_DB[tag] && TEMPER_DB[tag].icon) || `img/tempers/${temperName(tag).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.png`}" alt="" loading="lazy" onerror="this.remove()">`;
       const framedTemper = (tag) => `<span class="tframe">${temperIcon(tag)}</span>`;
-      function temperWeaponsHtml(tag) {
+      function temperWeaponsHtml(tag, full) {
         const ws = (TEMPER_DB[tag] && TEMPER_DB[tag].weapons) || [];
         if (!ws.length) return "";
         const most = Math.max(...Object.values(TEMPER_DB).map((t) => (t.weapons || []).length));
-        if (ws.length === most) return '<div class="tp-on">Can roll on any weapon</div>';
+        const title = ws.length === most ? `Can roll on any weapon · ${ws.length}` : `Rolls on ${ws.length} weapon${ws.length === 1 ? "" : "s"}`;
+        if (!full) return `<div class="tp-on"><div class="tp-rank">${title}</div><div class="tp-hint">Click to see them</div></div>`;
         const bySlot = new Map();
-        for (const w of ws) {
+        for (const w of [...ws].sort((a, b) => a.localeCompare(b))) {
           const slot = (WEAPON_ROSTER[w] || {}).slot || "Other";
           (bySlot.get(slot) || bySlot.set(slot, []).get(slot)).push(w);
         }
-        const parts = ["Primary", "Sidearm", "Other"].filter((k) => bySlot.has(k)).map((k) => `<div><b>${k}:</b> ${bySlot.get(k).map(escHtml).join(", ")}</div>`);
-        return `<div class="tp-on"><div class="tp-rank">Rolls on ${ws.length} weapon${ws.length === 1 ? "" : "s"}</div>${parts.join("")}</div>`;
+        const weapon = (w) => {
+          const cls = ((WEAPON_ROSTER[w] || {}).class || "").replace(/s$/, "");
+          const icon = ITEM_ICONS[w] ? `<img src="${ITEM_ICONS[w]}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : "<span></span>";
+          return `<li>${icon}<span>${escHtml(w)}${cls ? `<small>${escHtml(cls)}</small>` : ""}</span></li>`;
+        };
+        const groups = ["Primary", "Sidearm", "Other"].filter((k) => bySlot.has(k))
+          .map((k) => `<h4>${k}<span>${bySlot.get(k).length}</span></h4><ul>${bySlot.get(k).map(weapon).join("")}</ul>`);
+        return `<div class="tp-on"><div class="tp-rank">${title}</div><div class="tp-weapons">${groups.join("")}</div></div>`;
       }
       const temperChip = (tag, count = 1) =>
         `<span class="chip temper${count > 1 ? " stacked" : ""}" data-tag="${tag}" data-count="${count}">${temperIcon(tag)}<span>${temperName(tag)}${count > 1 ? ` <span class="x2">×${count}</span>` : ""}</span></span>`;
@@ -1161,7 +1196,8 @@
           const dbl = count > 1 ? `<div class="tp-dbl">Double-stacked ×${count} — effect is doubled</div>` : "";
           const effHtml = eff ? `<div class="tp-eff">${eff}</div>` : `<div class="tp-eff muted">Effect not documented yet.</div>`;
           const row = el.classList.contains("temperrow");
-          temperPop.innerHTML = `<div class="tp-head">${row ? framedTemper(tag) : temperIcon(tag)}<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div></div>${dbl}${effHtml}${row ? temperWeaponsHtml(tag) : ""}`;
+          if (row && !hover) temperPop.classList.add("pinned");
+          temperPop.innerHTML = `<div class="tp-head">${row ? framedTemper(tag) : temperIcon(tag)}<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div></div>${dbl}${effHtml}${row ? temperWeaponsHtml(tag, !hover) : ""}`;
         }
         document.body.appendChild(temperPop);
         const r = (el.querySelector(".label") || el).getBoundingClientRect();
@@ -1171,6 +1207,7 @@
         temperPop.style.left = Math.round(Math.max(12, Math.min(r.left, window.innerWidth - temperPop.offsetWidth - 12))) + "px";
       }
       document.addEventListener("click", (e) => {
+        if (temperPop && temperPop.classList.contains("pinned") && temperPop.contains(e.target)) return;
         const el = e.target.closest && e.target.closest(".temper, .artnode, .temperrow, .poprow");
         closeTemperPop();
         if (!el) return;
@@ -1182,6 +1219,7 @@
         const row = e.target.closest && e.target.closest(".temperrow, .poprow");
         if (row === hoverRow) return;
         hoverRow = row;
+        if (temperPop && temperPop.classList.contains("pinned")) return;
         if (temperPop && temperPop.dataset.hover) closeTemperPop();
         if (row) openTemperPop(row, true);
       });
@@ -1189,6 +1227,9 @@
         hoverRow = null;
         if (temperPop && temperPop.dataset.hover) closeTemperPop();
       }, { passive: true });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeTemperPop();
+      });
 
       const PATCH_NAME = (p) => (/^P(\d+(?:\.\d+)?)$/.test(p || "") ? `Preludes ${p.slice(1)}` : p || "");
       function renderEnvoyRank() {
@@ -1593,12 +1634,28 @@
           : '<span class="muted">No cooldowns running.</span>';
       }
       setInterval(renderTimers, 30000);
+      function bindSettingToggle(box, key) {
+        box.addEventListener("change", async () => {
+          try {
+            const r = await fetch("/api/settings", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ [key]: box.checked }),
+            });
+            box.checked = (await r.json())[key];
+          } catch {
+            box.checked = !box.checked;
+          }
+        });
+      }
       (async () => {
         if (!navigator.userAgent.includes("Electron")) return;
         const box = $("timerNotify");
+        const blessed = $("blessedNotify");
         try {
           const s = await (await fetch("/api/settings")).json();
           box.checked = s.timerNotify !== false;
+          blessed.checked = s.blessedNotify === true;
           TIMER_WATCH = Array.isArray(s.timerWatch) ? s.timerWatch : [];
         } catch {
           box.checked = true;
@@ -1606,6 +1663,8 @@
         }
         renderTimers();
         $("timerNotifyWrap").hidden = false;
+        $("blessedNotifyWrap").hidden = false;
+        bindSettingToggle(blessed, "blessedNotify");
         box.addEventListener("change", async () => {
           try {
             const r = await fetch("/api/settings", {
@@ -1850,7 +1909,7 @@
           .map((g) => `<div class="avgroup"><h3>${g.icon ? upIcon(g.icon, "") : ""}${escHtml(g.name)} <span class="count">${g.count ?? g.rows.length}</span></h3>${g.rows.join("")}</div>`)
           .join("")}</div>`;
 
-      const UPGRADE_UI = { runes: "all", gear: "all" };
+      const UPGRADE_UI = { runes: "all", gear: "all", runeArt: "all", runeDrop: "all" };
       try { Object.assign(UPGRADE_UI, JSON.parse(localStorage.getItem("sfhelper.upgradeItems") || "{}")); } catch {}
       const withUnowned = (owned, known, blank) => {
         const have = new Set(owned.map((o) => o.type));
@@ -1886,7 +1945,24 @@
         $("runeSummary").innerHTML = runes.length
           ? `Owned <b>${ownedRunes.length}/${runes.length}</b> &nbsp;·&nbsp; At max rank <b>${maxed}</b> &nbsp;·&nbsp; Unranked copies <b>${unranked}</b>`
           : "";
-        $("runeFilters").innerHTML = runes.length ? ownFilter("runes", runes) : "";
+        const cogah = (o) => (o.d.tags || []).includes("Cogah");
+        const drops = { cogah, other: (o) => !cogah(o) };
+        if (!drops[UPGRADE_UI.runeDrop]) UPGRADE_UI.runeDrop = "all";
+        const runeArts = [...new Set(runes.map((o) => o.d.art).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+        if (!runeArts.includes(UPGRADE_UI.runeArt)) UPGRADE_UI.runeArt = "all";
+        const artOk = (o) => UPGRADE_UI.runeArt === "all" || o.d.art === UPGRADE_UI.runeArt;
+        const dropOk = (o) => UPGRADE_UI.runeDrop === "all" || drops[UPGRADE_UI.runeDrop](o);
+        const ownOk = (o) => passOwned("runes", o);
+        const runeChip = (k, v, label, n, img = "") =>
+          `<button class="fchip${UPGRADE_UI[k] === v ? " active" : ""}" data-k="${k}" data-v="${escHtml(v)}">${img}${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
+        const byArt = runes.filter((o) => ownOk(o) && dropOk(o));
+        const byDrop = runes.filter((o) => ownOk(o) && artOk(o));
+        $("runeFilters").innerHTML = !runes.length ? ""
+          : ownFilter("runes", runes.filter((o) => artOk(o) && dropOk(o))) +
+            `<span class="fl">Weapon</span><div class="wfilter">${runeChip("runeArt", "all", "All")}${runeArts
+              .map((a) => runeChip("runeArt", a, escHtml(a), byArt.filter((o) => o.d.art === a).length, `<img src="${gripIcon(a)}" alt="" onerror="this.remove()">`))
+              .join("")}</div>` +
+            `<span class="fl">Drops</span><div class="wfilter">${runeChip("runeDrop", "all", "All")}${runeChip("runeDrop", "cogah", "Cogah", byDrop.filter(drops.cogah).length)}${runeChip("runeDrop", "other", "Non-Cogah", byDrop.filter(drops.other).length)}</div>`;
         const runeRow = (o) => {
           const max = runeMax(o.d);
           const r = runeTop(o);
@@ -1897,7 +1973,7 @@
           const sub = [slotHtml(o.d.slot), o.ranks.length > 1 ? `${o.ranks.length} ranked` : ""].filter(Boolean).join(" · ");
           return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${(o.d.tags || []).includes("Cogah") ? '<span class="rtag" title="Only drops in the Cogah">Cogah</span>' : ""}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}${extra}</div></div>`;
         };
-        const shownRunes = runes.filter((o) => passOwned("runes", o));
+        const shownRunes = runes.filter((o) => ownOk(o) && artOk(o) && dropOk(o));
         const arts = [...new Set(shownRunes.map((o) => o.d.art || "Other"))].sort((a, b) => (a === "Other") - (b === "Other") || a.localeCompare(b));
         $("runes").innerHTML = !runes.length
           ? '<span class="muted">No runes in your inventory.</span>'
@@ -1977,6 +2053,7 @@
 
       let RECIPES = {};
       let LAST_CRAFTING = null;
+      let RECIPE_WATCH = [];
       const RECIPE_UI = { station: "all", slot: "all", virtue: "all", show: "all" };
       try { Object.assign(RECIPE_UI, JSON.parse(localStorage.getItem("sfhelper.recipes") || "{}")); } catch {}
       const RECIPE_KINDS = { Elixirs: "Elixir", "Pup Treats": "Pup Treat", Palettes: "Palette" };
@@ -2028,10 +2105,14 @@
           `<span>${craftTime(r.seconds)}</span>`,
           r.consumed || r.fragments > 1 ? `<span>Fragments ${fmt(s.fragments)} / ${fmt(r.fragments)}</span>` : "",
         ].join("");
-        return `<div class="rcard${s.ready ? " ready" : ""}">` +
+        const starred = RECIPE_WATCH.includes(type);
+        const tip = !navigator.userAgent.includes("Electron") ? (starred ? "Starred" : "Star this recipe")
+          : starred ? `Starred: you'll be notified when you can ${recipeVerb(r, 1)} this` : `Star to be notified when you can ${recipeVerb(r, 1)} this`;
+        return `<div class="rcard${s.ready ? " ready" : ""}${starred ? " starred" : ""}"><div class="rtop">` +
           `<div class="rhead poprow" data-kind="recipe" data-type="${escHtml(type)}">${upIcon(r.icon)}` +
           `<div class="avname">${escHtml(r.name)}${r.gives > 1 ? `<span class="rgive">×${r.gives}</span>` : ""}</div>${state}` +
           `<div class="avmeta">${kind}<span>${meta}</span></div></div>` +
+          `<button class="star${starred ? " on" : ""}" data-recipe="${escHtml(type)}" aria-pressed="${starred}" title="${tip}" aria-label="${escHtml(r.name)}">${STAR_SVG}</button></div>` +
           `<ul class="rings">${ings}</ul><div class="tradesub">${foot}</div></div>`;
       }
       function renderRecipes() {
@@ -2052,11 +2133,12 @@
           return;
         }
         const bonds = Object.values(RECIPE_NPC).filter((npc) => c.bond[npc] != null).map((npc) => `${npc} Bond <b>${c.bond[npc]}</b>`);
-        $("recipeSummary").innerHTML = [`Ready <b>${all.filter((o) => o.s.ready).length}</b> of ${all.length}`, ...bonds].join(" &nbsp;·&nbsp; ");
+        const starredHere = all.filter((o) => RECIPE_WATCH.includes(o.type)).length;
+        $("recipeSummary").innerHTML = [`Ready <b>${all.filter((o) => o.s.ready).length}</b> of ${all.length}`, ...(starredHere ? [`Starred <b>${starredHere}</b>`] : []), ...bonds].join(" &nbsp;·&nbsp; ");
 
         const groupsHere = RECIPE_GROUPS.map(([k]) => k).filter((k) => all.some((o) => recipeGroup(o.r) === k));
         if (!groupsHere.includes(RECIPE_UI.station)) RECIPE_UI.station = "all";
-        const show = { all: () => true, ready: (o) => o.s.ready, missing: (o) => !o.s.ready };
+        const show = { all: () => true, ready: (o) => o.s.ready, missing: (o) => !o.s.ready, starred: (o) => RECIPE_WATCH.includes(o.type) };
         if (!show[RECIPE_UI.show]) RECIPE_UI.show = "all";
         const chip = (k, v, label, n) =>
           `<button class="fchip${RECIPE_UI[k] === v ? " active" : ""}" data-k="${k}" data-v="${v}">${label}<span class="n">${n}</span></button>`;
@@ -2078,7 +2160,8 @@
           (slots.length ? row("Slot", "slot", slots, byGroup.filter(virtueOk), (o, v) => o.r.slot === v) : "") +
           (virtues.length ? row("Virtue", "virtue", virtues, byGroup.filter(slotOk), (o, v) => (o.r.scaling || []).includes(v)) : "") +
           `<span class="fl">Show</span><div class="wfilter">${chip("show", "all", "All", here.length)}` +
-          chip("show", "ready", "Ready", here.filter(show.ready).length) + chip("show", "missing", "Missing", here.filter(show.missing).length) + "</div>";
+          chip("show", "ready", "Ready", here.filter(show.ready).length) + chip("show", "missing", "Missing", here.filter(show.missing).length) +
+          chip("show", "starred", "Starred", here.filter(show.starred).length) + "</div>";
 
         const shown = here.filter(show[RECIPE_UI.show]);
         const kinds = Object.keys(RECIPE_KINDS);
@@ -2115,6 +2198,37 @@
         try { localStorage.setItem("sfhelper.recipes", JSON.stringify(RECIPE_UI)); } catch {}
         renderRecipes();
       });
+      $("recipes").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button.star");
+        if (!btn) return;
+        e.stopPropagation();
+        closeTemperPop();
+        const type = btn.dataset.recipe;
+        const before = RECIPE_WATCH;
+        RECIPE_WATCH = before.includes(type) ? before.filter((x) => x !== type) : [...before, type];
+        renderRecipes();
+        try {
+          const r = await fetch("/api/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ recipeWatch: RECIPE_WATCH }) });
+          if (!r.ok) throw new Error("save failed");
+          RECIPE_WATCH = (await r.json()).recipeWatch;
+        } catch {
+          RECIPE_WATCH = before;
+        }
+        renderRecipes();
+      });
+      (async () => {
+        try {
+          const s = await (await fetch("/api/settings")).json();
+          RECIPE_WATCH = Array.isArray(s.recipeWatch) ? s.recipeWatch : [];
+          $("recipeNotify").checked = s.recipeNotify !== false;
+        } catch {
+          return;
+        }
+        renderRecipes();
+        if (!navigator.userAgent.includes("Electron")) return;
+        $("recipeNotifyWrap").hidden = false;
+        bindSettingToggle($("recipeNotify"), "recipeNotify");
+      })();
 
       let LAST_TOTEMS = null;
       const TOTEM_UI = { q: "", virtue: "all", grip: "all", animal: "all", trigger: "all", sort: "name" };

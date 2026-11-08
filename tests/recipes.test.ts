@@ -1,7 +1,11 @@
-import { describe, expect, it } from "vitest";
-import { buildRecipes, parseCraftingTable, recipeKind } from "../src/gamedata/builders";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { mkdtemp } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { buildRecipes, parseCraftingTable, recipeKind, type RecipeDef } from "../src/gamedata/builders";
 import { wikiEntry } from "../src/gamedata/update";
-import { parseCrafting } from "../src/server/recipes";
+import { newlyReady, parseCrafting, readyRecipes, recipeTimes, type CraftingState } from "../src/server/recipes";
+import { getSettings, updateSettings } from "../src/server/settings";
 
 const recipe = (type: string, tag: string, extra: string, ingredients: [string, number, string?][]) =>
   [
@@ -96,6 +100,54 @@ describe("what the inventory says about crafting", () => {
       stock: { "/I/Sap": 4, "/I/Iron": 12 },
       dracs: 2500,
       bond: { Verminia: 2, Tuvalkane: 4 },
+    });
+  });
+});
+
+describe("starred recipes", () => {
+  const def = (extra: Partial<RecipeDef>): RecipeDef => ({
+    name: "Curaidh's Breath", station: "Brewing", kind: "Elixirs", result: "/R/Out", rarity: null, fragments: 1, consumed: false,
+    gives: 1, dracs: 100, seconds: 0, ingredients: [{ type: "/I/Sap", name: "Sap", count: 2 }], desc: null, icon: null, bond: null, ...extra,
+  });
+  const state = (extra: Partial<CraftingState>): CraftingState => ({ recipes: { "/R/A": 1 }, stock: { "/I/Sap": 5 }, dracs: 1000, bond: {}, ...extra });
+
+  it("works out how many times a recipe can be crafted, as the Recipes tab does", () => {
+    expect(recipeTimes("/R/A", def({}), state({}))).toBe(2);
+    expect(recipeTimes("/R/A", def({ ingredients: [{ type: "/I/Sap", name: "Sap", count: 2, alt: ["/I/OldSap"] }] }), state({ stock: { "/I/Sap": 1, "/I/OldSap": 3 } }))).toBe(2);
+    expect(recipeTimes("/R/A", def({}), state({ dracs: 150 }))).toBe(1);
+    expect(recipeTimes("/R/A", def({ consumed: true, fragments: 3 }), state({ recipes: { "/R/A": 2 } }))).toBe(0);
+    expect(recipeTimes("/R/A", def({ bond: 3 }), state({ bond: { Verminia: 2 } }))).toBe(0);
+    expect(recipeTimes("/R/A", def({ bond: 3, station: "Blacksmith", kind: "Weapons" }), state({ bond: { Tuvalkane: 1 } }))).toBe(2);
+    expect(recipeTimes("/R/B", def({}), state({}))).toBe(0);
+  });
+
+  it("names only starred recipes that just became craftable", () => {
+    const defs = { "/R/A": def({}), "/R/B": def({ ingredients: [{ type: "/I/Iron", name: "Iron", count: 1 }] }) };
+    const before = readyRecipes(defs, state({ recipes: { "/R/A": 1, "/R/B": 1 } }));
+    expect([...before]).toEqual(["/R/A"]);
+    const after = readyRecipes(defs, state({ recipes: { "/R/A": 1, "/R/B": 1 }, stock: { "/I/Sap": 5, "/I/Iron": 1 } }));
+    expect(newlyReady(before, after, ["/R/A", "/R/B"])).toEqual(["/R/B"]);
+    expect(newlyReady(before, after, ["/R/A"])).toEqual([]);
+    expect(newlyReady(null, after, ["/R/A", "/R/B"])).toEqual([]);
+  });
+
+  describe("settings", () => {
+    let home: string | undefined;
+    beforeEach(async () => {
+      home = process.env.SFHELPER_HOME;
+      process.env.SFHELPER_HOME = await mkdtemp(join(tmpdir(), "sfh-recipes-"));
+    });
+    afterEach(() => {
+      if (home === undefined) delete process.env.SFHELPER_HOME;
+      else process.env.SFHELPER_HOME = home;
+    });
+
+    it("saves starred recipes and the two new toggles", async () => {
+      expect(await getSettings()).toMatchObject({ recipeWatch: [], recipeNotify: true, blessedNotify: false });
+      await updateSettings({ recipeWatch: ["/SF/Types/Recipes/A", "<img onerror=x>"] });
+      expect((await getSettings()).recipeWatch).toEqual([]);
+      await updateSettings({ recipeWatch: ["/SF/Types/Recipes/A", "/SF/Types/Recipes/A"], recipeNotify: false, blessedNotify: true });
+      expect(await getSettings()).toMatchObject({ recipeWatch: ["/SF/Types/Recipes/A"], recipeNotify: false, blessedNotify: true });
     });
   });
 });

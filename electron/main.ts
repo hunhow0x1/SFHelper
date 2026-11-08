@@ -7,15 +7,17 @@ import { importInventory, type ImportSession } from "../helper/run";
 import { recordHistory, startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings } from "../src/server/settings";
-import { getInventory } from "../src/server/inventory";
-import { COLLECTOR_TAG, dockedCollector, TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
+import { getInventory, type InventoryView } from "../src/server/inventory";
+import { blessedMeetingNear, COLLECTOR_TAG, dockedCollector, TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
+import { newlyReady, readyRecipes, recipeTimes, recipeVerb } from "../src/server/recipes";
+import type { RecipeDef } from "../src/gamedata/builders";
 import { noteDataRefreshed, setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
 import { AVAKOT_VENDOR, avakotDue, avakotDueAt, getAvakot, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameRefusedMessage, loggedCollector, loggedGame, refusalDetails } from "../src/server/gameLog";
+import { gameBeingRefused, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails } from "../src/server/gameLog";
 import { readDataJson } from "../src/server/paths";
 import { findCacheDir } from "../src/gamedata/cache";
 import { GameDataWatcher } from "../src/gamedata/watch";
@@ -166,6 +168,7 @@ async function importFromMemory(): Promise<void> {
         const inventory = await getInventory();
         await recordHistory(inventory);
         timerAlarms.set(await withAgariNames(inventory?.timers ?? []));
+        await checkRecipes(inventory);
       } catch (err) {
         log(`Recording pickups/trades failed: ${(err as Error).message}`);
       }
@@ -291,7 +294,9 @@ const timerAlarms = new TimerAlarms();
 const TIMER_CHECK_MS = 10_000;
 async function armSavedTimers(): Promise<void> {
   try {
-    timerAlarms.set(await withAgariNames((await getInventory())?.timers ?? []));
+    const inventory = await getInventory();
+    timerAlarms.set(await withAgariNames(inventory?.timers ?? []));
+    await checkRecipes(inventory);
   } catch (err) {
     log(`Setting cooldown alarms failed: ${(err as Error).message}`);
   }
@@ -328,6 +333,47 @@ async function checkCollector(): Promise<void> {
   const until = docked.leaves ? ` · leaves ${new Date(docked.leaves).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}` : "";
   const n = new Notification({ title: "The Collector is descending!", body: `Hark, The Collector · ${where}${until}`, icon: ICON_PATH, silent: false });
   showNotification(n, "overview");
+}
+
+let blessedSeen = 0;
+async function checkBlessed(): Promise<void> {
+  const b = await loggedBlessed();
+  if (!b || b.at === blessedSeen || !blessedMeetingNear(b)) return;
+  blessedSeen = b.at;
+  log("A Blessed Meeting started near the Envoy.");
+  if (!Notification.isSupported() || !(await getSettings()).blessedNotify) return;
+  const n = new Notification({ title: "A Blessed Meeting is nearby", body: "One just started near your Envoy, and today's boon is still available.", icon: ICON_PATH, silent: false });
+  showNotification(n, "overview");
+}
+
+let recipesReady: Set<string> | null = null;
+let recipesSeen: string | null = null;
+async function checkRecipes(inv: InventoryView | null): Promise<void> {
+  if (!inv || inv.updatedAt === recipesSeen) return;
+  const defs = (await readDataJson<{ recipes?: Record<string, RecipeDef> }>("recipes.json"))?.recipes;
+  if (!defs) return;
+  recipesSeen = inv.updatedAt;
+  const ready = readyRecipes(defs, inv.crafting);
+  const before = recipesReady;
+  recipesReady = ready;
+  const settings = await getSettings();
+  const fresh = newlyReady(before, ready, settings.recipeWatch);
+  if (!fresh.length) return;
+  log(`Starred recipes ready: ${fresh.map((t) => defs[t]!.name).join(", ")}.`);
+  if (!settings.recipeNotify || !Notification.isSupported()) return;
+  const line = (t: string) => {
+    const r = defs[t]!;
+    const times = recipeTimes(t, r, inv.crafting);
+    return Number.isFinite(times) ? `${r.name} · enough for ${times.toLocaleString()}` : r.name;
+  };
+  const first = defs[fresh[0]!]!;
+  const n = new Notification({
+    title: fresh.length === 1 ? `Ready to ${recipeVerb(first)}: ${first.name}` : `${fresh.length} of your starred recipes are ready`,
+    body: fresh.map(line).join("\n"),
+    icon: ICON_PATH,
+    silent: false,
+  });
+  showNotification(n, "recipes");
 }
 
 let itemNames: Record<string, string> | null = null;
@@ -414,6 +460,7 @@ async function proceed(): Promise<void> {
   setInterval(() => {
     for (const t of timerAlarms.due()) void notifyTimer(t);
     void checkCollector().catch(() => {});
+    void checkBlessed().catch(() => {});
   }, TIMER_CHECK_MS);
   void importFromMemory().finally(scheduleImport);
   setTimeout(() => void gameData.check(), GAME_DATA_FIRST_MS);

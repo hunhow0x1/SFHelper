@@ -106,6 +106,12 @@ export interface LoggedCollector {
   logAt: number;
 }
 
+export interface LoggedBlessed {
+  at: number;
+  ended: number | null;
+  logAt: number;
+}
+
 export interface LoggedMastery {
   other: number;
   items: number | null;
@@ -134,6 +140,9 @@ const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
 const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
 const COLLECTOR_GONE = ["Collector encounter ending", "playing collectorCinLeaving", "OnPrimed Loop ended", "Shutdown collector"];
 const COLLECTOR_RE = /^(\d+\.\d+) .*PrimeMissionOnHint \[[^\]]*\] at pos \[\((-?[\d.]+), (-?[\d.]+), (-?[\d.]+).*missionTag MT_COLLECTOR/;
+const BLESSED_START_RE = /ENCMGR: Encounter \S*GodsAndGhosts?Encounter started at /;
+const BLESSED_END_RE = /ENCMGR: Encounter \[\S*GodsAndGhosts?Encounter\] (?:has completed|was abandoned)/;
+const BLESSED_FAILED_WITHIN_MS = 1_000;
 const BUILD_RE = /Build Label: (\S+)/;
 const CACHE_DIR_RE = /Scanning (.+?) for cache blocks/;
 const HEAD_BYTES = 256;
@@ -152,6 +161,7 @@ interface Scan {
   start: number | null;
   game: { build: string | null; cacheDir: string | null };
   collector: Omit<LoggedCollector, "logAt"> | null;
+  blessed: { last: Omit<LoggedBlessed, "logAt"> | null; failedAt: number | null };
   refusals: { count: number; first: number; last: number; open: OpenRefusal | null; before: string; details: RefusalDetail[] };
   agari: { spawned: Record<string, string>; spot: string | null; since: number };
   mastery: { other: number | null; items: number | null };
@@ -170,6 +180,7 @@ function newScan(path: string, head: string): Scan {
     start: null,
     game: { build: null, cacheDir: null },
     collector: null,
+    blessed: { last: null, failedAt: null },
     refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [] },
     agari: { spawned: {}, spot: null, since: 0 },
     mastery: { other: null, items: null },
@@ -310,6 +321,24 @@ function feedCollector(s: Scan, line: string, start: number): void {
   else if (COLLECTOR_GONE.some((text) => line.includes(text))) s.collector.ended ??= at;
 }
 
+function feedBlessed(b: Scan["blessed"], line: string, start: number): void {
+  if (!line.includes("GodsAndGhost")) return;
+  const t = TIME_RE.exec(line);
+  const at = t ? start + Math.round(Number(t[1]) * 1000) : null;
+  if (at === null) return;
+  if (line.includes("GodsAndGhostENC: ")) {
+    b.failedAt = at;
+    if (b.last && b.last.ended === null) b.last.ended = at;
+    return;
+  }
+  if (BLESSED_START_RE.test(line)) {
+    const failed = b.failedAt !== null && at - b.failedAt <= BLESSED_FAILED_WITHIN_MS;
+    b.last = { at, ended: failed ? at : null };
+    return;
+  }
+  if (b.last && b.last.ended === null && BLESSED_END_RE.test(line)) b.last.ended = at;
+}
+
 function feed(s: Scan, line: string): void {
   if (s.game.cacheDir === null) feedGame(s.game, line);
   feedAgari(s.agari, line);
@@ -323,6 +352,7 @@ function feed(s: Scan, line: string): void {
   feedTrades(s.trades, line, s.start);
   feedEvents(s.events, line, s.start);
   feedCollector(s, line, s.start);
+  feedBlessed(s.blessed, line, s.start);
 }
 
 let scan: Scan | null = null;
@@ -419,6 +449,11 @@ export async function loggedGame(path?: string): Promise<LoggedGame | null> {
 export async function loggedCollector(path?: string): Promise<LoggedCollector | null> {
   const s = await currentScan(path);
   return s?.collector ? { ...s.collector, logAt: s.mtime } : null;
+}
+
+export async function loggedBlessed(path?: string): Promise<LoggedBlessed | null> {
+  const s = await currentScan(path);
+  return s?.blessed.last ? { ...s.blessed.last, logAt: s.mtime } : null;
 }
 
 export async function loggedMastery(path?: string): Promise<LoggedMastery | null> {

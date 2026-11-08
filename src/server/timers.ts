@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { loggedAgari, type LoggedCollector } from "./gameLog";
+import { loggedAgari, type LoggedBlessed, type LoggedCollector } from "./gameLog";
 import { collectorRegion } from "./collector";
 import { getAgentNamer } from "./enemies";
 import { appFile, readDataJson } from "./paths";
@@ -31,6 +31,8 @@ export const COLLECTOR_TAG = "CollectorTimer";
 const COLLECTOR_STALE_MS = 10 * 60_000;
 const COLLECTOR_STAY_MS = 15 * 60_000;
 const COLLECTOR_FIGHT_MS = 30 * 60_000;
+const BLESSED_SETTLE_MS = 2_000;
+const BLESSED_FRESH_MS = 5 * 60_000;
 
 const ORGAN_REGIONS: Record<string, string> = { Airdelands: "Fuirlands", Kearnhold: "Kearnhold Lowlands", ODell: "O'Dell", Odell: "O'Dell" };
 
@@ -122,6 +124,10 @@ export function dockedCollector(c: LoggedCollector | null, now = Date.now()): Ga
   const leaves = c.started === null ? c.at + COLLECTOR_STAY_MS : null;
   if (leaves !== null ? now >= leaves : now - c.started! > COLLECTOR_FIGHT_MS) return null;
   return { at: c.at, region: collectorRegion(c.x, c.z), started: c.started, leaves };
+}
+
+export function blessedMeetingNear(b: LoggedBlessed | null, now = Date.now()): boolean {
+  return !!b && b.ended === null && now - b.at >= BLESSED_SETTLE_MS && now - b.at <= BLESSED_FRESH_MS;
 }
 
 export function withCollector(timers: GameTimer[], c: LoggedCollector | null, now = Date.now()): GameTimer[] {
