@@ -11,6 +11,7 @@ import {
   noteAvakotAttempt,
   parseVendorInfo,
   recordAvakot,
+  stockReset,
 } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
@@ -143,5 +144,20 @@ describe("vendor request", () => {
     const refuse = (async () => new Response("", { status: 429 })) as typeof fetch;
     await expect(fetchVendorInfo(ACCOUNT, "1234", AVAKOT_VENDOR, refuse)).rejects.toBeInstanceOf(EndpointRefusedError);
     await expect(fetchVendorInfo("not-an-id", "1234", AVAKOT_VENDOR, refuse)).rejects.toThrow(/24 hex/);
+  });
+});
+
+describe("noticing when Avakot's stock resets", () => {
+  const offer = (id: string, expiry: number | null) => ({ id, storeItem: `/SF/StoreItems/${id}`, currency: "Dracs" as const, price: 1, limit: null, weekly: false, expiry });
+  const at = 1_000_000_000;
+  const before = { fetchedAt: at - 3_600_000, nextChange: at, offers: [offer("a", at), offer("keep", null)] };
+  const after = { fetchedAt: at + 60_000, nextChange: at + 10_800_000, offers: [offer("b", at + 10_800_000), offer("keep", null)] };
+
+  it("only counts a fresh rotation seen soon after it was due", () => {
+    expect(stockReset(before, after, at + 60_000)).toBe(true);
+    expect(stockReset(before, before, at + 60_000)).toBe(false);
+    expect(stockReset(before, after, at - 60_000)).toBe(false);
+    expect(stockReset(before, after, at + 3_600_000)).toBe(false);
+    expect(stockReset(null, after, at + 60_000)).toBe(false);
   });
 });

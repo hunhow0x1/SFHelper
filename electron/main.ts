@@ -12,7 +12,7 @@ import { COLLECTOR_TAG, dockedCollector, TimerAlarms, withAgariNames, type GameT
 import { noteDataRefreshed, setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
-import { AVAKOT_VENDOR, avakotDue, avakotDueAt, noteAvakotAttempt, parseVendorInfo, recordAvakot, type AvakotOffer } from "../src/server/avakot";
+import { AVAKOT_VENDOR, avakotDue, avakotDueAt, getAvakot, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
 import { gameBeingRefused, gameRefusedMessage, loggedCollector, loggedGame, refusalDetails } from "../src/server/gameLog";
@@ -104,10 +104,21 @@ async function logRefusalDetails(): Promise<void> {
   }
 }
 
+const WAIT_FOR_GAME_MS = 15_000;
+const WAIT_FOR_LOGIN_MS = 30_000;
+let lastImportCode: number | null = null;
+let importTimer: ReturnType<typeof setTimeout> | undefined;
+function scheduleImport(): void {
+  clearTimeout(importTimer);
+  const wait = lastImportCode === 3 ? WAIT_FOR_GAME_MS : lastImportCode === 6 ? WAIT_FOR_LOGIN_MS : REIMPORT_INTERVAL_MS;
+  importTimer = setTimeout(() => void importFromMemory().finally(scheduleImport), wait);
+}
+
 async function importFromMemory(): Promise<void> {
   if (importing) return;
   const paused = apiPausedUntil();
   if (paused) {
+    lastImportCode = 8;
     setImportStatus({ state: "error", code: 8, message: pausedMessage(paused) });
     return;
   }
@@ -116,6 +127,7 @@ async function importFromMemory(): Promise<void> {
     const message = gameRefusedMessage(refused);
     if (!gameWasRefused) log(`Holding off: ${message} (${refused.count} refusals in the game log so far.)`);
     gameWasRefused = true;
+    lastImportCode = 9;
     await logRefusalDetails();
     setImportStatus({ state: "error", code: 9, message });
     return;
@@ -126,7 +138,7 @@ async function importFromMemory(): Promise<void> {
   }
   gameWasRefused = false;
   importing = true;
-  setImportStatus({ state: "scanning", message: "Looking for Soulframe…" });
+  if (lastImportCode !== 3) setImportStatus({ state: "scanning", message: "Looking for Soulframe…" });
   try {
     const result = await importInventory({
       out: INVENTORY_PATH,
@@ -143,10 +155,12 @@ async function importFromMemory(): Promise<void> {
       noteApiAccepted();
       lastImportOk = Date.now();
     }
+    if (result.code === 3 && lastImportCode !== 3) log("Waiting for Soulframe to start.");
+    lastImportCode = result.code;
     if (result.ok) session = result.session;
     else if (result.code !== 8) session = undefined;
     const message = result.code === 8 ? pausedMessage(noteApiRefused()) : result.message;
-    log(result.ok ? result.message : `Inventory import skipped (${result.code}): ${result.message}`);
+    if (result.code !== 3) log(result.ok ? result.message : `Inventory import skipped (${result.code}): ${result.message}`);
     if (result.ok) {
       try {
         const inventory = await getInventory();
@@ -163,6 +177,7 @@ async function importFromMemory(): Promise<void> {
     );
     if (result.ok) void refreshAvakot();
   } catch (err) {
+    lastImportCode = null;
     log(`Inventory import failed: ${(err as Error).stack ?? String(err)}`);
     setImportStatus({ state: "error", message: `Import failed: ${(err as Error).message}` });
   } finally {
@@ -183,9 +198,11 @@ async function refreshAvakot(): Promise<void> {
     const stock = parseVendorInfo(await fetchVendorInfo(s.accountId, s.nonce, AVAKOT_VENDOR));
     noteApiAccepted();
     const settings = await getSettings();
+    const prev = (await getAvakot()).stock;
     const fresh = await recordAvakot(stock, settings.avakotWatch);
     const rotating = stock.offers.filter((o) => o.expiry !== null).length;
     log(`Avakot's stock updated: ${rotating} rotating offers, next change at ${new Date(stock.nextChange).toLocaleTimeString()}.`);
+    if (settings.avakotResetNotify && stockReset(prev, stock)) notifyAvakotReset(stock);
     if (fresh.length && settings.avakotNotify) await notifyAvakot(fresh);
   } catch (err) {
     if (err instanceof EndpointRefusedError) log(`Avakot's stock: ${pausedMessage(noteApiRefused(), err.status)}`);
@@ -242,6 +259,15 @@ function showTab(tab: string): void {
   mainWindow.show();
   mainWindow.focus();
   void mainWindow.webContents.executeJavaScript(`typeof activateTab === "function" && activateTab(${JSON.stringify(tab)})`);
+}
+
+function notifyAvakotReset(stock: AvakotStock): void {
+  if (!Notification.isSupported()) return;
+  const rotating = stock.offers.filter((o) => o.expiry !== null).length;
+  const until = new Date(stock.nextChange).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const n = new Notification({ title: "Avakot's Gots have reset", body: `${rotating} new offers · until ${until}`, icon: ICON_PATH, silent: false });
+  showNotification(n, "avakot");
+  log("Avakot reset notification.");
 }
 
 async function notifyAvakot(offers: AvakotOffer[]): Promise<void> {
@@ -389,8 +415,7 @@ async function proceed(): Promise<void> {
     for (const t of timerAlarms.due()) void notifyTimer(t);
     void checkCollector().catch(() => {});
   }, TIMER_CHECK_MS);
-  void importFromMemory();
-  setInterval(() => void importFromMemory(), REIMPORT_INTERVAL_MS);
+  void importFromMemory().finally(scheduleImport);
   setTimeout(() => void gameData.check(), GAME_DATA_FIRST_MS);
   setInterval(() => void gameData.check(), GAME_DATA_CHECK_MS);
 }

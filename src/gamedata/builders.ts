@@ -368,6 +368,17 @@ export interface RuneEntry {
   slot: string | null;
   stats: WikiRune["stats"];
   icon: string | null;
+  tags?: string[];
+}
+
+export function parseRuneTags(lua: string): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const block of lua.split(/\n\s*\["/)) {
+    const id = /\bInternalID\s*=\s*"([^"]+)"/.exec(block)?.[1];
+    const tags = /\bTags\s*=\s*"([^"]*)"/.exec(block)?.[1];
+    if (id) out.set(id, (tags ?? "").split(/\s*[,;]\s*/).filter(Boolean));
+  }
+  return out;
 }
 
 export interface JoineryEntry {
@@ -713,19 +724,50 @@ export interface RecipeDef {
   desc: string | null;
   icon: string | null;
   bond: number | null;
+  slot?: string;
+  scaling?: string[];
+  requires?: Record<string, number>;
 }
 
 const RECIPES = "/SF/Types/Recipes/";
+const VIRTUE_NAMES: Record<string, string> = { AT_COURAGE: "Courage", AT_SPIRIT: "Spirit", AT_GRACE: "Grace" };
+
+function blockLines(t: string, name: string): string[] {
+  const lines = t.split("\n");
+  const at = lines.indexOf(`${name}={`);
+  if (at < 0) return [];
+  const out: string[] = [];
+  for (let i = at + 1, depth = 1; i < lines.length; i++) {
+    const l = lines[i]!;
+    if (l.endsWith("{")) depth++;
+    else if (l === "}" || l === "},") depth--;
+    if (depth === 0) break;
+    out.push(l);
+  }
+  return out;
+}
+
+function virtueTotals(t: string, name: string): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const l of blockLines(t, name)) {
+    const m = /^(AT_\w+)=(\d+(?:\.\d+)?)$/.exec(l);
+    const v = m ? VIRTUE_NAMES[m[1]!] : undefined;
+    if (v) out[v] = (out[v] ?? 0) + Number(m![2]);
+  }
+  return out;
+}
 const NOT_CRAFTS = /^(WeaponQuality|WeaponAspectManipulation|WeaponTitles)(\/|$)|ReforgeBlueprint$/;
 
 export function recipeKind(type: string, name: string): [RecipeDef["station"], string] | null {
   const folder = type.slice(RECIPES.length, type.lastIndexOf("/"));
-  if (NOT_CRAFTS.test(folder)) return null;
+  if (NOT_CRAFTS.test(folder) || /ReforgeBlueprint$/.test(type)) return null;
   const top = folder.split("/")[0];
   if (top === "Elixers") return ["Brewing", "Elixirs"];
   if (top === "ColorPalettes") return ["Brewing", "Palettes"];
   if (top === "Consumeables") return ["Brewing", "Pup Treats"];
   if ((top === "Ingots" || top === "Quests") && /Chordstone/.test(name)) return ["Blacksmith", "Chordstones"];
+  if (top === "Weapons") return ["Blacksmith", "Weapons"];
+  if (top === "Armor") return ["Blacksmith", "Armour"];
   return null;
 }
 
@@ -747,6 +789,21 @@ export function buildRecipes(dict: Dict, texts: string[], names: Record<string, 
     const leaf = leafOf(type);
     for (const k of [type, leaf, leaf.replace(/Item$/, ""), leaf.replace(/(Resource)?(Item)?$/, "")]) if (names[k]) return names[k]!;
     return leaf.replace(/(Resource)?(Item)?$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
+  };
+
+  const typeText = new Map<string, string>();
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    if (type && !typeText.has(type)) typeText.set(type, t);
+  }
+  const gear = (kind: string, made: string): Pick<RecipeDef, "slot" | "scaling" | "requires"> => {
+    const own = typeText.get(made);
+    if (!own || (kind !== "Weapons" && kind !== "Armour")) return {};
+    const slot = kind === "Weapons" ? WEAPON_SLOTS[field(own, "ProductCategory") ?? ""] : ARMOUR_SLOTS[/\/Skins\/(Helmets|Body|Legs)\//.exec(made)?.[1] ?? ""];
+    const attunes = virtueTotals(own, "Attunements");
+    const scaling = Object.keys(attunes).sort((a, b) => attunes[b]! - attunes[a]!);
+    const requires = virtueTotals(own, "Requirements");
+    return { ...(slot ? { slot } : {}), ...(scaling.length ? { scaling } : {}), ...(Object.keys(requires).length ? { requires } : {}) };
   };
 
   const out: Record<string, RecipeDef> = {};
@@ -782,6 +839,7 @@ export function buildRecipes(dict: Dict, texts: string[], names: Record<string, 
       desc: (text(field(t, "LocalizeDescTag")) ?? text(descOf.get(made)))?.replaceAll("|AMOUNT|", String(gives)) ?? null,
       icon: null,
       bond: null,
+      ...gear(kind[1], made),
     };
   }
   return sortedKeys(out);
@@ -806,16 +864,55 @@ export function parseWikiImages(lua: string, into: Map<string, string>): void {
 export interface TemperEntry {
   name: string;
   effect: string;
+  icon?: string;
+  weapons?: string[];
 }
 
-export function buildTempers(dict: Dict, texts: string[]): Record<string, TemperEntry> {
+export interface ManifestEntry {
+  tag: string;
+  icon: string | null;
+}
+
+const MANIFESTS = "/SF/Types/Items/Aspects/";
+
+export function aspectManifests(texts: string[], tree: TypeTree): Map<string, ManifestEntry[]> {
+  const paths = [...tree.keys()].filter((p) => p.startsWith(MANIFESTS) && p.endsWith("AspectManifest") && !p.endsWith("/BaseAspectManifest"));
+  const bodies = texts.filter((t) => /^UpgradeEntries=\{/m.test(t) && /^ItemCompatibility=/m.test(t) && /Origin\w+$|AspectManifest"?$/.test(field(t, "LocalizeTag") ?? ""));
+  if (!paths.length || paths.length !== bodies.length) return new Map();
+  const out = new Map<string, ManifestEntry[]>();
+  for (const [i, body] of bodies.entries()) {
+    const path = paths[i]!;
+    const leaf = path.slice(path.lastIndexOf("/") + 1);
+    const tag = field(body, "LocalizeTag") ?? "";
+    const named = /(\w+AspectManifest)"?$/.exec(tag)?.[1];
+    const origin = /Origin(\w+)$/.exec(tag)?.[1];
+    if (named ? named !== leaf : !origin || !leaf.startsWith(origin)) return new Map();
+    out.set(path, [...body.matchAll(/^Tag=(\w+)\nIcon=(\S*)$/gm)].map((m) => ({ tag: m[1]!, icon: m[2]!.startsWith("/") ? m[2]! : null })));
+  }
+  return out;
+}
+
+export function buildTempers(dict: Dict, texts: string[], manifests: Map<string, ManifestEntry[]> = new Map(), weaponNames: Record<string, string> = {}): Record<string, TemperEntry> {
+  const icons = new Map<string, string>();
+  const weapons = new Map<string, Set<string>>();
+  for (const entries of manifests.values()) for (const e of entries) if (e.icon && !icons.has(e.tag)) icons.set(e.tag, e.icon);
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    const manifest = field(t, "AspectManifest");
+    const name = type ? weaponNames[type] : undefined;
+    if (!name || !manifest) continue;
+    for (const e of manifests.get(manifest) ?? []) (weapons.get(e.tag) ?? weapons.set(e.tag, new Set()).get(e.tag)!).add(name);
+  }
   const out: Record<string, TemperEntry> = {};
   for (const t of texts) {
     const type = field(t, "TypeName");
     if (!type?.startsWith("/SF/Types/Items/Aspects/Tempers/")) continue;
+    const key = type.slice(type.lastIndexOf("/") + 1);
     const name = localized(dict, field(t, "LocalizeTag"));
     const effect = localized(dict, field(t, "LocalizeDescTag"));
-    if (name && effect) out[type.slice(type.lastIndexOf("/") + 1)] = { name, effect };
+    if (!name || !effect) continue;
+    const on = [...(weapons.get(key) ?? [])].sort((a, b) => a.localeCompare(b));
+    out[key] = { name, effect, ...(icons.has(key) ? { icon: icons.get(key)! } : {}), ...(on.length ? { weapons: on } : {}) };
   }
   return sortedKeys(out);
 }

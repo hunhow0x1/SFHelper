@@ -5,12 +5,13 @@ import { writeFileAtomic } from "./files";
 export interface Settings {
   moonsteelNotify: boolean;
   avakotNotify: boolean;
+  avakotResetNotify: boolean;
   avakotWatch: string[];
   timerNotify: boolean;
   timerWatch: string[];
 }
 
-const DEFAULTS: Settings = { moonsteelNotify: true, avakotNotify: true, avakotWatch: [], timerNotify: true, timerWatch: [] };
+const DEFAULTS: Settings = { moonsteelNotify: true, avakotNotify: true, avakotResetNotify: false, avakotWatch: [], timerNotify: true, timerWatch: [] };
 
 function storeItems(v: unknown): string[] | null {
   if (!Array.isArray(v) || v.length > 200) return null;
@@ -32,6 +33,7 @@ export async function getSettings(): Promise<Settings> {
     return {
       moonsteelNotify: typeof s.moonsteelNotify === "boolean" ? s.moonsteelNotify : DEFAULTS.moonsteelNotify,
       avakotNotify: typeof s.avakotNotify === "boolean" ? s.avakotNotify : DEFAULTS.avakotNotify,
+      avakotResetNotify: typeof s.avakotResetNotify === "boolean" ? s.avakotResetNotify : DEFAULTS.avakotResetNotify,
       avakotWatch: storeItems(s.avakotWatch) ?? [],
       timerNotify: typeof s.timerNotify === "boolean" ? s.timerNotify : DEFAULTS.timerNotify,
       timerWatch: timerTags(s.timerWatch) ?? [],
@@ -48,6 +50,7 @@ export function updateSettings(patch: Record<string, unknown>): Promise<Settings
     const s = await getSettings();
     if (typeof patch.moonsteelNotify === "boolean") s.moonsteelNotify = patch.moonsteelNotify;
     if (typeof patch.avakotNotify === "boolean") s.avakotNotify = patch.avakotNotify;
+    if (typeof patch.avakotResetNotify === "boolean") s.avakotResetNotify = patch.avakotResetNotify;
     if (typeof patch.timerNotify === "boolean") s.timerNotify = patch.timerNotify;
     const watch = storeItems(patch.avakotWatch);
     if (watch) s.avakotWatch = watch;

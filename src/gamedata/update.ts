@@ -5,6 +5,7 @@ import { readGameFiles, type GameFiles } from "./cache";
 import { readLanguages, readPackageTexts, readTypeTree } from "./formats";
 import {
   buildArmour,
+  aspectManifests,
   buildArsenal,
   buildAvakot,
   buildEnemies,
@@ -20,6 +21,7 @@ import {
   itemIconPaths,
   parseCraftingTable,
   parseFactionCaps,
+  parseRuneTags,
   typeIcons,
   withRetired,
   type ArmourEntry,
@@ -53,6 +55,7 @@ export const GAME_DATA_FILES = [
 ];
 
 const CURRENCY_ICONS: [string, string][] = [
+  ["/SF/Interface/Graphics/Crafting/SelectablesFrame.png", "img/game/temperframe.png"],
   ["/SF/Interface/Graphics/Market/DracsCurrencyIcon.png", "img/game/dracs.png"],
   ["/SF/Interface/Graphics/StoreItems/Currency/PremiumCurrency.png", "img/game/arcs.png"],
 ];
@@ -217,13 +220,26 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   await step("upgrades.json", async () => {
     const prev = await previous<UpgradeData>("upgrades.json");
     const upgrades = await buildUpgrades(dict, unique, null, prev, (path) => icon(path), scriptValues);
+    const lua = wiki ? await wiki.wikitext("Module:Data/Runes").catch(() => null) : null;
+    const tags = lua ? parseRuneTags(lua) : null;
+    if (wiki && !tags?.size) incomplete = true;
+    for (const [type, r] of Object.entries(upgrades.runes)) {
+      const t = tags?.size ? tags.get(type) : prev?.runes[type]?.tags;
+      if (t?.length) r.tags = t;
+    }
     enough("upgrades", Object.keys(upgrades.runes).length + Object.keys(upgrades.gear).length, prev ? Object.keys(prev.runes).length + Object.keys(prev.gear).length : undefined);
     await put("upgrades.json", `${JSON.stringify(upgrades, null, 2)}\n`);
     return `${Object.keys(upgrades.runes).length} runes, ${Object.keys(upgrades.joineries).length} joineries, ${Object.keys(upgrades.gear).length} gear`;
   });
 
   await step("tempers.json", async () => {
-    const tempers = buildTempers(dict, unique);
+    const weaponNames = Object.fromEntries(Object.entries(buildArsenal(dict, unique).weapons).map(([type, w]) => [type, w.name]));
+    const tempers = buildTempers(dict, unique, aspectManifests(texts, tree), weaponNames);
+    for (const t of Object.values(tempers)) {
+      const drawn = t.icon ? await icon(t.icon) : null;
+      if (drawn) t.icon = drawn;
+      else delete t.icon;
+    }
     const prev = await previous<Record<string, unknown>>("tempers.json");
     enough("tempers", Object.keys(tempers).length, prev ? Object.keys(prev).length : undefined);
     await put("tempers.json", `${JSON.stringify(tempers, null, 2)}\n`);

@@ -145,7 +145,10 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcaspirit008.png"
+      "icon": "img/game/runes-alca-alcaspirit008.png",
+      "tags": [
+        "Cogah"
+      ]
     },
     "/SF/Upgrades/Runes/Weapon/Bow/StarterRune": {
       "name": "Alca's Breath",
@@ -250,7 +253,10 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcagrace001.png"
+      "icon": "img/game/runes-alca-alcagrace001.png",
+      "tags": [
+        "Cogah"
+      ]
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeLeechStrikeRune": {
       "name": "Parapelt",
@@ -474,7 +480,10 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage017.png"
+      "icon": "img/game/runes-alca-alcacourage017.png",
+      "tags": [
+        "Cogah"
+      ]
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/StarterRune": {
       "name": "Hurlwind",
@@ -631,7 +640,10 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage016.png"
+      "icon": "img/game/runes-alca-alcacourage016.png",
+      "tags": [
+        "Cogah"
+      ]
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/StarterRune": {
       "name": "Cindermore",
@@ -788,7 +800,10 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage008.png"
+      "icon": "img/game/runes-alca-alcacourage008.png",
+      "tags": [
+        "Cogah"
+      ]
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/StarterRune": {
       "name": "Everflame",
@@ -960,7 +975,10 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage004.png"
+      "icon": "img/game/runes-alca-alcacourage004.png",
+      "tags": [
+        "Cogah"
+      ]
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/FlameRune/FlameRune": {
       "name": "Wickwell",
@@ -1105,7 +1123,10 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage015.png"
+      "icon": "img/game/runes-alca-alcacourage015.png",
+      "tags": [
+        "Cogah"
+      ]
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/StarterRune": {
       "name": "Torcheternal",
@@ -1167,7 +1188,10 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcagrace008.png"
+      "icon": "img/game/runes-alca-alcagrace008.png",
+      "tags": [
+        "Cogah"
+      ]
     },
     "/SF/Upgrades/Runes/Weapon/Shield/ShieldArcaneBulwarkRune": {
       "name": "Soothesayer",

@@ -1,5 +1,2889 @@
 {
   "recipes": {
+    "/SF/Types/Recipes/Armor/AvarotMaskHelmBlueprint": {
+      "name": "Lil' Zook Mask",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/AvarotMaskHelmet",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Holiday/PumpkinSeedResource",
+          "name": "Wintersquash Seed",
+          "count": 100
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/CorruptedFrondResource",
+          "name": "Rotted Frond",
+          "count": 30
+        }
+      ],
+      "desc": "An homage to a sinister Sproutfolk legend.\n\nThe hallowed face of Crone Cucurbita's undead child. Each Bita's Eve, she digs Lil' Zook from his cursed field. For one night, he roams from patch to patch, seeking a Sproutling out past bedtime to take his place... Lest moonset strikes and she buries him once more.",
+      "icon": "img/game/storeitems-helmets-avarotmask.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 9
+      }
+    },
+    "/SF/Types/Recipes/Armor/BromiusHelmBlueprint": {
+      "name": "Arbearer's Mask",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/BromiusClosedHelmet",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 12
+        }
+      ],
+      "desc": "The hulking helm of the Wevetwood's ward.\n\nNarrowed eyes, heavy with sap. Jagged jaw, bared to snap. The Arbearer's Mask is a wordless threat, a promise of death to those who would harm his forest. Though... It may be lifted just a quick to show the lazy smile beneath.",
+      "icon": "img/game/storeitems-helmets-bromiushelmetclosed.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 19
+      }
+    },
+    "/SF/Types/Recipes/Armor/BromiusLegsBlueprint": {
+      "name": "Arbearer's Braes",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/BromiusLegs",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 12
+        }
+      ],
+      "desc": "The Arbearer's laden boots. As thick as Wevetroots.\n\nA bastion of straps support poleyns and mail. Heavy iron plates guard each and every toe. Though the Arbearer's soles are sewn in soft leather. Gentle. So as not to disturb the tender sprouts underfoot.",
+      "icon": "img/game/storeitems-leggings-bromiusleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 19
+      }
+    },
+    "/SF/Types/Recipes/Armor/BromiusTorsoBlueprint": {
+      "name": "Arbearer's Pauncher",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/BromiusBody",
+      "rarity": "RARE",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 12
+        }
+      ],
+      "desc": "A wrought iron pauncher of unfathomable heft.\n\nThis armour is to Arbearer as bark is to tree. An assault of scratches cover its surface, though no weapon has ever pierced through to the soft belly it guards. Surely, one never will.",
+      "icon": "img/game/storeitems-cuirass-bromiuscuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 19
+      }
+    },
+    "/SF/Types/Recipes/Armor/CircadeHelmBlueprint": {
+      "name": "Circade's Helm of Deceit",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/CircadeHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 10
+        }
+      ],
+      "desc": "The weathered helm of The Circade.\n\nPreserved in tomb for centuries, the Helm of Deceit holds still the air of its former wearer. Slippery. Cool. Imposing. The metal shell echoes when worn like the inside of Kearnhold bells.",
+      "icon": "img/game/storeitems-helmets-circadehelmetclosed.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 11
+      }
+    },
+    "/SF/Types/Recipes/Armor/CircadeLegsBlueprint": {
+      "name": "Circade's Greaves",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/CircadeLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 10
+        }
+      ],
+      "desc": "The swift-stalking greaves of The Circade.\n\nAn inconspicuous set of armour, standard issue for nobles of clan Jotar. Though, to an eye trained in Spectral Sight, they shimmer with feyish enchantments.",
+      "icon": "img/game/storeitems-leggings-circadeleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 11
+      }
+    },
+    "/SF/Types/Recipes/Armor/CircadeTorsoBlueprint": {
+      "name": "Circade's Gutguard",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/CircadeBody",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        }
+      ],
+      "desc": "The leather-bound plackart of The Circade.\n\nA sturdy shield for the dusk soul's precious gut. Heavy as a slurring tongue, round as a barrel, the ancient armour creaks in combat... Though it glides as freshly oiled when the great arm raises a toast.",
+      "icon": "img/game/storeitems-cuirass-circadecuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 11
+      }
+    },
+    "/SF/Types/Recipes/Armor/DendritWitchHelmBlueprint": {
+      "name": "Coronal of The Sleeve",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/DendritWitchHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 30
+        }
+      ],
+      "desc": "Not a crown, but a circlet of alder staves. Not adornment for royalty, but for followers of Fey. Pierced with thistleblooms, laced with sigils, this coronal of pikes was once customary wear for the Witches of Alora's Sleeve. Though forbidden after the Felling, these trifecta pikes were donned by Dendrit brewers who followed the Empress still. Masters of tempting moonlight and herbs to their whim. If only under the veil of night.",
+      "icon": "img/game/storeitems-helmets-sleevehelm.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 15
+      }
+    },
+    "/SF/Types/Recipes/Armor/DendritWitchLegsBlueprint": {
+      "name": "Buskins of The Sleeve",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/DendritWitchLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        }
+      ],
+      "desc": "The worn wraps and clogs of witches unbinding. Each full moon, the human disciples of the Empress Alora trudged the Isle barefoot, roving through glades and ‘hind mountains. A hazy image, they walked, of their Empress' first steps upon Midrath so many ages before. Though they honoured the Fey, their frequent pilgrimage left trails in the patches, blighting the Sproutfolk so. These soft-soled shoes were presented as an offering, their footfalls welcome elsewhere.",
+      "icon": "img/game/storeitems-leggings-sleeveleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 15
+      }
+    },
+    "/SF/Types/Recipes/Armor/DendritWitchTorsoBlueprint": {
+      "name": "Gilet of The Sleeve",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/DendritWitchBody",
+      "rarity": "UNCOMMON",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 35
+        }
+      ],
+      "desc": "A patchwork vest of waxed canvas ‘neath an overcoat spun of Silvern. Rosary beads of etched knotwood rest at the shoulder, worn smooth by the fretful touch of one counting the days ere their passage into Eldveil; a telltale sign of Alora's Sleeve. From pocket to seam, wyldflowers bloom where no seed was sown. Folke magics woven into every stitch.",
+      "icon": "img/game/storeitems-cuirass-sleevecuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 15
+      }
+    },
+    "/SF/Types/Recipes/Armor/DeoraHelmBlueprint": {
+      "name": "Regent's Veil",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/DeoraHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 8
+        }
+      ],
+      "desc": "A barbette of Dendrit wyrmsylk flows lighter than a Baron's beard. A steel fillet atop the head sits stiffer than helm and prouder than crown.\n\nNot Sinecure nor Tempest, Gruul nor Thrall, the Regent treads a balance betwixt all.",
+      "icon": "img/game/storeitems-helmets-deorahelmet.png",
+      "bond": 2,
+      "slot": "Helm",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/DeoraLegsBlueprint": {
+      "name": "Regent's Drapery",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/DeoraLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 25
+        }
+      ],
+      "desc": "Flowing skirts and capes are intricately woven by Dendria's master webbers.\n\nThough each weave is completely unique, all share a single flaw. The Silvernslip. An intentionally skipped stitch, a silent rebellion, of which the Ode know not.",
+      "icon": "img/game/storeitems-leggings-deoraleggings.png",
+      "bond": 2,
+      "slot": "Leggings",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/DeoraTorsoBlueprint": {
+      "name": "Regent's Shell",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/DeoraBody",
+      "rarity": "UNCOMMON",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 8
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        }
+      ],
+      "desc": "Gauntlets of swirling ore honour Mora and Saphene entwined. An emblem broach of flaxen wheat honours the fields of home, graced by twin suns to cultivate growth.\n\nRelics all from the Knightmaidens' noble age.",
+      "icon": "img/game/storeitems-cuirass-deoracuirass.png",
+      "bond": 2,
+      "slot": "Cuirass",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/EnvoyArmorTypeAHelmBlueprint": {
+      "name": "Forgetfire Visard",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/ForgetFireHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        }
+      ],
+      "desc": "A lightweight cervelliere is cloaked beneath a tight Dendrit weave. A design to protect human skin from the harsh UV rays outside Alca's atmosphere.\n\nThe heavy brass apparatus makes Ode'n Skytower atmospheres tolerable to humans. Barely.",
+      "icon": "img/game/storeitems-helmets-forgetfirehelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 9
+      }
+    },
+    "/SF/Types/Recipes/Armor/EnvoyArmorTypeALegsBlueprint": {
+      "name": "Forgetfire Braes",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/ForgetFireLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 30
+        }
+      ],
+      "desc": "Worn by the legion of Forgetfire.\n\nElk-hide straps are wrapped tightly about the legs to prevent Smogswell: Swelling of feet and legs of one who travels often through varying atmospheres. Though effective, they are notoriously uncomfortable.",
+      "icon": "img/game/storeitems-leggings-forgetfireleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 9
+      }
+    },
+    "/SF/Types/Recipes/Armor/EnvoyArmorTypeATorsoBlueprint": {
+      "name": "Forgetfire Leathers",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/ForgetFireBody",
+      "rarity": "UNCOMMON",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 25
+        }
+      ],
+      "desc": "A standard issue brigandine for Forgetfire conscripts. \n\nThe finest leathers of Alcan bounty are sent skywards to be crafted into this lightweight armour. Only Ode'n clothiers understand the mechanism which so acutely splices and stitches the garment to standardized perfection.",
+      "icon": "img/game/storeitems-cuirass-forgetfirecuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 9
+      }
+    },
+    "/SF/Types/Recipes/Armor/EnvoyArmorTypeBHelmBlueprint": {
+      "name": "Tempest Visard",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/ForgetFireAltHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        }
+      ],
+      "desc": "Draped dendrit fabric cloaks a cervelliere of Ode Graphite. \n\nOver the Tempest conscript's eyes hangs an intricately embroidered symbol of Sidea, the Ode'n constellation of natural order. As are the planets bound to cycle ‘round stars, so are all living things bound to order.",
+      "icon": "img/game/storeitems-helmets-forgetfirealthelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 7
+      }
+    },
+    "/SF/Types/Recipes/Armor/EnvoyArmorTypeBLegsBlueprint": {
+      "name": "Tempest Braes",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/ForgetFireAltLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 25
+        }
+      ],
+      "desc": "Worn by Tempest Extractors. Tall gartered stockings are designed to protect human skin from long shifts trudging through the Ichor wastes. \n\nThe extraction of resources for Synod's Collector is the least desirable of Ode'n labour, reserved for human conscripts alone.",
+      "icon": "img/game/storeitems-leggings-forgetfirealtleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 7
+      }
+    },
+    "/SF/Types/Recipes/Armor/EnvoyArmorTypeBTorsoBlueprint": {
+      "name": "Tempest Leathers",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/ForgetFireAltBody",
+      "rarity": "UNCOMMON",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 30
+        }
+      ],
+      "desc": "Infamously adorned by a variety of buckles and straps, the Tempest brigandine is designed to fit every shape of Ode conscript. \n\nFrom the statuesque Knightmaidens of Dendria to the diminutive farmfolk of the lowlands, Ode'n leathers may be fit and refit to any of the Thrall as many times as casualties call.",
+      "icon": "img/game/storeitems-cuirass-forgetfirealtcuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 7
+      }
+    },
+    "/SF/Types/Recipes/Armor/FarmerHelmBlueprint": {
+      "name": "Thawtide Meltcap",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/FarmerHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 25
+        }
+      ],
+      "desc": "A hiemal helm shaped like a snow-covered pine tree.\n\nThough the Ode'n Weatherers have warmed Midrath's atmosphere 'yond any chance of snow, a hint of the old ways still lingers in this traditional helm. Once worn by the Longnight Elders during the great Cardinals' vigil. Now, a sick costume.",
+      "icon": "img/game/storeitems-helmets-sproutfarmerhelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 14
+      }
+    },
+    "/SF/Types/Recipes/Armor/FarmerLegsBlueprint": {
+      "name": "Thawtide Shingles",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/FarmerLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        }
+      ],
+      "desc": "Jingling gently with every step, the shingles of a Longnight Elder... Now worn in mockery.\n\nUpon the leather tassets, a constellation of metal scales. One stitched upon the hip for each annual Longnight served in vigil, guarding a Cardinals' nest. This Elder had served over 60 'fore the spellsong wiped their memory of each and every Thawtide's dawn.",
+      "icon": "img/game/storeitems-leggings-sproutfarmerleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 14
+      }
+    },
+    "/SF/Types/Recipes/Armor/FarmerTorsoBlueprint": {
+      "name": "Thawtide Thermals",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/FarmerBody",
+      "rarity": "UNCOMMON",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 6
+        }
+      ],
+      "desc": "Densely spun Dendrit weave to fend off the Thawtide chills.\n\n'Twas once tradition to feed the Cardinals on each of the seven days leading to Thawtide. With leather gloves cupped 'round last autumn's seeds, families left their hearths and marched into the freeze. Upon gloved palms, landed tiny talons, feasting 'fore their hungry work at Thawtide's dawn. This year, hungrier than ever before.",
+      "icon": "img/game/storeitems-cuirass-sproutfarmercuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 14
+      }
+    },
+    "/SF/Types/Recipes/Armor/FencerHelmBlueprint": {
+      "name": "Mestra's Helm",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/FencerHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2000,
+      "seconds": 0,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "Linen adorned by tassel, the mark of a Duelo Mestra.\n\nTo what ends did the Blue Ribbon sail Alca's seas? For glory? To lay low those who would defile Alca's brine? It matters not. For just as it passed to her, her Mestra bestowed it to you. \n\nDon the helm and be answered by her phantom crew. But take care, Envoy, lest they drag you to salty tomb...",
+      "icon": "img/game/storeitems-helmets-seedhelmet.png",
+      "bond": 2,
+      "slot": "Helm",
+      "scaling": [
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/FencerLegsBlueprint": {
+      "name": "Mestra's Breeches",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/FencerLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        }
+      ],
+      "desc": "Sturdy-yet-supple boots produced by Duelo leatherworking. Stark against a hem as bright as seafarers sky.\n\nStamped onto the soles is the Duelo's creed: \"Truth lies in the blade.\" A symbol of desire presumed extinguished? Or a chance, a choice to find oneself anew?",
+      "icon": "img/game/storeitems-leggings-seedleggings.png",
+      "bond": 2,
+      "slot": "Leggings",
+      "scaling": [
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/FencerQuestItemHelmetBlueprint": {
+      "name": "Duelo Ribbon",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/FencerQuestItemHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1,
+      "seconds": 1,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 5
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 5
+        }
+      ],
+      "desc": "A slender blue ribbon to be tied 'round one's head.\n\nThe ritual battle of the Duelo has many ancient customs. A Duelo can only begin when a challenger steals the Mestre's ribbon and wraps it 'round their head. When a Mestre is confronted so, the duelo is sealed and cannot be denied.",
+      "icon": "img/game/storeitems-helmets-fencerquestitemhelmet.png",
+      "bond": null,
+      "slot": "Helm"
+    },
+    "/SF/Types/Recipes/Armor/FencerTorsoBlueprint": {
+      "name": "Mestra's Furbelow",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/FencerBody",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 30
+        }
+      ],
+      "desc": "The drab uniform of the Blue Ribbon, rewoven with flounce and flourish.\n\nOnly when every swabbie and sailor has gone to bed does this dress come out. Each ribbon a tale of yearning, lovingly stitched by Iridis' light.",
+      "icon": "img/game/storeitems-cuirass-seedcuirass.png",
+      "bond": 2,
+      "slot": "Cuirass",
+      "scaling": [
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/FennJotarHelmBlueprint": {
+      "name": "Great Helm of The Fire King",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/FennJotarHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        }
+      ],
+      "desc": "A Great Helm cast tall as a pillar of flame. Oft worn in place of the Midrathian crown, Fenn Jotar's beloved Helm marked the Fire King's devotion to the sun goddesses Mora and Saphene. \n\nPilfered from the Undercity catacombs during his kingdom's Lightless Era, Fenn Jotar himself affixed fish and flame motifs to mark this antique by the House of Jotar.",
+      "icon": "img/game/storeitems-helmets-fennjotarhelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/FennJotarLegsBlueprint": {
+      "name": "Fire King's Kilt",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/FennJotarLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 10
+        }
+      ],
+      "desc": "Below his Flamekin Kilt, Fenn Jotar brandished a gilded poleyn over his right knee. \n\nLined by soft gold, the King wore this poleyn as a mark of pride, that it would never be dented not tarnished by a knee bent to the Cassid invader, Napo Agnes.",
+      "icon": "img/game/storeitems-leggings-fennjotarleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/FennJotarTorsoBlueprint": {
+      "name": "Fire King's Plackart",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/FennJotarBody",
+      "rarity": "UNCOMMON",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        }
+      ],
+      "desc": "The gilded plackart of Fenn Jotar is wrought of a once heat-resistant alloy devised by the Fire King's own royal smith, Karlik the Torrid. \n\nThough many years branded beside Fenn Jotar's legendary flaming sword diminished these properties, the armour remains cool to touch.",
+      "icon": "img/game/storeitems-cuirass-fennjotarcuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/GarrenHelmBlueprint": {
+      "name": "Garren's Crown of Grace",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/GarrenHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 26000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 30
+        }
+      ],
+      "desc": "The kettle helm of Garren Rood is blessed by grace of the Omen Beast's own crown. \n\nGlowing tips of the iron antler reach skyward to Mora's divine power, while the sculpted cap points forward, a weapon of focused will. By the stag's wreath of bone, wield your will with pride.",
+      "icon": "img/game/storeitems-helmets-garrenhelmet.png",
+      "bond": 3,
+      "slot": "Helm",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/GarrenLegsBlueprint": {
+      "name": "Garren's Cloven Hosen",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/GarrenLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 40
+        }
+      ],
+      "desc": "Split as the stag's own cloven hooves, the arming doublet of Garren Rood hangs low over knightly boots, struck too up the center by cleft of gold. \n\nEnchanted by alloys of bone trace and bark, these Cloven Hosen hold firm as the forests' deepest roots.",
+      "icon": "img/game/storeitems-leggings-garrenleggings.png",
+      "bond": 3,
+      "slot": "Leggings",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/GarrenTorsoBlueprint": {
+      "name": "Regalia of Garren Rood",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/GarrenBody",
+      "rarity": "UNCOMMON",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        }
+      ],
+      "desc": "The noble pact-holder to Garren Rood must be decorated as a true Knight of Grace. Cast in careful faulds of oak-infused iron, this armour bestows upon the wearer the will of the stag. \n\nCareful prints of antlers span like shadows from elbow to shoulder; a mark of pride withstanding darkness and light.",
+      "icon": "img/game/storeitems-cuirass-garrencuirass.png",
+      "bond": 3,
+      "slot": "Cuirass",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/InquisitorMeleeHelmBlueprint": {
+      "name": "Inquisitor's Belfry",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/InquisitorMeleeClosedHelmet",
+      "rarity": "RARE",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 30
+        }
+      ],
+      "desc": "The brass and glass helm of Inquisitor Galsar.\n\nA domèd visor ensures the proud posture of an Ode'n inquisitor, gaze ever-lifted to skytowers loft. Equipped with the latest mark of Brazen Lung, the Inquisitor's Belfry ensures the wearer need not breathe the foul gruulsmog of Alcan atmosphere.",
+      "icon": "img/game/storeitems-helmets-inquisitorhelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 21
+      }
+    },
+    "/SF/Types/Recipes/Armor/InquisitorMeleeLegsBlueprint": {
+      "name": "Inquisitor's Pulpit",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/InquisitorMeleeLegs",
+      "rarity": "RARE",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 10
+        }
+      ],
+      "desc": "The hanging chains and tassets of the Inquisitor's clericals.\n\nWhen stationed upon a new planet, one cannot pack their pulpit. Thus, the Ode'n Inquisitors must make altars of their own two feet. These spotless greaves be the final sight of so many disgraced, taking final judgment on their knees.",
+      "icon": "img/game/storeitems-leggings-inquisitorleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 21
+      }
+    },
+    "/SF/Types/Recipes/Armor/InquisitorMeleeTorsoBlueprint": {
+      "name": "Inquisitor's Birze",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/InquisitorMeleeBody",
+      "rarity": "RARE",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 50
+        }
+      ],
+      "desc": "A seamless mould of Ode'n strength, the mark of a good Inquisitor. \n\n'Tis a great duty to sort gruul from Tempest. To hold one's ledger loft, to decree who lives and dies in service. These mighty armoured shoulders carry burden of warden and executioner both. Come, there are eyes that need shining.",
+      "icon": "img/game/storeitems-cuirass-inquisitorcuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 21
+      }
+    },
+    "/SF/Types/Recipes/Armor/LockSuitArmorHelmBlueprint": {
+      "name": "Shrike's Lockmaw",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/LockSuitArmorHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        }
+      ],
+      "desc": "The great barbute helm of the Ode Shrike.\n\nBronze and silver encircle the rounded plates, drawing inwards to the eye. There, the slim keyhole visor serves as reticle scope, a narrow view for perfect focus. For a hunter needs only eyes for their prey, all else is mere distraction.",
+      "icon": "img/game/storeitems-helmets-locksuithelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 8,
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/LockSuitArmorLegsBlueprint": {
+      "name": "Shrike's Clavisons",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/LockSuitArmorLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        }
+      ],
+      "desc": "The lock-clad clavisons of the Ode's finest hunters.\n\nIf loyal the hunter be, why so bind their body? Be it Synod himself holding captor's latch? Or perhaps his clavis-teeth be freedom's key... A word spoken, a lock broken, a sleeping agent to be woken.",
+      "icon": "img/game/storeitems-leggings-locksuitleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 8,
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/LockSuitArmorTorsoBlueprint": {
+      "name": "Shrike's Claes",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/LockSuitArmorBody",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 35
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 40
+        }
+      ],
+      "desc": "The bolt-and-buckle cuirass of the Ode Shrike.\n\nAn intricate web of latches and locks binds the hunter to their bidding. Here, a clasp to tether enemy fetters; there, a lever over scrolls of chain. Upon the Shrike's shoulder, an avian cage... No freedom for the hunting hawk.",
+      "icon": "img/game/storeitems-cuirass-locksuitcuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 8,
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Armor/MendicantDrudgeChestBlueprint": {
+      "name": "Corpse's Carapace",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/MendicantDrudgeBody",
+      "rarity": "RARE",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 12
+        }
+      ],
+      "desc": "The sabatons that lead the final march of old Midrath. \n\nCarnelian gems trail down the greaves like beads of blood. A warning, an omen, of the ruin that would come. In its afterlife, the metal has taken on a strange fluidity. Ichorous, even without its corrupted host.",
+      "icon": "img/game/storeitems-cuirass-mendicantkingcuirass.png",
+      "bond": null,
+      "slot": "Cuirass"
+    },
+    "/SF/Types/Recipes/Armor/MendicantDrudgeHelmBlueprint": {
+      "name": "Drudger's Helm",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/MendicantDrudgeHelmet",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 12
+        }
+      ],
+      "desc": "The heavy helm of the Mendicant King.\n\nOnce a glowing symbol of Midrathian power. Now, whether by form or by memory, corrupted. The noble mask contorts into toothed maw. Tuvalkane seems hesitant to steelsing his crown.",
+      "icon": "img/game/storeitems-helmets-mendicantkinghelmet.png",
+      "bond": null,
+      "slot": "Helm"
+    },
+    "/SF/Types/Recipes/Armor/MendicantDrudgeLegsBlueprint": {
+      "name": "Greaves of the Grave",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/MendicantDrudgeLegs",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 12
+        }
+      ],
+      "desc": "The sabatons that lead the final march of old Midrath. \n\nCarnelian gems trail down the greaves like beads of blood. A warning, an omen, of the ruin that would come. In its afterlife, the metal has taken on a strange fluidity. Ichorous, even without its corrupted host.",
+      "icon": "img/game/storeitems-leggings-mendicantkingleggings.png",
+      "bond": null,
+      "slot": "Leggings"
+    },
+    "/SF/Types/Recipes/Armor/MendicantKingHelmBlueprint": {
+      "name": "Bascinet of The Mendicant King",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/MendicantKingHelmet",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 12
+        }
+      ],
+      "desc": "The heavy helm of the Mendicant King.\n\nOnce a glowing symbol of Midrathian power. Now, whether by form or by memory, corrupted. The noble mask contorts into toothed maw. Tuvalkane seems hesitant to steelsing his crown.",
+      "icon": "img/game/storeitems-helmets-mendicantkinghelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 17
+      }
+    },
+    "/SF/Types/Recipes/Armor/MendicantKingLegsBlueprint": {
+      "name": "Mendicant King's Sabatons",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/MendicantKingLegs",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 12
+        }
+      ],
+      "desc": "The sabatons that lead the final march of old Midrath. \n\nCarnelian gems trail down the greaves like beads of blood. A warning, an omen, of the ruin that would come. In its afterlife, the metal has taken on a strange fluidity. Ichorous, even without its corrupted host.",
+      "icon": "img/game/storeitems-leggings-mendicantkingleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 17
+      }
+    },
+    "/SF/Types/Recipes/Armor/MendicantKingTorsoBlueprint": {
+      "name": "Mendicant King's Suit of Rancor",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/MendicantKingBody",
+      "rarity": "RARE",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 35
+        }
+      ],
+      "desc": "A long-buried tunic. A breastplate forlorn.\n\nBuried on the battlefield of The Fonnish Charge, the armour of the Mendicant King rises once more. 'Round his chest, the insignia of the old Kingdom. 'Round his wrist, a gauntlet ne'er thrown down.",
+      "icon": "img/game/storeitems-cuirass-mendicantkingcuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 17
+      }
+    },
+    "/SF/Types/Recipes/Armor/MendicantWazzardHelmBlueprint": {
+      "name": "Wazzard's Bycoket",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/WazzardHelmet",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 25
+        }
+      ],
+      "desc": "The hooked hat of the Wazzard of Wastes.\n\nA twisted root upon the head, a curling branch 'comes crown. In life, the Wazzard fixed his mage's study upon the language of the voicing trees. Could the creaking Wevetwood be known to man? Could their songs be put upon parchment?",
+      "icon": "img/game/storeitems-helmets-wazzardhelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 19
+      }
+    },
+    "/SF/Types/Recipes/Armor/MendicantWazzardLegsBlueprint": {
+      "name": "Wazzard's Trunks",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/WazzardLegs",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 25
+        }
+      ],
+      "desc": "Sturdy as tree trunks in Ichorous soil, the leggings of the Wastes.\n\nCrusted in the soil of the grave, risen like arid roots. Though the ghost of the Wazzard haunted Wevetwood long before the coming of Ode, 'twas the Ichor spills that gave his phantom form.",
+      "icon": "img/game/storeitems-leggings-wazzardleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 19
+      }
+    },
+    "/SF/Types/Recipes/Armor/MendicantWazzardTorsoBlueprint": {
+      "name": "Wazzard's Robes",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/WazzardBody",
+      "rarity": "RARE",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 25
+        }
+      ],
+      "desc": "The radiant robes of the Wazzard of Wastes.\n\nClasped by the cleft face of the demigod Verus, adorned by his constellation of stars. The cloak of a dark mage, dead and buried. The shroud of one risen by Ichorous soil. A chance to continue a lifelong study? Or a relapse into madness?",
+      "icon": "img/game/storeitems-cuirass-wazzardcuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 19
+      }
+    },
+    "/SF/Types/Recipes/Armor/MockeryHelmBlueprint": {
+      "name": "Mockery Ilk",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/MockeryHelmet",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 12
+        }
+      ],
+      "desc": "Deadwood bound to a creaking iron helm.\n\nEedred Ilk. The name comes to you in whispers. An ancient voice echoes in these rotted craigs. The Mockery is surely purged from this armour... But its memory persists in phantom aches.",
+      "icon": "img/game/storeitems-helmets-twirrienhelmetclosed.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Spirit",
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 17
+      }
+    },
+    "/SF/Types/Recipes/Armor/MockeryLegsBlueprint": {
+      "name": "Mockery Douthrot",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/MockeryLegs",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 12
+        }
+      ],
+      "desc": "Leg braces fashioned of Mockery husk.\n\nWhat markings are these upon the knees? A runic spell broken by Envoy sword? Standing in the grievous greaves of this lost soul, you've the sense that it too was human, once...",
+      "icon": "img/game/storeitems-leggings-twirrienleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Spirit",
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 17
+      }
+    },
+    "/SF/Types/Recipes/Armor/MockeryStoneHelmBlueprint": {
+      "name": "Ceptet's Headstone",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/MockeryStoneHelmet",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 20
+        }
+      ],
+      "desc": "The cragged casque of an undead servant. \n\nLike a fresh-marked gravestone, Ceptet's helm is cut deep with inscription: \"Answer to Father.\" What sorcerer bade wake to root and bedrock with such ancient rites? Loyal revenants did he make, ‘fore he vanished, leaving naught but his command.",
+      "icon": "img/game/storeitems-helmets-stonemockeryhelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Spirit",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 18
+      }
+    },
+    "/SF/Types/Recipes/Armor/MockeryStoneLegsBlueprint": {
+      "name": "Ceptet's Gaiters",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/MockeryStoneLegs",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 40
+        }
+      ],
+      "desc": "Greaves of ragged stone and Pigwen iron.\n\nMossed and rusted by the Isle's moonmist, Ceptet's soles hardly leave a print. Iron circlets 'round stony shins, a cruel show of father's whims? Where did he drag his mockery's steps, should they dare falter? Where now lie the chains of the father?",
+      "icon": "img/game/storeitems-leggings-stonemockeryleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Spirit",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 18
+      }
+    },
+    "/SF/Types/Recipes/Armor/MockeryStoneTorsoBlueprint": {
+      "name": "Ceptet's Carapace",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/MockeryStoneBody",
+      "rarity": "RARE",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 50
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        }
+      ],
+      "desc": "A crude carapace of skerry-hewn stone. \n\n‘The cursed shell of Ceptet, shed for another lonesome heap of shale. Though her mangled spirit haunts this frame no more, her garbled words echo still from deadwood masks ‘pon each shoulder. Still her only willing listeners.",
+      "icon": "img/game/storeitems-cuirass-stonemockerycuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Spirit",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 18
+      }
+    },
+    "/SF/Types/Recipes/Armor/MockeryTorsoBlueprint": {
+      "name": "Mockery Binds",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/MockeryBody",
+      "rarity": "RARE",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 12
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 12
+        }
+      ],
+      "desc": "A Mockery carapace forged by bark. \n\nBones be a puzzle of ancient iron. Muscle be arcs of bark held taught. Tissue be insignia scrawled, but not glowing. Blood be the soul cast 'way once more.",
+      "icon": "img/game/storeitems-cuirass-twirriencuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Spirit",
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 17
+      }
+    },
+    "/SF/Types/Recipes/Armor/OrengalHelmBlueprint": {
+      "name": "Armet of Orengall",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/OrengalClosedHelmet",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 30
+        }
+      ],
+      "desc": "Graced by the blue gleam of Iridis full is Orengall's legendary Armet. Crafted for the hunter shrouded by night, quicksilver alloys ensure a silent stalk and merciful strike. \n\nBy focused glare of the waxing moon, you call upon the rite of the lone wolf's fang.",
+      "icon": "img/game/storeitems-helmets-orengalhelmetclosed.png",
+      "bond": 3,
+      "slot": "Helm",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Grace": 17
+      }
+    },
+    "/SF/Types/Recipes/Armor/OrengalLegsBlueprint": {
+      "name": "Orengall's Greaves",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/OrengalLegs",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 6
+        }
+      ],
+      "desc": "Though the forelegs cast claw to prey, ‘tis the wolf's hindlegs that pound power to earth. \n\nOrengall's Greaves holster the ritual dagger Fang. The wild wind blows her scarf, threaded through by hairs of the Omen Beast's own silvernpelt tail.",
+      "icon": "img/game/storeitems-leggings-orengalleggings.png",
+      "bond": 3,
+      "slot": "Leggings",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Grace": 17
+      }
+    },
+    "/SF/Types/Recipes/Armor/OrengalTorsoBlueprint": {
+      "name": "Orengall's Cuirass",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/OrengalBody",
+      "rarity": "RARE",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 40
+        }
+      ],
+      "desc": "Cast beneath the winter solstice, Orengall's Lycansteel Cuirass holds the quiet dark of the longest night. \n\nAdorned with a Veridian Vine talisman to match the Omen Beast's own, the wolf's pact is sealed twixt servant and steed.",
+      "icon": "img/game/storeitems-cuirass-orengalcuirass.png",
+      "bond": 3,
+      "slot": "Cuirass",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Grace": 17
+      }
+    },
+    "/SF/Types/Recipes/Armor/OrlickHelmBlueprint": {
+      "name": "Pensive's Bonnet",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/OrlickHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1500,
+      "seconds": 14400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 4
+        }
+      ],
+      "desc": "The floppy bonnet of the last Pensive.\n\nA wide, woven brim to protect its precious reader's eyes. A cap full of folds where one might tuck their restless quill. The Pensive's Bonnet is worn by Prentice, Sage and Archsage alike; all equals under the Aurem Canus.",
+      "icon": "img/game/storeitems-helmets-orlickhelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Spirit",
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Spirit": 6
+      }
+    },
+    "/SF/Types/Recipes/Armor/OrlickLegsBlueprint": {
+      "name": "Pensive's Pantaloons",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/OrlickLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1500,
+      "seconds": 14400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 10
+        }
+      ],
+      "desc": "Rarely seen under the Pensive's long and flowing cloak. \n\n\"A strong-sighted Pensive need not legs.\" So said the old Archsage Vanhilde. He thought a scribe's strength lay in their library, a proper Pensive need not traverse the wide world... Though if one only reads what has already been written, how can they write about anything new?",
+      "icon": "img/game/storeitems-leggings-orlickleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Spirit",
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Spirit": 6
+      }
+    },
+    "/SF/Types/Recipes/Armor/OrlickTorsoBlueprint": {
+      "name": "Pensive's Cloak",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/OrlickBody",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1500,
+      "seconds": 14400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 10
+        }
+      ],
+      "desc": "A long stretch of Pensive's greys wrapped into a scholar's cloak.\n\nThe College of Pensive's is a drafty old tower, but a Pensive's cloak does more than protect from dusty draft. When unfurled in full, one finds false stitches and hidden pouches sewn into every inch. 'Tis a Pensive's custom to hide unfinished treatises from prying eyes. \n\nOne wonders what other secrets may be unveiled to its wearer...",
+      "icon": "img/game/storeitems-cuirass-orlickcuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Spirit",
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Spirit": 6
+      }
+    },
+    "/SF/Types/Recipes/Armor/SproutMaskHelmBlueprint": {
+      "name": "Crone Cucurbita Mask",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/SproutMaskHelmet",
+      "rarity": null,
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1500,
+      "seconds": 14400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Holiday/PumpkinSeedResource",
+          "name": "Wintersquash Seed",
+          "count": 50
+        }
+      ],
+      "desc": "An homage to a sinister Sproutfolk legend.\n\nThe Crone Cucurbita's mask is a mark of harvest tradition. Most often worn by patch sages, harvest oracles and parents who resent their children.",
+      "icon": "img/game/storeitems-helmets-sproutsinsoilermask.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage",
+        "Spirit",
+        "Grace"
+      ],
+      "requires": {
+        "Spirit": 9
+      }
+    },
+    "/SF/Types/Recipes/Armor/StarterCourageHelmBlueprint": {
+      "name": "Tethren's Cap",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/StarterCourageHelmet",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 750,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "The feather-light leather cap of a Solist Warrior.\n\nThough traditionally worn to pad a heavy metal helm, this braveling's cap will grant light protection in a pinch. Flowing red drapes brush your cheeks like Mora's sunning rays.",
+      "icon": "img/game/storeitems-helmets-warriorhelmetclosed.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage"
+      ]
+    },
+    "/SF/Types/Recipes/Armor/StarterCourageLegsBlueprint": {
+      "name": "Tethren's Roots",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/StarterCourageLegs",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 750,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "Proud-footed boots with upturned toes.\n\nThe yellow enamel poleyns shine with the symbol of the Solist. March forth, warrior, in the name of the mighty Fey fleet. On each fair footfall, hear the tapping heels of the many lost who march beside you.",
+      "icon": "img/game/storeitems-leggings-warriorleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Courage"
+      ]
+    },
+    "/SF/Types/Recipes/Armor/StarterCourageTorsoBlueprint": {
+      "name": "Tethren's Tunic",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/StarterCourageBody",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 750,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "A light tunic of soft-brushed deer hide. \n\nDespite its levity, you feel strengthened. As though a spark has been kindled within. A warrior you will be, smelling of wet stone and old smoke. Of a fire, long burned out.",
+      "icon": "img/game/storeitems-cuirass-warriorcuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Courage"
+      ]
+    },
+    "/SF/Types/Recipes/Armor/StarterGraceHelmBlueprint": {
+      "name": "Sirin's Shroud",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/StarterGraceHelmet",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 750,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "A loose leather hood in the shape of a sickle.\n\nA shadow cast just over the face. Though it would not lend much protection in battle, this shroud aims to keep its wearer from conflict entirely. Stay hooded, o graceful one.",
+      "icon": "img/game/storeitems-helmets-startergracehelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Grace"
+      ]
+    },
+    "/SF/Types/Recipes/Armor/StarterGraceLegsBlueprint": {
+      "name": "Sirin's Stalks",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/StarterGraceLegs",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 750,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "Typical trousers lined in lowry leaves.\n\nEach step you take falls silent. These trousers do not rustle as you move, nor sound when brushed against a branch, a stalk. A trick of the old Fey trickster himself. Such shadow imbued lowry leaves leave you utterly quiet.",
+      "icon": "img/game/storeitems-leggings-startergraceleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Grace"
+      ]
+    },
+    "/SF/Types/Recipes/Armor/StarterGraceTorsoBlueprint": {
+      "name": "Sirin's Plainhide",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/StarterGraceBody",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 750,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "A hide of plain-sight.\n\nNot conspicuously fine clothing, nor noticeably impoverished. No notable insignia to be picked out of a crowd. This traveller's garb is utterly unremarkable, and purposefully so. To hide in the dark is easy. Only Sirin's truest zealots can vanish into the day.",
+      "icon": "img/game/storeitems-cuirass-startergracecuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Grace"
+      ]
+    },
+    "/SF/Types/Recipes/Armor/StarterSpiritHelmBlueprint": {
+      "name": "Oscelda's Diadem",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/StarterSpiritHelmet",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 750,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "A brazen diadem forged in the style of the healer Oscelda.\n\nWhen placed upon your head, you see her face. But for a moment, the wide blue eyes of The Feyish Witch of Legend. They say her diadem of thorns was a gift from Empress herself.",
+      "icon": "img/game/storeitems-helmets-starterspirithelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Spirit"
+      ]
+    },
+    "/SF/Types/Recipes/Armor/StarterSpiritLegsBlueprint": {
+      "name": "Oscelda's Featherbinds",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/StarterSpiritLegs",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 750,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "A long-as-life strip of fine-woven fabric.\n\nYou start wrapping at your toes, then the arch, then your heel... You blink and the binds are suddenly tied above your knee! You feel grounded yet light. As though wearing nothing at all.",
+      "icon": "img/game/storeitems-leggings-starterspiritleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Spirit"
+      ]
+    },
+    "/SF/Types/Recipes/Armor/StarterSpiritTorsoBlueprint": {
+      "name": "Oscelda's Blues",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/StarterSpiritBody",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 750,
+      "seconds": 1800,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 20
+        }
+      ],
+      "desc": "A slender sleeve of feyish blue to match your magick arm.\n\nHumble as these clothes may be, they feel petal-soft on the skin. It is the way of witches to dress lightly. Flowing fabrics such as these keep one close as can be to the magicks, ever-floating, on the wind.",
+      "icon": "img/game/storeitems-cuirass-starterspiritcuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Spirit"
+      ]
+    },
+    "/SF/Types/Recipes/Armor/TalMaskHelmBlueprint": {
+      "name": "Poppa Pepo Mask",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/TalMaskHelmet",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Holiday/PumpkinSeedResource",
+          "name": "Wintersquash Seed",
+          "count": 100
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/BileSackResource",
+          "name": "Bile Sack",
+          "count": 30
+        }
+      ],
+      "desc": "An homage to a sinister Sproutfolk legend.\n\nThe warty mask of Poppa Pepo, husband to The Crone, bringer of the blight. Each Bita's Eve, Sproutfolk rush to harvest the last of their crops before moonrise draws the fog tides in. For that is when Poppa Pepo makes his great sigh. Any stalk that feels his blighted breath will be rotted 'way by morning.",
+      "icon": "img/game/storeitems-helmets-talmask.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Grace": 9
+      }
+    },
+    "/SF/Types/Recipes/Armor/ThawtideHelmBlueprint": {
+      "name": "Thawtide Grimguise",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/ThawtideHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 6
+        }
+      ],
+      "desc": "Cold as metal, hard as glare. A Sinecure mask starforged to a Dendrit Thawtide Helm.\n\nA cruel mockery of sacred tradition. Worn by the Thawtide Hunter, an elite marksman ordered by Synod himself to stifle the Dendrit Thawtide tradition. What desire does the Ode'n lord have for these tiny red birds? Or is it fear, perhaps, that moves him so...",
+      "icon": "img/game/storeitems-helmets-sinecuresproutfarmerhelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 13
+      }
+    },
+    "/SF/Types/Recipes/Armor/TuvalkaneHelmBlueprint": {
+      "name": "Steelsinger's Circlet",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/TuvalkaneHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        }
+      ],
+      "desc": "A brass circlet branded by the rising sun. 'Tis the symbol of the prentice, the lowest rank of the Steelsinger's Guild. \n\nMalleable, and apt for resmelting, the brass circlet is oft forged by the prentice themself as a first test of skill. This one is exceptionally crafted.",
+      "icon": "img/game/storeitems-helmets-tuvalkanehelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 11
+      }
+    },
+    "/SF/Types/Recipes/Armor/TuvalkaneLegsBlueprint": {
+      "name": "Steelsinger's Shreds",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Legs/TuvalkanelLegs",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        }
+      ],
+      "desc": "A tattered old apron fashioned of scrap leather. Good for catching stray sparks and not much else.\n\nRough and ragged as it is, this belted barm-cloth is a testament to the Steelsinger's code; To make what one needs, and naught more, from what one has, and naught less.",
+      "icon": "img/game/storeitems-leggings-tuvalkaneleggings.png",
+      "bond": null,
+      "slot": "Leggings",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 11
+      }
+    },
+    "/SF/Types/Recipes/Armor/TuvalkaneTorsoBlueprint": {
+      "name": "Steelsinger's Stithywicks",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Body/TuvalkaneBody",
+      "rarity": "UNCOMMON",
+      "fragments": 4,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 30
+        }
+      ],
+      "desc": "A clothen scarf for wicking sweat, lest it fall upon a fresh tempered blade.\n\nA length of arm-glove for grazing flame, lest a hammered hilt slip into the forge. \n\nEach piece of the Steelsinger's armour is worn not for the protection of the wearer, but for the protection of their precious craft.",
+      "icon": "img/game/storeitems-cuirass-tuvalkanecuirass.png",
+      "bond": null,
+      "slot": "Cuirass",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 11
+      }
+    },
+    "/SF/Types/Recipes/Armor/WovenMaskHelmBlueprint": {
+      "name": "Veltruska Mask",
+      "station": "Blacksmith",
+      "kind": "Armour",
+      "result": "/SF/Upgrades/Skins/Helmets/WovenMaskHelmet",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Holiday/PumpkinSeedResource",
+          "name": "Wintersquash Seed",
+          "count": 100
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/Creature/CorruptedFrondResource",
+          "name": "Rotted Frond",
+          "count": 30
+        }
+      ],
+      "desc": "An homage to a sinister Sproutfolk legend. \n\nRed feathers frame a mottled face of burlap, a symbol of Veltruska's own Feyfire singe. Such masks are donned each Bita's Eve by sproutlings who wish to appease the haunted horsemaiden. Yet beware, wee sprouts, for kinship with Veltruska comes at a price: thy head and belly must match hers to be welcomed into her hollow-hearted family.",
+      "icon": "img/game/storeitems-helmets-wovenmaskhelmet.png",
+      "bond": null,
+      "slot": "Helm",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 9
+      }
+    },
     "/SF/Types/Recipes/ColorPalettes/AlcasChildrenPalletteBlueprint": {
       "name": "Epona",
       "station": "Brewing",
@@ -141,7 +3025,7 @@
       ],
       "desc": "A thick, layered biscuit to feed to a wholly-trained pup so that they may grow into Omen Wolf. Baked of young yolk and aged Wevetgrain, 'tis a celebration that would make a wolf of any whelp.",
       "icon": "img/game/storeitems-pets-petmaturitytreat.png",
-      "bond": null
+      "bond": 1
     },
     "/SF/Types/Recipes/Consumeables/PetFood/WolfMealBlueprint": {
       "name": "Canid Kibble",
@@ -205,7 +3089,7 @@
       ],
       "desc": "Dried Will-o-frond leaves to be served to a Wolfpup's whose talent be ill-suited to their calling. One nibble of a Follyfrond Treat shall grant you leave to train their strengths once again! For even the cleverest pup deserves a second chance to find their paws.",
       "icon": "img/game/storeitems-pets-petrespectreat.png",
-      "bond": null
+      "bond": 1
     },
     "/SF/Types/Recipes/Consumeables/PetFood/WolfSnackBlueprint": {
       "name": "Canid Biscuit",
@@ -750,6 +3634,2142 @@
       "desc": "Forged of Scrap Iron and low flame, this Chordstone hums a near-silent note with every strike of Tuvalkane's hammer. A key component in refining one's Weapon to Military Craftwork.",
       "icon": "img/game/storeitems-materials-ingotiron.png",
       "bond": 1
+    },
+    "/SF/Types/Recipes/Weapons/BromiusCleaverMeleeWeaponBlueprint": {
+      "name": "Marrow's Bane",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/BromiusCleaver/BromiusCleaverMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 6
+        }
+      ],
+      "desc": "A mighty claw, a dripping maw. The menacing cleaver of the Arbearer, Bromius. \n\nFive sharpened spires glint in the pale Neath'uns light. Be they the teeth of Marrow's Bane? Or the claws of the great Omen Bear himself? Wield this weapon by the Arbrearer's deal: to protect the old roots yet to heal- or to pick your teeth after good meal.",
+      "icon": "img/game/storeitems-weapons-bromiuscleaver.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 21
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Caster/Blueprints/OdeStaffCasterRangedMeleeWeaponBlueprint": {
+      "name": "Silistavf",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/OneHand/OdeStaffCaster/OdeStaffCasterRangedMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 6
+        }
+      ],
+      "desc": "A staff gifted to accomplished Ode'n Starcasters.\n\nWithin its hollow, the cosmos itself has been rendered in miniature. A pallid imitation. The Silistavf may be used to channel Voltaic magic in place of the stars, if of their influence its wielder is bereft. The burden of such mimicry crests even Ode'n capabilities, a single stavf requiring years of effort to forge.",
+      "icon": "img/game/storeitems-weapons-odestaff.png",
+      "bond": 3,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 8,
+        "Spirit": 15
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Caster/Blueprints/OdeZapStaffCasterMeleeWeaponBlueprint": {
+      "name": "Gystalt",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/OneHand/OdeZapStaffCaster/OdeZapStaffCasterRangedMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 6
+        }
+      ],
+      "desc": "The grimstavf of Sinecure Starcasters, adorned with hands of demise.\n\nAtop the finial, two hands lay: one to strike foes and one to ensure silence remains, as lightning and the thunderclap in its wake. But if one reaps from Death, so too shall it continue to sow. Hands that bore fury unto foes shall one day turn 'pon their masters. A transaction foretold, one written in the stars: as the skies give, so may they take, for all life is owed starward.",
+      "icon": "img/game/storeitems-weapons-odezapstaff.png",
+      "bond": 3,
+      "slot": "Primary",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 11
+      }
+    },
+    "/SF/Types/Recipes/Weapons/CleansedSpearMeleeWeaponBlueprint": {
+      "name": "Duhk Halic",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/CleansedSpear/CleansedSpearMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 5
+        }
+      ],
+      "desc": "Forged of fever, wrought of wrath. The Ode'n lance, Duhk Halic.\n\nAn Ode'n instrument of corruption. Even the Nimrod who wields it suffers from its venomous touch. Whether Omen beast or sacred tree, wherever Duhk Halic finds its mark, a wound spews ichor. Though... your weaver ways seem to have purged this wretched lance of corruption... For now.",
+      "icon": "img/game/storeitems-weapons-odecleanspear.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Weapons/DendritAraGreatSwordMeleeWeaponBlueprint": {
+      "name": "Needleseye",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/DendritAraGreatSword/DendritAraGreatSwordMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 20
+        }
+      ],
+      "desc": "The unusual greatsword of the Child-Queen Muireall Jotar.\n\nThough small for her age, 11 year-old Muireall insisted that her ritual coronation blade should be a greatsword. The court steelsinger forged the hilt in the likeness of Muireall's dear cat, Fleabert, and hollowed the blade so that her tiny majesty might be able to lift it. Amused by the shape, she named it Needleseye, and swung the great thing one-handed.",
+      "icon": "img/game/storeitems-weapons-dendritgreatsword.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 18
+      }
+    },
+    "/SF/Types/Recipes/Weapons/DendritBowRangedMeleeWeaponBlueprint": {
+      "name": "Maestro",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/TwoHand/DendritBow/DendritBowRangedMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 25
+        }
+      ],
+      "desc": "A ceremonial bow of the Dendrit Thawtide tradition.\n\nMaestro is a hunter's bow, simple in make but for its uniquely carved arrows. When plucked and loosed just so, the wind whistles through the fletching to mimic the call of the Cardinal. Each year, just before Thawtide's final dawn, ‘tis the hunters rite to summon the flock to darkest sky. One long whistle to cue the chorus. For it is the Cardinals' morning song that wakes Mora from her longest slumber.",
+      "icon": "img/game/storeitems-weapons-dendritbow.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Grace": 13
+      }
+    },
+    "/SF/Types/Recipes/Weapons/DendritStaffCasterRangedMeleeWeaponBlueprint": {
+      "name": "Seathorn",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/OneHand/DendritStaffCaster/DendritStaffCasterRangedMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 6
+        }
+      ],
+      "desc": "A witching-staff fresh from the Salz.\n\nForged of driftwood and waldglass, this staff still smells of salt and sea. Crafted by a follower of Oro, Seathorn's magicks lie in the tiny barnacles latched upon its orb. Old fables label these tiny living sea thorns as Oro's countless lidless eyes. Do him proud, Envoy, for a seasage you shall be.",
+      "icon": "img/game/storeitems-weapons-dendritstaff.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Spirit",
+        "Grace"
+      ],
+      "requires": {
+        "Spirit": 18
+      }
+    },
+    "/SF/Types/Recipes/Weapons/DendritSwordAndBoardMeleeWeaponBlueprint": {
+      "name": "Bog & Myrtle",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/DendritSwordAndBoard/DendritSwordAndBoardMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 8
+        }
+      ],
+      "desc": "Myrtle, a sword as swift as a pricking thorn. Wide of girth, she whistles fair with every swing. The weapon of a Dendrit commoner, but that does not make her so. \n\nBog, a round and rusted shield. Dented and scarred by more wars than one. To mistress Myrtle, ever-bound. Once battle-lost, now Envoy-found.",
+      "icon": "img/game/storeitems-weapons-dendritswordandboard.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 11
+      }
+    },
+    "/SF/Types/Recipes/Weapons/DendritSwordMeleeWeaponBlueprint": {
+      "name": "Vetch",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/DendritSword/DendritSwordMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        }
+      ],
+      "desc": "The swiftsword Vetch. \n\nSlender and pliant, this sword is of the Dendrit weapon class ‘Illanfeoir' meaning blade of grass. Vetch is unadorned but for a single blue crystal embedded in its hilt- a Tear of Iridis. Likely a weapon wrought in the name of a loved one lost.",
+      "icon": "img/game/storeitems-weapons-dendritsword.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 11
+      }
+    },
+    "/SF/Types/Recipes/Weapons/DeoraSpearBlueprint": {
+      "name": "Rook",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/DeoraPolearm/DeoraPolearmMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 20
+        }
+      ],
+      "desc": "The wrought iron rookblade is both club and spear. \n\nA favourite amongst the towering Knightmaidens, such polearms littered the fields of Dendria after the dread song rang. Now they are held by the Thrall.",
+      "icon": "img/game/storeitems-weapons-deorapolearm.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 11
+      }
+    },
+    "/SF/Types/Recipes/Weapons/FennCastingDeviceRangedMeleeWeaponBlueprint": {
+      "name": "Basker's Wrest",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/OneHand/FennCastingDevice/FennCastingDeviceRangedMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 20
+        }
+      ],
+      "desc": "The dread gauntlets of The Fire King's army.\n\nChanneling magicks from the inset orbs of Moranite, these gauntlets were wielded against the Cassid occupation in the year 603. Not knights but rebels, vigilantes of the undercity, called upon the red sun. They called themselves the Baskers, forging her courage into armlets of scrap. They cried flames across their homelands, lost. They burned the collaborators. And The Fire King, Fenn Jotar, could only watch.",
+      "icon": "img/game/storeitems-weapons-fenncastingdevice.png",
+      "bond": null,
+      "slot": "Sidearm",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 7,
+        "Spirit": 8
+      }
+    },
+    "/SF/Types/Recipes/Weapons/FennJotarSwordBlueprint": {
+      "name": "Igne Mora",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/FennJotarSword/FennJotarSwordMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 8
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 20
+        }
+      ],
+      "desc": "The Steelsinger Kane wrought two flaming blades from the fire of the binary suns - Mora and Saphene.\n\nFor four summers, his young pupil Fenn toiled under master Kane to forge the Sun blades. Pleading each passing year to take one for himself, Kane refused to strike them complete. So smaller of hilt yet finer of point, Fenn stole Igne Mora away in the night and bade never to return. \n\nBy legend, Kane returned the forsaken twin to the fire with a curse that would grant the impatient prince no peace thereafter.",
+      "icon": "img/game/storeitems-weapons-fennjotarsword.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 9
+      }
+    },
+    "/SF/Types/Recipes/Weapons/FeySwordMeleeWeaponBlueprint": {
+      "name": "Dewelion",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/FeySword/FeySwordMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 6
+        }
+      ],
+      "desc": "A Fey warrior's gloryblade.\n\nDewelion is a word of the ancient Fey tongue. It means something like 'horizon;' a confluence of opposites; where day and night may meet. For a human steelsinger to have sung these delicate pieces back to former glory... An impossible confluence indeed.",
+      "icon": "img/game/storeitems-weapons-feysword.png",
+      "bond": 3,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Grace": 19
+      }
+    },
+    "/SF/Types/Recipes/Weapons/GarrenPolearmMeleeWeaponBlueprint": {
+      "name": "Gathannan",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/GarrenPolearm/GarrenPolearmMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 8
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 8
+        }
+      ],
+      "desc": "The ere pronged Glaive of Garren Rood.\n\nNo mortal weapon has points so fine nor plenty as the Omen Beast's own crown. Though this charger's lance comes close. Dual spires are cast of gold as old as the line of Rood. The oaken staff is freshly bound and still smells of forest.",
+      "icon": "img/game/storeitems-weapons-garrenpolearm.png",
+      "bond": 3,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 19
+      }
+    },
+    "/SF/Types/Recipes/Weapons/GarrenSwordBlueprint": {
+      "name": "The Royal Tines",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/GarrenSword/GarrenSwordMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 8
+        }
+      ],
+      "desc": "Antler blades forged of alloyed steel and bone trace. Conceived in homage to the great Omen Stag, Garren Rood. \n\nAn anonymous tome from The Pensives' archives recounts the weapon's first sighting as such:\n\"Twas the Stag's grace upon the Silvern we saw then. Cruel points aglow, fallow curves, so fraught. Hear these bellows of longing for my pelted loves? My losses, their indignities. Each charge shall wet the soil with the wine of their rebirth.\"",
+      "icon": "img/game/storeitems-weapons-garrensworddual.png",
+      "bond": 3,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Grace": 10
+      }
+    },
+    "/SF/Types/Recipes/Weapons/GrandFatherBowRangedMeleeWeaponBlueprint": {
+      "name": "Juniper",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/TwoHand/GrandFatherBow/GrandFatherBowRangedMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 20
+        }
+      ],
+      "desc": "Grandfather's bow. So named after the sacred tree from which she was hewn. \n\nShe is twisted fair of living wood like her sister bow, Dhonu. Even her quiver breaths life. Charmed, she grows arrows near as fast as Grandfather can loose them. Though these days, they both grow slower.\n\nOn either end, the curling boughs wrap ‘round a Salz Agate. This precious stone was once believed to bridge the realms between man and Fey. Much like their master.",
+      "icon": "img/game/storeitems-weapons-grandfatherbow.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 5,
+        "Grace": 7
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/CorruptedScimitarMeleeWeaponBlueprint": {
+      "name": "Cenotaph",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/CorruptedScimitar/CorruptedScimitarMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 6
+        }
+      ],
+      "desc": "A twisted baneblade dug from grave.\n\nOne cannot tell where steel ends and Ichor begins. Was Cenotaph buried a curvèd samshir? Or was it Ode'n rot that twisted this blade into so sharp a shape? Both corroded and fortified, wyrm-eaten yet bastioned, this haunted blade is made stronger in its corruption. Much like the Mendicant who weilds it. A second life at the cost of the first. A Cenotaph.",
+      "icon": "img/game/storeitems-weapons-corruptedscimitar.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 14,
+        "Spirit": 9
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/InquisitorMaceMeleeWeaponBlueprint": {
+      "name": "Creance",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/InquisitorMace/InquisitorMaceMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Holiday/PumpkinSeedResource",
+          "name": "Wintersquash Seed",
+          "count": 75
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 20
+        }
+      ],
+      "desc": "The ruling mace of Inquisitor Galsar.\n\nAn ichorous bludgeon for shining the eyes of those who would forsake the Ode'n family. Creance has dolled judgment upon countless fallen Tempest soldiers. Like a drum to the ever-beating spellsong, it struck you from skytower to roiling salz. \n\nWield it in vengeance, against the family you so disgraced.",
+      "icon": "img/game/storeitems-weapons-inquisitormace.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 22
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/LocksuitDaggerMeleeWeaponBlueprint": {
+      "name": "Loksprik",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/LockSuitDagger/LockSuitDaggerMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        }
+      ],
+      "desc": "The crooked dagger of Ode'n Shrike. \n\nBoth lock and key, of pinholes and teeth. Loksprik's nimble, crescent edge atop a wrench-worn hilt makes for an oddity, indeed. For how can the hunter be both keeper and thief? With a hooking stir, it rakes the wilds. Or bound, dual-gripped to deliver a vicious stab. A wicked pick to pierce the unwary.",
+      "icon": "img/game/storeitems-weapons-locksuitdagger.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 6,
+        "Grace": 10
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/MendicantSwordAndBoardMeleeWeaponBlueprint": {
+      "name": "Lyke-Wake",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/MendicantSwordandBoard/MendicantSwordAndBoardMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 20
+        }
+      ],
+      "desc": "The sword of a Mendicant lost. The shield of a love that endures. \n\nYou are the fire in my veins \nWho lit my path to shore\nAnd in my dreams you call my name\nI ask of you, no more\n\nYour faltered husk that lumbers still \nLeft trapped within your plight \nJust as you pledged your heart and will \nSo shall I be your knight",
+      "icon": "img/game/storeitems-weapons-mendicantswordandboard.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/MendicantTwoHandedMaceMeleeWeaponBlueprint": {
+      "name": "Wreath",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/MendicantMace/MendicantTwoHandedMaceMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        }
+      ],
+      "desc": "A cord-wrapped bludgeon, weathered from its time before the grave.\n\nOnce a Knightmaiden's mace, her demise found this steel-forged tool returned to earth... 'til watered by ichor, it blossomed to life again, now in the name of the undead. From its once-spherical head unfurled flanges of rot, a mockery of petals flush from a bud. Wrought now of ichor, a blighted seed of the Mendicant. With each swing, a propagation of undeath.",
+      "icon": "img/game/storeitems-weapons-mendicanttwohandedmace.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 18
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/MockeryAxeMeleeWeaponBlueprint": {
+      "name": "Fulkrom",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/MockeryAxe/MockeryAxeMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 15
+        }
+      ],
+      "desc": "A rust-tinged hatchet, lighter than its cudgel-like handle would suggest.\n\nDolush is an implement too elaborate for loggers, yet lacking in ornament enough to be wielded by the lords of old. Where then did it find its purpose? Who was victim to its every chop, chop, chop? Now seared by rune and deadwood wreathed, it is but a mockery of histories lost.",
+      "icon": "img/game/storeitems-weapons-stonemockeryaxe.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 19
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/OrengallSecondarySwordMeleeWeaponBlueprint": {
+      "name": "Grimana",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/OrengalSecondarySword/OrengallSecondarySwordMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 6
+        }
+      ],
+      "desc": "The thrice-tined dewclaw of Orengall, bearing of her favour. \n\nA hunter's companion, a sidearm for the ages. Hairs of the Omen Shewolf brood the hilt, loyally sheathed to bearer's haunch. Feel her fury, a mother's quarry: to the foes that dare challenge the pack, a taste of Lycansteel 'neath a waxing hunt. Flourish her claws, Envoy. Wield them well.",
+      "icon": "img/game/storeitems-weapons-orengallsecondarysword.png",
+      "bond": 3,
+      "slot": "Sidearm",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 10,
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/PirateFencingSwordMeleeWeaponBlueprint": {
+      "name": "Espadarte",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/PirateFencingSword/PirateFencingSwordMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 8
+        }
+      ],
+      "desc": "The curvèd cutlass of the old Mestre.\n\nEspadarte takes its namesake from the swordfish of salty depths. Mestre thought these creatures strong in their silence. No want but hunger in those glassy eyes. Like he, so he thought. Had he never seen the swordfish flocks make their great migrations? Their dance across the currents, their yearning for warmer tides? Perhaps he always knew. Perhaps 'twas this denial that killed him.",
+      "icon": "img/game/storeitems-weapons-piratefencingsword.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 6,
+        "Grace": 8
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/SecondaryBitasEdgeDualSickleMeleeWeaponBlueprint": {
+      "name": "Goody's Edge",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/BitasEdge/SecondaryBitasEdgeDualSickleMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Holiday/PumpkinSeedResource",
+          "name": "Wintersquash Seed",
+          "count": 75
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 20
+        }
+      ],
+      "desc": "A cruel edge once bound by executioner's chain.\n\nThis sickle delivered swift judgment ‘pon a Knightmaiden unbloomed. Goodness was her name, though condemned she was for meddling with Fey. An offering here, a prayer there, and soon she found herself at a round of Regatta against the Empress herself. Enlightenment she sought, and enlightenment she won, though her mortal frame could scarcely contain it. A fire lit her belly, spilling forth in twisted tongues. No noose could hold her writhing form, so the manqueller took to his blade.",
+      "icon": "img/game/storeitems-weapons-bitasedge.png",
+      "bond": null,
+      "slot": "Sidearm",
+      "scaling": [
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 15
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/SeedRapierMeleeWeaponBlueprint": {
+      "name": "Navalha",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SeedRapier/SeedRapierMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 8
+        }
+      ],
+      "desc": "The slender rapier of the new Mestra.\n\nThe swirling flourishes engraved upon its hilt are of the kind once reviled by the Mestra. Weakness etched into that which should be without. 'Twas only when she bore her heart to the world that she learned where true strength lies.",
+      "icon": "img/game/storeitems-weapons-seedrapier.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 14
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/SinecureDualAxesMeleeWeaponBlueprint": {
+      "name": "Dhrullai",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SinecureDualAxes/SinecureDualAxesMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        }
+      ],
+      "desc": "The dual sickles of Sinecure veneration. \n\nArched in birth, made jagged in time. When freshly forged of Dendrit steel, Dhrullai knew only the taste of Alcan harvest. ‘Till a farmers' folly turned two men slain; a Dhrullik sickle each through the neck. A planting bed for both corpses and blades, reaped by Sinecure forgers and sowed with Ichor. Take heed, Envoy. Dhrullai now prefers the lick of flesh over crop.",
+      "icon": "img/game/storeitems-weapons-sinecuredualaxes.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 7,
+        "Grace": 9
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/SinecureHammerAndBoardMeleeWeaponBlueprint": {
+      "name": "Nazilk-Urytes-III",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SinecureHammerAndBoard/SinecureHammerAndBoardMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 8
+        }
+      ],
+      "desc": "The shield and hammer of Sinecure depravity, embellished with a single protruding eye. \n\nThe first of this duo's kind were stripped from a mould and claimed by a Gruulseeker masked as a 'smith. His flimsy disguise so vexed a Spotted Towhee that the little bird pecked his eyeball out, its armoured wings left marred with gore. A frozen iris was struck into every issue thereafter. Best suited for Ode'n soldiers keen on an intimate view of their victim's demise. An omen of nature's affection for cruelty.",
+      "icon": "img/game/storeitems-weapons-sinecurehammerandshield.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 15
+      }
+    },
+    "/SF/Types/Recipes/Weapons/Melee/Blueprints/SinecureKnightTwoHandedMaceMeleeWeaponBlueprint": {
+      "name": "Orst-III",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/SinecureKnightMace/SinecureKnightTwoHandedMaceMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 20
+        }
+      ],
+      "desc": "A mace of entwined alloys flowing gracefully into jagged steel.\n\nAn armament in the midst of the Ode'n refinement process. In search of the most brutal designs, countless revisions are measured against one another in battle. Every variant of Orst differs from the last, disparate bludgeons forged in search of uniform truth.",
+      "icon": "img/game/storeitems-weapons-sinecureknighttwohandedmace.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Weapons/MendicantGreatSwordMeleeWeaponBlueprint": {
+      "name": "Purity",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/MendicantGreatSword/MendicantGreatSwordMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 45
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 6
+        }
+      ],
+      "desc": "The undead greatsword of a Mendicant knight.\n\nNamed for the owner's intentions, Purity was there in the Fonnish Charge, tucked into her scabbard. Though her knight, like most others on that wretched march, perished before he could draw his sword. She waited in her scabbard. Eras rose and fell. Until at last, her knight climbed from the grave to draw her at last.",
+      "icon": "img/game/storeitems-weapons-mendicantgreatsword.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 17
+      }
+    },
+    "/SF/Types/Recipes/Weapons/MockeryBrazardMeleeWeaponBlueprint": {
+      "name": "Tessard",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/MockeryBrazard/MockeryBrazardMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        }
+      ],
+      "desc": "A serpentine sword that hisses when swung. \n\nPerhaps an ornamental blade for a hearth-rack of yesteryear. Or a ceremonial sword for an occult order long lost. Whatever purpose she once held, Tessard today is no more than a mockery. What strange runes have carved their way into her ancient face?",
+      "icon": "img/game/storeitems-weapons-mockerybrazard.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 14
+      }
+    },
+    "/SF/Types/Recipes/Weapons/MockeryStultionMeleeWeaponBlueprint": {
+      "name": "Stultin",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/MockeryStultion/MockeryStultionMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        }
+      ],
+      "desc": "A cut and rusted sword from an era long forgotten.\n\nStultin, the ancient arm of a fallen mockery. The steel blade was fractured in some unremembered battle, then filed flat in falchion style. The wooden hilt has rotted and dried, near petrified. But the glowing runes... Seemingly etched anew into well-settled rust.",
+      "icon": "img/game/storeitems-weapons-mockerystultion.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 16
+      }
+    },
+    "/SF/Types/Recipes/Weapons/MockeryTurashMeleeWeaponBlueprint": {
+      "name": "Nurash",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/MockeryTurash/MockeryTurashMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        }
+      ],
+      "desc": "A cleaver, a heaver, of tarnish and rust.\n\nWhat strange shapes mar the teeth of this ancient sawblade? What thousand-year tale leads it to mockery hands? Nurash is surely the oldest weapon you've ever held, yet the violet runes glow with fresh life. A new chapter carved in this perpetual fable.",
+      "icon": "img/game/storeitems-weapons-mockeryturash.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 15
+      }
+    },
+    "/SF/Types/Recipes/Weapons/OdeCastingDeviceRangedMeleeWeaponBlueprint": {
+      "name": "Odiac",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/OneHand/OdeCastingDevice/OdeCastingDeviceRangedMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 25
+        }
+      ],
+      "desc": "The crackle of lightning, bottled up one's sleeve.\n\nOdiac is the mechanical power source of Ode'n casters. Fixed upon the wrists, its rapidly oscillating spheres generate voltaic charge. With no more than a gesture, its master may cast homing bolts of lightning and summon Lectric Shields at will.",
+      "icon": "img/game/storeitems-weapons-odecastingdevice.png",
+      "bond": 2,
+      "slot": "Sidearm",
+      "scaling": [
+        "Courage",
+        "Spirit"
+      ],
+      "requires": {
+        "Courage": 6,
+        "Spirit": 6
+      }
+    },
+    "/SF/Types/Recipes/Weapons/OdeHunterBowBlueprint": {
+      "name": "Blitzel",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/TwoHand/OdeBow/OdeBowRangedMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 25
+        }
+      ],
+      "desc": "A finely balanced bow of Ode'n make.\n\nInvented shortly after the Alcan conquest. Taking amusement from the Dendrit hunters' primitive weapon of choice, Ode'n blademakers crafted the Blitzel from the many discarded bows littering the late battlefield. Thus, a new addition to the Sinecure Armamentarium.",
+      "icon": "img/game/storeitems-weapons-odelongbow.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Weapons/OdeSoldierSwordMeleeWeaponBlueprint": {
+      "name": "Falx",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/OdeSoldierSword/OdeSoldierSwordMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        }
+      ],
+      "desc": "The curved arcblade of a Sinecure soldier.\n\nThree spire studs push through the sharp blade's edge. What began as an error, molten metal seeping from the injection points of this sword's manufacturing mould, became its finest strength. A warning of the sharp arc they precede. A glitter of starlight through the dark void of night.",
+      "icon": "img/game/storeitems-weapons-sinecuresword.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 12
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SecondaryDaggerMeleeWeaponBlueprint": {
+      "name": "Nettle",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SecondaryDagger/SecondaryDaggerMeleeWeapon",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1500,
+      "seconds": 14400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        }
+      ],
+      "desc": "Naught more than an overlarge paper knife. But this cunning blade seeks a cunning hand.\n\nAn ornamental dirk of Skelflandish make. Held in the bookbinder's grip, Nettle is designed to slice open the delicate edges of a folded page. ‘Twas tween these bound folds that Skelflandish tradition sealed secret messages. And a word, as much as any blade, can cut deep.",
+      "icon": "img/game/storeitems-weapons-secondarydagger.png",
+      "bond": 1,
+      "slot": "Sidearm",
+      "scaling": [
+        "Grace"
+      ]
+    },
+    "/SF/Types/Recipes/Weapons/SecondaryDendritDaggerMeleeWeaponBlueprint": {
+      "name": "Virdigris",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SecondaryDendritDagger/SecondaryDendritDaggerMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        }
+      ],
+      "desc": "A ritual dagger, aglow with moonlight.\n\nA fine point, more handle than blade, Virdigris seeks sacrifice. She is wrought with copper, a cleansing metal meant to protect the holder from what vengeful spirit may lurch from its mark. The innermost ring of Iridis is her namesake. May that be the fate of your fallen.",
+      "icon": "img/game/storeitems-weapons-secondarydendritdagger.png",
+      "bond": 2,
+      "slot": "Sidearm",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SecondaryFeyDaggerMeleeWeaponBlueprint": {
+      "name": "Witan",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SecondaryFeyDagger/SecondaryFeyDaggerMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 8
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 8
+        }
+      ],
+      "desc": "Childblade to the glorious Dewelion.\n\nOur oldest tales tell of sacred unions between human and fey-kind. Of children who are neither, yet both. Witan was forged for such a child, its wooden hilt enchanted to grow in pace. Though... It is clear this childblade never reached its full size.",
+      "icon": "img/game/storeitems-weapons-feydagger.png",
+      "bond": null,
+      "slot": "Sidearm",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 6,
+        "Grace": 6
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SecondaryOdeSawDaggerMeleeWeaponBlueprint": {
+      "name": "Grinn",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SecondaryOdeSawDagger/SecondaryOdeSawDaggerMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        }
+      ],
+      "desc": "The toothed sawblade of Sinecure trappers.\n\nHooked and barbed like wardog teeth, Grinn finds the grip of any so ruthless. Though the Ode prefer to hunt in legions, 'tis custom to carry such a sawblade on solitary journeys. Tucked close to it's master's side, Grinn makes for a fierce companion with a ripping bite... Near drooling for prey.",
+      "icon": "img/game/storeitems-weapons-secondaryodesawdagger.png",
+      "bond": null,
+      "slot": "Sidearm",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Grace": 14
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SecondaryStarterThrowingKnivesRangedMeleeWeaponBlueprint": {
+      "name": "Precklies",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/Thrown/SecondaryStarterThrowingKnives/SecondaryStarterThrowingKnivesRangedMeleeWeapon",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1500,
+      "seconds": 14400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 10
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 20
+        }
+      ],
+      "desc": "A full set of three Precklies. \n\nPart of a traditional Dendrit game called Preck. The rules are simple- each player has three chances to strike a target with these small but mighty blades. These Precklies are child-sized, likely a Bloomsday gift for a Knightmaiden in training. As such, they are surely well accustomed to meeting their mark.",
+      "icon": "img/game/storeitems-weapons-startersecondarythrowingknives.png",
+      "bond": 1,
+      "slot": "Sidearm",
+      "scaling": [
+        "Grace"
+      ]
+    },
+    "/SF/Types/Recipes/Weapons/SecondaryThrowingKnivesRangedMeleeWeaponBlueprint": {
+      "name": "Skílter",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/Thrown/SecondaryThrowingKnives/SecondaryThrowingKnivesRangedMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        }
+      ],
+      "desc": "An Ode'n flyblade.\n\nForged in the molten star Volhal, this air-light knife is foiled in multiplicity. Skílter can be thrown across a skytower while never leaving its master's hand. Such blades are common gifts to honour superiors and say more about status than utility. Yet those of Grace may fly death upon her tiny wings.",
+      "icon": "img/game/storeitems-weapons-secondarythrowingknives.png",
+      "bond": null,
+      "slot": "Sidearm",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 5,
+        "Grace": 6
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SecondaryVineDaggerMeleeWeaponBlueprint": {
+      "name": "Rostrum",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SecondaryVineDagger/SecondaryVineDaggerMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 25
+        }
+      ],
+      "desc": "A ritual dagger of the Dendrit Thawtide tradition.\n\nRostrum is a hunter's blade, named for the beak of the bird it protects. While most would have sheathed this Dagger as a Sidearm, the Longnight Elders wielded Rostrum as a favoured blade for close-quarters combat. 'Twas ill omened to end a life on the Longnight ‘fore Thawtide. Rostrum would only strike to defend the Cardinal flock, close enough to whisper passing rites to the one who dared endanger it.",
+      "icon": "img/game/storeitems-weapons-vinedagger.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Spirit"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SinecureBowRangedMeleeWeaponBlueprint": {
+      "name": "Avex",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/TwoHand/SinecureBow/SinecureBowRangedMeleeWeapon",
+      "rarity": "RARE",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 3500,
+      "seconds": 72000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 6
+        }
+      ],
+      "desc": "A steel-studded boundbow of Ode'n technology.\n\nSpider wire bound tight 'round orbiting pulleys. Clicking cranks spin with the power of planets. Sinecure hunters boast of Avex's charged shot, powerful enough to puncture through a doe to kill the fawn behind her, with arrows so sturdy they are wielded as daggers.",
+      "icon": "img/game/storeitems-weapons-sinecurebow.png",
+      "bond": 3,
+      "slot": "Primary",
+      "scaling": [
+        "Courage",
+        "Grace"
+      ],
+      "requires": {
+        "Courage": 13,
+        "Grace": 11
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SinecureDualDaggersMeleeWeaponBlueprint": {
+      "name": "Unsula",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SinecureDagger/SinecureDualDaggersMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 25
+        }
+      ],
+      "desc": "The binary blades of Sinecure mercenaries.\n\nEach Unsulum dagger is cast in a measured arc. Some liken it to a broken orbit, others to a pinching claw. Together, the Unsula are precisely formed to strike soundlessly through Alcan atmosphere.",
+      "icon": "img/game/storeitems-weapons-sinecuredagger.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Grace": 10
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SphereDualSwordBlueprint": {
+      "name": "Rivt-II",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SphereDualSwords/SphereDualSwordsMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 25
+        }
+      ],
+      "desc": "An Ode'n Splitsword cast of foreign ore from distant orbits. \n\nThe centering sphere is marked by the symbol of Culveer, the constellation of destruction. In battle, the blade is split in two. By Culveer's essence, one rift insists upon another, and thus the twin blades slice enemies to fractions.",
+      "icon": "img/game/storeitems-weapons-spheredualsword.png",
+      "bond": 1,
+      "slot": "Primary",
+      "scaling": [
+        "Grace"
+      ],
+      "requires": {
+        "Grace": 13
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SpherePolearmBlueprint": {
+      "name": "Vasp-IV",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/TwoHand/SpherePolearm/SpherePolearmMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 30
+        }
+      ],
+      "desc": "A deadly Ode'n Halberd lost to the Sinecure ranks not long ago.\n\nThough the blade is rusted slightly, it is only for the Ode'n alloys, untreated for humid Alcan air. Assuredly, it is no less sharp, nor acutely balanced, than the night of its extraction from Ode'n mould.",
+      "icon": "img/game/storeitems-weapons-spherepolearm.png",
+      "bond": 1,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 13
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SphereSwordAndBoardBlueprint": {
+      "name": "Oryn-Umbr",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SwordandBoard/SphereSwordAndBoardMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 30
+        }
+      ],
+      "desc": "Oryn, an Ode'n short sword tipped by an eclipse. \n\nIts hollowed blade lightens the Sinecure swing, so it may be wielded by only one hand. Umbr, a shield aglow with Ode'n sigil. Skytowers loft are mapped in blue upon its tempered face. Cast in lightweight alloys, Umbr is forged to be thrown as a starnshot blazing.",
+      "icon": "img/game/storeitems-weapons-sphereswordandboard.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 13
+      }
+    },
+    "/SF/Types/Recipes/Weapons/SphereSwordBlueprint": {
+      "name": "Sollos-I",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/SphereSword/SphereSwordMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/IchorResource",
+          "name": "Ichor",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 30
+        }
+      ],
+      "desc": "A standard issue broadsword for Ode'n Gruulseekers. \n\nThough this model is outdated, its blade remains finely pointed. The worn handholds on either side of the hilt indicate two wielders. The first carried the Sollos-I in their right hand, the other, likely a new recruit using a retired sword to train, swung it in their left.",
+      "icon": "img/game/storeitems-weapons-spheresword.png",
+      "bond": 2,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ],
+      "requires": {
+        "Courage": 13
+      }
+    },
+    "/SF/Types/Recipes/Weapons/StarterBowRangedMeleeWeaponBlueprint": {
+      "name": "Thistle",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/TwoHand/StarterBow/StarterBowRangedMeleeWeapon",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1500,
+      "seconds": 14400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 10
+        }
+      ],
+      "desc": "A well-worn hunter's bow.\n\nLightweight and well-balanced despite its age, Thistle has the mark of a Roods craftsman. The handle is grooved around your fingertips like an old friend. You've much in common with whoever held it last. Of that, you are certain.",
+      "icon": "img/game/storeitems-weapons-starterbow.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Grace"
+      ]
+    },
+    "/SF/Types/Recipes/Weapons/StarterSplitSwordsMeleeWeaponBlueprint": {
+      "name": "Clivers",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/StarterSplitSwords/StarterSplitSwordsMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+          "name": "Knotwood",
+          "count": 25
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 25
+        }
+      ],
+      "desc": "The magnetic twinblades of the Dendrit Knightmaidens.\n\nTwo feather-light sidearms, mirrored and merciless. Inspired by an herb of the same name, a magnetic alloy pulls the dual swords together, binding them like burr to wool. Knightmaiden's of old famously entered battlefields with two Clivers bound, disguised as a single blade. The discovery of the swords' sticky nature was the last many foes ever made.",
+      "icon": "img/game/storeitems-weapons-startersplitsword.png",
+      "bond": null,
+      "slot": "Sidearm",
+      "scaling": [
+        "Grace",
+        "Courage"
+      ],
+      "requires": {
+        "Grace": 12
+      }
+    },
+    "/SF/Types/Recipes/Weapons/StarterStaffCasterRangedMeleeWeaponBlueprint": {
+      "name": "Gwylen",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/OneHand/StarterStaffCaster/StarterStaffCasterRangedMeleeWeapon",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1500,
+      "seconds": 14400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdenSynsylkResource",
+          "name": "Ode'n Synsylk",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 8
+        }
+      ],
+      "desc": "A witching-staff of alder.\n\nThough its curling boughs look natural as wind, Gwylen was hand-shaped by Aureli jardiniers. Not carved, but grown into delicate curves- finely tuned to facilitate the flow of magic. To grow a single wand takes years. A staff like Gwylen, a lifetime.",
+      "icon": "img/game/storeitems-weapons-starterstaff.png",
+      "bond": 1,
+      "slot": "Primary",
+      "scaling": [
+        "Spirit"
+      ]
+    },
+    "/SF/Types/Recipes/Weapons/StarterSwordMeleeWeaponBlueprint": {
+      "name": "Wulder",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Melee/OneHand/StarterSword/StarterSwordMeleeWeapon",
+      "rarity": null,
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 1500,
+      "seconds": 14400,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 10
+        }
+      ],
+      "desc": "A hefty training sword, forged many generations ago.\n\nThough its hilt has known many young soldiers to be, Wulder is not so worn as it is old. You imagine this broadsword respectfully retired. A mantlepiece hung above a Curlailan hearth. Warming. Waiting. For the fated hand of its final student.",
+      "icon": "img/game/storeitems-weapons-startersword.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Courage"
+      ]
+    },
+    "/SF/Types/Recipes/Weapons/WazzardStaffCasterRangedMeleeWeaponBlueprint": {
+      "name": "The Erstroot",
+      "station": "Blacksmith",
+      "kind": "Weapons",
+      "result": "/SF/Weapons/Ranged/OneHand/WazzardStaff/WazzardStaffCasterRangedMeleeWeapon",
+      "rarity": "UNCOMMON",
+      "fragments": 2,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 2500,
+      "seconds": 36000,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/CorruptOnyxResource",
+          "name": "Corrupt Onyx",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 20
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 8
+        }
+      ],
+      "desc": "A witching-staff of Wevetroot.\n\nPlucked from the Wastegraves by the Wazzard's own hand, a creeping root steeped in ichor. Be it Ode'n corruption that grants it such power? The darkened trace of magick sap? Or an ancient curse from the Waste Wraith himself?",
+      "icon": "img/game/storeitems-weapons-wazzardstaff.png",
+      "bond": null,
+      "slot": "Primary",
+      "scaling": [
+        "Spirit"
+      ],
+      "requires": {
+        "Spirit": 16
+      }
     }
   }
 }

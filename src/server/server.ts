@@ -275,8 +275,8 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
   }
 
   if (url.pathname === "/api/avakot" && req.method === "GET") {
-    const { avakotWatch, avakotNotify } = await getSettings();
-    sendJson(res, 200, { ...(await getAvakot()), watch: avakotWatch, notify: avakotNotify });
+    const { avakotWatch, avakotNotify, avakotResetNotify } = await getSettings();
+    sendJson(res, 200, { ...(await getAvakot()), watch: avakotWatch, notify: avakotNotify, resetNotify: avakotResetNotify });
     return;
   }
 

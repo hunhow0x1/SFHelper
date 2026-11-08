@@ -111,8 +111,9 @@ export function resetRememberedAgari(): void {
 }
 
 export async function withAgariNames(timers: GameTimer[]): Promise<GameTimer[]> {
+  const spawned = await loggedAgari().then(rememberedAgari);
   if (!timers.some((t) => t.spot)) return timers;
-  const [known, spawned, agentName] = await Promise.all([readDataJson<Record<string, string>>(AGARI_SPOTS), loggedAgari().then(rememberedAgari), getAgentNamer()]);
+  const [known, agentName] = await Promise.all([readDataJson<Record<string, string>>(AGARI_SPOTS), getAgentNamer()]);
   return nameAgari(timers, { ...known, ...spawned }, agentName);
 }
 

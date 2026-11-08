@@ -141,6 +141,14 @@ export async function acknowledgeAvakot(watch: readonly string[]): Promise<void>
   await saveState(s);
 }
 
+const RESET_NOTICE_MS = 15 * 60_000;
+
+export function stockReset(prev: AvakotStock | null, next: AvakotStock, now = Date.now()): boolean {
+  if (!prev || now < prev.nextChange || now - prev.nextChange > RESET_NOTICE_MS) return false;
+  const had = new Set(prev.offers.map((o) => o.id));
+  return next.offers.some((o) => o.expiry !== null && !had.has(o.id));
+}
+
 export async function getAvakot(now = Date.now()): Promise<{ stock: AvakotStock | null; seen: Record<string, AvakotSeen> }> {
   const s = await loadState();
   const stock = s.stock && { ...s.stock, offers: s.stock.offers.filter((o) => o.expiry === null || o.expiry > now) };

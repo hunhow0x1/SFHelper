@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { findCacheDir, findRootEntry, hostPath, readEntry, tocIndex } from "../src/gamedata/cache";
 import { readLanguages } from "../src/gamedata/formats";
-import { buildArmour, buildArsenal, buildEnemies, buildNames, buildPactArtTexts, buildPactArtValues, buildTalismans, buildTempers, buildTotemData, buildUpgrades, itemIconPaths, mergeRuneValues, parseFactionCaps, runeValues, withRetired } from "../src/gamedata/builders";
+import { buildArmour, buildArsenal, buildEnemies, aspectManifests, buildNames, buildPactArtTexts, buildPactArtValues, buildTalismans, buildTempers, buildTotemData, buildUpgrades, itemIconPaths, mergeRuneValues, parseFactionCaps, parseRuneTags, runeValues, withRetired } from "../src/gamedata/builders";
 import { locValues, parseChunk, parseLocScript } from "../src/gamedata/luau";
 import { decodeBC3, encodePng, mipChain, textureImage } from "../src/gamedata/textures";
 import { loggedGame } from "../src/server/gameLog";
@@ -464,5 +464,42 @@ describe("Tempers, Totem cards and Pact Arts in the game's own words", () => {
     });
     expect((await buildTotemData(dict, texts, null, async () => null))["Far Foul"]).toMatchObject({ animal: "Rabbit", base: [[]] });
     expect(buildPactArtTexts(dict, texts)).toEqual({ Barkbare: "Like grafting tree bark." });
+  });
+});
+
+describe("which weapons each Temper can roll on", () => {
+  const manifest = (tag: string, entries: [string, string][]) =>
+    `MarketMode=MM_HIDDEN\nLocalizeTag=${tag}\nItemCompatibility=/SF/Types/Game/SFCasterMeleeWeapon\nUpgradeEntries={\n${entries.map(([t, i]) => `{\nTag=${t}\nIcon=${i}\n}`).join(",\n")}\n}`;
+  const tree = new Map<string, string | null>([
+    ["/SF/Types/Items/Aspects/BaseAspectManifest", null],
+    ["/SF/Types/Items/Aspects/FeyLightMeleeAspectManifest", null],
+    ["/SF/Types/Items/Aspects/OdeRangedAspectManifest", null],
+  ]);
+  const texts = [
+    manifest("/SF/Language/Menu/OriginFey", [["CritChanceMod", "/SF/Interface/Graphics/Aspects/Universal/Smite.png"], ["FeyMod", "/SF/Interface/Graphics/Aspects/Fey/Duplicate.png"]]),
+    manifest('"[HC] OdeRangedAspectManifest"', [["CritChanceMod", '""']]),
+    "TypeName=/SF/Weapons/Melee/Rapier/RapierWeapon\nAspectManifest=/SF/Types/Items/Aspects/FeyLightMeleeAspectManifest",
+    "TypeName=/SF/Weapons/Bow/BowWeapon\nAspectManifest=/SF/Types/Items/Aspects/OdeRangedAspectManifest",
+    "LocalizeTag=/T/Crit\nLocalizeDescTag=/T/CritD\nTypeName=/SF/Types/Items/Aspects/Tempers/CritChanceMod",
+    "LocalizeTag=/T/Fey\nLocalizeDescTag=/T/FeyD\nTypeName=/SF/Types/Items/Aspects/Tempers/FeyMod",
+  ];
+  const dict = { "/T/Crit": "Smite", "/T/CritD": "More Smites.", "/T/Fey": "Duplicate", "/T/FeyD": "Twice." };
+
+  it("lines manifests up with their types and lists the weapons that use them", () => {
+    const manifests = aspectManifests(texts, tree);
+    expect([...manifests.keys()]).toEqual(["/SF/Types/Items/Aspects/FeyLightMeleeAspectManifest", "/SF/Types/Items/Aspects/OdeRangedAspectManifest"]);
+    const tempers = buildTempers(dict, texts, manifests, { "/SF/Weapons/Melee/Rapier/RapierWeapon": "Navalha", "/SF/Weapons/Bow/BowWeapon": "Avex" });
+    expect(tempers.CritChanceMod).toEqual({ name: "Smite", effect: "More Smites.", icon: "/SF/Interface/Graphics/Aspects/Universal/Smite.png", weapons: ["Avex", "Navalha"] });
+    expect(tempers.FeyMod!.weapons).toEqual(["Navalha"]);
+  });
+
+  it("gives up rather than guess when the order doesn't line up", () => {
+    const swapped = new Map([...tree].reverse());
+    expect(aspectManifests(texts, swapped).size).toBe(0);
+  });
+
+  it("reads rune tags from the wiki's rune data", () => {
+    const lua = '{\n  ["The Torrent"] = {\n    InternalID= "/SF/Upgrades/Runes/Weapon/Bow/X",\n    Tags= "Cogah",\n  },\n  ["Hurlwind"] = {\n    InternalID= "/SF/Upgrades/Runes/Weapon/Bow/Y",\n  },\n}';
+    expect(parseRuneTags(lua)).toEqual(new Map([["/SF/Upgrades/Runes/Weapon/Bow/X", ["Cogah"]], ["/SF/Upgrades/Runes/Weapon/Bow/Y", []]]));
   });
 });

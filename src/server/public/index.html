@@ -462,6 +462,32 @@
       .mempips i { width: 7px; height: 7px; border: 1px solid var(--line-2); transform: rotate(45deg); }
       .mempips i.on { background: var(--accent-2); border-color: var(--accent-2); box-shadow: 0 0 6px rgba(127, 181, 154, 0.45); }
       .upgroups { columns: 4 300px; }
+      #panel-upgrades .upgroups { columns: 3 360px; }
+      #panel-upgrades .avrow { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 14px; padding: 9px 0; font-size: 16.5px; }
+      #panel-upgrades .avrow.plain { grid-template-columns: minmax(0, 1fr) auto; }
+      #panel-upgrades .avrow .avicn { width: 40px; height: 40px; }
+      #panel-upgrades .avrow .avn small { font-size: 14px; }
+      #panel-upgrades .avrow .avr { font-size: 14.5px; }
+      #panel-upgrades .avrow .avr small { font-size: 13px; }
+      #panel-upgrades .avgroup h3 { font-size: 17px; }
+      #panel-upgrades .avgroup h3 img { width: 26px; height: 26px; }
+      #panel-upgrades .rows { gap: 16px; }
+      #panel-upgrades .row .label { font-size: 17px; }
+      #panel-upgrades .row .val { font-size: 15.5px; }
+      #panel-upgrades .tgrid { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
+      #panel-upgrades .tcard { grid-template-columns: 64px 1fr; }
+      #panel-upgrades .tcard .ticon { width: 64px; height: 64px; }
+      #panel-upgrades .tcard .tname { font-size: 17px; }
+      #panel-upgrades .tcard .tmeta { font-size: 14.5px; }
+      #panel-upgrades .tcard .tfx { font-size: 16px; }
+      #panel-upgrades .tcard .ton { font-size: 13.5px; }
+      .tframe { display: inline-grid; place-items: center; width: 40px; height: 40px; flex: none; vertical-align: middle; margin-right: 12px; background: url(img/game/temperframe.png) center / contain no-repeat; }
+      .row .label .tframe .ticn, .tframe .ticn { width: 27px; height: 27px; margin: 0; vertical-align: 0; }
+      .temperrow.unfound .label { color: var(--faint); }
+      .temperrow.unfound .tframe { opacity: 0.5; }
+      .rtag { display: inline-block; margin-left: 8px; padding: 1px 6px; border: 1px solid rgba(201, 120, 92, 0.55); color: #e0a189; font: 500 10.5px/1.4 var(--body); letter-spacing: 0.12em; text-transform: uppercase; vertical-align: 2px; }
+      .temperpop .tp-on { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+      .temperpop .tp-on .tp-rank { margin-bottom: 4px; }
       .upgroups .avgroup h3 img { width: 22px; height: 22px; object-fit: contain; align-self: center; }
       .upgroups .avrow.plain { grid-template-columns: minmax(0, 1fr) auto; }
       .upgroups .avr .mempips { justify-content: flex-end; }
@@ -834,6 +860,7 @@
         <section data-view="tempers">
           <h2>Tempers · Tuvalkane</h2>
           <div class="daily" id="temperSummary"></div>
+          <div class="tfilters" id="temperFilters"></div>
           <div id="tempers" class="rows"><span class="muted">Dismantle weapons to teach Tuvalkane their tempers (10 to learn each).</span></div>
         </section>
         <section id="runesSection" data-view="runes" hidden>
@@ -928,6 +955,11 @@
               <input type="checkbox" id="avNotify" />
               <span class="sw"></span>
               Notify me about starred items
+            </label>
+            <label class="notifytoggle" id="avResetNotifyWrap" hidden title="Desktop notification with sound when Avakot's rotating stock resets">
+              <input type="checkbox" id="avResetNotify" />
+              <span class="sw"></span>
+              Notify me when the stock resets
             </label>
           </div>
           <div class="daily" id="avSummary"></div>
@@ -1084,7 +1116,21 @@
       const temperName = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].name) || cleanTemper(tag);
       const temperEffect = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].effect) || "";
       const temperIcon = (tag) =>
-        `<img class="ticn" src="img/tempers/${temperName(tag).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.png" alt="" loading="lazy" onerror="this.remove()">`;
+        `<img class="ticn" src="${(TEMPER_DB[tag] && TEMPER_DB[tag].icon) || `img/tempers/${temperName(tag).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.png`}" alt="" loading="lazy" onerror="this.remove()">`;
+      const framedTemper = (tag) => `<span class="tframe">${temperIcon(tag)}</span>`;
+      function temperWeaponsHtml(tag) {
+        const ws = (TEMPER_DB[tag] && TEMPER_DB[tag].weapons) || [];
+        if (!ws.length) return "";
+        const most = Math.max(...Object.values(TEMPER_DB).map((t) => (t.weapons || []).length));
+        if (ws.length === most) return '<div class="tp-on">Can roll on any weapon</div>';
+        const bySlot = new Map();
+        for (const w of ws) {
+          const slot = (WEAPON_ROSTER[w] || {}).slot || "Other";
+          (bySlot.get(slot) || bySlot.set(slot, []).get(slot)).push(w);
+        }
+        const parts = ["Primary", "Sidearm", "Other"].filter((k) => bySlot.has(k)).map((k) => `<div><b>${k}:</b> ${bySlot.get(k).map(escHtml).join(", ")}</div>`);
+        return `<div class="tp-on"><div class="tp-rank">Rolls on ${ws.length} weapon${ws.length === 1 ? "" : "s"}</div>${parts.join("")}</div>`;
+      }
       const temperChip = (tag, count = 1) =>
         `<span class="chip temper${count > 1 ? " stacked" : ""}" data-tag="${tag}" data-count="${count}">${temperIcon(tag)}<span>${temperName(tag)}${count > 1 ? ` <span class="x2">×${count}</span>` : ""}</span></span>`;
       function temperChips(arr) {
@@ -1114,7 +1160,8 @@
           const eff = temperEffect(tag);
           const dbl = count > 1 ? `<div class="tp-dbl">Double-stacked ×${count} — effect is doubled</div>` : "";
           const effHtml = eff ? `<div class="tp-eff">${eff}</div>` : `<div class="tp-eff muted">Effect not documented yet.</div>`;
-          temperPop.innerHTML = `<div class="tp-head">${temperIcon(tag)}<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div></div>${dbl}${effHtml}`;
+          const row = el.classList.contains("temperrow");
+          temperPop.innerHTML = `<div class="tp-head">${row ? framedTemper(tag) : temperIcon(tag)}<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div></div>${dbl}${effHtml}${row ? temperWeaponsHtml(tag) : ""}`;
         }
         document.body.appendChild(temperPop);
         const r = (el.querySelector(".label") || el).getBoundingClientRect();
@@ -1326,28 +1373,47 @@
       });
 
       const TEMPER_GOAL = 10;
-      const TEMPER_TOTAL = 43;
+      const TEMPER_UI = { show: "all", sort: "progress" };
+      try { Object.assign(TEMPER_UI, JSON.parse(localStorage.getItem("sfhelper.tempers") || "{}")); } catch {}
       function renderTempers() {
-        const list = LAST_TEMPERS || [];
-        const learned = list.filter((t) => t.count >= TEMPER_GOAL).length;
-        const inProgress = list.filter((t) => t.count > 0 && t.count < TEMPER_GOAL).length;
-        $("temperSummary").innerHTML = list.length
-          ? `Learned <b>${learned}</b> &nbsp;·&nbsp; In progress <b>${inProgress}</b> &nbsp;·&nbsp; Encountered <b>${list.length}</b> of ~${TEMPER_TOTAL} in-game`
-          : "";
+        const seen = new Map((LAST_TEMPERS || []).map((t) => [t.tag, t.count]));
+        const tags = [...new Set([...Object.keys(TEMPER_DB), ...seen.keys()])];
+        if (!LAST_TEMPERS) return;
+        const list = tags.map((tag) => ({ tag, count: seen.get(tag) || 0 }));
+        const done = (t) => t.count >= TEMPER_GOAL;
+        const learned = list.filter(done).length;
+        const inProgress = list.filter((t) => t.count > 0 && !done(t)).length;
+        $("temperSummary").innerHTML = `Learned <b>${learned}</b> &nbsp;·&nbsp; In progress <b>${inProgress}</b> &nbsp;·&nbsp; Not found yet <b>${list.length - learned - inProgress}</b> &nbsp;·&nbsp; ${list.length} Tempers in-game`;
+        const show = { all: () => true, learned: done, missing: (t) => !done(t) };
+        if (!show[TEMPER_UI.show]) TEMPER_UI.show = "all";
+        const sorts = {
+          progress: (a, b) => b.count - a.count || prettyTemper(a.tag).localeCompare(prettyTemper(b.tag)),
+          least: (a, b) => a.count - b.count || prettyTemper(a.tag).localeCompare(prettyTemper(b.tag)),
+          name: (a, b) => prettyTemper(a.tag).localeCompare(prettyTemper(b.tag)),
+        };
+        if (!sorts[TEMPER_UI.sort]) TEMPER_UI.sort = "progress";
+        const chip = (k, v, label, n) =>
+          `<button class="fchip${TEMPER_UI[k] === v ? " active" : ""}" data-k="${k}" data-v="${v}">${label}${n == null ? "" : `<span class="n">${n}</span>`}</button>`;
+        $("temperFilters").innerHTML =
+          `<span class="fl">Show</span><div class="wfilter">${chip("show", "all", "All", list.length)}${chip("show", "learned", "Learned", learned)}${chip("show", "missing", "Missing", list.length - learned)}</div>` +
+          `<span class="fl">Sort</span><div class="wfilter">${chip("sort", "progress", "Most progress")}${chip("sort", "least", "Least progress")}${chip("sort", "name", "Name")}</div>`;
         const rows = list
-          .sort((a, b) =>
-            (b.count >= TEMPER_GOAL ? 1 : 0) - (a.count >= TEMPER_GOAL ? 1 : 0) ||
-            b.count - a.count ||
-            prettyTemper(a.tag).localeCompare(prettyTemper(b.tag)),
-          )
+          .filter(show[TEMPER_UI.show])
+          .sort(sorts[TEMPER_UI.sort])
           .map((t) => {
-            const done = t.count >= TEMPER_GOAL;
-            const status = done ? '<span class="mx">Learned</span>' : `${t.count}/${TEMPER_GOAL}`;
-            return `<div class="row wrow temperrow" data-tag="${t.tag}"><span class="label">${temperIcon(t.tag)}${prettyTemper(t.tag)}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(Math.min(1, t.count / TEMPER_GOAL) * 100)}%"></i></span></div>`;
+            const status = done(t) ? '<span class="mx">Learned</span>' : `${t.count}/${TEMPER_GOAL}`;
+            return `<div class="row wrow temperrow${t.count ? "" : " unfound"}" data-tag="${t.tag}"><span class="label">${framedTemper(t.tag)}${prettyTemper(t.tag)}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(Math.min(1, t.count / TEMPER_GOAL) * 100)}%"></i></span></div>`;
           })
           .join("");
-        if (list.length) $("tempers").innerHTML = rows || '<span class="muted">No tempers match.</span>';
+        $("tempers").innerHTML = rows || '<span class="muted">No Tempers match.</span>';
       }
+      $("temperFilters").addEventListener("click", (e) => {
+        const b = e.target.closest(".fchip");
+        if (!b) return;
+        TEMPER_UI[b.dataset.k] = b.dataset.v;
+        try { localStorage.setItem("sfhelper.tempers", JSON.stringify(TEMPER_UI)); } catch {}
+        renderTempers();
+      });
 
       function pickWhen(p) {
         const d = new Date(p.when || p.at);
@@ -1704,6 +1770,8 @@
           renderAvakot();
           const box = $("avNotify");
           if (document.activeElement !== box) box.checked = AV.notify !== false;
+          const reset = $("avResetNotify");
+          if (document.activeElement !== reset) reset.checked = AV.resetNotify === true;
         } catch {}
       }
       async function saveAvakotSettings(patch) {
@@ -1727,6 +1795,15 @@
       });
       if (navigator.userAgent.includes("Electron")) {
         $("avNotifyWrap").hidden = false;
+        $("avResetNotifyWrap").hidden = false;
+        $("avResetNotify").addEventListener("change", async (e) => {
+          const box = e.target;
+          try {
+            box.checked = (await saveAvakotSettings({ avakotResetNotify: box.checked })).avakotResetNotify;
+          } catch {
+            box.checked = !box.checked;
+          }
+        });
         $("avNotify").addEventListener("change", async (e) => {
           const box = e.target;
           try {
@@ -1818,7 +1895,7 @@
             : r != null ? `Rank ${r}` : "";
           const extra = !o.owned ? "" : o.unranked ? `<small>${o.unranked} unranked</small>` : r == null ? "<small>Unranked</small>" : "";
           const sub = [slotHtml(o.d.slot), o.ranks.length > 1 ? `${o.ranks.length} ranked` : ""].filter(Boolean).join(" · ");
-          return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}${extra}</div></div>`;
+          return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${(o.d.tags || []).includes("Cogah") ? '<span class="rtag" title="Only drops in the Cogah">Cogah</span>' : ""}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}${extra}</div></div>`;
         };
         const shownRunes = runes.filter((o) => passOwned("runes", o));
         const arts = [...new Set(shownRunes.map((o) => o.d.art || "Other"))].sort((a, b) => (a === "Other") - (b === "Other") || a.localeCompare(b));
@@ -1883,7 +1960,7 @@
           const rank = !held ? "Unowned" : r == null ? "Unranked" : max ? `Rank ${r} of ${max}` : `Rank ${r}`;
           const text = runeText(d, r);
           const stats = text ? `<div class="tp-eff">${text}</div>` : "";
-          const art = d.art ? `${escHtml(d.art)} rune · ` : "";
+          const art = (d.art ? `${escHtml(d.art)} rune · ` : "") + ((d.tags || []).includes("Cogah") ? "Cogah · " : "");
           return `<div class="tp-head">${d.icon ? upIcon(d.icon, "ticn") : ""}<div class="tp-name">${escHtml(d.name)}</div></div>` +
             `<div class="tp-rank">${art}${rank}</div>${d.desc ? `<div class="tp-quote">${escHtml(d.desc)}</div>` : ""}` +
             stats +
@@ -1900,12 +1977,15 @@
 
       let RECIPES = {};
       let LAST_CRAFTING = null;
-      const RECIPE_UI = { station: "all", show: "all" };
+      const RECIPE_UI = { station: "all", slot: "all", virtue: "all", show: "all" };
       try { Object.assign(RECIPE_UI, JSON.parse(localStorage.getItem("sfhelper.recipes") || "{}")); } catch {}
       const RECIPE_KINDS = { Elixirs: "Elixir", "Pup Treats": "Pup Treat", Palettes: "Palette" };
       const RECIPE_NPC = { Brewing: "Verminia", Blacksmith: "Tuvalkane" };
-      const RECIPE_STATIONS = [["Brewing", "Brewing"], ["Blacksmith", "Chordstones"]];
-      const recipeVerb = (r, n) => (r.station === "Brewing" ? (n === 1 ? "brew" : "brews") : n === 1 ? "cast" : "casts");
+      const RECIPE_GROUPS = [["Brewing", "Verminia"], ["Chordstones", "Tuvalkane"], ["Weapons", null], ["Armour", null]];
+      const RECIPE_SLOTS = ["Primary", "Sidearm", "Helm", "Cuirass", "Leggings"];
+      const recipeGroup = (r) => (r.station === "Brewing" ? "Brewing" : r.kind);
+      const isGear = (r) => r.kind === "Weapons" || r.kind === "Armour";
+      const recipeVerb = (r, n) => (r.station === "Brewing" ? (n === 1 ? "brew" : "brews") : isGear(r) ? (n === 1 ? "build" : "builds") : n === 1 ? "cast" : "casts");
       function craftTime(sec) {
         if (!sec) return "Instant";
         const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
@@ -1916,13 +1996,13 @@
         const fragments = c.recipes[type] || 0;
         const limits = r.ingredients.map((i) => Math.floor(have(i) / i.count));
         if (r.dracs > 0) limits.push(Math.floor(c.dracs / r.dracs));
-        if (r.consumed) limits.push(Math.floor(fragments / r.fragments));
+        limits.push(r.consumed ? Math.floor(fragments / r.fragments) : fragments >= r.fragments ? Infinity : 0);
         const times = Math.max(0, Math.min(...limits));
         const bond = c.bond[RECIPE_NPC[r.station]];
-        const locked = r.bond != null && bond != null && bond < r.bond;
+        const locked = !isGear(r) && r.bond != null && bond != null && bond < r.bond;
         const missing = r.ingredients.filter((i) => have(i) < i.count).map((i) => i.name);
         if (r.dracs > c.dracs) missing.push("Dracs");
-        if (r.consumed && fragments < r.fragments) missing.push("Fragments");
+        if (fragments < r.fragments) missing.push("Fragments");
         return { have, fragments, times, locked, missing, ready: !locked && times > 0 };
       }
       function recipeCard(o, c) {
@@ -1934,7 +2014,9 @@
         const meta = s.locked
           ? `Needs Bond Rank ${r.bond} with ${npc}`
           : s.ready ? `Enough for ${fmt(s.times)} ${recipeVerb(r, s.times)}` : `Short of ${s.missing.map(escHtml).join(", ")}`;
-        const kind = RECIPE_KINDS[r.kind] ? `<span class="avgrp">${RECIPE_KINDS[r.kind]}</span>` : "";
+        const virtues = (r.scaling || []).map((v) => `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(" ");
+        const kind = RECIPE_KINDS[r.kind] ? `<span class="avgrp">${RECIPE_KINDS[r.kind]}</span>`
+          : r.slot ? `<span class="avgrp">${escHtml(r.slot)}</span>${virtues ? `<span>${virtues}</span>` : ""}` : "";
         const ings = r.ingredients
           .map((i) => {
             const n = s.have(i);
@@ -1944,7 +2026,7 @@
         const foot = [
           r.dracs ? `<span class="avprice${c.dracs < r.dracs ? " short" : ""}" title="Dracs"><img src="img/game/dracs.png" alt="">${fmt(r.dracs)}</span>` : "",
           `<span>${craftTime(r.seconds)}</span>`,
-          r.consumed ? `<span>Fragments ${fmt(s.fragments)} / ${fmt(r.fragments)}</span>` : "",
+          r.consumed || r.fragments > 1 ? `<span>Fragments ${fmt(s.fragments)} / ${fmt(r.fragments)}</span>` : "",
         ].join("");
         return `<div class="rcard${s.ready ? " ready" : ""}">` +
           `<div class="rhead poprow" data-kind="recipe" data-type="${escHtml(type)}">${upIcon(r.icon)}` +
@@ -1957,7 +2039,7 @@
         if (!c) {
           $("recipeSummary").innerHTML = "";
           $("recipeFilters").innerHTML = "";
-          $("recipes").innerHTML = '<span class="muted">Import your inventory to see what you can brew and cast.</span>';
+          $("recipes").innerHTML = '<span class="muted">Import your inventory to see what you can brew, cast and build.</span>';
           return;
         }
         const all = Object.entries(RECIPES)
@@ -1966,32 +2048,45 @@
         if (!all.length) {
           $("recipeSummary").innerHTML = "";
           $("recipeFilters").innerHTML = "";
-          $("recipes").innerHTML = '<span class="muted">No brewing or Chordstone recipes in your inventory yet.</span>';
+          $("recipes").innerHTML = '<span class="muted">No recipes in your inventory yet.</span>';
           return;
         }
         const bonds = Object.values(RECIPE_NPC).filter((npc) => c.bond[npc] != null).map((npc) => `${npc} Bond <b>${c.bond[npc]}</b>`);
         $("recipeSummary").innerHTML = [`Ready <b>${all.filter((o) => o.s.ready).length}</b> of ${all.length}`, ...bonds].join(" &nbsp;·&nbsp; ");
 
-        if (!["all", ...RECIPE_STATIONS.map(([k]) => k)].includes(RECIPE_UI.station)) RECIPE_UI.station = "all";
+        const groupsHere = RECIPE_GROUPS.map(([k]) => k).filter((k) => all.some((o) => recipeGroup(o.r) === k));
+        if (!groupsHere.includes(RECIPE_UI.station)) RECIPE_UI.station = "all";
         const show = { all: () => true, ready: (o) => o.s.ready, missing: (o) => !o.s.ready };
         if (!show[RECIPE_UI.show]) RECIPE_UI.show = "all";
-        const inStation = (o) => RECIPE_UI.station === "all" || o.r.station === RECIPE_UI.station;
         const chip = (k, v, label, n) =>
           `<button class="fchip${RECIPE_UI[k] === v ? " active" : ""}" data-k="${k}" data-v="${v}">${label}<span class="n">${n}</span></button>`;
-        const here = all.filter(inStation);
+        const row = (label, k, opts, list, test) =>
+          `<span class="fl">${label}</span><div class="wfilter">${chip(k, "all", "All", list.length)}` +
+          opts.map((v) => chip(k, v, v, list.filter((o) => test(o, v)).length)).join("") + "</div>";
+        const inGroup = (o) => RECIPE_UI.station === "all" || recipeGroup(o.r) === RECIPE_UI.station;
+        const byGroup = all.filter(inGroup);
+        const gearHere = byGroup.filter((o) => isGear(o.r));
+        const slots = RECIPE_SLOTS.filter((v) => gearHere.some((o) => o.r.slot === v));
+        if (!slots.includes(RECIPE_UI.slot)) RECIPE_UI.slot = "all";
+        const virtues = ["Courage", "Spirit", "Grace"].filter((v) => gearHere.some((o) => (o.r.scaling || []).includes(v)));
+        if (!virtues.includes(RECIPE_UI.virtue)) RECIPE_UI.virtue = "all";
+        const slotOk = (o) => RECIPE_UI.slot === "all" || o.r.slot === RECIPE_UI.slot;
+        const virtueOk = (o) => RECIPE_UI.virtue === "all" || (o.r.scaling || []).includes(RECIPE_UI.virtue);
+        const here = byGroup.filter((o) => slotOk(o) && virtueOk(o));
         $("recipeFilters").innerHTML =
-          `<span class="fl">Station</span><div class="wfilter">${chip("station", "all", "All", all.length)}` +
-          RECIPE_STATIONS.map(([k, label]) => chip("station", k, label, all.filter((o) => o.r.station === k).length)).join("") +
-          `</div><span class="fl">Show</span><div class="wfilter">${chip("show", "all", "All", here.length)}` +
+          row("Type", "station", groupsHere, all, (o, v) => recipeGroup(o.r) === v) +
+          (slots.length ? row("Slot", "slot", slots, byGroup.filter(virtueOk), (o, v) => o.r.slot === v) : "") +
+          (virtues.length ? row("Virtue", "virtue", virtues, byGroup.filter(slotOk), (o, v) => (o.r.scaling || []).includes(v)) : "") +
+          `<span class="fl">Show</span><div class="wfilter">${chip("show", "all", "All", here.length)}` +
           chip("show", "ready", "Ready", here.filter(show.ready).length) + chip("show", "missing", "Missing", here.filter(show.missing).length) + "</div>";
 
         const shown = here.filter(show[RECIPE_UI.show]);
         const kinds = Object.keys(RECIPE_KINDS);
         const order = (a, b) =>
-          kinds.indexOf(a.r.kind) - kinds.indexOf(b.r.kind) || a.r.gives - b.r.gives ||
-          (a.r.station === "Blacksmith" ? a.r.dracs - b.r.dracs : 0) || a.r.name.localeCompare(b.r.name);
-        const groups = RECIPE_STATIONS
-          .map(([station, label]) => [`${label} · ${RECIPE_NPC[station]}`, shown.filter((o) => o.r.station === station).sort(order)])
+          kinds.indexOf(a.r.kind) - kinds.indexOf(b.r.kind) || RECIPE_SLOTS.indexOf(a.r.slot) - RECIPE_SLOTS.indexOf(b.r.slot) ||
+          a.r.gives - b.r.gives || (a.r.kind === "Chordstones" ? a.r.dracs - b.r.dracs : 0) || a.r.name.localeCompare(b.r.name);
+        const groups = RECIPE_GROUPS
+          .map(([group, npc]) => [npc ? `${group} · ${npc}` : group, shown.filter((o) => recipeGroup(o.r) === group).sort(order)])
           .filter(([, list]) => list.length);
         $("recipes").innerHTML = groups.length
           ? `<div class="rgroups">${groups
@@ -2005,9 +2100,13 @@
         const npc = RECIPE_NPC[r.station];
         const bond = LAST_CRAFTING ? LAST_CRAFTING.bond[npc] : null;
         return `<div class="tp-head">${upIcon(r.icon, "ticn")}<div class="tp-name">${escHtml(r.name)}${r.gives > 1 ? ` ×${r.gives}` : ""}</div></div>` +
-          `<div class="tp-rank">${r.station === "Brewing" ? "Brewed" : "Cast"} by ${npc}</div>` +
+          (isGear(r)
+            ? `<div class="tp-rank">${escHtml(r.kind === "Weapons" ? `${r.slot || ""} weapon` : r.slot || "Armour")}</div>`
+            : `<div class="tp-rank">${r.station === "Brewing" ? "Brewed" : "Cast"} by ${npc}</div>`) +
           (r.desc ? `<div class="tp-quote">${escHtml(r.desc).replace(/\n/g, "<br>")}</div>` : "") +
-          (r.bond ? `<div class="tp-eff">Needs Bond Rank <b>${r.bond}</b> with ${npc}${bond != null ? ` · you're Rank ${bond}` : ""}</div>` : "");
+          (r.scaling && r.scaling.length ? `<div class="tp-eff">Scales with ${r.scaling.map((v) => `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(", ")}</div>` : "") +
+          (r.requires ? `<div class="tp-eff">Requires ${Object.entries(r.requires).map(([v, n]) => `<b>${n}</b> <span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(" · ")}</div>` : "") +
+          (r.bond && !isGear(r) ? `<div class="tp-eff">Needs Bond Rank <b>${r.bond}</b> with ${npc}${bond != null ? ` · you're Rank ${bond}` : ""}</div>` : "");
       }
       $("recipeFilters").addEventListener("click", (e) => {
         const b = e.target.closest(".fchip");
@@ -2718,7 +2817,7 @@
               .join("")
           : '<span class="muted">Owned currencies (Dracs, Harmonies…) aren\'t in the public profile — import your inventory to show them.</span>';
         const imp = data.importStatus;
-        const impNote = imp && imp.state === "error" && imp.code !== 3
+        const impNote = imp && imp.state === "error" && imp.code !== 3 && imp.code !== 6
           ? ` <span class="err" title="${imp.message.replace(/"/g, "&quot;")}">· Last import failed: ${imp.message}</span>`
           : "";
         $("invStatus").innerHTML = data.inventory
@@ -2979,18 +3078,21 @@
         if (d.avakot) AV_POOL = new Map((d.avakot.items || []).map((it) => [it.storeItem, it]));
         renderUpgradeItems();
         renderRecipes();
+        renderTempers();
         loadAvakot();
       }
 
       let accountWait = null;
       const IMPORT_HINT = {
         3: "Waiting for Soulframe — start the game and log in to a character; your account is detected automatically.",
+        6: "Soulframe is running — waiting for you to log in to a character.",
       };
+      const IMPORT_WAITING = new Set([3, 6]);
       async function showImportStatus() {
         try {
           const st = await (await fetch("/api/import-status")).json();
           if (!st) return;
-          if (st.state === "error") setStatus(IMPORT_HINT[st.code] || st.message, st.code !== 3);
+          if (st.state === "error") setStatus(IMPORT_HINT[st.code] || st.message, !IMPORT_WAITING.has(st.code));
           else if (st.state === "scanning") setStatus(st.message);
         } catch {}
       }
