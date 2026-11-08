@@ -490,6 +490,13 @@
       .temperpop .tp-on { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
       .temperpop .tp-on .tp-rank { margin-bottom: 4px; }
       .temperpop .tp-hint { color: var(--faint); font-size: 13px; }
+      .tp-drops h4 { margin: 8px 0 6px; font: 600 11.5px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: #a6dcc0; }
+      .tp-drops h4:first-of-type { margin-top: 2px; }
+      .tp-bosses { list-style: none; display: grid; gap: 6px; margin: 0; padding: 0; }
+      .tp-bosses li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 10px; align-items: center; color: var(--text); font-size: 14px; }
+      .tp-bosses img { width: 36px; height: 36px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)); }
+      .tp-src { margin-top: 8px; font-size: 13px; line-height: 1.45; }
+      .tp-src b { display: block; color: #a6dcc0; font: 600 11.5px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 3px; }
       .temperpop.pinned { width: 440px; max-width: calc(100vw - 24px); }
       .tp-weapons { max-height: 300px; overflow-y: auto; overscroll-behavior: contain; margin: 6px -6px 0 0; padding-right: 6px; }
       .tp-weapons h4 {
@@ -1184,6 +1191,7 @@
         closeTemperPop();
         temperPop = document.createElement("div");
         temperPop.className = "temperpop";
+        temperPop.source = el;
         if (hover) temperPop.dataset.hover = "1";
         if (el.classList.contains("artnode")) {
           temperPop.innerHTML = artPopHtml(el.dataset.art, Number(el.dataset.rank) || 0);
@@ -1209,10 +1217,11 @@
       document.addEventListener("click", (e) => {
         if (temperPop && temperPop.classList.contains("pinned") && temperPop.contains(e.target)) return;
         const el = e.target.closest && e.target.closest(".temper, .artnode, .temperrow, .poprow");
+        const pinned = temperPop && temperPop.classList.contains("pinned") ? temperPop.source : null;
         closeTemperPop();
         if (!el) return;
         e.stopPropagation();
-        openTemperPop(el);
+        if (el !== pinned) openTemperPop(el);
       });
       let hoverRow = null;
       document.addEventListener("mouseover", (e) => {
@@ -2024,6 +2033,18 @@
             : '<span class="muted">Nothing matches these filters.</span>';
       }
 
+      function runeDropsHtml(drops) {
+        if (!drops) return "";
+        const bosses = drops.bosses || [];
+        const boss = (b) => `<li><img src="${b.icon || "img/game/agari.png"}" alt="" loading="lazy" onerror="this.src='img/game/agari.png'"><span>${escHtml(b.name)}</span></li>`;
+        const group = (title, list) => (list.length ? `<h4>${title}</h4><ul class="tp-bosses">${list.map(boss).join("")}</ul>` : "");
+        const places = [["Sieges", drops.sieges], ["Votives", drops.votives], ["Chests", drops.chests]]
+          .filter(([, list]) => list && list.length)
+          .map(([title, list]) => `<div class="tp-src"><b>${title}</b> ${list.map(escHtml).join(", ")}</div>`);
+        const body = group("Agari", bosses.filter((b) => !b.cogah)) + group("In the Cogah", bosses.filter((b) => b.cogah)) + places.join("");
+        return body ? `<div class="tp-on tp-drops"><div class="tp-rank">Drops from</div>${body}</div>` : "";
+      }
+
       function upgradePopHtml(kind, type) {
         if (kind === "recipe") return recipePopHtml(type);
         const u = LAST_UPGRADE_ITEMS || { runes: [], joineries: [], gear: [] };
@@ -2041,7 +2062,8 @@
             `<div class="tp-rank">${art}${rank}</div>${d.desc ? `<div class="tp-quote">${escHtml(d.desc)}</div>` : ""}` +
             stats +
             (d.slot ? `<div class="tp-eff">Adds a ${slotHtml(d.slot)}.</div>` : "") +
-            (o.unranked ? `<div class="tp-dbl">${o.unranked} unranked ${o.unranked === 1 ? "copy" : "copies"}</div>` : "");
+            (o.unranked ? `<div class="tp-dbl">${o.unranked} unranked ${o.unranked === 1 ? "copy" : "copies"}</div>` : "") +
+            runeDropsHtml(d.drops);
         }
         const d = (kind === "joinery" ? UPGRADES.joineries : UPGRADES.gear)[type] || { name: shortName(type) };
         const icon = d.icon || ITEM_ICONS[d.name];
@@ -2054,8 +2076,14 @@
       let RECIPES = {};
       let LAST_CRAFTING = null;
       let RECIPE_WATCH = [];
-      const RECIPE_UI = { station: "all", slot: "all", virtue: "all", show: "all" };
-      try { Object.assign(RECIPE_UI, JSON.parse(localStorage.getItem("sfhelper.recipes") || "{}")); } catch {}
+      const RECIPE_UI = { station: "all", slot: "all", virtues: [], show: "all" };
+      try {
+        const saved = JSON.parse(localStorage.getItem("sfhelper.recipes") || "{}");
+        Object.assign(RECIPE_UI, saved);
+        if (!Array.isArray(saved.virtues) && typeof saved.virtue === "string" && saved.virtue !== "all") RECIPE_UI.virtues = [saved.virtue];
+        delete RECIPE_UI.virtue;
+      } catch {}
+      if (!Array.isArray(RECIPE_UI.virtues)) RECIPE_UI.virtues = [];
       const RECIPE_KINDS = { Elixirs: "Elixir", "Pup Treats": "Pup Treat", Palettes: "Palette" };
       const RECIPE_NPC = { Brewing: "Verminia", Blacksmith: "Tuvalkane" };
       const RECIPE_GROUPS = [["Brewing", "Verminia"], ["Chordstones", "Tuvalkane"], ["Weapons", null], ["Armour", null]];
@@ -2151,14 +2179,22 @@
         const slots = RECIPE_SLOTS.filter((v) => gearHere.some((o) => o.r.slot === v));
         if (!slots.includes(RECIPE_UI.slot)) RECIPE_UI.slot = "all";
         const virtues = ["Courage", "Spirit", "Grace"].filter((v) => gearHere.some((o) => (o.r.scaling || []).includes(v)));
-        if (!virtues.includes(RECIPE_UI.virtue)) RECIPE_UI.virtue = "all";
+        RECIPE_UI.virtues = RECIPE_UI.virtues.filter((v) => virtues.includes(v));
         const slotOk = (o) => RECIPE_UI.slot === "all" || o.r.slot === RECIPE_UI.slot;
-        const virtueOk = (o) => RECIPE_UI.virtue === "all" || (o.r.scaling || []).includes(RECIPE_UI.virtue);
+        const virtueOk = (o) => RECIPE_UI.virtues.every((v) => (o.r.scaling || []).includes(v));
         const here = byGroup.filter((o) => slotOk(o) && virtueOk(o));
+        const virtueChip = (v) => {
+          const on = RECIPE_UI.virtues.includes(v);
+          const n = here.filter((o) => (o.r.scaling || []).includes(v)).length;
+          const tip = on ? `Showing gear that scales with ${v}` : RECIPE_UI.virtues.length ? `Also require ${v}` : "Pick more than one to find gear that scales with all of them";
+          return `<button class="fchip${on ? " active" : ""}" data-k="virtues" data-v="${v}" aria-pressed="${on}" title="${tip}"><img src="${virtueIcon(v)}" alt="" class="keep">${v}<span class="n">${n}</span></button>`;
+        };
         $("recipeFilters").innerHTML =
           row("Type", "station", groupsHere, all, (o, v) => recipeGroup(o.r) === v) +
           (slots.length ? row("Slot", "slot", slots, byGroup.filter(virtueOk), (o, v) => o.r.slot === v) : "") +
-          (virtues.length ? row("Virtue", "virtue", virtues, byGroup.filter(slotOk), (o, v) => (o.r.scaling || []).includes(v)) : "") +
+          (virtues.length
+            ? `<span class="fl">Virtues</span><div class="wfilter"><button class="fchip${RECIPE_UI.virtues.length ? "" : " active"}" data-k="virtues" data-v="all">All<span class="n">${byGroup.filter(slotOk).length}</span></button>${virtues.map(virtueChip).join("")}</div>`
+            : "") +
           `<span class="fl">Show</span><div class="wfilter">${chip("show", "all", "All", here.length)}` +
           chip("show", "ready", "Ready", here.filter(show.ready).length) + chip("show", "missing", "Missing", here.filter(show.missing).length) +
           chip("show", "starred", "Starred", here.filter(show.starred).length) + "</div>";
@@ -2194,7 +2230,9 @@
       $("recipeFilters").addEventListener("click", (e) => {
         const b = e.target.closest(".fchip");
         if (!b) return;
-        RECIPE_UI[b.dataset.k] = b.dataset.v;
+        const { k, v } = b.dataset;
+        if (k === "virtues") RECIPE_UI.virtues = v === "all" ? [] : RECIPE_UI.virtues.includes(v) ? RECIPE_UI.virtues.filter((x) => x !== v) : [...RECIPE_UI.virtues, v];
+        else RECIPE_UI[k] = v;
         try { localStorage.setItem("sfhelper.recipes", JSON.stringify(RECIPE_UI)); } catch {}
         renderRecipes();
       });

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { findCacheDir, findRootEntry, hostPath, readEntry, tocIndex } from "../src/gamedata/cache";
 import { readLanguages } from "../src/gamedata/formats";
-import { buildArmour, buildArsenal, buildEnemies, aspectManifests, buildNames, buildPactArtTexts, buildPactArtValues, buildTalismans, buildTempers, buildTotemData, buildUpgrades, itemIconPaths, mergeRuneValues, parseFactionCaps, parseRuneTags, runeValues, withRetired } from "../src/gamedata/builders";
+import { buildArmour, buildArsenal, buildEnemies, aspectManifests, buildNames, buildPactArtTexts, buildPactArtValues, buildTalismans, buildTempers, buildTotemData, buildUpgrades, itemIconPaths, mergeRuneValues, parseFactionCaps, parseRuneTags, runeValues, withRetired, parseDropTables, bossPortraits, runeDrops } from "../src/gamedata/builders";
 import { locValues, parseChunk, parseLocScript } from "../src/gamedata/luau";
 import { decodeBC3, encodePng, mipChain, textureImage } from "../src/gamedata/textures";
 import { loggedGame } from "../src/server/gameLog";
@@ -501,5 +501,101 @@ describe("which weapons each Temper can roll on", () => {
   it("reads rune tags from the wiki's rune data", () => {
     const lua = '{\n  ["The Torrent"] = {\n    InternalID= "/SF/Upgrades/Runes/Weapon/Bow/X",\n    Tags= "Cogah",\n  },\n  ["Hurlwind"] = {\n    InternalID= "/SF/Upgrades/Runes/Weapon/Bow/Y",\n  },\n}';
     expect(parseRuneTags(lua)).toEqual(new Map([["/SF/Upgrades/Runes/Weapon/Bow/X", ["Cogah"]], ["/SF/Upgrades/Runes/Weapon/Bow/Y", []]]));
+  });
+});
+
+describe("where each rune drops", () => {
+  const lua = `return {
+\t["SpiderSubBoss"] = {
+\t\tTags = "Foes",
+\t\tSources = {
+\t\t\t{
+\t\t\t\tName = "Etheldred The Weaver",
+\t\t\t\tLink = "Etheldred The Weaver",
+\t\t\t},
+\t\t\t{
+\t\t\t\tName = "Seachnall The Widower",
+\t\t\t\tLink = "Seachnall The Widower",
+\t\t\t},
+\t\t},
+\t\tDrops =
+\t\t\t{
+\t\t\t\t{ Name = "Emberaught", Quantity = "1" },
+\t\t\t}
+\t},
+\t["HunterRednightBoss"] = {
+\t\tTags = "Foes",
+\t\tSources = {
+\t\t\t{
+\t\t\t\tName = "Gruul-Seeker Ruthos (Cogah)",
+\t\t\t\tLink = "Gruul-Seeker Ruthos",
+\t\t\t},
+\t\t},
+\t\tDrops =
+\t\t\t{
+\t\t\t\t{ Name = "The Torrent", Quantity = "1" },
+\t\t\t\t{ Name = "Hunter's Hood", Quantity = "1" },
+\t\t\t}
+\t},
+\t["KearnholdSiegeMissionRewardItemManifest"] = {
+\t\tTags = "Sieges",
+\t\tSources = {
+\t\t\t{
+\t\t\t\tName = "Fort Kearnhold Siege",
+\t\t\t\tLink = "Fort Kearnhold",
+\t\t\t},
+\t\t},
+\t\tDrops =
+\t\t\t{
+\t\t\t\t{ Name = "Emberaught", Quantity = "1" },
+\t\t\t}
+\t},
+\t["FortressODellDungeonVotiveRewardManifest"] = {
+\t\tTags = "Votives",
+\t\tSources = {
+\t\t\t{
+\t\t\t\tName = "Fortress O'Dell#Dungeon Votive",
+\t\t\t\tLink = "Fortress O'Dell#Dungeon Votive",
+\t\t\t},
+\t\t},
+\t\tDrops =
+\t\t\t{
+\t\t\t\t{ Name = "Emberaught", Quantity = "1" },
+\t\t\t}
+\t},
+}`;
+  const enemies = {
+    names: { spidersubbossavatar: "Etheldred The Weaver", spidersubbossprocavatar: "Seachnall The Widower", rangedhuntersubbossavatar: "Gruulseeker Ruthos" },
+    parents: { SpiderSubBossAvatar: "GruntAvatarBase", SpiderSubBossProcAvatar: "SpiderSubBossAvatar", RangedHunterSubBossAvatar: "RangedHunterEliteAvatar", RangedHunterEliteAvatar: "GruntAvatarBase" },
+  };
+  const texts = [
+    "LocTag=/SF/Language/Codex/SpiderSubbossAvatarName\nIcon=/SF/Interface/Graphics/StoreItems/Codex/SubBosses/SpiderSubBoss.png",
+    "LocTag=/SF/Language/Codex/SpiderSubbossProcAvatarName",
+    "LocTag=/SF/Language/Codex/RangedHunterEliteAvatarName\nIcon=/SF/Interface/Graphics/StoreItems/Codex/Ode/RangedHunterElite.png",
+    "LocTag=/SF/Language/Codex/RangedHunterSubbossAvatarName",
+  ];
+
+  it("reads the wiki's drop tables", () => {
+    const tables = parseDropTables(lua);
+    expect(tables.map((t) => t.key)).toEqual(["SpiderSubBoss", "HunterRednightBoss", "KearnholdSiegeMissionRewardItemManifest", "FortressODellDungeonVotiveRewardManifest"]);
+    expect(tables[1]).toEqual({ key: "HunterRednightBoss", tags: "Foes", sources: ["Gruul-Seeker Ruthos (Cogah)"], drops: ["The Torrent", "Hunter's Hood"] });
+  });
+
+  it("names Agari as the game does, with their codex portraits", () => {
+    const bosses = bossPortraits(texts, enemies);
+    expect(bosses.get("seachnallthewidower")).toEqual({ name: "Seachnall The Widower", icon: "/SF/Interface/Graphics/StoreItems/Codex/SubBosses/SpiderSubBoss.png" });
+    expect(bosses.get("gruulseekerruthos")).toEqual({ name: "Gruulseeker Ruthos", icon: "/SF/Interface/Graphics/StoreItems/Codex/Ode/RangedHunterElite.png" });
+
+    const drops = runeDrops(parseDropTables(lua), { "/R/Emberaught": "Emberaught", "/R/Torrent": "The Torrent", "/R/Other": "Hurlwind" }, bosses);
+    expect(drops["/R/Emberaught"]).toEqual({
+      bosses: [
+        { name: "Etheldred The Weaver", icon: "/SF/Interface/Graphics/StoreItems/Codex/SubBosses/SpiderSubBoss.png" },
+        { name: "Seachnall The Widower", icon: "/SF/Interface/Graphics/StoreItems/Codex/SubBosses/SpiderSubBoss.png" },
+      ],
+      sieges: ["Fort Kearnhold Siege"],
+      votives: ["Fortress O'Dell Dungeon Votive"],
+    });
+    expect(drops["/R/Torrent"]).toEqual({ bosses: [{ name: "Gruulseeker Ruthos", icon: "/SF/Interface/Graphics/StoreItems/Codex/Ode/RangedHunterElite.png", cogah: true }] });
+    expect(drops["/R/Other"]).toBeUndefined();
   });
 });

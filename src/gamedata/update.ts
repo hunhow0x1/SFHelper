@@ -18,10 +18,13 @@ import {
   buildTempers,
   buildTotemData,
   buildUpgrades,
+  bossPortraits,
   itemIconPaths,
   parseCraftingTable,
   parseFactionCaps,
+  parseDropTables,
   parseRuneTags,
+  runeDrops,
   typeIcons,
   withRetired,
   type ArmourEntry,
@@ -56,6 +59,7 @@ export const GAME_DATA_FILES = [
 
 const CURRENCY_ICONS: [string, string][] = [
   ["/SF/Interface/Graphics/Crafting/SelectablesFrame.png", "img/game/temperframe.png"],
+  ["/SF/Interface/Graphics/StoreItems/Pickups/SubBossToken.png", "img/game/agari.png"],
   ["/SF/Interface/Graphics/Market/DracsCurrencyIcon.png", "img/game/dracs.png"],
   ["/SF/Interface/Graphics/StoreItems/Currency/PremiumCurrency.png", "img/game/arcs.png"],
 ];
@@ -223,9 +227,22 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     const lua = wiki ? await wiki.wikitext("Module:Data/Runes").catch(() => null) : null;
     const tags = lua ? parseRuneTags(lua) : null;
     if (wiki && !tags?.size) incomplete = true;
+    const dropLua = wiki ? await wiki.wikitext("Module:Data/DropTables").catch(() => null) : null;
+    const tables = dropLua ? parseDropTables(dropLua) : [];
+    if (wiki && !tables.length) incomplete = true;
+    const runeNames = Object.fromEntries(Object.entries(upgrades.runes).map(([type, r]) => [type, r.name]));
+    const drops = tables.length ? runeDrops(tables, runeNames, bossPortraits(unique, buildEnemies(dict, tree))) : null;
     for (const [type, r] of Object.entries(upgrades.runes)) {
       const t = tags?.size ? tags.get(type) : prev?.runes[type]?.tags;
       if (t?.length) r.tags = t;
+      const d = drops ? drops[type] : prev?.runes[type]?.drops;
+      if (!d) continue;
+      for (const b of d.bosses ?? []) {
+        const drawn = b.icon && !b.icon.startsWith("img/") ? await icon(b.icon) : b.icon;
+        if (drawn) b.icon = drawn;
+        else delete b.icon;
+      }
+      r.drops = d;
     }
     enough("upgrades", Object.keys(upgrades.runes).length + Object.keys(upgrades.gear).length, prev ? Object.keys(prev.runes).length + Object.keys(prev.gear).length : undefined);
     await put("upgrades.json", `${JSON.stringify(upgrades, null, 2)}\n`);

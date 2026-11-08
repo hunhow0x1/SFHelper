@@ -41,7 +41,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcaspirit011.png"
+      "icon": "img/game/runes-alca-alcaspirit011.png",
+      "drops": {
+        "chests": [
+          "Dendrit Chest (Carntyne Colliery)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Bow/BowKnockdownProjectileRune": {
       "name": "Dissever",
@@ -99,7 +104,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage019.png"
+      "icon": "img/game/runes-alca-alcacourage019.png",
+      "drops": {
+        "chests": [
+          "Rare Amber Deposit"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Bow/FlameRune/FlameRune": {
       "name": "Blazingbolt",
@@ -148,7 +158,16 @@
       "icon": "img/game/runes-alca-alcaspirit008.png",
       "tags": [
         "Cogah"
-      ]
+      ],
+      "drops": {
+        "bosses": [
+          {
+            "name": "Gruulseeker Ruthos",
+            "icon": "img/game/storeitems-codex-ode-rangedhunterelite.png",
+            "cogah": true
+          }
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Bow/StarterRune": {
       "name": "Alca's Breath",
@@ -176,7 +195,24 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage005.png"
+      "icon": "img/game/runes-alca-alcacourage005.png",
+      "drops": {
+        "bosses": [
+          {
+            "name": "Gruulseeker Ruthos",
+            "icon": "img/game/storeitems-codex-ode-rangedhunterelite.png"
+          }
+        ],
+        "sieges": [
+          "Fort Curlail Siege",
+          "Turret Jotar Siege"
+        ],
+        "chests": [
+          "Ode Chest",
+          "Ode Drone Rare Chest",
+          "Ode Strongbox"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeEmpoweredThrowRune": {
       "name": "Flamepitch",
@@ -219,7 +255,22 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage018.png"
+      "icon": "img/game/runes-alca-alcacourage018.png",
+      "drops": {
+        "votives": [
+          "Airde Limbwoods Dungeon Votive",
+          "Airde Limbwoods Siphon Votive",
+          "Fortress O'Dell Dungeon Votive",
+          "Fuirlands Dungeon Votive",
+          "Greater Curlail Dungeon Votive",
+          "Kearnhold Lowlands Dungeon Votive",
+          "Pigwen Skerry Dungeon Votive",
+          "The Roods Dungeon Votive"
+        ],
+        "chests": [
+          "Dendrit Chest (Undercity)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeInvisRune": {
       "name": "The Flitsmoke",
@@ -256,7 +307,21 @@
       "icon": "img/game/runes-alca-alcagrace001.png",
       "tags": [
         "Cogah"
-      ]
+      ],
+      "drops": {
+        "bosses": [
+          {
+            "name": "Etheldred The Weaver",
+            "icon": "img/game/storeitems-codex-subbosses-spidersubboss.png",
+            "cogah": true
+          },
+          {
+            "name": "Seachnall The Widower",
+            "icon": "img/game/storeitems-codex-subbosses-spidersubboss.png",
+            "cogah": true
+          }
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeLeechStrikeRune": {
       "name": "Parapelt",
@@ -299,7 +364,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcaspirit013.png"
+      "icon": "img/game/runes-alca-alcaspirit013.png",
+      "drops": {
+        "chests": [
+          "Ode Chest (Rovgot)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/StarterRune": {
       "name": "Emberaught",
@@ -327,7 +397,26 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage011.png"
+      "icon": "img/game/runes-alca-alcacourage011.png",
+      "drops": {
+        "bosses": [
+          {
+            "name": "Etheldred The Weaver",
+            "icon": "img/game/storeitems-codex-subbosses-spidersubboss.png"
+          },
+          {
+            "name": "Rovgot Wyrm",
+            "icon": "img/game/storeitems-codex-hostilecreatures-corrupteddecapede.png"
+          },
+          {
+            "name": "Seachnall The Widower",
+            "icon": "img/game/storeitems-codex-subbosses-spidersubboss.png"
+          }
+        ],
+        "sieges": [
+          "Fort Kearnhold Siege"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlameRune/FlameRune": {
       "name": "Emberlash",
@@ -388,7 +477,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcaspirit016.png"
+      "icon": "img/game/runes-alca-alcaspirit016.png",
+      "drops": {
+        "chests": [
+          "Dendrit Chest (Carntyne Colliery)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeKnockdownProjectileRune": {
       "name": "Reaproot",
@@ -446,7 +540,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage021.png"
+      "icon": "img/game/runes-alca-alcacourage021.png",
+      "drops": {
+        "chests": [
+          "Rare Amber Deposit"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeSeekingRune": {
       "name": "Picktrix",
@@ -483,7 +582,16 @@
       "icon": "img/game/runes-alca-alcacourage017.png",
       "tags": [
         "Cogah"
-      ]
+      ],
+      "drops": {
+        "bosses": [
+          {
+            "name": "Discharged Nimrod",
+            "icon": "img/game/storeitems-codex-subbosses-nimrodsubboss.png",
+            "cogah": true
+          }
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/StarterRune": {
       "name": "Hurlwind",
@@ -511,7 +619,32 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage013.png"
+      "icon": "img/game/runes-alca-alcacourage013.png",
+      "drops": {
+        "bosses": [
+          {
+            "name": "Discharged Nimrod",
+            "icon": "img/game/storeitems-codex-subbosses-nimrodsubboss.png"
+          }
+        ],
+        "sieges": [
+          "Fort Curlail Siege"
+        ],
+        "chests": [
+          "Amber Deposit",
+          "Basic Chest (Carntyne Colliery)",
+          "Basic Chest (Midrath)",
+          "Basic Chest (Undercity)",
+          "Crypt Sarcophagus",
+          "Dendrit Chest (Crypt)",
+          "Dendrit Chest (Midrath)",
+          "Dendrit Chest (Undercity)",
+          "Ode Chest (Rovgot)",
+          "Ode Strongbox (Rovgot)",
+          "Pigwen Skerry Chest",
+          "Rare Amber Deposit"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordArcaneBullwarkRune": {
       "name": "Wardwark",
@@ -539,7 +672,13 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcaspirit017.png"
+      "icon": "img/game/runes-alca-alcaspirit017.png",
+      "drops": {
+        "votives": [
+          "Kearnhold Lowlands Fey Relic",
+          "Pigwen Skerry Fey Relic"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordLeapAttackRune": {
       "name": "Crimsonfell",
@@ -582,7 +721,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage023.png"
+      "icon": "img/game/runes-alca-alcacourage023.png",
+      "drops": {
+        "chests": [
+          "Dendrit Chest (Glades)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordRangeRune": {
       "name": "Treefell",
@@ -643,7 +787,21 @@
       "icon": "img/game/runes-alca-alcacourage016.png",
       "tags": [
         "Cogah"
-      ]
+      ],
+      "drops": {
+        "bosses": [
+          {
+            "name": "Mendicant King",
+            "icon": "img/game/storeitems-codex-subbosses-mendicantking.png",
+            "cogah": true
+          },
+          {
+            "name": "Sinecure-errant Vella",
+            "icon": "img/game/storeitems-codex-subbosses-meleegreatswordsubboss.png",
+            "cogah": true
+          }
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/StarterRune": {
       "name": "Cindermore",
@@ -671,7 +829,26 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage010.png"
+      "icon": "img/game/runes-alca-alcacourage010.png",
+      "drops": {
+        "bosses": [
+          {
+            "name": "Mendicant King",
+            "icon": "img/game/storeitems-codex-subbosses-mendicantking.png"
+          },
+          {
+            "name": "Sinecure-errant Vella",
+            "icon": "img/game/storeitems-codex-subbosses-meleegreatswordsubboss.png"
+          }
+        ],
+        "sieges": [
+          "Mirifuir Siege"
+        ],
+        "chests": [
+          "Basic Chest (Glades)",
+          "Dendrit Chest (Glades)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeEmpoweredThrowRune": {
       "name": "Smeltsquall",
@@ -714,7 +891,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage024.png"
+      "icon": "img/game/runes-alca-alcacourage024.png",
+      "drops": {
+        "chests": [
+          "Dendrit Chest (Undercity)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeLeechStrikeRune": {
       "name": "Fortflank",
@@ -757,7 +939,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcaspirit014.png"
+      "icon": "img/game/runes-alca-alcaspirit014.png",
+      "drops": {
+        "chests": [
+          "Ode Chest (Rovgot)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeProjectileRune": {
       "name": "The Mistgale",
@@ -803,7 +990,29 @@
       "icon": "img/game/runes-alca-alcacourage008.png",
       "tags": [
         "Cogah"
-      ]
+      ],
+      "drops": {
+        "bosses": [
+          {
+            "name": "Flayed Reaper",
+            "cogah": true
+          },
+          {
+            "name": "Knell Knight",
+            "icon": "img/game/storeitems-codex-mendicant-mendicantcaster.png",
+            "cogah": true
+          },
+          {
+            "name": "Mendicant Knight Duo",
+            "cogah": true
+          },
+          {
+            "name": "Mendicant Reinbreaker",
+            "icon": "img/game/storeitems-codex-mendicant-mendicantriderandhorse.png",
+            "cogah": true
+          }
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/StarterRune": {
       "name": "Everflame",
@@ -831,7 +1040,31 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage006.png"
+      "icon": "img/game/runes-alca-alcacourage006.png",
+      "drops": {
+        "bosses": [
+          {
+            "name": "Flayed Reaper"
+          },
+          {
+            "name": "Knell Knight",
+            "icon": "img/game/storeitems-codex-mendicant-mendicantcaster.png"
+          },
+          {
+            "name": "Mendicant Knight Duo"
+          }
+        ],
+        "chests": [
+          "Basic Chest (Undercity)",
+          "Crypt Sarcophagus",
+          "Dendrit Chest (Crypt)",
+          "Dendrit Chest (Midrath)",
+          "Dendrit Chest (Undercity)",
+          "Ode Chest (Rovgot)",
+          "Ode Strongbox (Rovgot)",
+          "Pigwen Skerry Chest"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune": {
       "name": "Lunarcure",
@@ -874,7 +1107,23 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcaspirit012.png"
+      "icon": "img/game/runes-alca-alcaspirit012.png",
+      "drops": {
+        "votives": [
+          "Airde Limbwoods Fey Relic",
+          "Airde Limbwoods Mission Votive",
+          "Fortress O'Dell Mission Votive",
+          "Fuirlands Mission Votive",
+          "Greater Curlail Fey Relic",
+          "Greater Curlail Mission Votive",
+          "Greater Curlail Siphon Votive",
+          "Kearnhold Lowlands Mission Votive",
+          "The Roods Mission Votive"
+        ],
+        "chests": [
+          "Dendrit Chest (Carntyne Colliery)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/CasterKnockdownProjectileRune": {
       "name": "Vexipare",
@@ -932,7 +1181,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage022.png"
+      "icon": "img/game/runes-alca-alcacourage022.png",
+      "drops": {
+        "chests": [
+          "Rare Amber Deposit"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/ExplosiveBuildUpRune": {
       "name": "The Hollowing",
@@ -978,7 +1232,16 @@
       "icon": "img/game/runes-alca-alcacourage004.png",
       "tags": [
         "Cogah"
-      ]
+      ],
+      "drops": {
+        "bosses": [
+          {
+            "name": "Wraith of Wastes",
+            "icon": "img/game/storeitems-codex-subbosses-mendicantwazzardsubboss.png",
+            "cogah": true
+          }
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/FlameRune/FlameRune": {
       "name": "Wickwell",
@@ -1024,7 +1287,30 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage002.png"
+      "icon": "img/game/runes-alca-alcacourage002.png",
+      "drops": {
+        "bosses": [
+          {
+            "name": "Wraith of Wastes",
+            "icon": "img/game/storeitems-codex-subbosses-mendicantwazzardsubboss.png"
+          }
+        ],
+        "sieges": [
+          "Mirifuir Siege"
+        ],
+        "chests": [
+          "Amber Deposit",
+          "Basic Chest (Carntyne Colliery)",
+          "Basic Chest (Midrath)",
+          "Crypt Sarcophagus",
+          "Dendrit Chest (Crypt)",
+          "Dendrit Chest (Midrath)",
+          "Ode Chest (Rovgot)",
+          "Ode Strongbox (Rovgot)",
+          "Pigwen Skerry Chest",
+          "Rare Amber Deposit"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmArcaneBulwarkRune": {
       "name": "Cragprick",
@@ -1052,7 +1338,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcaspirit015.png"
+      "icon": "img/game/runes-alca-alcaspirit015.png",
+      "drops": {
+        "votives": [
+          "Fuirlands Fey Relic"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmLeapAttackRune": {
       "name": "Astralflare",
@@ -1095,7 +1386,12 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage020.png"
+      "icon": "img/game/runes-alca-alcacourage020.png",
+      "drops": {
+        "chests": [
+          "Dendrit Chest (Glades)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmMultiThrowRune": {
       "name": "Splitbolt",
@@ -1126,7 +1422,21 @@
       "icon": "img/game/runes-alca-alcacourage015.png",
       "tags": [
         "Cogah"
-      ]
+      ],
+      "drops": {
+        "bosses": [
+          {
+            "name": "Gourdo",
+            "icon": "img/game/storeitems-codex-subbosses-corruptedsproutfolksubboss.png",
+            "cogah": true
+          },
+          {
+            "name": "Kabocha",
+            "icon": "img/game/storeitems-codex-subbosses-corruptedsproutfolksubboss.png",
+            "cogah": true
+          }
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/StarterRune": {
       "name": "Torcheternal",
@@ -1154,7 +1464,30 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage014.png"
+      "icon": "img/game/runes-alca-alcacourage014.png",
+      "drops": {
+        "bosses": [
+          {
+            "name": "Gourdo",
+            "icon": "img/game/storeitems-codex-subbosses-corruptedsproutfolksubboss.png"
+          },
+          {
+            "name": "Kabocha",
+            "icon": "img/game/storeitems-codex-subbosses-corruptedsproutfolksubboss.png"
+          },
+          {
+            "name": "Mendicant Reinbreaker",
+            "icon": "img/game/storeitems-codex-mendicant-mendicantriderandhorse.png"
+          }
+        ],
+        "sieges": [
+          "Fort Kearnhold Siege"
+        ],
+        "chests": [
+          "Basic Chest (Glades)",
+          "Dendrit Chest (Glades)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Shield/SBLaserRune": {
       "name": "The Durglint",
@@ -1191,7 +1524,36 @@
       "icon": "img/game/runes-alca-alcagrace008.png",
       "tags": [
         "Cogah"
-      ]
+      ],
+      "drops": {
+        "bosses": [
+          {
+            "name": "Ceptet",
+            "icon": "img/game/storeitems-codex-hostilecreatures-mockeryarmoredman.png",
+            "cogah": true
+          },
+          {
+            "name": "Fore-Feller Hewyl",
+            "icon": "img/game/storeitems-codex-subbosses-meleeaxesubbossofficerproc.png",
+            "cogah": true
+          },
+          {
+            "name": "Gruulseeker Sontaro",
+            "icon": "img/game/storeitems-codex-ode-meleemaceofficer.png",
+            "cogah": true
+          },
+          {
+            "name": "Sinecure-Errant Gawth",
+            "icon": "img/game/storeitems-codex-ode-meleemaceofficer.png",
+            "cogah": true
+          },
+          {
+            "name": "Thrice-Bound Impidh",
+            "icon": "img/game/storeitems-codex-subbosses-mockeryarmoredmansubboss.png",
+            "cogah": true
+          }
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Shield/ShieldArcaneBulwarkRune": {
       "name": "Soothesayer",
@@ -1219,7 +1581,19 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcaspirit010.png"
+      "icon": "img/game/runes-alca-alcaspirit010.png",
+      "drops": {
+        "votives": [
+          "Airde Limbwoods Sub Boss Votive",
+          "Fortress O'Dell Sub Boss Votive",
+          "Fuirlands Sub Boss Votive",
+          "Greater Curlail Sub Boss Votive",
+          "Kearnhold Lowlands Sub Boss Votive",
+          "Pigwen Skerry Sub Boss Votive",
+          "The Roods Fey Relic",
+          "The Roods Sub Boss Votive"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Shield/ShieldEmpoweredThrowRune": {
       "name": "Scarletsling",
@@ -1262,7 +1636,15 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage025.png"
+      "icon": "img/game/runes-alca-alcacourage025.png",
+      "drops": {
+        "votives": [
+          "Fortress O'Dell Fey Relic"
+        ],
+        "chests": [
+          "Dendrit Chest (Undercity)"
+        ]
+      }
     },
     "/SF/Upgrades/Runes/Weapon/Shield/StarterRune": {
       "name": "Forburn",
@@ -1290,7 +1672,42 @@
           ]
         }
       ],
-      "icon": "img/game/runes-alca-alcacourage012.png"
+      "icon": "img/game/runes-alca-alcacourage012.png",
+      "drops": {
+        "bosses": [
+          {
+            "name": "Ceptet",
+            "icon": "img/game/storeitems-codex-hostilecreatures-mockeryarmoredman.png"
+          },
+          {
+            "name": "Fore-Feller Hewyl",
+            "icon": "img/game/storeitems-codex-subbosses-meleeaxesubbossofficerproc.png"
+          },
+          {
+            "name": "Gruulseeker Sontaro",
+            "icon": "img/game/storeitems-codex-ode-meleemaceofficer.png"
+          },
+          {
+            "name": "Mestra Carmo"
+          },
+          {
+            "name": "Sinecure-Errant Gawth",
+            "icon": "img/game/storeitems-codex-ode-meleemaceofficer.png"
+          },
+          {
+            "name": "Thrice-Bound Impidh",
+            "icon": "img/game/storeitems-codex-subbosses-mockeryarmoredmansubboss.png"
+          }
+        ],
+        "sieges": [
+          "Turret Jotar Siege"
+        ],
+        "chests": [
+          "Ode Chest",
+          "Ode Drone Rare Chest",
+          "Ode Strongbox"
+        ]
+      }
     }
   },
   "joineries": {

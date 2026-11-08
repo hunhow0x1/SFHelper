@@ -369,6 +369,107 @@ export interface RuneEntry {
   stats: WikiRune["stats"];
   icon: string | null;
   tags?: string[];
+  drops?: RuneDrops;
+}
+
+export interface RuneDropBoss {
+  name: string;
+  icon?: string;
+  cogah?: boolean;
+}
+
+export interface RuneDrops {
+  bosses?: RuneDropBoss[];
+  sieges?: string[];
+  votives?: string[];
+  chests?: string[];
+}
+
+export interface WikiDropTable {
+  key: string;
+  tags: string;
+  sources: string[];
+  drops: string[];
+}
+
+export function parseDropTables(lua: string): WikiDropTable[] {
+  const out: WikiDropTable[] = [];
+  const starts = [...lua.matchAll(/\n\s*\["([^"]+)"\]\s*=\s*\{/g)];
+  for (const [i, m] of starts.entries()) {
+    const body = lua.slice(m.index! + m[0].length, starts[i + 1]?.index ?? lua.length);
+    const at = body.search(/\bDrops\s*=/);
+    if (at < 0) continue;
+    const names = (text: string) => [...text.matchAll(/\bName\s*=\s*"([^"]+)"/g)].map((x) => x[1]!.trim());
+    out.push({ key: m[1]!, tags: /\bTags\s*=\s*"([^"]*)"/.exec(body)?.[1] ?? "", sources: names(body.slice(0, at)), drops: names(body.slice(at)) });
+  }
+  return out;
+}
+
+const CODEX_ICONS = "/SF/Interface/Graphics/StoreItems/Codex/";
+const looseName = (s: string): string => s.toLowerCase().replace(/[^a-z]/g, "");
+
+export function bossPortraits(texts: string[], enemies: EnemyData): Map<string, { name: string; icon: string | null }> {
+  const icons = new Map<string, string>();
+  for (const t of texts) {
+    const tag = /^LocTag=\/SF\/Language\/Codex\/(\w+Avatar)Name$/m.exec(t)?.[1];
+    const icon = field(t, "Icon");
+    if (tag && icon?.startsWith(CODEX_ICONS) && !icons.has(tag.toLowerCase())) icons.set(tag.toLowerCase(), icon);
+  }
+  const leafOf = new Map(Object.keys(enemies.parents).map((leaf) => [leaf.toLowerCase(), leaf]));
+  const iconFor = (key: string): string | null => {
+    let leaf = leafOf.get(key);
+    for (let hops = 0; hops < 12; hops += 1) {
+      const own = icons.get(leaf ? leaf.toLowerCase() : key);
+      if (own) return own;
+      leaf = leaf ? enemies.parents[leaf] : undefined;
+      if (!leaf) return null;
+    }
+    return null;
+  };
+  const out = new Map<string, { name: string; icon: string | null }>();
+  for (const [key, name] of Object.entries(enemies.names)) {
+    const k = looseName(name);
+    const icon = iconFor(key);
+    if (!out.has(k) || (icon && !out.get(k)!.icon)) out.set(k, { name, icon });
+  }
+  return out;
+}
+
+export function runeDrops(tables: WikiDropTable[], runeNames: Record<string, string>, bosses: Map<string, { name: string; icon: string | null }>): Record<string, RuneDrops> {
+  const byName = new Map(Object.entries(runeNames).map(([type, name]) => [name, type]));
+  const found = new Map<string, { bosses: Map<string, RuneDropBoss>; sieges: Set<string>; votives: Set<string>; chests: Set<string> }>();
+  const place = (name: string) => name.replace(/#/g, " ").replace(/\s+Reward Manifest$/i, "").replace(/\s+/g, " ").trim();
+  for (const t of tables) {
+    const kind = t.tags === "Foes" ? "bosses" : /SiegeMissionReward/i.test(t.key) ? "sieges" : /Votive|FeyRelic/i.test(t.key) ? "votives" : t.tags === "Containers" ? "chests" : null;
+    if (!kind) continue;
+    for (const drop of t.drops) {
+      const type = byName.get(drop);
+      if (!type) continue;
+      const r = found.get(type) ?? found.set(type, { bosses: new Map(), sieges: new Set(), votives: new Set(), chests: new Set() }).get(type)!;
+      for (const source of t.sources) {
+        if (kind !== "bosses") {
+          r[kind].add(place(source));
+          continue;
+        }
+        const cogah = /\(Cogah\)$/i.test(source) || /Rednight/i.test(t.key);
+        const base = source.replace(/\s*\(Cogah\)$/i, "").trim();
+        const game = bosses.get(looseName(base)) ?? bosses.get(looseName(base.replace(/^The\s+/i, "")));
+        const name = game?.name ?? base;
+        const key = `${cogah ? 1 : 0}${looseName(name)}`;
+        if (!r.bosses.has(key)) r.bosses.set(key, { name, ...(game?.icon ? { icon: game.icon } : {}), ...(cogah ? { cogah: true } : {}) });
+      }
+    }
+  }
+  const out: Record<string, RuneDrops> = {};
+  const sorted = (set: Set<string>) => [...set].sort((a, b) => a.localeCompare(b));
+  for (const [type, r] of found) {
+    const bossList = [...r.bosses.values()].sort((a, b) => Number(!!a.cogah) - Number(!!b.cogah) || a.name.localeCompare(b.name));
+    const d: RuneDrops = {};
+    if (bossList.length) d.bosses = bossList;
+    for (const k of ["sieges", "votives", "chests"] as const) if (r[k].size) d[k] = sorted(r[k]);
+    out[type] = d;
+  }
+  return out;
 }
 
 export function parseRuneTags(lua: string): Map<string, string[]> {
