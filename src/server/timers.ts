@@ -40,7 +40,7 @@ const KNOWN: [RegExp, (m: RegExpExecArray) => Label][] = [
   [/^UPGRADEGIVEN_GODANDGHOST$/, () => ({ kind: "Once a day, after a boon", name: "Blessed Meeting", ready: "Blessed Meetings can happen again" })],
   [new RegExp(`^${COLLECTOR_TAG}$`), () => ({ kind: "Operation cooldown", name: "Collector Event", ready: "The Collector Event can happen again" })],
   [/^(.+)-SubBoss$/i, (m) => {
-    const place = words(m[1]!);
+    const place = words(m[1]!.replace(/-/g, " "));
     return { kind: "Agari respawn", name: place, ready: `The Agari at ${place} can return`, spot: m[1]! };
   }],
   [/^([A-Z][A-Za-z]*?)Siege$/, (m) => {
@@ -62,15 +62,34 @@ export function timerLabel(tag: string): Label {
   return { kind: null, name, ready: `${name} is over` };
 }
 
+const AGARI_PLACES: Record<string, string> = { MendicantKingA: "Stroaic" };
+const isAgari = (agent: string): boolean => /sub ?boss|MendicantKing/i.test(agent);
+
+export function dungeonName(folder: string, dungeons: Record<string, string>): string | null {
+  const f = folder.toLowerCase();
+  for (const [stem, name] of Object.entries(dungeons)) {
+    const s = stem.toLowerCase();
+    if (f === s || f.startsWith(s) || s.endsWith(f)) return name;
+  }
+  return null;
+}
+
 export function nameAgari(
   timers: GameTimer[],
   spawned: Record<string, string>,
   agentName: (agent: string) => string | null,
+  dungeons: Record<string, string> = {},
 ): GameTimer[] {
   return timers.map((t) => {
-    const agent = t.spot ? spawned[t.spot] : undefined;
-    const name = agent && /sub ?boss/i.test(agent) ? agentName(agent) : null;
-    return name ? { ...t, name, ready: `${name} can return` } : t;
+    const learned = t.spot ? spawned[t.spot] : undefined;
+    if (!learned) return t;
+    const slash = learned.lastIndexOf("/");
+    const agent = learned.slice(slash + 1);
+    const boss = isAgari(agent) ? agentName(agent) : null;
+    if (!boss) return t;
+    const place = slash > 0 ? dungeonName(learned.slice(0, slash), dungeons) : AGARI_PLACES[t.spot!] ?? null;
+    const name = place ? `${boss} - ${place}` : boss;
+    return { ...t, name, ready: `${name} can return` };
   });
 }
 
@@ -101,7 +120,7 @@ export function mergeAgariSpots(known: Record<string, string>, learned: Record<s
   const spots = { ...known };
   const added: string[] = [];
   for (const [spot, agent] of Object.entries(learned)) {
-    if (!/sub ?boss/i.test(agent) || spots[spot] === agent) continue;
+    if (spot.startsWith("Dungeon-") || !isAgari(agent) || spots[spot] === agent) continue;
     spots[spot] = agent;
     added.push(spot);
   }
@@ -115,8 +134,12 @@ export function resetRememberedAgari(): void {
 export async function withAgariNames(timers: GameTimer[]): Promise<GameTimer[]> {
   const spawned = await loggedAgari().then(rememberedAgari);
   if (!timers.some((t) => t.spot)) return timers;
-  const [known, agentName] = await Promise.all([readDataJson<Record<string, string>>(AGARI_SPOTS), getAgentNamer()]);
-  return nameAgari(timers, { ...known, ...spawned }, agentName);
+  const [known, agentName, places] = await Promise.all([
+    readDataJson<Record<string, string>>(AGARI_SPOTS),
+    getAgentNamer(),
+    readDataJson<{ dungeons?: Record<string, string> }>("locations.json"),
+  ]);
+  return nameAgari(timers, { ...known, ...spawned }, agentName, places?.dungeons ?? {});
 }
 
 export function dockedCollector(c: LoggedCollector | null, now = Date.now()): GameTimer["docked"] | null {

@@ -117,9 +117,15 @@ describe("exporting and importing history", () => {
         { ...pickup("6ae67e02722e7ec1120d88ba", "yesterday") },
       ],
       trades: [{ ...trade("2026-11-04T08:00:00.000Z"), deals: [{ when: "2026-11-04T08:00:00.000Z", partner: { name: "x" }, offered: [], received: [] }] }, "junk"],
-      agari: { StoneHengeA: "RangedHunterBowSubBossAgent", "<b>": "SpiderSubBossAgent", SlaneCenoteCave: "<script>" },
+      agari: {
+        StoneHengeA: "RangedHunterBowSubBossAgent",
+        "Dungeon-NeathPortal-C-Digsite": "Neathuns/SpiderSubBossProcAgent",
+        "<b>": "SpiderSubBossAgent",
+        SlaneCenoteCave: "<script>",
+        DungeonX: "../SpiderSubBossAgent",
+      },
     });
-    expect(result).toEqual({ pickups: 1, trades: 0, agari: 1, skipped: 5 });
-    expect(await rememberedAgari({})).toEqual({ StoneHengeA: "RangedHunterBowSubBossAgent" });
+    expect(result).toEqual({ pickups: 1, trades: 0, agari: 2, skipped: 5 });
+    expect(await rememberedAgari({})).toEqual({ StoneHengeA: "RangedHunterBowSubBossAgent", "Dungeon-NeathPortal-C-Digsite": "Neathuns/SpiderSubBossProcAgent" });
   });
 });

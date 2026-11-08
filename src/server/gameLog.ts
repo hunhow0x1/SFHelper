@@ -134,8 +134,12 @@ const MAX_HEADER_LINES = 12;
 const MAX_REFUSAL_DETAILS = 50;
 const MAX_CONTEXT_CHARS = 160;
 const AGARI_SPAWN_RE = /SubBossEncounter\.lua: \[[^\]-]*-([^\]]+)\] Spawning sub-boss/;
+const AGARI_CREATED_RE = /SubBossEncounter\.lua: \[[^\]-]*-([^\]]+)\] Created agent at/;
 const AGENT_RE = /OnAgentCreated \/Npc\/(\w+?Agent)\d*\s/;
 const AGENT_WITHIN = 5;
+const CREATED_WITHIN = 1;
+const LOCATION_RE = /SetCurrentLocation: ([\w-]+)/;
+const ENTER_LEVEL_RE = /STATS ENTER_LEVEL \/SF\/Levels\/Procs\/(\w+)(\/)?/;
 const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
 const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
 const COLLECTOR_GONE = ["Collector encounter ending", "playing collectorCinLeaving", "OnPrimed Loop ended", "Shutdown collector"];
@@ -163,7 +167,16 @@ interface Scan {
   collector: Omit<LoggedCollector, "logAt"> | null;
   blessed: { last: Omit<LoggedBlessed, "logAt"> | null; failedAt: number | null };
   refusals: { count: number; first: number; last: number; open: OpenRefusal | null; before: string; details: RefusalDetail[] };
-  agari: { spawned: Record<string, string>; spot: string | null; since: number };
+  agari: {
+    spawned: Record<string, string>;
+    spot: string | null;
+    since: number;
+    agent: string | null;
+    agentAt: string | null;
+    agentSince: number;
+    location: string | null;
+    dungeon: string | null;
+  };
   mastery: { other: number | null; items: number | null };
   trades: { out: LoggedTrade[]; collecting: string[] | null; confirm: Omit<LoggedTrade, "at"> | null; invitedBy: string | null };
   events: { acquired: Map<string, number[]>; owner: Map<string, number[]>; lastOwner: { t: number; leaf: string } | null };
@@ -182,28 +195,49 @@ function newScan(path: string, head: string): Scan {
     collector: null,
     blessed: { last: null, failedAt: null },
     refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [] },
-    agari: { spawned: {}, spot: null, since: 0 },
+    agari: { spawned: {}, spot: null, since: 0, agent: null, agentAt: null, agentSince: 0, location: null, dungeon: null },
     mastery: { other: null, items: null },
     trades: { out: [], collecting: null, confirm: null, invitedBy: null },
     events: { acquired: new Map(), owner: new Map(), lastOwner: null },
   };
 }
 
+function learnAgari(a: Scan["agari"], spot: string, agent: string): void {
+  if (a.dungeon && a.location) a.spawned[`Dungeon-${a.location}`] = `${a.dungeon}/${agent}`;
+  else a.spawned[spot] = agent;
+}
+
 function feedAgari(a: Scan["agari"], line: string): void {
+  const created = line.includes("OnAgentCreated") ? AGENT_RE.exec(line) : null;
+  if (created) {
+    a.agent = created[1]!;
+    a.agentAt = TIME_RE.exec(line)?.[1] ?? null;
+    a.agentSince = 0;
+  } else if (a.agent !== null && ++a.agentSince > CREATED_WITHIN) {
+    a.agent = null;
+  }
   if (a.spot !== null) {
-    const m = line.includes("OnAgentCreated") ? AGENT_RE.exec(line) : null;
-    if (m) {
-      a.spawned[a.spot] = m[1]!;
+    if (created) {
+      learnAgari(a, a.spot, created[1]!);
       a.spot = null;
       return;
     }
     if (++a.since > AGENT_WITHIN) a.spot = null;
   }
-  if (!line.includes("Spawning sub-boss")) return;
-  const m = AGARI_SPAWN_RE.exec(line);
-  if (m) {
-    a.spot = m[1]!;
-    a.since = 0;
+  if (line.includes("SetCurrentLocation: ")) {
+    a.location = LOCATION_RE.exec(line)?.[1] ?? a.location;
+  } else if (line.includes("STATS ENTER_LEVEL ")) {
+    const m = ENTER_LEVEL_RE.exec(line);
+    a.dungeon = m?.[2] ? m[1]! : null;
+  } else if (line.includes("Created agent at")) {
+    const m = a.agent && a.agentAt === TIME_RE.exec(line)?.[1] ? AGARI_CREATED_RE.exec(line) : null;
+    if (m) learnAgari(a, m[1]!, a.agent!);
+  } else if (line.includes("Spawning sub-boss")) {
+    const m = AGARI_SPAWN_RE.exec(line);
+    if (m) {
+      a.spot = m[1]!;
+      a.since = 0;
+    }
   }
 }
 

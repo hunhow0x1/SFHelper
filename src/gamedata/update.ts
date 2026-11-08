@@ -9,6 +9,7 @@ import {
   buildArsenal,
   buildAvakot,
   buildEnemies,
+  buildDungeons,
   buildLocations,
   buildNames,
   buildPactArtTexts,
@@ -187,8 +188,11 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
 
   await step("locations.json", async () => {
     const { locations } = buildLocations(dict, tree, texts);
-    enough("locations", Object.keys(locations).length, Object.keys((await previous<{ locations: object }>("locations.json"))?.locations ?? {}).length);
-    await put("locations.json", `${JSON.stringify({ locations }, null, 2)}\n`);
+    const prev = await previous<{ locations: object; dungeons?: Record<string, string> }>("locations.json");
+    enough("locations", Object.keys(locations).length, Object.keys(prev?.locations ?? {}).length);
+    const fresh = buildDungeons(dict);
+    const dungeons = Object.keys(fresh).length ? fresh : (prev?.dungeons ?? {});
+    await put("locations.json", `${JSON.stringify({ locations, dungeons }, null, 2)}\n`);
     return `${Object.keys(locations).length} locations`;
   });
 

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { mergeAgariSpots, nameAgari, parseTimers, rememberedAgari, resetRememberedAgari, timerLabel, TimerAlarms, withStarred, type GameTimer } from "../src/server/timers";
+import { dungeonName, mergeAgariSpots, nameAgari, parseTimers, rememberedAgari, resetRememberedAgari, timerLabel, TimerAlarms, withStarred, type GameTimer } from "../src/server/timers";
 import { getSettings, updateSettings } from "../src/server/settings";
 import { loggedAgari } from "../src/server/gameLog";
 import { agentName } from "../src/server/enemies";
@@ -153,25 +153,81 @@ describe("the game's timers", () => {
         mendicantknightbellcleaversubbossavatar: "Knell Knight",
         meleemaceofficersubbossavatar: "Sinecure-Errant Gawth",
         spidersubbossavatar: "Etheldred The Weaver",
+        mendicantkingavatar: "Mendicant King",
       },
-      parents: { MendicantKnightBellCleaverSubBossAvatar: "GruntAvatarBase", MeleeMaceOfficerSubBossAvatar: "GruntAvatarBase", SpiderSubBossAvatar: "GruntAvatarBase" },
+      parents: { MendicantKnightBellCleaverSubBossAvatar: "GruntAvatarBase", MeleeMaceOfficerSubBossAvatar: "GruntAvatarBase", SpiderSubBossAvatar: "GruntAvatarBase", MendicantKingAvatar: "GruntAvatarBase" },
     };
     const timers = parseTimers({
-      ExpiryTimeTrackers: ["GalvinarCorruptedB", "LargeRuinsCamp", "SlaneCenoteCave"].map((spot, i) => ({ Tag: `${spot}-SubBoss`, ExpiryTime: 1793460000 + i, AutoExpire: true })),
+      ExpiryTimeTrackers: ["GalvinarCorruptedB", "LargeRuinsCamp", "SlaneCenoteCave", "MendicantKingA"].map((spot, i) => ({ Tag: `${spot}-SubBoss`, ExpiryTime: 1793460000 + i, AutoExpire: true })),
     });
     expect(nameAgari(timers, { ...KNOWN_AGARI }, (a) => agentName(a, enemies)).map((t) => t.name)).toEqual([
       "Knell Knight",
       "Sinecure-Errant Gawth",
       "Etheldred The Weaver",
+      "Mendicant King - Stroaic",
     ]);
-    expect(Object.values(KNOWN_AGARI).every((agent) => /SubBoss/.test(agent))).toBe(true);
+    expect(Object.values(KNOWN_AGARI).every((agent) => /SubBoss|^MendicantKingAgent$/.test(agent))).toBe(true);
+    expect(Object.keys(KNOWN_AGARI).some((spot) => spot.startsWith("Dungeon-"))).toBe(false);
   });
 
   it("adds the Agari spots this computer has learned to the built-in list", () => {
-    const learned = { PSStoneMockery: "MockeryStoneWomanArmoredSubBossAgent", TurretJotarFortFinal: "MeleeAxeAgent", StoneHengeA: "RangedHunterBowSubBossAgent" };
+    const learned = {
+      PSStoneMockery: "MockeryStoneWomanArmoredSubBossAgent",
+      TurretJotarFortFinal: "MeleeAxeAgent",
+      StoneHengeA: "RangedHunterBowSubBossAgent",
+      MendicantKingA: "MendicantKingAgent",
+      "Dungeon-NeathPortal-C-Digsite": "Neathuns/SpiderSubBossProcAgent",
+    };
     expect(mergeAgariSpots({ StoneHengeA: "RangedHunterBowSubBossAgent", LargeRuinsCamp: "MeleeMaceOfficerSubBossAgent" }, learned)).toEqual({
-      spots: { LargeRuinsCamp: "MeleeMaceOfficerSubBossAgent", PSStoneMockery: "MockeryStoneWomanArmoredSubBossAgent", StoneHengeA: "RangedHunterBowSubBossAgent" },
-      added: ["PSStoneMockery"],
+      spots: { LargeRuinsCamp: "MeleeMaceOfficerSubBossAgent", MendicantKingA: "MendicantKingAgent", PSStoneMockery: "MockeryStoneWomanArmoredSubBossAgent", StoneHengeA: "RangedHunterBowSubBossAgent" },
+      added: ["MendicantKingA", "PSStoneMockery"],
     });
+  });
+
+  it("names dungeon Agari and the Mendicant King after where they were fought", async () => {
+    const log = join(await mkdtemp(join(tmpdir(), "sfh-agari-")), "EE.log");
+    await writeFile(
+      log,
+      [
+        "362.554 Script [Info]: LoadTriggers.lua: SetCurrentLocation: NeathPortal-C-Digsite",
+        "364.376 Script [Info]: ProcLevelSetup.lua: STATS ENTER_LEVEL /SF/Levels/Procs/Neathuns/NeathunsProcLevelCrossingSubboss",
+        "427.169 Script [Info]: SubBossEncounter.lua: [DungeonSubbossHint0-DungeonSubboss] Spawning sub-boss",
+        "427.171 AI [Info]: OnAgentCreated /Npc/SpiderSubBossProcAgent55 Live 8 Spawned 46 Ticking 6",
+        "427.171 Script [Info]: SubBossEncounter.lua: [DungeonSubbossHint0-DungeonSubboss] Created agent at tagged NpcSpawnPoint",
+        "676.896 Script [Info]: ProcLevelSetup.lua: STATS ENTER_LEVEL /SF/Levels/Procs/MidrathProc",
+        "1338.946 Script [Info]: SubBossEncounter.lua: [MendicantKingEncounterHint0-MendicantKingA] Spawning sub-boss",
+        ...Array.from({ length: 8 }, (_, i) => `${1339 + i}.000 Input [Info]: InitMapping for all devices`),
+        "1436.600 AI [Info]: OnAgentCreated /Npc/MendicantKnightAgent201 Live 29 Spawned 174",
+        "1436.601 AI [Info]: OnAgentCreated /Npc/MendicantKingAgent203 Live 30 Spawned 175 Ticking 26",
+        "1436.601 Script [Info]: SubBossEncounter.lua: [MendicantKingEncounterHint0-MendicantKingA] Created agent at tagged entity",
+        "1436.700 AI [Info]: OnAgentCreated /Npc/MendicantKnightAgent204 Live 31 Spawned 176",
+        "1440.000 Script [Info]: SubBossEncounter.lua: [CampEncounterHint0-KearnholdChapelCamp] Created agent at tagged entity",
+        "",
+      ].join("\n"),
+    );
+    const spawned = await loggedAgari(log);
+    expect(spawned).toEqual({ "Dungeon-NeathPortal-C-Digsite": "Neathuns/SpiderSubBossProcAgent", MendicantKingA: "MendicantKingAgent" });
+
+    const enemies = {
+      names: { spidersubbossprocavatar: "Seachnall The Widower", mendicantkingavatar: "Mendicant King" },
+      parents: { SpiderSubBossProcAvatar: "SpiderSubBossAvatar", SpiderSubBossAvatar: "GruntAvatarBase", MendicantKingAvatar: "GruntAvatarBase" },
+    };
+    const dungeons = { FallenFortress: "Rovgot Ruins", Glades: "Glades of Andurin", MidrathMines: "Carntyne Colliery", Neathuns: "Neath'uns", UnderCity: "Dermak Undercity" };
+    const timers = parseTimers({
+      ExpiryTimeTrackers: ["Dungeon-NeathPortal-C-Digsite", "MendicantKingA", "Dungeon-SkytowerPortal-A", "Dungeon-Unseen-B"].map((spot, i) => ({ Tag: `${spot}-SubBoss`, ExpiryTime: 1794159498 + i, AutoExpire: true })),
+    });
+    const named = nameAgari(timers, { ...spawned, "Dungeon-SkytowerPortal-A": "FallenFortress/MendicantKingAgent" }, (a) => agentName(a, enemies), dungeons);
+    expect(named.map((t) => [t.name, t.ready])).toEqual([
+      ["Seachnall The Widower - Neath'uns", "Seachnall The Widower - Neath'uns can return"],
+      ["Mendicant King - Stroaic", "Mendicant King - Stroaic can return"],
+      ["Mendicant King - Rovgot Ruins", "Mendicant King - Rovgot Ruins can return"],
+      ["Dungeon Unseen B", "The Agari at Dungeon Unseen B can return"],
+    ]);
+    expect([dungeonName("GladesofAndurin", dungeons), dungeonName("Mines", dungeons), dungeonName("UnderCityMidrath", dungeons), dungeonName("OdeSkyCastle", dungeons)]).toEqual([
+      "Glades of Andurin",
+      "Carntyne Colliery",
+      "Dermak Undercity",
+      null,
+    ]);
   });
 });

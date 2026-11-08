@@ -173,6 +173,16 @@ export interface LocationDef {
 
 const LORE_DIR = "/SF/Types/Quests/LocationLoreQuests/";
 
+export function buildDungeons(dict: Dict): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(dict)) {
+    const stem = /^\/SF\/Language\/Locations\/(\w+)DungeonMapName$/.exec(key)?.[1];
+    const name = typeof value === "string" ? value.trim() : "";
+    if (stem && name && !name.startsWith("[PH]")) out[stem] = name;
+  }
+  return sortedKeys(out);
+}
+
 export function buildLocations(dict: Dict, tree: TypeTree, texts: string[]): { locations: Record<string, LocationDef>; skipped: string[] } {
   const types = [...tree.keys()].filter((p) => p.startsWith(LORE_DIR) && !p.slice(LORE_DIR.length).includes("/"));
   const stem = (s: string) => s.replace(/(Location)?(Map)?LoreFragment$/, "").replace(/Name$/, "").toLowerCase();

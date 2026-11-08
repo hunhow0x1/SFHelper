@@ -455,5 +455,13 @@
       "memories": 0,
       "map": true
     }
+  },
+  "dungeons": {
+    "Crypt": "The Crypt of The Circade",
+    "FallenFortress": "Rovgot Ruins",
+    "Glades": "Glades of Andurin",
+    "MidrathMines": "Carntyne Colliery",
+    "Neathuns": "Neath'uns",
+    "UnderCity": "Dermak Undercity"
   }
 }

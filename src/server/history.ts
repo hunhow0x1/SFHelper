@@ -22,7 +22,8 @@ export interface ImportResult {
 const KEY_RE = /^\/[A-Za-z0-9_/]+$/;
 const ID_RE = /^[0-9a-f]{24}$/i;
 const TAG_RE = /^[A-Za-z0-9_]+$/;
-const AGENT_RE = /^[A-Za-z0-9_]+Agent$/;
+const SPOT_RE = /^[A-Za-z0-9_-]+$/;
+const AGENT_RE = /^(?:[A-Za-z0-9_]+\/)?[A-Za-z0-9_]+Agent$/;
 const MAX_TEXT = 200;
 const SOURCES: PickupSource[] = ["pickup", "crafted", "purchased", "traded"];
 const WHEN_SOURCES = ["log", "server", "import"] as const;
@@ -130,7 +131,7 @@ function trade(v: unknown): Trade | null {
 
 function agariSpots(v: unknown): Record<string, string> {
   if (!isObj(v)) return {};
-  return Object.fromEntries(Object.entries(v).filter((e): e is [string, string] => TAG_RE.test(e[0]) && typeof e[1] === "string" && AGENT_RE.test(e[1])));
+  return Object.fromEntries(Object.entries(v).filter((e): e is [string, string] => SPOT_RE.test(e[0]) && typeof e[1] === "string" && AGENT_RE.test(e[1])));
 }
 
 export async function exportHistory(now = new Date()): Promise<HistoryFile> {
