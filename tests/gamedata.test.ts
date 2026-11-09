@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { findCacheDir, findRootEntry, hostPath, readEntry, tocIndex } from "../src/gamedata/cache";
 import { readLanguages } from "../src/gamedata/formats";
-import { buildArmour, buildArsenal, buildEnemies, aspectManifests, buildNames, buildPactArtTexts, buildPactArtValues, buildTalismans, buildTempers, buildTotemData, buildUpgrades, itemIconPaths, mergeRuneValues, parseFactionCaps, parseRuneTags, runeValues, withRetired, parseDropTables, bossPortraits, runeDrops } from "../src/gamedata/builders";
+import { buildArmour, buildArsenal, buildEnemies, aspectManifests, buildNames, buildPactArtTexts, buildPactArtValues, buildTalismans, buildTempers, buildTotemData, buildUpgrades, itemIconPaths, mergeRuneValues, parseFactionCaps, parseRuneTags, runeValues, withRetired, parseDropTables, bossPortraits, runeDrops, gamePatch } from "../src/gamedata/builders";
 import { locValues, parseChunk, parseLocScript } from "../src/gamedata/luau";
 import { decodeBC3, encodePng, mipChain, textureImage } from "../src/gamedata/textures";
 import { loggedGame } from "../src/server/gameLog";
@@ -245,6 +245,13 @@ describe("weapons, Pacts and gear straight from the game files", () => {
       },
       pacts: { "/SF/Souls/OdeHunter/OdeHunterSoul": "Ode Shrike" },
     });
+  });
+
+  it("reads the patch from the game's update title", () => {
+    expect(gamePatch({ "/SF/Language/Updates/TitleText": "Preludes 17: Verse of the Veilands" })).toBe("P17");
+    expect(gamePatch({ "/SF/Language/Updates/TitleText": "Preludes 17.5" })).toBe("P17.5");
+    expect(gamePatch({})).toBeNull();
+    expect(buildArsenal({ "/SF/Language/Updates/TitleText": "Preludes 17: Verse of the Veilands" }, [])).toEqual({ patch: "P17", weapons: {}, pacts: {} });
   });
 
   it("files wolf treats under Companion gear and leaves out summons and gear the game doesn't show", async () => {

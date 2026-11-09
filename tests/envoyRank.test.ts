@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { estimateEnvoyRank, itemMastery, rankFor, rankStart } from "../src/server/envoyRank";
+import { estimateEnvoyRank, itemMastery, masteryMax, rankFor, rankStart } from "../src/server/envoyRank";
 import { loggedMastery } from "../src/server/gameLog";
 import { parseMaxMastery } from "../scripts/build_data";
 
@@ -34,7 +34,7 @@ describe("Envoy Rank", () => {
     expect(itemMastery({ [W(1)]: 177_096, [W(2)]: 6_920 })).toMatchObject({ weaponRanks: 37 });
   });
 
-  const base = { weaponCount: 62, pactCount: 13, maxMastery: 19.1, patch: "P16" };
+  const base = { weaponCount: 62, pactCount: 13, patch: "P17", places: 42 };
   const checked = Object.fromEntries([
     ...Array.from({ length: 41 }, (_, i) => [W(i), XP30]),
     [W(41), 125 * 4 * 4],
@@ -50,7 +50,7 @@ describe("Envoy Rank", () => {
     expect(r.maxRank).toBe(19);
   });
 
-  it("uses the servers' rank until it knows the Mastery from the game's log", () => {
+  it("uses the servers' rank until it knows the Mastery from History Motes", () => {
     const r = estimateEnvoyRank({ ...base, rank: 19, mastery: checked });
     expect(r).toMatchObject({ rank: 19, serverRank: 19, progress: null, mastery: null });
   });
@@ -64,7 +64,7 @@ describe("Envoy Rank", () => {
     expect(r).toMatchObject({ rank: 17, serverRank: 19 });
     expect(r.progress).toBeCloseTo(0.323, 3);
     expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 100_000 })).toMatchObject({ rank: 15, serverRank: 17 });
-    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 280_000 })).toMatchObject({ rank: 19, serverRank: 17, progress: null });
+    expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 280_000 })).toMatchObject({ rank: 19, serverRank: 17, maxRank: 20 });
   });
 
   it("takes the game's own item Mastery when it counts more than the inventory", () => {
@@ -72,6 +72,30 @@ describe("Envoy Rank", () => {
     expect(r.mastery).toEqual({ total: 381_500, items: 196_500, other: 185_000, next: rankStart(18) });
     expect(r.rank).toBe(17);
     expect(estimateEnvoyRank({ ...base, rank: 17, mastery: checked, other: 185_000, loggedItems: 0 }).mastery?.items).toBe(195_400);
+  });
+
+  it("counts 5,000 Mastery for each place with every History Mote found, like the game", () => {
+    const r = estimateEnvoyRank({ ...base, rank: 19, mastery: checked, completed: 37, loggedItems: 196_500 });
+    expect(r.mastery).toEqual({ total: 381_500, items: 196_500, other: 185_000, next: rankStart(18) });
+    expect(r.rank).toBe(17);
+    expect(estimateEnvoyRank({ ...base, rank: 19, mastery: checked, completed: 37, other: 180_000 }).mastery?.other).toBe(185_000);
+    expect(estimateEnvoyRank({ ...base, rank: 19, mastery: checked, completed: 37, other: 190_000 }).mastery?.other).toBe(190_000);
+  });
+
+  it("works out the patch maximum from every weapon, Pact and History Mote in the game", () => {
+    expect(masteryMax(65, 13, 42)).toEqual({ rank: 19, exact: 19.6, items: 273_000, history: 210_000, places: 42 });
+    expect(masteryMax(59, 12, 42)).toMatchObject({ rank: 19, exact: 19.1 });
+    expect(masteryMax(65, 13, 46)).toMatchObject({ rank: 20, exact: 20 });
+    expect(masteryMax(65, 13, 0)).toBeNull();
+    expect(masteryMax(0, 13, 42)).toBeNull();
+  });
+
+  it("raises the maximum by Mastery the game counted that History Motes don't explain", () => {
+    expect(masteryMax(65, 13, 42, 185_000, 37)).toMatchObject({ history: 210_000 });
+    expect(masteryMax(65, 13, 42, 195_000, 37)).toMatchObject({ history: 220_000 });
+    expect(masteryMax(65, 13, 42, 230_000, null)).toMatchObject({ history: 230_000 });
+    const r = estimateEnvoyRank({ ...base, weaponCount: 65, rank: 19, mastery: checked, completed: 37, loggedItems: 196_500 });
+    expect(r).toMatchObject({ patch: "P17", maxRank: 19, max: { exact: 19.6 } });
   });
 
   it("reads the latest Mastery figures from the game log", async () => {

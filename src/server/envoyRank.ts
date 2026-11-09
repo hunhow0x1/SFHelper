@@ -4,9 +4,11 @@ import { loggedMastery } from "./gameLog";
 import { MAX_RANK as MAX_ITEM_RANK, PACT_RANK_CONST, xpToRank } from "./weapons";
 import { writeFileAtomic } from "./files";
 import { getRoster } from "./roster";
+import { getDiscoveries, type LoreScan } from "./discoveries";
 
 const WEAPON_RANK_XP = 100;
 const PACT_RANK_XP = 200;
+const HISTORY_XP = 5000;
 const RANK_XP = 1250;
 
 export const rankStart = (rank: number): number => RANK_XP * rank * rank;
@@ -18,12 +20,20 @@ export function rankFor(total: number): number {
   return rank;
 }
 
+export interface MasteryMax {
+  rank: number;
+  exact: number;
+  items: number;
+  history: number;
+  places: number;
+}
+
 export interface EnvoyRank {
   rank: number;
   serverRank: number;
-  maxMastery: number | null;
   patch: string | null;
   maxRank: number | null;
+  max: MasteryMax | null;
   progress: number | null;
   mastery: { total: number; items: number; other: number; next: number } | null;
   items: { weaponRanks: number; weaponMax: number; pactRanks: number; pactMax: number } | null;
@@ -34,10 +44,24 @@ export interface MasteryInputs {
   mastery: Record<string, number>;
   weaponCount: number;
   pactCount: number;
-  maxMastery: number | null;
   patch: string | null;
+  places: number;
+  completed?: number | null;
   other?: number | null;
   loggedItems?: number | null;
+}
+
+const rankAt = (total: number): number => {
+  const r = rankFor(total);
+  return Math.floor((r + (total - rankStart(r)) / (rankStart(r + 1) - rankStart(r))) * 10 + 1e-6) / 10;
+};
+
+export function masteryMax(weapons: number, pacts: number, places: number, other: number | null = null, completed: number | null = null): MasteryMax | null {
+  if (!weapons || !places) return null;
+  const items = (weapons * WEAPON_RANK_XP + pacts * PACT_RANK_XP) * MAX_ITEM_RANK;
+  const extra = other !== null && completed !== null ? Math.max(0, other - completed * HISTORY_XP) : 0;
+  const history = Math.max(places * HISTORY_XP + extra, other ?? 0);
+  return { rank: rankFor(items + history), exact: rankAt(items + history), items, history, places };
 }
 
 export function itemMastery(mastery: Record<string, number>): { weaponRanks: number; pactRanks: number; xp: number } {
@@ -60,15 +84,19 @@ export function estimateEnvoyRank(i: MasteryInputs): EnvoyRank {
     pactRanks: earned.pactRanks,
     pactMax: pactCount * MAX_ITEM_RANK,
   };
-  const maxRank = i.maxMastery ? Math.floor(i.maxMastery) : null;
-  const base = { rank: i.rank, serverRank: i.rank, maxMastery: i.maxMastery, patch: i.patch, maxRank, items };
-  if (i.other == null) return { ...base, progress: null, mastery: null };
+  const completed = i.completed ?? null;
+  const fromHistory = completed !== null ? completed * HISTORY_XP : null;
+  const other = i.other == null ? fromHistory : fromHistory === null ? i.other : Math.max(i.other, fromHistory);
+  const max = masteryMax(weaponCount, pactCount, i.places, other, completed);
+  const maxRank = max?.rank ?? null;
+  const base = { rank: i.rank, serverRank: i.rank, patch: i.patch, maxRank, max, items };
+  if (other === null) return { ...base, progress: null, mastery: null };
 
   const itemXp = Math.max(earned.xp, i.loggedItems ?? 0);
-  const total = itemXp + i.other;
+  const total = itemXp + other;
   const rank = rankFor(total);
   const next = rankStart(rank + 1);
-  const mastery = { total, items: itemXp, other: i.other, next };
+  const mastery = { total, items: itemXp, other, next };
   if (maxRank !== null && rank >= maxRank) return { ...base, rank, progress: null, mastery };
   const start = rankStart(rank);
   return { ...base, rank, progress: Math.min(0.99, (total - start) / (next - start)), mastery };
@@ -103,15 +131,21 @@ export async function getEnvoyRank(
   accountId: string,
   rank: number,
   mastery: Record<string, number> | null,
+  loreScans: Record<string, LoreScan> | null = null,
 ): Promise<EnvoyRank> {
-  const [max, roster] = await Promise.all([
-    readDataJson<{ maxMastery?: number; patch?: string }>("masteryrank.json"),
+  const [roster, arsenal, found] = await Promise.all([
     getRoster(),
+    readDataJson<{ patch?: string }>("arsenal.json"),
+    getDiscoveries(loreScans ?? {}),
   ]);
-  const maxMastery = typeof max?.maxMastery === "number" ? max.maxMastery : null;
-  const patch = typeof max?.patch === "string" ? max.patch : null;
+  const patch = typeof arsenal?.patch === "string" ? arsenal.patch : null;
+  const history = (found?.places ?? []).filter((p) => p.memories > 0);
+  const completed = loreScans ? history.filter((p) => p.found >= p.memories).length : null;
+  const weaponCount = Object.keys(roster.weapons).length;
+  const pactCount = Object.keys(roster.pacts).length;
   if (!mastery) {
-    return { rank, serverRank: rank, maxMastery, patch, maxRank: maxMastery ? Math.floor(maxMastery) : null, progress: null, mastery: null, items: null };
+    const max = masteryMax(weaponCount, pactCount, history.length);
+    return { rank, serverRank: rank, patch, maxRank: max?.rank ?? null, max, progress: null, mastery: null, items: null };
   }
   const logged = await loggedMastery();
   const saved = await loadOther(accountId);
@@ -119,10 +153,11 @@ export async function getEnvoyRank(
   return estimateEnvoyRank({
     rank,
     mastery,
-    weaponCount: Object.keys(roster.weapons).length,
-    pactCount: Object.keys(roster.pacts).length,
-    maxMastery,
+    weaponCount,
+    pactCount,
     patch,
+    places: history.length,
+    completed,
     other: logged?.other ?? saved,
     loggedItems: logged?.items ?? null,
   });

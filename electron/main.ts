@@ -22,7 +22,7 @@ import { readDataJson } from "../src/server/paths";
 import { findCacheDir } from "../src/gamedata/cache";
 import { GameDataWatcher } from "../src/gamedata/watch";
 import { Wiki } from "../src/gamedata/wiki";
-import { buildWeapons, buildPactArts, buildMasteryRank } from "../scripts/build_data";
+import { buildWeapons, buildPactArts } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ICON_PATH = join(HERE, "public", "img", "icon-256.png");
@@ -59,13 +59,12 @@ async function refreshData(): Promise<void> {
   try {
     await mkdir(DATA_DIR, { recursive: true });
     log("Refreshing weapon class and Pact Art data from the wiki…");
-    const [w, pa, mr] = await Promise.all([
+    const [w, pa] = await Promise.all([
       buildWeapons(join(DATA_DIR, "weapons.json")),
       buildPactArts(join(DATA_DIR, "pactarts.json")),
-      buildMasteryRank(join(DATA_DIR, "masteryrank.json")).catch(() => ({ ok: 0 })),
     ]);
     noteDataRefreshed();
-    log(`Wiki data updated: ${w.ok} weapon classes, ${pa.ok} pact arts${mr.ok ? ", max Envoy Rank" : ""}.`);
+    log(`Wiki data updated: ${w.ok} weapon classes, ${pa.ok} pact arts.`);
   } catch (err) {
     log(`Effect data refresh failed (using bundled data): ${(err as Error).message}`);
   }

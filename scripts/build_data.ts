@@ -288,15 +288,6 @@ export function parseMaxMastery(wikitext: string): MasteryRankData | null {
   const max = m ? Number(m[2]) : NaN;
   return m && Number.isFinite(max) && max > 0 ? { maxMastery: max, patch: m[1]!.trim() } : null;
 }
-export async function buildMasteryRank(outPath: string, onProgress?: ProgressFn): Promise<{ ok: number; unparsed: string[] }> {
-  onProgress?.(0, 1, "Envoy Rank");
-  const r = await j(`${API}?action=parse&page=${encodeURIComponent("Envoy Rank")}&prop=wikitext&format=json`);
-  const data = parseMaxMastery(r.parse?.wikitext?.["*"] ?? "");
-  onProgress?.(1, 1, "done");
-  if (!data) throw new Error("Envoy Rank page: maximum Mastery not found");
-  await writeFile(outPath, `${JSON.stringify(data, null, 2)}\n`);
-  return { ok: 1, unparsed: [] };
-}
 
 export const temperIconSlug = (name: string): string => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -363,16 +354,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const out = process.argv[3] ?? "src/server/public/img/tempers";
       const r = await buildTemperIcons(out, bar);
       process.stderr.write(`\nWrote ${r.ok} temper icons to ${out} (${r.unparsed.length} missing: ${r.unparsed.join(", ")}).\n`);
-    } else if (kind === "masteryrank") {
-      const out = process.argv[3] ?? "src/server/public/masteryrank.json";
-      await buildMasteryRank(out, bar);
-      process.stderr.write(`\nWrote ${out}.\n`);
     } else if (kind === "pactarts") {
       const out = process.argv[3] ?? "src/server/public/pactarts.json";
       const r = await buildPactArts(out, bar);
       process.stderr.write(`\nWrote ${out}: ${r.ok} pact arts with text (${r.unparsed.length} without: ${r.unparsed.join(", ")}).\n`);
     } else {
-      process.stderr.write("usage: tsx scripts/build_data.ts <totems|tempericons|weapons|pactarts|masteryrank> [outPath]\n");
+      process.stderr.write("usage: tsx scripts/build_data.ts <totems|tempericons|weapons|pactarts> [outPath]\n");
       process.exit(2);
     }
   };

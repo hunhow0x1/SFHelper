@@ -525,8 +525,14 @@ export interface ArsenalWeapon {
 }
 
 export interface ArsenalData {
+  patch?: string;
   weapons: Record<string, ArsenalWeapon>;
   pacts: Record<string, string>;
+}
+
+export function gamePatch(dict: Dict): string | null {
+  const n = /\bPreludes\s+(\d+(?:\.\d+)?)/i.exec(dict["/SF/Language/Updates/TitleText"] ?? "")?.[1];
+  return n ? `P${n}` : null;
 }
 
 const WEAPON_SLOTS: Record<string, ArsenalWeapon["slot"]> = { Melee: "Primary", LongGuns: "Sidearm", Pistols: "Sidearm" };
@@ -547,7 +553,8 @@ export function buildArsenal(dict: Dict, texts: string[]): ArsenalData {
       pacts[type] = name;
     }
   }
-  return { weapons: sortedKeys(weapons), pacts: sortedKeys(pacts) };
+  const patch = gamePatch(dict);
+  return { ...(patch ? { patch } : {}), weapons: sortedKeys(weapons), pacts: sortedKeys(pacts) };
 }
 
 const RUNE_SLOTS: Record<string, string> = { AP_ATTACK: "Courage", AP_DEFENSE: "Spirit", AP_TACTIC: "Grace" };

@@ -20,7 +20,6 @@
     "build-weapons": "tsx scripts/build_data.ts weapons",
     "build-pactarts": "tsx scripts/build_data.ts pactarts",
     "build-tempericons": "tsx scripts/build_data.ts tempericons",
-    "build-masteryrank": "tsx scripts/build_data.ts masteryrank",
     "build:app": "node scripts/build_app.mjs",
     "app": "npm run build:app && electron .",
     "dist": "npm run build:app && electron-builder",

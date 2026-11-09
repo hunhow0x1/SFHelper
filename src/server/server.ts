@@ -312,7 +312,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         a == null ? (b ?? null) : b == null ? a : Math.min(a, b);
       const resetMs = Date.parse(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
       const invDaily = inventory && Date.parse(inventory.updatedAt) >= resetMs ? inventory.daily : null;
-      const envoyRank = PlayerLevel != null ? await getEnvoyRank(accountId, PlayerLevel, inventory?.mastery ?? null) : null;
+      const envoyRank = PlayerLevel != null ? await getEnvoyRank(accountId, PlayerLevel, inventory?.mastery ?? null, inventory?.loreScans ?? null) : null;
       const caps = dailyCaps(
         (preludes17Caps() ? PlayerLevel : envoyRank?.rank ?? PlayerLevel) ?? null,
         {
