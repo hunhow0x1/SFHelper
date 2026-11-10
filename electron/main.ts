@@ -13,13 +13,13 @@ import { newlyReady, readyRecipes, recipeTimes, recipeVerb } from "../src/server
 import type { RecipeDef } from "../src/gamedata/builders";
 import { noteDataRefreshed, setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
-import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "../src/server/apiBackoff";
+import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage, restoreApiBackoff } from "../src/server/apiBackoff";
 import { AVAKOT_VENDOR, avakotDue, avakotDueAt, getAvakot, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
 import { gameBeingRefused, gameRefusals, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
 import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
-import { pruneRequests } from "../src/server/requestLog";
+import { pruneRequests, readRequests } from "../src/server/requestLog";
 import { findSoulframe } from "../helper/processFinder";
 import { readDataJson } from "../src/server/paths";
 import { setAppVersion } from "../src/server/userAgent";
@@ -97,6 +97,8 @@ const gameData = new GameDataWatcher({
 let importing = false;
 let session: ImportSession | undefined;
 let lastImportOk = 0;
+const STARTED_AT = Date.now();
+const BACKOFF_HISTORY_MS = 24 * 3600_000;
 let gameWasRefused = false;
 const loggedRefusals = new Set<string>();
 async function logRefusalDetails(): Promise<void> {
@@ -114,7 +116,7 @@ async function gameRunning(): Promise<boolean> {
   return (await findSoulframe().catch(() => [])).length > 0;
 }
 
-async function reportRefusalStart(r: GameRefusals, late: boolean): Promise<void> {
+async function reportRefusalStart(r: GameRefusals): Promise<void> {
   try {
     if (await alreadyReported(r.first)) return;
     const game = await loggedGame();
@@ -125,7 +127,7 @@ async function reportRefusalStart(r: GameRefusals, late: boolean): Promise<void>
       build: game?.build ?? null,
       appVersion: app.getVersion(),
       gameRunning: await gameRunning(),
-      late,
+      late: r.first < STARTED_AT,
     });
     log("Saved a report on the refusals to refusals.log in the data folder.");
   } catch (err) {
@@ -135,7 +137,7 @@ async function reportRefusalStart(r: GameRefusals, late: boolean): Promise<void>
 
 async function reportEarlierRefusals(): Promise<void> {
   const r = await gameRefusals().catch(() => null);
-  if (r && r.count > 0 && !(await gameBeingRefused())) await reportRefusalStart(r, true);
+  if (r && r.count > 0 && !(await gameBeingRefused())) await reportRefusalStart(r);
 }
 
 const WAIT_FOR_GAME_MS = 15_000;
@@ -161,7 +163,7 @@ async function importFromMemory(): Promise<void> {
     const message = gameRefusedMessage(refused);
     if (!gameWasRefused) {
       log(`Holding off: ${message} (${refused.count} refusals in the game log so far.)`);
-      await reportRefusalStart(refused, false);
+      await reportRefusalStart(refused);
     }
     gameWasRefused = true;
     lastImportCode = 9;
@@ -486,6 +488,10 @@ async function proceed(): Promise<void> {
   process.env.SFHELPER_HOME = USER_DATA;
   process.env.SFHELPER_DATA_DIR = DATA_DIR;
   process.env.SFHELPER_INVENTORY = INVENTORY_PATH;
+
+  restoreApiBackoff(await readRequests(Date.now() - BACKOFF_HISTORY_MS));
+  const resumeAt = apiPausedUntil();
+  if (resumeAt) log(`Soulframe refused SFHelper's last request, so SFHelper is waiting until ${new Date(resumeAt).toLocaleTimeString()} before sending another.`);
 
   onMoonsteelAcquired((p) => void notifyMoonsteel(p));
   server = await startServer(APP_PORT).catch(() => startServer(0));

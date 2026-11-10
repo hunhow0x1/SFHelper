@@ -43,6 +43,6 @@ describe("reading the game log as it grows", () => {
     expect(await logTrades(log)).toEqual([
       { at: START + 101_500, partner: "Envoy1", offered: ["Rhapsodic Chordstone x2"], received: ["Faer Lampyrite x50"] },
     ]);
-    expect(await gameRefusals(log)).toEqual({ count: 1, first: START + 102_000, last: START + 102_000 });
+    expect(await gameRefusals(log)).toEqual({ count: 1, first: START + 102_000, last: START + 102_000, loginRefused: false });
   });
 });

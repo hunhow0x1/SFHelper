@@ -3090,7 +3090,9 @@
         if (c && c.dataAt && c.dataAt > dictLoadedAt) void reloadData();
         const bar = $("alertBar");
         const clock = (ms) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-        if (c && c.gameRefused) {
+        if (c && c.gameRefused && c.gameRefused.loginRefused) {
+          bar.innerHTML = `<span><b>Soulframe's servers refused your game's login</b> (last try at ${clock(c.gameRefused.last)}). The game shows this as "Incorrect email or password", but it's a block on your connection, not your password. SFHelper has paused its own requests until the game logs in.</span>`;
+        } else if (c && c.gameRefused) {
           bar.innerHTML = `<span><b>Soulframe's servers are refusing your game's requests</b> (since ${clock(c.gameRefused.first)}), so the game's saves are failing until this clears. SFHelper has paused its own requests until the game gets through again.</span>`;
         } else if (c && c.pausedUntil) {
           bar.innerHTML = `<span><b>Soulframe's servers refused SFHelper's requests.</b> SFHelper is pausing until ${clock(c.pausedUntil)}, then tries again.</span>`;

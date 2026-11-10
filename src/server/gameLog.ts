@@ -78,6 +78,7 @@ export interface GameRefusals {
   count: number;
   first: number;
   last: number;
+  loginRefused: boolean;
 }
 
 export interface RefusalDetail {
@@ -125,6 +126,8 @@ const INVITE_RE = /description=(.+?) wants to trade with you/;
 const TIME_RE = /^(\d+\.\d+) /;
 const STILL_REFUSED_MS = 5 * 60_000;
 const REFUSED_RE = /^(\d+\.\d+) .*HTTP\/1\.[01] (?:403|429)\b/;
+const LOGIN_DONE_RE = /MainMenu::LoginDone result=(true|false)/;
+const AKAMAI_RE = /akamai/i;
 const HTTP_DATE_RE = /Date: (\w{3}, \d{1,2} \w{3} \d{4} \d{2}:\d{2}:\d{2} GMT)/;
 const HTTP_STATUS_RE = /HTTP\/1\.[01] (\d{3}[^\r\n]*)/;
 const HTTP_HEADER_RE = /^\d+\.\d+ \w+ \[\w+\]: [A-Za-z][\w-]*: /;
@@ -177,7 +180,17 @@ interface Scan {
   game: { build: string | null; cacheDir: string | null; publicAddress: string | null };
   collector: Omit<LoggedCollector, "logAt"> | null;
   blessed: { last: Omit<LoggedBlessed, "logAt"> | null; failedAt: number | null };
-  refusals: { count: number; first: number; last: number; open: OpenRefusal | null; before: string; details: RefusalDetail[] };
+  refusals: {
+    count: number;
+    first: number;
+    last: number;
+    open: OpenRefusal | null;
+    before: string;
+    details: RefusalDetail[];
+    loggingIn: boolean;
+    loginBlocked: boolean;
+    loginRefused: boolean;
+  };
   agari: {
     spawned: Record<string, string>;
     spot: string | null;
@@ -205,7 +218,7 @@ function newScan(path: string, head: string): Scan {
     game: { build: null, cacheDir: null, publicAddress: null },
     collector: null,
     blessed: { last: null, failedAt: null },
-    refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [] },
+    refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [], loggingIn: false, loginBlocked: false, loginRefused: false },
     agari: { spawned: {}, spot: null, since: 0, agent: null, agentAt: null, agentSince: 0, location: null, dungeon: null },
     mastery: { other: null, items: null },
     trades: { out: [], collecting: null, confirm: null, invitedBy: null },
@@ -277,6 +290,7 @@ function closeRefusal(r: Scan["refusals"], after: string | null): void {
   r.open = null;
   const at = o.at ?? o.logAt;
   noteRefusal(r, at);
+  if (r.loggingIn && o.server && AKAMAI_RE.test(o.server)) r.loginBlocked = true;
   if (r.details.length < MAX_REFUSAL_DETAILS) r.details.push({ at, status: o.status, server: o.server, before: o.before, after });
 }
 
@@ -300,6 +314,18 @@ function feedRefusals(r: Scan["refusals"], line: string, start: number): void {
     return;
   }
   if (line.trim() && !HTTP_HEADER_RE.test(line)) r.before = logMessage(line);
+}
+
+function feedLogin(r: Scan["refusals"], line: string): void {
+  if (line.includes("Logging in as")) {
+    r.loggingIn = true;
+    r.loginBlocked = false;
+    return;
+  }
+  const done = line.includes("LoginDone result=") ? LOGIN_DONE_RE.exec(line) : null;
+  if (!done) return;
+  r.loginRefused = done[1] === "false" && r.loggingIn && r.loginBlocked;
+  r.loggingIn = false;
 }
 
 function feedTrades(x: Scan["trades"], line: string, start: number): void {
@@ -411,6 +437,7 @@ function feed(s: Scan, line: string): void {
     return;
   }
   feedRefusals(s.refusals, line, s.start);
+  feedLogin(s.refusals, line);
   feedTrades(s.trades, line, s.start);
   feedEvents(s.events, line, s.start);
   feedCollector(s, line, s.start);
@@ -432,7 +459,11 @@ async function readNew(path: string): Promise<Scan | null> {
     const headBuf = Buffer.alloc(Math.min(size, HEAD_BYTES));
     if (headBuf.length) await fh.read(headBuf, 0, headBuf.length, 0);
     const head = headBuf.toString("latin1");
-    if (!scan || scan.path !== path || size < scan.offset || !head.startsWith(scan.head)) scan = newScan(path, head);
+    if (!scan || scan.path !== path || size < scan.offset || !head.startsWith(scan.head)) {
+      const prev = scan;
+      scan = newScan(path, head);
+      if (prev?.path === path && prev.refusals.loginRefused) carryLoginRefusal(prev.refusals, scan.refusals);
+    }
     const s = scan;
     s.mtime = mtimeMs;
     const buf = Buffer.allocUnsafe(Math.max(1, Math.min(CHUNK_BYTES, size - s.offset)));
@@ -463,10 +494,7 @@ async function currentScan(path?: string): Promise<Scan | null> {
   return log ? scanLog(log) : null;
 }
 
-export async function gameRefusals(path?: string): Promise<GameRefusals | null> {
-  const s = await currentScan(path);
-  if (!s) return null;
-  const r = s.refusals;
+function totals(r: Scan["refusals"]): GameRefusals | null {
   let { count, first, last } = r;
   if (r.open) {
     const at = r.open.at ?? r.open.logAt;
@@ -474,7 +502,21 @@ export async function gameRefusals(path?: string): Promise<GameRefusals | null> 
     if (!first) first = at;
     last = Math.max(last, at);
   }
-  return count ? { count, first, last } : null;
+  return count ? { count, first, last, loginRefused: r.loginRefused } : null;
+}
+
+function carryLoginRefusal(from: Scan["refusals"], to: Scan["refusals"]): void {
+  const t = totals(from);
+  if (!t) return;
+  to.count = t.count;
+  to.first = t.first;
+  to.last = t.last;
+  to.loginRefused = true;
+}
+
+export async function gameRefusals(path?: string): Promise<GameRefusals | null> {
+  const s = await currentScan(path);
+  return s ? totals(s.refusals) : null;
 }
 
 export async function refusalDetails(path?: string): Promise<RefusalDetail[]> {
@@ -484,12 +526,14 @@ export async function refusalDetails(path?: string): Promise<RefusalDetail[]> {
 
 export async function gameBeingRefused(now = Date.now(), path?: string): Promise<GameRefusals | null> {
   const r = await gameRefusals(path);
-  return r && now - r.last < STILL_REFUSED_MS ? r : null;
+  return r && (r.loginRefused || now - r.last < STILL_REFUSED_MS) ? r : null;
 }
 
 export function gameRefusedMessage(r: GameRefusals): string {
-  const since = new Date(r.first).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  return `Soulframe's servers are refusing your game's requests (since ${since}), so SFHelper is waiting.`;
+  const clock = (t: number) => new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return r.loginRefused
+    ? `Soulframe's servers refused your game's login (last try at ${clock(r.last)}), so SFHelper is waiting until the game logs in.`
+    : `Soulframe's servers are refusing your game's requests (since ${clock(r.first)}), so SFHelper is waiting.`;
 }
 
 export async function loggedAgari(path?: string): Promise<Record<string, string>> {

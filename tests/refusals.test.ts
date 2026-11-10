@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { appendFile, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gameBeingRefused, gameRefusals, refusalDetails } from "../src/server/gameLog";
@@ -37,6 +37,7 @@ describe("the game being refused by DE's servers", () => {
       count: 3,
       first: Date.parse("Mon, 26 Oct 2026 21:06:09 GMT"),
       last: START + 7278398,
+      loginRefused: false,
     });
   });
 
@@ -71,5 +72,48 @@ describe("the game being refused by DE's servers", () => {
         after: "Failed to commit challenge progress to DB. Retrying (#356) in 10",
       },
     ]);
+  });
+});
+
+const LOGIN = `0.050 Sys [Diag]: Current time: Mon Nov  9 23:09:52 2026 [UTC: Tue Nov 10 04:09:52 2026]
+34.924 Script [Info]: MainMenu.lua: DispatchLogin()
+34.924 Sys [Info]: Logging in as someone@example.com
+35.071 Sys [Warning]: HTTP/1.1 403 Forbidden
+35.071 Sys [Warning]: Content-Length: 0
+35.071 Sys [Warning]: Date: Tue, 10 Nov 2026 04:10:27 GMT
+35.071 Sys [Warning]: Server: AkamaiGHost
+35.073 Sys [Error]: Login failed: 
+35.073 Script [Info]: MainMenu.lua: MainMenu::LoginDone result=false
+`;
+
+const LOGGED_IN = `90.000 Sys [Info]: Logging in as someone@example.com
+90.400 Sys [Info]: Logged in Unix
+91.000 Script [Info]: MainMenu.lua: MainMenu::LoginDone result=true
+`;
+
+describe("a login refused by Akamai", () => {
+  const HOUR = 3600_000;
+  const REFUSED_AT = Date.parse("Tue, 10 Nov 2026 04:10:27 GMT");
+
+  it("keeps SFHelper waiting until the game logs in, not just for 5 minutes", async () => {
+    const path = await logFile(LOGIN);
+    expect(await gameBeingRefused(REFUSED_AT + 3 * HOUR, path)).toEqual({ count: 1, first: REFUSED_AT, last: REFUSED_AT, loginRefused: true });
+    await appendFile(path, LOGGED_IN);
+    expect(await gameBeingRefused(REFUSED_AT + 10 * 60_000, path)).toBeNull();
+  });
+
+  it("still holds after the game is restarted, until the new session logs in", async () => {
+    const path = await logFile(LOGIN);
+    expect(await gameBeingRefused(REFUSED_AT + HOUR, path)).not.toBeNull();
+    await writeFile(path, "0.050 Sys [Diag]: Current time: Mon Nov  9 23:40:00 2026 [UTC: Tue Nov 10 04:40:00 2026]\n5.000 Sys [Info]: Main menu\n");
+    expect(await gameBeingRefused(REFUSED_AT + HOUR, path)).toMatchObject({ first: REFUSED_AT, loginRefused: true });
+    await appendFile(path, LOGGED_IN);
+    expect(await gameBeingRefused(REFUSED_AT + HOUR, path)).toBeNull();
+  });
+
+  it("only counts Akamai's refusals, so a failed login for another reason isn't taken for a block", async () => {
+    const path = await logFile(LOGIN.replace("Server: AkamaiGHost", "Server: nginx"));
+    expect(await gameRefusals(path)).toMatchObject({ count: 1, loginRefused: false });
+    expect(await gameBeingRefused(REFUSED_AT + 10 * 60_000, path)).toBeNull();
   });
 });

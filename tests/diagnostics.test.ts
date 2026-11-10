@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { pruneRequests, readRequests, recordRequest, summarizeRequests, tracked } from "../src/server/requestLog";
 import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
 import { loggedGame, refusalDetails } from "../src/server/gameLog";
+import { apiPausedUntil, noteApiAccepted, restoreApiBackoff } from "../src/server/apiBackoff";
 
 const HOUR = 3600_000;
 
@@ -63,7 +64,7 @@ describe("request ledger", () => {
 
 describe("refusal reports", () => {
   const first = Date.parse("2026-11-10T03:06:52Z");
-  const refusals = { count: 59, first, last: first + 6 * 60_000 };
+  const refusals = { count: 59, first, last: first + 6 * 60_000, loginRefused: false };
 
   it("saves what SFHelper sent in the two hours before the game was refused", async () => {
     await recordRequest({ at: new Date(first - 3 * HOUR).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 1 });
@@ -131,5 +132,21 @@ describe("the game's public address", () => {
       ].join("\n"),
     );
     expect(await loggedGame(log)).toMatchObject({ publicAddress: "104.181.86.240" });
+  });
+});
+
+describe("SFHelper's own pause after a refusal", () => {
+  it("carries over a restart, rebuilt from the request record", () => {
+    const t = Date.parse("2026-11-10T04:09:18Z");
+    const at = (ms: number) => new Date(ms).toISOString();
+    restoreApiBackoff([{ at: at(t - HOUR), status: 200 }, { at: at(t), status: 403 }]);
+    expect(apiPausedUntil(t + 60_000)).toBe(t + 15 * 60_000);
+    restoreApiBackoff([{ at: at(t + 15 * 60_000), status: 403 }, { at: at(t), status: 403 }]);
+    expect(apiPausedUntil(t + 20 * 60_000)).toBe(t + 45 * 60_000);
+    restoreApiBackoff([{ at: at(t), status: 403 }, { at: at(t + 15 * 60_000), status: 200 }]);
+    expect(apiPausedUntil(t + 16 * 60_000)).toBeNull();
+    restoreApiBackoff([]);
+    expect(apiPausedUntil(t)).toBeNull();
+    noteApiAccepted();
   });
 });
