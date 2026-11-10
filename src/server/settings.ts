@@ -12,7 +12,12 @@ export interface Settings {
   blessedNotify: boolean;
   recipeNotify: boolean;
   recipeWatch: string[];
+  inventoryRequests: boolean;
+  avakotRequests: boolean;
+  profileRequests: boolean;
 }
+
+export const REQUEST_SWITCHES = ["inventoryRequests", "avakotRequests", "profileRequests"] as const;
 
 const DEFAULTS: Settings = {
   moonsteelNotify: true,
@@ -24,6 +29,9 @@ const DEFAULTS: Settings = {
   blessedNotify: false,
   recipeNotify: true,
   recipeWatch: [],
+  inventoryRequests: true,
+  avakotRequests: true,
+  profileRequests: true,
 };
 
 function storeItems(v: unknown): string[] | null {
@@ -53,6 +61,9 @@ export async function getSettings(): Promise<Settings> {
       blessedNotify: typeof s.blessedNotify === "boolean" ? s.blessedNotify : DEFAULTS.blessedNotify,
       recipeNotify: typeof s.recipeNotify === "boolean" ? s.recipeNotify : DEFAULTS.recipeNotify,
       recipeWatch: storeItems(s.recipeWatch) ?? [],
+      inventoryRequests: typeof s.inventoryRequests === "boolean" ? s.inventoryRequests : DEFAULTS.inventoryRequests,
+      avakotRequests: typeof s.avakotRequests === "boolean" ? s.avakotRequests : DEFAULTS.avakotRequests,
+      profileRequests: typeof s.profileRequests === "boolean" ? s.profileRequests : DEFAULTS.profileRequests,
     };
   } catch {
     return { ...DEFAULTS, avakotWatch: [], timerWatch: [], recipeWatch: [] };
@@ -70,6 +81,10 @@ export function updateSettings(patch: Record<string, unknown>): Promise<Settings
     if (typeof patch.timerNotify === "boolean") s.timerNotify = patch.timerNotify;
     if (typeof patch.blessedNotify === "boolean") s.blessedNotify = patch.blessedNotify;
     if (typeof patch.recipeNotify === "boolean") s.recipeNotify = patch.recipeNotify;
+    for (const key of REQUEST_SWITCHES) {
+      const v = patch[key];
+      if (typeof v === "boolean") s[key] = v;
+    }
     const watch = storeItems(patch.avakotWatch);
     if (watch) s.avakotWatch = watch;
     const timerWatch = timerTags(patch.timerWatch);

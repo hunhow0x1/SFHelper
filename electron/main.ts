@@ -6,7 +6,7 @@ import { readConsent, recordConsent, ACK_PHRASE } from "../helper/consent";
 import { importInventory, type ImportSession } from "../helper/run";
 import { recordHistory, startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
-import { getSettings } from "../src/server/settings";
+import { getSettings, type Settings } from "../src/server/settings";
 import { getInventory, type InventoryView } from "../src/server/inventory";
 import { blessedMeetingNear, COLLECTOR_TAG, dockedCollector, TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
 import { newlyReady, readyRecipes, recipeTimes, recipeVerb } from "../src/server/recipes";
@@ -18,7 +18,7 @@ import { AVAKOT_VENDOR, avakotDue, avakotDueAt, getAvakot, noteAvakotAttempt, pa
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
 import { gameBeingRefused, gameRefusals, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
-import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
+import { alreadyReported, recordRefusalEnd, recordRefusalStart, type RequestSwitches } from "../src/server/refusalReport";
 import { pruneRequests, readRequests } from "../src/server/requestLog";
 import { findSoulframe } from "../helper/processFinder";
 import { readDataJson } from "../src/server/paths";
@@ -116,6 +116,18 @@ async function gameRunning(): Promise<boolean> {
   return (await findSoulframe().catch(() => [])).length > 0;
 }
 
+function requestSwitches(s: Settings): RequestSwitches {
+  return { inventory: s.inventoryRequests, avakot: s.avakotRequests, profile: s.profileRequests };
+}
+
+let loggedSwitches = "";
+function logSwitches(r: RequestSwitches): void {
+  const text = `inventory imports ${r.inventory ? "on" : "off"}, Avakot's stock checks ${r.avakot ? "on" : "off"}, profile checks ${r.profile ? "on" : "off"}`;
+  if (text === loggedSwitches) return;
+  loggedSwitches = text;
+  log(`Requests to Soulframe: ${text}.`);
+}
+
 async function reportRefusalStart(r: GameRefusals): Promise<void> {
   try {
     if (await alreadyReported(r.first)) return;
@@ -128,6 +140,7 @@ async function reportRefusalStart(r: GameRefusals): Promise<void> {
       appVersion: app.getVersion(),
       gameRunning: await gameRunning(),
       late: r.first < STARTED_AT,
+      requests: requestSwitches(await getSettings()),
     });
     log("Saved a report on the refusals to refusals.log in the data folder.");
   } catch (err) {
@@ -152,6 +165,8 @@ function scheduleImport(): void {
 
 async function importFromMemory(): Promise<void> {
   if (importing) return;
+  const settings = await getSettings();
+  logSwitches(requestSwitches(settings));
   const paused = apiPausedUntil();
   if (paused) {
     lastImportCode = 8;
@@ -178,6 +193,12 @@ async function importFromMemory(): Promise<void> {
     if (ended) await recordRefusalEnd(ended, await gameRunning()).catch(() => {});
   }
   gameWasRefused = false;
+  if (!settings.inventoryRequests) {
+    session = undefined;
+    lastImportCode = 10;
+    setImportStatus({ state: "error", code: 10, message: "Inventory imports are off." });
+    return;
+  }
   importing = true;
   if (lastImportCode !== 3) setImportStatus({ state: "scanning", message: "Looking for Soulframe…" });
   try {
@@ -233,6 +254,7 @@ let avakotBusy = false;
 async function refreshAvakot(): Promise<void> {
   const s = session;
   if (!s || avakotBusy || apiPausedUntil()) return;
+  if (!(await getSettings()).avakotRequests) return;
   if (!(await avakotDue())) return scheduleAvakot();
   avakotBusy = true;
   try {

@@ -94,6 +94,21 @@ export interface RequestSummary {
   recent: RequestEntry[];
 }
 
+export interface KindActivity {
+  last: string;
+  status: number | null;
+  empty: boolean;
+  count: number;
+}
+
+export function activityByKind(entries: RequestEntry[]): Partial<Record<RequestKind, KindActivity>> {
+  const out: Partial<Record<RequestKind, KindActivity>> = {};
+  for (const e of [...entries].sort((a, b) => Date.parse(a.at) - Date.parse(b.at))) {
+    out[e.kind] = { last: e.at, status: e.status, empty: !!e.empty, count: (out[e.kind]?.count ?? 0) + 1 };
+  }
+  return out;
+}
+
 export function summarizeRequests(unsorted: RequestEntry[], recent = 10): RequestSummary {
   const entries = [...unsorted].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
   const byKind: Record<string, Record<string, number>> = {};

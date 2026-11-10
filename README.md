@@ -21,7 +21,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 | **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. Pickup and trade history is kept on your computer; export it to move it to a new install. |
 | **Trades** | Your trade history: who you traded with, what you received and gave, with in-game icons (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
 | **Avakot** | What Avakot's Gots has in stock right now, with prices, purchase limits and how long each item stays, plus his weekly and always-stocked wares. Star anything he can sell to get a desktop notification when he stocks it. |
-| **Stats** | Your top weapons and enemies by kills, by in-game name. |
+| **Account** | Your account id; a switch for each kind of request SFHelper sends to Soulframe's servers, with when each was last sent; and your top weapons and enemies by kills, by in-game name. |
 
 ## Screenshots
 
@@ -62,6 +62,10 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   SFHelper stops all requests to them, for 15 minutes at first and up to an hour.
   If the game's own requests are being refused (its log shows the 403s),
   SFHelper sends nothing until the game gets through again.
+- **Switches:** inventory imports, Avakot's stock checks and profile checks can
+  each be turned off in the Account tab. SFHelper keeps a record of its own
+  requests to Soulframe's servers (`requests.log`, the last 30 days) and of the
+  times the game was refused (`refusals.log`), both only in its data folder.
 - **Updates:** the app checks this repo's
   [GitHub releases](https://github.com/hunhow0x1/SFHelper/releases) for a newer
   version. The check sends nothing about you.
@@ -130,6 +134,9 @@ import the same file twice.
   DE's servers are turning away requests from your network, the game's
   included, so the game can't save progress until it clears. SFHelper pauses
   its own requests and resumes by itself. If it lasts, contact DE support.
+- **Red banner: "Soulframe's servers refused your game's login"**: the same
+  block, hit at login. The game shows it as "Incorrect email or password", but
+  your password is fine. SFHelper waits until the game logs in.
 
 ## Ground rules
 

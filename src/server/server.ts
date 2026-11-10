@@ -23,7 +23,7 @@ import { virtuePoints } from "./loadouts";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
 import { getDiscoveries } from "./discoveries";
 import { userAgent } from "./userAgent";
-import { tracked } from "./requestLog";
+import { activityByKind, readRequests, tracked } from "./requestLog";
 import { withAgariNames, withCollector, withStarred } from "./timers";
 import { writeFileAtomic } from "./files";
 
@@ -32,6 +32,7 @@ const PUBLIC_DIR = join(HERE, "public");
 const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=";
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
 const MIN_FETCH_INTERVAL_MS = 120_000;
+const REQUEST_ACTIVITY_MS = 24 * 3600_000;
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_IMPORT_BYTES = 16 * 1024 * 1024;
 const HOST = "127.0.0.1";
@@ -93,6 +94,10 @@ function getProfile(accountId: string): Promise<{ snapshot: ProfileSnapshot; err
 
 async function loadProfile(accountId: string): Promise<{ snapshot: ProfileSnapshot; error: string | null }> {
   const cached = cache.get(accountId) ?? (await loadSavedProfile(accountId));
+  if (!(await getSettings()).profileRequests) {
+    if (!cached) throw new Error("Profile checks are off, and no profile has been saved yet.");
+    return { snapshot: cached.snapshot, error: null };
+  }
   if (cached && Date.now() - cached.at < MIN_FETCH_INTERVAL_MS) return { snapshot: cached.snapshot, error: cached.error };
   try {
     const snapshot = await fetchProfile(accountId);
@@ -276,8 +281,24 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
   }
 
   if (url.pathname === "/api/avakot" && req.method === "GET") {
-    const { avakotWatch, avakotNotify, avakotResetNotify } = await getSettings();
-    sendJson(res, 200, { ...(await getAvakot()), watch: avakotWatch, notify: avakotNotify, resetNotify: avakotResetNotify });
+    const { avakotWatch, avakotNotify, avakotResetNotify, avakotRequests, inventoryRequests } = await getSettings();
+    sendJson(res, 200, {
+      ...(await getAvakot()),
+      watch: avakotWatch,
+      notify: avakotNotify,
+      resetNotify: avakotResetNotify,
+      checks: { avakot: avakotRequests, inventory: inventoryRequests },
+    });
+    return;
+  }
+
+  if (url.pathname === "/api/requests" && req.method === "GET") {
+    const { inventoryRequests, avakotRequests, profileRequests } = await getSettings();
+    const now = Date.now();
+    sendJson(res, 200, {
+      switches: { inventoryRequests, avakotRequests, profileRequests },
+      kinds: activityByKind(await readRequests(now - REQUEST_ACTIVITY_MS, now)),
+    });
     return;
   }
 
@@ -357,6 +378,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         inventory: inventory ? { source: inventory.source, updatedAt: inventory.updatedAt, itemCount: inventory.items.length } : null,
         capturedAt: snap.capturedAt,
         profileError,
+        profileOff: !(await getSettings()).profileRequests,
       });
     } catch (err) {
       sendJson(res, 502, { error: (err as Error).message });

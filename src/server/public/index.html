@@ -143,7 +143,6 @@
       .panel > section.offview { display: none; }
       .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
       .ov-col { display: contents; }
-      .ov-account { order: 1; }
       .ov-standing { order: 2; }
       .ov-timers { order: 3; }
       .ov-wallet { order: 3; }
@@ -406,6 +405,13 @@
       .notifytoggle input:checked + .sw { background: rgba(201, 165, 92, 0.22); border-color: rgba(201, 165, 92, 0.6); }
       .notifytoggle input:checked + .sw::after { transform: translateX(16px); background: var(--accent-hi); }
       .notifytoggle input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
+      #panel-account > .cols { align-items: stretch; }
+      .reqlist { display: grid; gap: 18px; }
+      .notifytoggle.reqrow { display: flex; align-items: flex-start; gap: 14px; }
+      .reqrow .sw { margin-top: 1px; }
+      .reqtext { display: grid; gap: 4px; min-width: 0; }
+      .reqtext b { font: 500 15.5px/1.2 var(--body); color: var(--text); }
+      .reqtext small { font-size: 13px; color: var(--faint); font-variant-numeric: tabular-nums; }
       .moonsteel {
         display: inline-block; font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase;
         padding: 4px 8px 3px; margin-left: 8px; border-radius: 2px; vertical-align: 2px;
@@ -788,7 +794,7 @@
         <button class="tab" data-tab="pickups">Pickups</button>
         <button class="tab" data-tab="trades">Trades</button>
         <button class="tab" data-tab="avakot">Avakot</button>
-        <button class="tab" data-tab="stats">Stats</button>
+        <button class="tab" data-tab="account">Account</button>
       </nav>
 
       <div class="panel active" id="panel-overview">
@@ -806,17 +812,6 @@
         </div>
 
         <div class="ov-col">
-          <section class="ov-account">
-            <h2 class="hdr">Account
-              <button id="accountToggle" class="mini" aria-expanded="false">Edit ID</button>
-            </h2>
-            <span class="status" id="status">Enter your account id to begin.</span>
-            <div class="setup" id="accountSetup" hidden style="margin-top: 12px">
-              <input id="accountId" placeholder="24-character account id" spellcheck="false" />
-              <button id="save">Track</button>
-            </div>
-          </section>
-
           <section class="ov-timers" id="timersSection" hidden>
             <h2 class="hdr">Cooldowns
               <label class="notifytoggle" id="timerNotifyWrap" hidden title="Desktop notification when a starred cooldown ends">
@@ -1007,7 +1002,42 @@
         </section>
       </div>
 
-      <div class="panel" id="panel-stats">
+      <div class="panel" id="panel-account">
+        <div class="cols">
+          <section>
+            <h2 class="hdr">Account
+              <button id="accountToggle" class="mini" aria-expanded="false">Edit ID</button>
+            </h2>
+            <span class="status" id="status">Enter your account id to begin.</span>
+            <div class="setup" id="accountSetup" hidden style="margin-top: 12px">
+              <input id="accountId" placeholder="24-character account id" spellcheck="false" />
+              <button id="save">Track</button>
+            </div>
+          </section>
+
+          <section>
+            <h2>Requests to Soulframe</h2>
+            <div class="daily">Each switch stops one kind of request SFHelper sends to Soulframe's servers.</div>
+            <div class="reqlist">
+              <label class="notifytoggle reqrow" title="Every 2 minutes while you play, SFHelper requests your inventory using the game's session. While off, the dashboard keeps your last inventory, and Avakot's stock checks pause too because they use that session.">
+                <input type="checkbox" id="reqInventory" data-key="inventoryRequests" data-kind="inventory" checked />
+                <span class="sw"></span>
+                <span class="reqtext"><b>Inventory imports</b><small id="reqInventoryNote"></small></span>
+              </label>
+              <label class="notifytoggle reqrow" title="About every 3 hours while you play, SFHelper asks for Avakot's stock. While off, the Avakot tab keeps the last stock it saw.">
+                <input type="checkbox" id="reqAvakot" data-key="avakotRequests" data-kind="vendor" checked />
+                <span class="sw"></span>
+                <span class="reqtext"><b>Avakot's stock checks</b><small id="reqAvakotNote"></small></span>
+              </label>
+              <label class="notifytoggle reqrow" title="Every 2 minutes while SFHelper is open, it requests your public profile: standing, level and combat stats. While off, SFHelper shows the last profile it saved.">
+                <input type="checkbox" id="reqProfile" data-key="profileRequests" data-kind="profile" checked />
+                <span class="sw"></span>
+                <span class="reqtext"><b>Profile checks</b><small id="reqProfileNote"></small></span>
+              </label>
+            </div>
+          </section>
+        </div>
+
         <section>
           <h2>Combat</h2>
           <div class="grid" id="scalars"></div>
@@ -1052,7 +1082,7 @@
       });
       try {
         const savedTab = localStorage.getItem("sfhelper.tab");
-        const RENAMED_TAB = { totems: "upgrades", weapons: "mastery" };
+        const RENAMED_TAB = { totems: "upgrades", weapons: "mastery", stats: "account" };
         if (savedTab) activateTab(RENAMED_TAB[savedTab] || savedTab);
       } catch {}
 
@@ -1645,7 +1675,7 @@
           : '<span class="muted">No cooldowns running.</span>';
       }
       setInterval(renderTimers, 30000);
-      function bindSettingToggle(box, key) {
+      function bindSettingToggle(box, key, after) {
         box.addEventListener("change", async () => {
           try {
             const r = await fetch("/api/settings", {
@@ -1657,6 +1687,7 @@
           } catch {
             box.checked = !box.checked;
           }
+          if (after) after();
         });
       }
       (async () => {
@@ -1771,11 +1802,15 @@
         const rotating = offers.filter((o) => o.expiry !== null).sort((a, b) => a.expiry - b.expiry);
         const inStock = new Map(rotating.map((o) => [o.storeItem, o]));
 
+        const checksOff = !AV.checks ? null
+          : AV.checks.avakot === false ? "Stock checks are off in the Account tab"
+          : AV.checks.inventory === false ? "Stock checks are paused while inventory imports are off"
+          : null;
         $("avSummary").innerHTML = !stock
-          ? "SFHelper checks Avakot's stock while Soulframe is running, and shows it here after the first check."
+          ? checksOff || "SFHelper checks Avakot's stock while Soulframe is running, and shows it here after the first check."
           : stock.nextChange > now
-            ? `Stock changes in <b>${avLeft(stock.nextChange - now)}</b> · checked ${avClock(stock.fetchedAt)}`
-            : `Stock as of ${avDay(stock.fetchedAt)}, ${avClock(stock.fetchedAt)} · SFHelper checks again while Soulframe is running`;
+            ? `Stock changes in <b>${avLeft(stock.nextChange - now)}</b> · checked ${avClock(stock.fetchedAt)}${checksOff ? ` · ${checksOff}` : ""}`
+            : `Stock as of ${avDay(stock.fetchedAt)}, ${avClock(stock.fetchedAt)} · ${checksOff || "SFHelper checks again while Soulframe is running"}`;
 
         const card = (o) => {
           const it = avItem(o.storeItem);
@@ -1886,6 +1921,37 @@
       document.querySelector('.tab[data-tab="avakot"]').addEventListener("click", loadAvakot);
       setInterval(loadAvakot, 60000);
       setInterval(renderAvakot, 30000);
+
+      const REQ_SWITCHES = ["reqInventory", "reqAvakot", "reqProfile"];
+      const reqWhen = (iso) => {
+        const t = Date.parse(iso);
+        return new Date(t).toDateString() === new Date().toDateString() ? avClock(t) : `${avDay(t)}, ${avClock(t)}`;
+      };
+      const reqOutcome = (a) =>
+        a.status === null ? " (no answer)"
+          : a.status === 403 || a.status === 429 ? ` (refused, ${a.status})`
+          : a.status < 200 || a.status >= 300 ? ` (${a.status})`
+          : a.empty ? " (empty)"
+          : "";
+      async function loadRequests() {
+        let r = null;
+        try { r = await (await fetch("/api/requests")).json(); } catch {}
+        if (!r || !r.switches) return;
+        for (const id of REQ_SWITCHES) {
+          const box = $(id);
+          if (document.activeElement !== box) box.checked = r.switches[box.dataset.key] !== false;
+          const a = r.kinds[box.dataset.kind];
+          let note = a ? `Last sent ${reqWhen(a.last)}${reqOutcome(a)} · ${a.count} in the last 24 hours` : "None sent in the last 24 hours";
+          if (id === "reqAvakot" && r.switches.avakotRequests !== false && r.switches.inventoryRequests === false) {
+            note = `Paused while inventory imports are off · ${note}`;
+          }
+          $(id + "Note").textContent = note;
+        }
+      }
+      for (const id of REQ_SWITCHES) bindSettingToggle($(id), $(id).dataset.key, () => { loadRequests(); loadAvakot(); });
+      document.querySelector('.tab[data-tab="account"]').addEventListener("click", loadRequests);
+      setInterval(loadRequests, 60000);
+      loadRequests();
 
       document.getElementById("pickupSearch").addEventListener("input", (e) => {
         PICKUP_SEARCH = e.target.value;
@@ -2971,9 +3037,11 @@
               .join("")
           : '<span class="muted">Owned currencies (Dracs, Harmonies…) aren\'t in the public profile — import your inventory to show them.</span>';
         const imp = data.importStatus;
-        const impNote = imp && imp.state === "error" && imp.code !== 3 && imp.code !== 6
-          ? ` <span class="err" title="${imp.message.replace(/"/g, "&quot;")}">· Last import failed: ${imp.message}</span>`
-          : "";
+        const impNote = !imp || imp.state !== "error" || imp.code === 3 || imp.code === 6
+          ? ""
+          : imp.code === 10
+            ? " · Inventory imports are off in the Account tab"
+            : ` <span class="err" title="${imp.message.replace(/"/g, "&quot;")}">· Last import failed: ${imp.message}</span>`;
         $("invStatus").innerHTML = data.inventory
           ? `Inventory loaded: <b>${data.inventory.itemCount}</b> items from ${data.inventory.source.split(/[\\/]/).pop()} · updated ${new Date(data.inventory.updatedAt).toLocaleString()}${impNote}`
           : impNote.replace(" · ", "");
@@ -3077,7 +3145,10 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || "Request failed");
           render(data);
-          setStatus(data.profileError || "Live · updates every 2 min", !!data.profileError);
+          setStatus(
+            data.profileError || (data.profileOff ? "Profile checks are off · showing the last saved profile" : "Live · updates every 2 min"),
+            !!data.profileError,
+          );
         } catch (e) {
           setStatus(e.message, true);
         }
@@ -3242,8 +3313,9 @@
       const IMPORT_HINT = {
         3: "Waiting for Soulframe — start the game and log in to a character; your account is detected automatically.",
         6: "Soulframe is running — waiting for you to log in to a character.",
+        10: "Inventory imports are off, so SFHelper isn't requesting your inventory.",
       };
-      const IMPORT_WAITING = new Set([3, 6]);
+      const IMPORT_WAITING = new Set([3, 6, 10]);
       async function showImportStatus() {
         try {
           const st = await (await fetch("/api/import-status")).json();
@@ -3332,6 +3404,9 @@
           const saved = localStorage.getItem("sfhelper.accountId");
           if (saved) { $("accountId").value = saved; start(); return; }
         } catch {}
+        let firstVisit = true;
+        try { firstVisit = !localStorage.getItem("sfhelper.tab"); } catch {}
+        if (firstVisit) activateTab("account");
         if (navigator.userAgent.includes("Electron")) {
           setStatus("Waiting for Soulframe — your account is detected automatically once the game is running. (Or use Edit ID.)");
           accountWait = setInterval(tryDiscoveredAccount, 5000);

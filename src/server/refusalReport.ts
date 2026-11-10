@@ -1,13 +1,20 @@
 import { appendFile, readFile } from "node:fs/promises";
 import { appFile } from "./paths";
-import { readRequests, summarizeRequests } from "./requestLog";
+import { activityByKind, readRequests, summarizeRequests } from "./requestLog";
 import type { GameRefusals, RefusalDetail } from "./gameLog";
 
 const BEFORE_MS = 2 * 3600_000;
+const LAST_SENT_MS = 24 * 3600_000;
 const MAX_DETAILS = 8;
 
 const reportPath = () => appFile("refusals.log");
 const iso = (t: number) => new Date(t).toISOString();
+
+export interface RequestSwitches {
+  inventory: boolean;
+  avakot: boolean;
+  profile: boolean;
+}
 
 export interface RefusalContext {
   refusals: GameRefusals;
@@ -17,6 +24,7 @@ export interface RefusalContext {
   appVersion: string;
   gameRunning: boolean;
   late: boolean;
+  requests: RequestSwitches;
 }
 
 async function append(record: Record<string, unknown>): Promise<void> {
@@ -40,7 +48,15 @@ export async function alreadyReported(first: number): Promise<boolean> {
 }
 
 export async function recordRefusalStart(c: RefusalContext, now = Date.now()): Promise<void> {
-  const before = await readRequests(c.refusals.first - BEFORE_MS, c.refusals.first);
+  const first = c.refusals.first;
+  const day = await readRequests(first - LAST_SENT_MS, first);
+  const before = day.filter((e) => Date.parse(e.at) >= first - BEFORE_MS);
+  const lastSent = Object.fromEntries(
+    Object.entries(activityByKind(day)).map(([kind, a]) => [
+      kind,
+      { at: a.last, minutesBefore: Math.round((first - Date.parse(a.last)) / 6_000) / 10, status: a.status, in24h: a.count },
+    ]),
+  );
   await append({
     event: "start",
     recordedAt: iso(now),
@@ -50,7 +66,8 @@ export async function recordRefusalStart(c: RefusalContext, now = Date.now()): P
     late: c.late,
     details: c.details.slice(0, MAX_DETAILS).map((d) => ({ at: iso(d.at), status: d.status, server: d.server, before: d.before, after: d.after })),
     game: { build: c.build, publicAddress: c.publicAddress, running: c.gameRunning },
-    sfhelper: { version: c.appVersion },
+    sfhelper: { version: c.appVersion, requests: c.requests },
+    lastSent,
     requestsBefore: summarizeRequests(before),
   });
 }

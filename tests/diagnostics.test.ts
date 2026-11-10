@@ -66,6 +66,8 @@ describe("refusal reports", () => {
   const first = Date.parse("2026-11-10T03:06:52Z");
   const refusals = { count: 59, first, last: first + 6 * 60_000, loginRefused: false };
 
+  const allOn = { inventory: true, avakot: true, profile: true };
+
   it("saves what SFHelper sent in the two hours before the game was refused", async () => {
     await recordRequest({ at: new Date(first - 3 * HOUR).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 1 });
     await recordRequest({ at: new Date(first - 101_000).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 1 });
@@ -78,6 +80,7 @@ describe("refusal reports", () => {
       appVersion: "0.4.45",
       gameRunning: false,
       late: false,
+      requests: allOn,
     });
     const [report] = (await readFile(join(process.env.SFHELPER_HOME!, "refusals.log"), "utf8")).trim().split("\n").map((l) => JSON.parse(l));
     expect(report).toMatchObject({
@@ -91,8 +94,33 @@ describe("refusal reports", () => {
     expect(report.details[0]).toMatchObject({ server: "AkamaiGHost", before: "Hud.lua: false" });
   });
 
+  it("notes which kinds of request were switched on, and how long before the block each was last sent", async () => {
+    await recordRequest({ at: new Date(first - 20 * HOUR).toISOString(), kind: "vendor", status: 200, ms: 1, bytes: 1 });
+    await recordRequest({ at: new Date(first - 3 * HOUR).toISOString(), kind: "vendor", status: 200, ms: 1, bytes: 1 });
+    await recordRequest({ at: new Date(first - 101_000).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 1 });
+    await recordRequest({ at: new Date(first - 26 * HOUR).toISOString(), kind: "profile", status: 200, ms: 1, bytes: 1 });
+    await recordRequest({ at: new Date(first + 60_000).toISOString(), kind: "profile", status: 403, ms: 1, bytes: 0 });
+    await recordRefusalStart({
+      refusals,
+      details: [],
+      publicAddress: null,
+      build: null,
+      appVersion: "0.4.47",
+      gameRunning: true,
+      late: false,
+      requests: { inventory: true, avakot: true, profile: false },
+    });
+    const [report] = (await readFile(join(process.env.SFHELPER_HOME!, "refusals.log"), "utf8")).trim().split("\n").map((l) => JSON.parse(l));
+    expect(report.sfhelper).toEqual({ version: "0.4.47", requests: { inventory: true, avakot: true, profile: false } });
+    expect(report.lastSent).toEqual({
+      vendor: { at: new Date(first - 3 * HOUR).toISOString(), minutesBefore: 180, status: 200, in24h: 2 },
+      inventory: { at: new Date(first - 101_000).toISOString(), minutesBefore: 1.7, status: 200, in24h: 1 },
+    });
+    expect(report.requestsBefore.total).toBe(1);
+  });
+
   it("reports each block once, and again if it comes back after ending", async () => {
-    const ctx = { refusals, details: [], publicAddress: null, build: null, appVersion: "0.4.45", gameRunning: false, late: true };
+    const ctx = { refusals, details: [], publicAddress: null, build: null, appVersion: "0.4.45", gameRunning: false, late: true, requests: allOn };
     expect(await alreadyReported(first)).toBe(false);
     await recordRefusalStart(ctx);
     expect(await alreadyReported(first)).toBe(true);
