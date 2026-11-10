@@ -89,14 +89,19 @@ describe("Avakot's stock history and notifications", () => {
     expect(seen[RIVER_PEARL]).toEqual({ count: 2, last: Date.parse("2026-10-28T02:00:00Z") });
   });
 
-  it("asks again only once the stock has changed, and never twice in ten minutes", async () => {
+  it("asks again at the first rotation at least three hours later", async () => {
     expect(await avakotDue(FETCHED)).toBe(true);
     await noteAvakotAttempt(FETCHED);
     expect(await avakotDue(FETCHED + 5 * 60_000)).toBe(false);
     await recordAvakot(parseVendorInfo(await sample(), FETCHED), []);
-    expect(await avakotDue(FETCHED + 30 * 60_000)).toBe(false);
-    expect(await avakotDueAt()).toBe(Date.parse("2026-10-26T23:00:30Z"));
-    expect(await avakotDue(Date.parse("2026-10-26T23:01:00Z"))).toBe(true);
+    expect(await avakotDue(Date.parse("2026-10-26T23:01:00Z"))).toBe(false);
+    expect(await avakotDueAt()).toBe(Date.parse("2026-10-27T01:00:30Z"));
+    expect(await avakotDue(Date.parse("2026-10-27T01:00:30Z"))).toBe(true);
+
+    const onTime = Date.parse("2026-10-27T01:00:30Z");
+    await noteAvakotAttempt(onTime);
+    await recordAvakot({ fetchedAt: onTime, nextChange: Date.parse("2026-10-27T02:00:00Z"), offers: [] }, []);
+    expect(await avakotDueAt()).toBe(Date.parse("2026-10-27T04:00:30Z"));
   });
 
   it("asks again ten minutes later if DE hadn't rotated the stock yet", async () => {

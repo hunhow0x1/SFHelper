@@ -1,7 +1,7 @@
 import { writeFileAtomic } from "../src/server/files";
+import { userAgent } from "../src/server/userAgent";
 
 const ENDPOINT = "https://api.soulframe.com/api/inventory.php";
-const USER_AGENT = "SFHelper-memory-helper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 const MIN_INTERVAL_MS = 2000;
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
 
@@ -39,7 +39,7 @@ export async function verifyNonce(
     if (!nonce) continue;
 
     const response = await fetchImpl(buildUrl(accountId, nonce), {
-      headers: { "user-agent": USER_AGENT },
+      headers: { "user-agent": userAgent() },
     });
     if (response.status === 403 || response.status === 429) {
       throw new EndpointRefusedError(response.status);

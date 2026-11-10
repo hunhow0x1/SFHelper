@@ -5,7 +5,9 @@ import { writeFileAtomic } from "./files";
 export const AVAKOT_VENDOR = "/SF/Types/Game/AvakotVendorManifest";
 const PERMANENT_AFTER_MS = 365 * 24 * 3600_000;
 const REFRESH_GRACE_MS = 30_000;
-const MIN_INTERVAL_MS = 10 * 60_000;
+const HOUR_MS = 3600_000;
+const MIN_INTERVAL_MS = 3 * HOUR_MS;
+const RETRY_MS = 10 * 60_000;
 
 export interface AvakotOffer {
   id: string;
@@ -100,7 +102,10 @@ export function parseVendorInfo(body: string, now = Date.now()): AvakotStock {
 
 export async function avakotDueAt(): Promise<number> {
   const s = await loadState();
-  return Math.max(s.lastAttempt + MIN_INTERVAL_MS, s.stock ? s.stock.nextChange + REFRESH_GRACE_MS : 0);
+  if (!s.stock) return s.lastAttempt + RETRY_MS;
+  if (s.stock.nextChange <= s.stock.fetchedAt) return Math.max(s.lastAttempt, s.stock.fetchedAt) + RETRY_MS;
+  const due = Math.max(s.lastAttempt + MIN_INTERVAL_MS, s.stock.nextChange + REFRESH_GRACE_MS);
+  return Math.ceil((due - REFRESH_GRACE_MS) / HOUR_MS) * HOUR_MS + REFRESH_GRACE_MS;
 }
 
 export async function avakotDue(now = Date.now()): Promise<boolean> {

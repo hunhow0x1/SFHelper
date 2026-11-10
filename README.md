@@ -49,12 +49,13 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
     memory is only scanned when your session changes.
 - **Avakot's shop (desktop app):** with the same session, the app asks
   Soulframe's server for Avakot's stock, the same request the game makes for his
-  shop. It only asks when his stock changes (about every 3 hours), within a
-  minute of the change, while the game is running.
+  shop. It asks about once every 3 hours, just after one of his hourly
+  rotations, while the game is running. Each rotating offer stays for 3 hours,
+  so none are missed.
 - **Game log:** `EE.log` supplies the time each weapon was picked up, and each
-  trade's partner and time. It also has the part of your Mastery that isn't
-  weapon and Pact ranks (discoveries, histories and the like), which the game
-  writes at login; SFHelper keeps the last figure it saw. Trades are detected by comparing inventory imports,
+  trade's partner and time. The Mastery figure the game writes at login is used
+  to check SFHelper's own count (weapon and Pact ranks, plus 5,000 for each place
+  whose History Motes are all found). Trades are detected by comparing inventory imports,
   so the history starts once SFHelper is running; trades made earlier in the
   same game session are recovered from the log.
 - **Rate limits:** if Soulframe's servers ever refuse a request (403/429),

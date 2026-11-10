@@ -22,13 +22,13 @@ import { getRoster } from "./roster";
 import { virtuePoints } from "./loadouts";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
 import { getDiscoveries } from "./discoveries";
+import { userAgent } from "./userAgent";
 import { withAgariNames, withCollector, withStarred } from "./timers";
 import { writeFileAtomic } from "./files";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
 const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=";
-const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
 const MIN_FETCH_INTERVAL_MS = 120_000;
 const MAX_BODY_BYTES = 64 * 1024;
@@ -113,7 +113,7 @@ async function fetchProfile(accountId: string): Promise<ProfileSnapshot> {
   if (refused) throw new Error(gameRefusedMessage(refused));
 
   const response = await fetch(PROFILE_ENDPOINT + encodeURIComponent(accountId), {
-    headers: { "user-agent": USER_AGENT },
+    headers: { "user-agent": userAgent() },
   });
   if (response.status === 403 || response.status === 429) {
     throw new Error(pausedMessage(noteApiRefused(), response.status));

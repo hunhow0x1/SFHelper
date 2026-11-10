@@ -99,8 +99,8 @@ interface OpenRefusal {
 
 export interface LoggedCollector {
   at: number;
-  x: number;
-  z: number;
+  x: number | null;
+  z: number | null;
   started: number | null;
   ended: number | null;
   logAt: number;
@@ -142,8 +142,18 @@ const LOCATION_RE = /SetCurrentLocation: ([\w-]+)/;
 const ENTER_LEVEL_RE = /STATS ENTER_LEVEL \/SF\/Levels\/Procs\/(\w+)(\/)?/;
 const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
 const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
-const COLLECTOR_GONE = ["Collector encounter ending", "playing collectorCinLeaving", "OnPrimed Loop ended", "Shutdown collector"];
-const COLLECTOR_RE = /^(\d+\.\d+) .*PrimeMissionOnHint \[[^\]]*\] at pos \[\((-?[\d.]+), (-?[\d.]+), (-?[\d.]+).*missionTag MT_COLLECTOR/;
+const COLLECTOR_GONE = [
+  "OnPrimed: hint was unprimed and never activated",
+  "OnPrimed: Players left the area",
+  "Collector encounter ending",
+  "playing collectorCinLeaving",
+  "Shutdown due to streaming",
+  "Shutdown collector",
+  "Collector encounter ended",
+  "Collector shutdown complete",
+];
+const COLLECTOR_RE = /^(\d+\.\d+) .*PrimeMissionOnHint\b[^[]*\[[^\]]*\] at pos \[\((-?[\d.]+), (-?[\d.]+), (-?[\d.]+).*missionTag MT_COLLECTOR/;
+const COLLECTOR_SAME_ARRIVAL_MS = 5_000;
 const BLESSED_START_RE = /ENCMGR: Encounter \S*GodsAndGhosts?Encounter started at /;
 const BLESSED_END_RE = /ENCMGR: Encounter \[\S*GodsAndGhosts?Encounter\] (?:has completed|was abandoned)/;
 const BLESSED_FAILED_WITHIN_MS = 1_000;
@@ -343,16 +353,31 @@ function feedGame(g: Scan["game"], line: string): void {
 }
 
 function feedCollector(s: Scan, line: string, start: number): void {
-  if (line.includes("MT_COLLECTOR")) {
+  const objective = line.includes("CollectorShipObjective.lua: ");
+  if (!objective && !line.includes("MT_COLLECTOR")) return;
+  const t = TIME_RE.exec(line);
+  if (!t) return;
+  const at = start + Math.round(Number(t[1]) * 1000);
+  const c = s.collector;
+  const sameArrival = !!c && c.ended === null && c.started === null && Math.abs(at - c.at) <= COLLECTOR_SAME_ARRIVAL_MS;
+  if (!objective) {
     const m = COLLECTOR_RE.exec(line);
-    if (m) s.collector = { at: start + Math.round(Number(m[1]) * 1000), x: Number(m[2]), z: Number(m[4]), started: null, ended: null };
+    if (!m) return;
+    if (sameArrival && c!.x === null) {
+      c!.x = Number(m[2]);
+      c!.z = Number(m[4]);
+    } else {
+      s.collector = { at, x: Number(m[2]), z: Number(m[4]), started: null, ended: null };
+    }
     return;
   }
-  if (!s.collector || !line.includes("CollectorShipObjective.lua: ")) return;
-  const t = TIME_RE.exec(line);
-  const at = t ? start + Math.round(Number(t[1]) * 1000) : null;
-  if (line.includes("Collector encounter started")) s.collector.started ??= at;
-  else if (COLLECTOR_GONE.some((text) => line.includes(text))) s.collector.ended ??= at;
+  if (line.includes("OnPrimed: Collector primed")) {
+    if (!sameArrival) s.collector = { at, x: null, z: null, started: null, ended: null };
+    return;
+  }
+  if (!c) return;
+  if (line.includes("Collector encounter started")) c.started ??= at;
+  else if (COLLECTOR_GONE.some((text) => line.includes(text))) c.ended ??= at;
 }
 
 function feedBlessed(b: Scan["blessed"], line: string, start: number): void {

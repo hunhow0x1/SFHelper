@@ -14,6 +14,7 @@ export const COLLECTOR_SITES: CollectorSite[] = [
   { region: "Fuirlands", x: 659, z: 472 },
   { region: "Fortress O'Dell", x: 611, z: -525 },
   { region: "Kearnhold Lowlands", x: 205, z: -1322 },
+  { region: "Kearnhold Lowlands", x: 124, z: -1258 },
 ];
 
 const NEAR_M = 150;

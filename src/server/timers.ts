@@ -146,7 +146,7 @@ export function dockedCollector(c: LoggedCollector | null, now = Date.now()): Ga
   if (!c || c.ended !== null || now - c.logAt > COLLECTOR_STALE_MS) return null;
   const leaves = c.started === null ? c.at + COLLECTOR_STAY_MS : null;
   if (leaves !== null ? now >= leaves : now - c.started! > COLLECTOR_FIGHT_MS) return null;
-  return { at: c.at, region: collectorRegion(c.x, c.z), started: c.started, leaves };
+  return { at: c.at, region: c.x !== null && c.z !== null ? collectorRegion(c.x, c.z) : null, started: c.started, leaves };
 }
 
 export function blessedMeetingNear(b: LoggedBlessed | null, now = Date.now()): boolean {

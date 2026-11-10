@@ -1,9 +1,9 @@
 import type { ReadOnlyMemory } from "./memoryReader";
 import { EndpointRefusedError } from "./fetchInventory";
+import { userAgent } from "../src/server/userAgent";
 
 const OID_RE = /[0-9a-f]{24}/gi;
 const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=";
-const USER_AGENT = "SFHelper-memory-helper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 
 function oidsFrom(buf: Buffer): string[] {
   return [...buf.toString("latin1").matchAll(OID_RE)].map((m) => m[0].toLowerCase());
@@ -41,7 +41,7 @@ export async function verifyAccountId(
   fetchImpl: typeof fetch = fetch,
 ): Promise<{ accountId: string; displayName: string | null } | null> {
   const response = await fetchImpl(PROFILE_ENDPOINT + encodeURIComponent(accountId), {
-    headers: { "user-agent": USER_AGENT },
+    headers: { "user-agent": userAgent() },
   });
   if (response.status === 403 || response.status === 429) throw new EndpointRefusedError(response.status);
   if (!response.ok) return null;

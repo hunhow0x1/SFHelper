@@ -31,6 +31,48 @@ describe("Collector arrivals", () => {
     expect(await loggedCollector(log)).toMatchObject({ started: START + 1_607_623, ended: START + 1_746_799 });
   });
 
+  it("follows the 2026-11-09 game build's log, where the fight starting also ends the waiting loop", async () => {
+    const log = join(await mkdtemp(join(tmpdir(), "sfh-log-")), "EE.log");
+    const lines = [
+      HEADER,
+      "105.230 Script [Info]: CollectorShipObjective.lua: OnPrimed: Collector primed",
+      "105.230 AI [Info]: ENCMGR: PrimeMissionOnHint primed [/Layer0/Layer181/CollectorEncounterHint15] at pos [(124.444, -82.7431, -1258.14, 0)] missionTag MT_COLLECTOR",
+      "162.993 Script [Info]: CollectorShipObjective.lua: Collector encounter started",
+      "164.028 Script [Info]: CollectorShipObjective.lua: OnPrimed Loop ended",
+    ];
+    await writeFile(log, [...lines, ""].join("\n"));
+    expect(await loggedCollector(log)).toMatchObject({ at: START + 105_230, x: 124.444, z: -1258.14, started: START + 162_993, ended: null });
+    expect(collectorRegion(124.444, -1258.14)).toBe("Kearnhold Lowlands");
+
+    await writeFile(
+      log,
+      [
+        ...lines,
+        "1205.504 Script [Info]: CollectorShipObjective.lua: PrimedMissionShouldShutDown: No players in encounter radius",
+        "1205.504 Script [Info]: CollectorShipObjective.lua: Collector encounter ending...",
+        "1215.513 Script [Info]: CollectorShipObjective.lua: Collector encounter ended",
+        "",
+      ].join("\n"),
+    );
+    expect(await loggedCollector(log)).toMatchObject({ started: START + 162_993, ended: START + 1_205_504 });
+  });
+
+  it("still sees a docking when the game logs no position for it", async () => {
+    const log = join(await mkdtemp(join(tmpdir(), "sfh-log-")), "EE.log");
+    await writeFile(log, [HEADER, "105.230 Script [Info]: CollectorShipObjective.lua: OnPrimed: Collector primed", ""].join("\n"));
+    const c = await loggedCollector(log);
+    expect(c).toMatchObject({ at: START + 105_230, x: null, z: null, started: null, ended: null });
+    expect(withCollector([], { ...c!, logAt: START + 200_000 }, START + 200_000)[0]?.docked).toMatchObject({ region: null, leaves: START + 105_230 + 15 * 60_000 });
+  });
+
+  it("ends when players leave before the fight or the area streams out", async () => {
+    const log = join(await mkdtemp(join(tmpdir(), "sfh-log-")), "EE.log");
+    for (const gone of ["OnPrimed: Players left the area, cleaned up all objects", "Shutdown due to streaming (Waited for boss dialog)"]) {
+      await writeFile(log, [HEADER, PRIMED, `1300.000 Script [Info]: CollectorShipObjective.lua: ${gone}`, ""].join("\n"));
+      expect(await loggedCollector(log)).toMatchObject({ ended: START + 1_300_000 });
+    }
+  });
+
   it("shows a docked Collector on the Collector Event row while the game is running", () => {
     const now = START + 1_200_000;
     const spawn = { at: START + 1_177_731, x: 880.326, z: -28.7015, started: null, ended: null, logAt: now - 5_000 };
