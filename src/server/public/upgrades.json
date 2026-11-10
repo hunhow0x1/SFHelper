@@ -2011,19 +2011,22 @@
       "name": "Curaidh's Breath",
       "desc": "A vial of liquid Courage. Drink to your virtue.",
       "kind": "Supplies",
-      "icon": "img/game/storeitems-consumables-courageelixir.png"
+      "icon": "img/game/storeitems-consumables-courageelixir.png",
+      "virtue": "Courage"
     },
     "/SF/Types/Items/Consumables/Syndicates/FeyVirtueElixir": {
       "name": "Dancing Galdre",
       "desc": "A vial of liquid Spirit. Drink to your virtue.",
       "kind": "Supplies",
-      "icon": "img/game/storeitems-consumables-spiritelixir.png"
+      "icon": "img/game/storeitems-consumables-spiritelixir.png",
+      "virtue": "Spirit"
     },
     "/SF/Types/Items/Consumables/Syndicates/SilentRoseVirtueElixir": {
       "name": "Shademaker",
       "desc": "A vial of liquid Grace. Drink to your virtue.",
       "kind": "Supplies",
-      "icon": "img/game/storeitems-consumables-graceelixir.png"
+      "icon": "img/game/storeitems-consumables-graceelixir.png",
+      "virtue": "Grace"
     },
     "/SF/Types/Items/Consumables/Tackle/BugLureStarterCommon": {
       "name": "Feathered Flier",
@@ -2035,37 +2038,85 @@
       "name": "Pluckfin Skimmer",
       "desc": "Its Curfret-like shape makes surface water prey take flight, yet its cerulean glow entices them back. Pluckfin Skimmer sways to a siren song of deceit that some say makes for a more appetizing catch.",
       "kind": "Fishing",
-      "icon": "img/game/storeitems-fishing-carplurea.png"
+      "icon": "img/game/storeitems-fishing-carplurea.png",
+      "habitat": [
+        "Shoreline"
+      ],
+      "natures": [
+        "Ambush Feeder",
+        "Evening Feeder"
+      ]
     },
     "/SF/Types/Items/Consumables/Tackle/CricketLureRare": {
       "name": "Spindled Bugger",
       "desc": "With limbs and appendages aplenty, this verdant decoy is sure to tempt the most docile of foragers. Its living counterpart favours lurking in pockets of moon-cooled dew, such placid habits makes the Spindled Bugger enticing bait indeed.",
       "kind": "Fishing",
-      "icon": "img/game/storeitems-fishing-cricketlure.png"
+      "icon": "img/game/storeitems-fishing-cricketlure.png",
+      "habitat": [
+        "Swamp"
+      ],
+      "natures": [
+        "Bottom Feeder",
+        "Evening Feeder",
+        "Rain Dweller",
+        "Fog Dweller"
+      ]
     },
     "/SF/Types/Items/Consumables/Tackle/FishLureUncommon": {
       "name": "Snelled Swimmer",
       "desc": "Whittled with care and beaded through skill, this fish-like lure performs best by trawling among the lakebed. The Snelled Swimmer's sunken dance draws bottom-feeders from the murk, eager to swallow their wooden kin.",
       "kind": "Fishing",
-      "icon": "img/game/storeitems-fishing-fishlure.png"
+      "icon": "img/game/storeitems-fishing-fishlure.png",
+      "habitat": [
+        "Lake"
+      ],
+      "natures": [
+        "Bottom Feeder",
+        "Morning Feeder"
+      ]
     },
     "/SF/Types/Items/Consumables/Tackle/FrogLureUncommon": {
       "name": "Sirin's Hopper",
       "desc": "Sirin's mischief embodied in toad's form. Best released in swamps or stillwater, the mimicry of the Hopper's twitching limbs proves a cruel temptation to any hungry thing beneath.",
       "kind": "Fishing",
-      "icon": "img/game/storeitems-fishing-froglure.png"
+      "icon": "img/game/storeitems-fishing-froglure.png",
+      "habitat": [
+        "Swamp"
+      ],
+      "natures": [
+        "Surface Feeder",
+        "Night Feeder"
+      ]
     },
     "/SF/Types/Items/Consumables/Tackle/LobsterLureRare": {
       "name": "Locustax Streamer",
       "desc": "Bait revered by ambush feeders for its crustaceous frame and mother-of-pearl twinkle. The Locustax Streamer proves most able at the shoreline, its slim body floating elegantly; all for the biting.",
       "kind": "Fishing",
-      "icon": "img/game/storeitems-fishing-lobsterlure.png"
+      "icon": "img/game/storeitems-fishing-lobsterlure.png",
+      "habitat": [
+        "Shoreline"
+      ],
+      "natures": [
+        "Ambush Feeder",
+        "Day Feeder",
+        "Rain Dweller",
+        "Lightning Dweller"
+      ]
     },
     "/SF/Types/Items/Consumables/Tackle/TurtleLureRare": {
       "name": "Scuter",
       "desc": "Rudimentary in make yet rare for its shellback body, a mimic made for basking in sunlit waters. Cast a Scuter 'pon the lake's gleaming face and rest; for in idle drift does this lure calls its quarry.",
       "kind": "Fishing",
-      "icon": "img/game/storeitems-fishing-turtlelure.png"
+      "icon": "img/game/storeitems-fishing-turtlelure.png",
+      "habitat": [
+        "Lake"
+      ],
+      "natures": [
+        "Surface Feeder",
+        "Night Feeder",
+        "Wind Dweller",
+        "Lightning Dweller"
+      ]
     },
     "/SF/Types/Items/Consumables/VerminiaPotion": {
       "name": "Cloudquell",

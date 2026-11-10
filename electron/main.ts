@@ -6,7 +6,7 @@ import { readConsent, recordConsent, ACK_PHRASE } from "../helper/consent";
 import { importInventory, type ImportSession } from "../helper/run";
 import { recordHistory, startServer, type RunningServer } from "../src/server/server";
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
-import { getSettings, type Settings } from "../src/server/settings";
+import { getSettings, onSettingsChange, type Settings } from "../src/server/settings";
 import { getInventory, type InventoryView } from "../src/server/inventory";
 import { blessedMeetingNear, COLLECTOR_TAG, dockedCollector, TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
 import { newlyReady, readyRecipes, recipeTimes, recipeVerb } from "../src/server/recipes";
@@ -492,16 +492,29 @@ function watchZoom(wc: Electron.WebContents): void {
   });
 }
 
-function createMainWindow(url: string): void {
+const WINDOW_BG = "#14110f";
+const titleBarOf = (theme: Settings["theme"]) => (theme ? { ...theme.titleBar, height: TITLE_BAR.height } : TITLE_BAR);
+
+function applyTheme(theme: Settings["theme"]): void {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  mainWindow.setBackgroundColor(theme?.colors.bg ?? WINDOW_BG);
+  try {
+    mainWindow.setTitleBarOverlay(titleBarOf(theme));
+  } catch (e) {
+    log(`Couldn't recolour the title bar: ${(e as Error).message}`);
+  }
+}
+
+function createMainWindow(url: string, theme: Settings["theme"]): void {
   const area = screen.getPrimaryDisplay().workAreaSize;
   mainWindow = new BrowserWindow({
     width: Math.min(1560, area.width),
     height: Math.min(980, area.height),
-    backgroundColor: "#14110f",
+    backgroundColor: theme?.colors.bg ?? WINDOW_BG,
     title: "SFHelper",
     icon: ICON_PATH,
     titleBarStyle: "hidden",
-    titleBarOverlay: TITLE_BAR,
+    titleBarOverlay: titleBarOf(theme),
     webPreferences: { contextIsolation: true },
   });
   void mainWindow.loadURL(url);
@@ -527,7 +540,8 @@ async function proceed(): Promise<void> {
 
   onMoonsteelAcquired((p) => void notifyMoonsteel(p));
   server = await startServer(APP_PORT).catch(() => startServer(0));
-  createMainWindow(server.url);
+  createMainWindow(server.url, (await getSettings()).theme);
+  onSettingsChange((s) => applyTheme(s.theme));
 
   void refreshData();
   startUpdater(log);
@@ -550,7 +564,7 @@ function askConsent(): Promise<boolean> {
       width: 640,
       height: 580,
       resizable: false,
-      backgroundColor: "#14110f",
+      backgroundColor: WINDOW_BG,
       title: "SFHelper — before you begin",
       icon: ICON_PATH,
       webPreferences: { contextIsolation: true, preload: join(HERE, "preload.cjs") },

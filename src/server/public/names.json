@@ -5862,6 +5862,14 @@
     "SecondaryOdeSawDaggerMeleeWeapon": "Grinn",
     "HealRip": "Dabble Dredge",
     "IronIngot": "Hushed Chordstone",
+    "BromiusBoonNpc": "The Arbearer Bromius",
+    "GarrenRoodBoonNpc": "Garren Rood",
+    "MooseBoonNpc": "Dale Seer",
+    "OrengallBoonNpc": "Orengall",
+    "OrlickBoonNpc": "Orlick the Bicameral",
+    "TuvalkaneBoonNpc": "Steelsinger Tuvalkane",
+    "VerminiaBoonNpc": "The Witch Verminia",
+    "ZenithBoonNpc": "Zenith",
     "/SF/Upgrades/Runes/Weapon/Bow/BowBestoneProjectileRune": "Carrionite",
     "/SF/Upgrades/Runes/Weapon/Bow/BowKnockdownProjectileRune": "Dissever",
     "/SF/Upgrades/Runes/Weapon/Bow/RainRune": "The Torrent",
@@ -5912,6 +5920,11 @@
     "ChampionSyndicate": "Sineculum",
     "FeySyndicate": "Baskbulb",
     "SilentRoseSyndicate": "Sinners' Stratagem"
+  },
+  "tokenLimits": {
+    "ChampionSyndicate": 50,
+    "FeySyndicate": 50,
+    "SilentRoseSyndicate": 50
   },
   "currencies": {
     "RegularCredits": "Dracs",

@@ -527,7 +527,26 @@ export interface GearEntry {
   desc: string | null;
   kind: "Fishing" | "Companion" | "Supplies";
   icon: string | null;
+  virtue?: string;
+  habitat?: string[];
+  natures?: string[];
 }
+
+const FISH_NATURES = [
+  "SFF_SURFACE_FEEDER",
+  "SFF_AMBUSH_FEEDER",
+  "SFF_BOTTOM_FEEDER",
+  "SFF_MORNING_FEEDER",
+  "SFF_DAY_FEEDER",
+  "SFF_EVENING_FEEDER",
+  "SFF_NIGHT_FEEDER",
+  "SFF_RAIN_DWELLER",
+  "SFF_OVERCAST_DWELLER",
+  "SFF_WINDY_DWELLER",
+  "SFF_LIGHTNING_DWELLER",
+];
+const listField = (t: string | undefined, key: string): string[] =>
+  (new RegExp(`^${key}=\\{\\n([\\s\\S]*?)\\n\\}`, "m").exec(t ?? "")?.[1] ?? "").split("\n").map((x) => x.replace(/,$/, "").trim()).filter(Boolean);
 
 export interface UpgradeData {
   runes: Record<string, RuneEntry>;
@@ -736,11 +755,24 @@ export async function buildUpgrades(
     if (cat !== "Consumables" || !type.startsWith("/SF/Types/Items/Consumables/") || !isGear(type)) continue;
     const desc = loc(field(t, "LocalizeDescTag"));
     if (!desc || field(t, "ShowInInventory") === "0") continue;
+    const key = defKey(t);
+    const def = key ? defs.get(key) : undefined;
+    const virtue = /^_boostersRes=\/SF\/Types\/Game\/(Courage|Spirit|Grace)PotionBooster$/m.exec(def ?? "")?.[1];
+    const habitat = listField(def, "TargetLocationTags").map((tag) => loc(`/SF/Language/Fish/FishBiome${tag}`)).filter((x): x is string => !!x);
+    const natures = listField(def, "TargetFamilies")
+      .map((f) => FISH_NATURES.indexOf(f))
+      .filter((i) => i >= 0)
+      .sort((a, b) => a - b)
+      .map((i) => loc(`/SF/Language/Fish/FishingFamily${i + 1}`))
+      .filter((x): x is string => !!x);
     gear[type] = {
       name,
       desc,
       kind: type.includes("/Tackle/") || type.includes("FishingSpool") ? "Fishing" : COMPANION_GEAR.test(type) ? "Companion" : "Supplies",
       icon: (await icon(field(t, "Icon") ?? null)) ?? previous?.gear[type]?.icon ?? null,
+      ...(virtue ? { virtue } : {}),
+      ...(habitat.length ? { habitat } : {}),
+      ...(natures.length ? { natures } : {}),
     };
   }
 

@@ -292,6 +292,31 @@ describe("weapons, Pacts and gear straight from the game files", () => {
     const { gear } = await buildUpgrades(names, texts, null, null, async () => null);
     expect(Object.fromEntries(Object.values(gear).map((g) => [g.name, g.kind]))).toEqual({ "Bairnday Biscuit": "Companion", "Life Elixir": "Supplies" });
   });
+
+  it("gives lures their habitat and the fish natures they draw, and virtue elixirs their virtue, in the game's words", async () => {
+    const def = (tag: string, icon: string, body: string) => `LocalizeTag=${tag}\nIcon=${icon}\n${body}`;
+    const texts = [
+      item({ ProductCategory: "Consumables", LocalizeTag: "/L/Swimmer", LocalizeDescTag: "/L/Desc", Icon: "/I/Fish.png", TypeName: "/SF/Types/Items/Consumables/Tackle/FishLureUncommon" }),
+      def("/L/Swimmer", "/I/Fish.png", "LureSpeed=4\nTargetLocationTags={\nLake\n}\nTargetFamilies={\nSFF_MORNING_FEEDER,\nSFF_BOTTOM_FEEDER\n}"),
+      item({ ProductCategory: "Consumables", LocalizeTag: "/L/Breath", LocalizeDescTag: "/L/Desc", Icon: "/I/Courage.png", TypeName: "/SF/Types/Items/Consumables/Syndicates/ChampionVirtueElixir" }),
+      def("/L/Breath", "/I/Courage.png", "ScriptInstance={\nScript=/SF/Scripts/Prototypes/VirtuePotionBooster.lua\n_boostersRes=/SF/Types/Game/CouragePotionBooster\n_duration=3600\n}"),
+      item({ ProductCategory: "Consumables", LocalizeTag: "/L/Flier", LocalizeDescTag: "/L/Desc", Icon: "/I/Bug.png", TypeName: "/SF/Types/Items/Consumables/Tackle/BugLureStarterCommon" }),
+    ];
+    const names = {
+      ...dict,
+      "/L/Desc": "A description.",
+      "/L/Swimmer": "Snelled Swimmer",
+      "/L/Breath": "Curaidh's Breath",
+      "/L/Flier": "Feathered Flier",
+      "/SF/Language/Fish/FishBiomeLake": "Lake",
+      "/SF/Language/Fish/FishingFamily3": "Bottom Feeder",
+      "/SF/Language/Fish/FishingFamily4": "Morning Feeder",
+    };
+    const { gear } = await buildUpgrades(names, texts, null, null, async () => null);
+    expect(gear["/SF/Types/Items/Consumables/Tackle/FishLureUncommon"]).toMatchObject({ kind: "Fishing", habitat: ["Lake"], natures: ["Bottom Feeder", "Morning Feeder"] });
+    expect(gear["/SF/Types/Items/Consumables/Syndicates/ChampionVirtueElixir"]).toMatchObject({ kind: "Supplies", virtue: "Courage" });
+    expect(gear["/SF/Types/Items/Consumables/Tackle/BugLureStarterCommon"]).not.toHaveProperty("habitat");
+  });
 });
 
 describe("what the game log says about the install", () => {

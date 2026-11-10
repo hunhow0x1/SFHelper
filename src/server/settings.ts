@@ -15,6 +15,15 @@ export interface Settings {
   inventoryRequests: boolean;
   avakotRequests: boolean;
   profileRequests: boolean;
+  theme: Theme | null;
+}
+
+export const THEME_COLORS = ["bg", "panel", "text", "accent", "accent2"] as const;
+
+export interface Theme {
+  preset: string;
+  colors: Record<(typeof THEME_COLORS)[number], string>;
+  titleBar: { color: string; symbolColor: string };
 }
 
 export const REQUEST_SWITCHES = ["inventoryRequests", "avakotRequests", "profileRequests"] as const;
@@ -32,7 +41,31 @@ const DEFAULTS: Settings = {
   inventoryRequests: true,
   avakotRequests: true,
   profileRequests: true,
+  theme: null,
 };
+
+const HEX = /^#[0-9a-f]{6}$/i;
+
+function theme(v: unknown): Theme | null {
+  if (!v || typeof v !== "object") return null;
+  const t = v as Record<string, unknown>;
+  const colors = t.colors as Record<string, unknown> | undefined;
+  const bar = t.titleBar as Record<string, unknown> | undefined;
+  if (typeof t.preset !== "string" || !/^[a-z-]{1,24}$/.test(t.preset) || !colors || !bar) return null;
+  if (!THEME_COLORS.every((k) => typeof colors[k] === "string" && HEX.test(colors[k] as string))) return null;
+  if (typeof bar.color !== "string" || !HEX.test(bar.color) || typeof bar.symbolColor !== "string" || !HEX.test(bar.symbolColor)) return null;
+  return {
+    preset: t.preset,
+    colors: Object.fromEntries(THEME_COLORS.map((k) => [k, (colors[k] as string).toLowerCase()])) as Theme["colors"],
+    titleBar: { color: bar.color.toLowerCase(), symbolColor: bar.symbolColor.toLowerCase() },
+  };
+}
+
+const listeners: ((s: Settings) => void)[] = [];
+
+export function onSettingsChange(fn: (s: Settings) => void): void {
+  listeners.push(fn);
+}
 
 function storeItems(v: unknown): string[] | null {
   if (!Array.isArray(v) || v.length > 200) return null;
@@ -64,6 +97,7 @@ export async function getSettings(): Promise<Settings> {
       inventoryRequests: typeof s.inventoryRequests === "boolean" ? s.inventoryRequests : DEFAULTS.inventoryRequests,
       avakotRequests: typeof s.avakotRequests === "boolean" ? s.avakotRequests : DEFAULTS.avakotRequests,
       profileRequests: typeof s.profileRequests === "boolean" ? s.profileRequests : DEFAULTS.profileRequests,
+      theme: theme(s.theme),
     };
   } catch {
     return { ...DEFAULTS, avakotWatch: [], timerWatch: [], recipeWatch: [] };
@@ -91,7 +125,10 @@ export function updateSettings(patch: Record<string, unknown>): Promise<Settings
     if (timerWatch) s.timerWatch = timerWatch;
     const recipeWatch = storeItems(patch.recipeWatch);
     if (recipeWatch) s.recipeWatch = recipeWatch;
+    if (patch.theme === null) s.theme = null;
+    else if (patch.theme !== undefined) s.theme = theme(patch.theme) ?? s.theme;
     await writeFileAtomic(settingsPath(), `${JSON.stringify(s, null, 2)}\n`);
+    for (const fn of listeners) try { fn(s); } catch {}
     return s;
   });
   queue = run.catch(() => undefined);

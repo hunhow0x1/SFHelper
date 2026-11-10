@@ -19,7 +19,7 @@
         --well: rgba(6, 5, 4, 0.42);
         --line: #33291f;
         --line-2: #4a3c2b;
-        --frame: rgba(201, 165, 92, 0.26);
+        --frame: color-mix(in srgb, var(--accent) 26%, transparent);
         --text: #ece2cf;
         --muted: #a39276;
         --faint: #6f6352;
@@ -31,6 +31,16 @@
         --spirit: #7fb59a;
         --grace: #6f9edb;
         --bar-bg: #16110d;
+        --accent-2-hi: #a6dcc0;
+        --btn-hi: #dcb86c;
+        --btn-lo: #a9833f;
+        --on-accent: #1b140b;
+        --winbar: #120e0b;
+        --scroll: #3a2f24;
+        --scroll-hi: #5a4934;
+        --glow-1: rgba(120, 86, 44, 0.28);
+        --glow-2: rgba(70, 110, 88, 0.12);
+        --glow-3: rgba(90, 50, 30, 0.14);
         --page-w: 1720px;
         --display: "Cinzel", "Trajan Pro", Georgia, serif;
         --body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
@@ -41,9 +51,9 @@
         margin: 0; min-height: 100vh; color: var(--text);
         font: 16px/1.5 var(--body);
         background:
-          radial-gradient(ellipse 90% 60% at 50% -12%, rgba(120, 86, 44, 0.28), transparent 65%),
-          radial-gradient(ellipse 60% 50% at 105% 105%, rgba(70, 110, 88, 0.12), transparent 60%),
-          radial-gradient(ellipse 60% 50% at -5% 100%, rgba(90, 50, 30, 0.14), transparent 60%),
+          radial-gradient(ellipse 90% 60% at 50% -12%, var(--glow-1), transparent 65%),
+          radial-gradient(ellipse 60% 50% at 105% 105%, var(--glow-2), transparent 60%),
+          radial-gradient(ellipse 60% 50% at -5% 100%, var(--glow-3), transparent 60%),
           var(--bg);
         background-attachment: fixed;
       }
@@ -51,18 +61,18 @@
         content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: 0.05;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       }
-      ::selection { background: rgba(201, 165, 92, 0.35); }
+      ::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
       ::-webkit-scrollbar { width: 12px; height: 12px; }
       ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: var(--bg); }
-      ::-webkit-scrollbar-thumb { background: #3a2f24; border: 3px solid var(--bg); border-radius: 6px; }
-      ::-webkit-scrollbar-thumb:hover { background: #5a4934; }
+      ::-webkit-scrollbar-thumb { background: var(--scroll); border: 3px solid var(--bg); border-radius: 6px; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--scroll-hi); }
 
       b, strong { font-weight: 600; }
 
       .winbar { display: none; }
       html.wco .winbar {
         display: flex; align-items: center; gap: 9px; position: fixed; z-index: 90; top: 0; left: 0; right: 0;
-        height: env(titlebar-area-height, 36px); padding: 0 14px; box-sizing: border-box; background: #120e0b;
+        height: env(titlebar-area-height, 36px); padding: 0 14px; box-sizing: border-box; background: var(--winbar);
         -webkit-app-region: drag; user-select: none;
       }
       html.wco .winbar::after {
@@ -83,7 +93,7 @@
       .brand img { height: 42px; width: auto; flex: none; margin: -6px 0; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.55)); }
       h1 {
         margin: 0; font: 600 22px/1 var(--display); letter-spacing: 0.14em; color: var(--accent-hi);
-        text-shadow: 0 0 18px rgba(201, 165, 92, 0.25);
+        text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 25%, transparent);
       }
       .who { font: 500 19px/1.2 var(--display); letter-spacing: 0.04em; color: var(--text); }
       .kpis { display: flex; flex-wrap: wrap; gap: 8px 26px; margin-left: auto; }
@@ -95,7 +105,7 @@
       .updbar {
         display: flex; align-items: center; flex-wrap: wrap; gap: 10px 18px; box-sizing: border-box;
         width: min(calc(var(--page-w) - 56px), calc(100% - 32px)); margin: 0 auto 18px; padding: 12px 18px;
-        border: 1px solid rgba(201, 165, 92, 0.45); border-radius: 3px; background: rgba(201, 165, 92, 0.08);
+        border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 3px; background: color-mix(in srgb, var(--accent) 8%, transparent);
         color: var(--text); font-size: 14.5px;
       }
       .updbar[hidden], .foot[hidden] { display: none; }
@@ -126,7 +136,7 @@
         transition: color 0.15s;
       }
       .tab:hover { color: var(--text); filter: none; }
-      .tab.active { color: var(--accent-hi); text-shadow: 0 0 14px rgba(201, 165, 92, 0.35); }
+      .tab.active { color: var(--accent-hi); text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 35%, transparent); }
       .tab.active::after {
         content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 1px; z-index: 1;
         background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
@@ -134,7 +144,7 @@
       .tab.active::before {
         content: ""; position: absolute; left: 50%; bottom: -4px; width: 7px; height: 7px; z-index: 2;
         background: var(--accent-hi); transform: translateX(-50%) rotate(45deg);
-        box-shadow: 0 0 8px rgba(232, 201, 126, 0.6);
+        box-shadow: 0 0 8px color-mix(in srgb, var(--accent-hi) 60%, transparent);
       }
       .panel { display: grid; gap: 28px; }
       .panel:not(.active) { content-visibility: hidden; }
@@ -157,12 +167,12 @@
 
       section {
         position: relative; padding: 28px 30px 30px; border-radius: 3px;
-        background: linear-gradient(180deg, rgba(36, 28, 20, 0.94), rgba(22, 17, 13, 0.94));
+        background: linear-gradient(180deg, color-mix(in srgb, var(--panel-2) 94%, transparent), color-mix(in srgb, var(--bar-bg) 94%, transparent));
         border: 1px solid var(--frame);
-        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(232, 201, 126, 0.08), 0 14px 40px rgba(0, 0, 0, 0.4);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), inset 0 1px 0 color-mix(in srgb, var(--accent-hi) 8%, transparent), 0 14px 40px rgba(0, 0, 0, 0.4);
       }
       section::before {
-        content: ""; position: absolute; inset: 5px; border: 1px solid rgba(201, 165, 92, 0.07);
+        content: ""; position: absolute; inset: 5px; border: 1px solid color-mix(in srgb, var(--accent) 7%, transparent);
         border-radius: 2px; pointer-events: none;
       }
       section::after {
@@ -187,16 +197,16 @@
         box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35); transition: border-color 0.15s, box-shadow 0.15s;
       }
       input::placeholder { color: var(--faint); }
-      input:focus { outline: none; border-color: var(--accent); box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(201, 165, 92, 0.12); }
+      input:focus { outline: none; border-color: var(--accent); box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
       button {
-        background: linear-gradient(180deg, #dcb86c, #a9833f); color: #1b140b;
-        border: 1px solid rgba(232, 201, 126, 0.55); padding: 10px 20px; border-radius: 3px;
+        background: linear-gradient(180deg, var(--btn-hi), var(--btn-lo)); color: var(--on-accent);
+        border: 1px solid color-mix(in srgb, var(--accent-hi) 55%, transparent); padding: 10px 20px; border-radius: 3px;
         font: 700 12.5px/1 var(--display); letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
         box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.4), 0 2px 10px rgba(0, 0, 0, 0.4);
       }
       button:hover { filter: brightness(1.08); }
       button.mini {
-        background: rgba(201, 165, 92, 0.04); color: var(--muted); border: 1px solid var(--line-2); box-shadow: none;
+        background: color-mix(in srgb, var(--accent) 4%, transparent); color: var(--muted); border: 1px solid var(--line-2); box-shadow: none;
         padding: 5px 12px; font: 500 13px/1.2 var(--body); letter-spacing: 0.02em; text-transform: none;
       }
       button.mini:hover { color: var(--accent-hi); border-color: var(--accent); filter: none; }
@@ -214,15 +224,15 @@
       .row .label .today.up { color: var(--accent-2); }
       .bar {
         grid-column: 1 / -1; height: 6px; background: var(--bar-bg); border-radius: 1px; overflow: hidden;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(201, 165, 92, 0.08);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6), 0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
       }
       .bar > i {
         display: block; height: 100%;
         background: linear-gradient(90deg, var(--accent-lo), var(--accent) 55%, var(--accent-hi));
-        box-shadow: 0 0 8px rgba(201, 165, 92, 0.35);
+        box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 35%, transparent);
       }
       .row .val .mx { color: var(--accent-2); font-weight: 600; }
-      .row:has(.mx) .bar > i { background: linear-gradient(90deg, #4f7c66, var(--accent-2)); box-shadow: 0 0 8px rgba(127, 181, 154, 0.4); }
+      .row:has(.mx) .bar > i { background: linear-gradient(90deg, color-mix(in srgb, var(--accent-2) 62%, var(--bg)), var(--accent-2)); box-shadow: 0 0 8px color-mix(in srgb, var(--accent-2) 40%, transparent); }
       .invstatus {
         color: var(--muted); font-size: 13px;
         margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line);
@@ -234,7 +244,7 @@
       .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
       .stat {
         background: var(--well); border: 1px solid var(--line); border-radius: 3px; padding: 16px 18px 14px;
-        box-shadow: inset 0 1px 0 rgba(232, 201, 126, 0.05);
+        box-shadow: inset 0 1px 0 color-mix(in srgb, var(--accent-hi) 5%, transparent);
       }
       .stat .n { font: 600 23px/1.2 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums; }
       .stat .l { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.14em; margin-top: 4px; }
@@ -260,17 +270,17 @@
       td.num, th.num { text-align: right; }
 
       .chip {
-        display: inline-block; background: rgba(201, 165, 92, 0.05); border: 1px solid rgba(201, 165, 92, 0.22);
+        display: inline-block; background: color-mix(in srgb, var(--accent) 5%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
         border-radius: 2px; padding: 3px 11px; margin: 3px 6px 3px 0; font-size: 13.5px; color: var(--text);
       }
       .chip.temper { cursor: pointer; transition: border-color 0.15s, background 0.15s; }
-      .chip.temper:hover { border-color: var(--accent); background: rgba(201, 165, 92, 0.1); }
-      .chip.temper.stacked { border-color: rgba(232, 201, 126, 0.6); background: rgba(201, 165, 92, 0.13); color: var(--accent-hi); }
+      .chip.temper:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+      .chip.temper.stacked { border-color: color-mix(in srgb, var(--accent-hi) 60%, transparent); background: color-mix(in srgb, var(--accent) 13%, transparent); color: var(--accent-hi); }
       .chip.temper .x2 { font-weight: 700; }
       .chip.temper { display: inline-flex; align-items: center; gap: 7px; padding-left: 5px; }
       .ticn { width: 20px; height: 20px; object-fit: contain; flex: none; border-radius: 2px; }
       .temperpop .tp-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-      .temperpop .tp-head .ticn { width: 44px; height: 44px; border: 1px solid rgba(201, 165, 92, 0.35); background: rgba(0, 0, 0, 0.35); padding: 2px; }
+      .temperpop .tp-head .ticn { width: 44px; height: 44px; border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); background: rgba(0, 0, 0, 0.35); padding: 2px; }
       .temperpop .tp-head .tp-name { margin-bottom: 0; }
       .row .label .ticn { width: 22px; height: 22px; vertical-align: -6px; margin-right: 9px; }
       .tag {
@@ -294,7 +304,7 @@
         border-radius: 2px; padding: 7px 16px; font: 600 11.5px/1 var(--display); letter-spacing: 0.14em;
       }
       .fchip:hover { color: var(--text); border-color: var(--accent); filter: none; }
-      .fchip.active { background: linear-gradient(180deg, #dcb86c, #a9833f); color: #1b140b; border-color: rgba(232, 201, 126, 0.55); }
+      .fchip.active { background: linear-gradient(180deg, var(--btn-hi), var(--btn-lo)); color: var(--on-accent); border-color: color-mix(in srgb, var(--accent-hi) 55%, transparent); }
       .wsearch { width: 100%; min-width: 0; margin-bottom: 18px; }
       .xpgroup { margin-bottom: 30px; }
       .xpgroup:last-child { margin-bottom: 0; }
@@ -314,7 +324,7 @@
       .mrow .mbar { grid-column: 1 / -1; height: 3px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
       .mrow .mbar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi)); }
       .mrow.done .mval { color: var(--accent-2); }
-      .mrow.done .mbar > i { background: linear-gradient(90deg, #4f7c66, var(--accent-2)); }
+      .mrow.done .mbar > i { background: linear-gradient(90deg, color-mix(in srgb, var(--accent-2) 62%, var(--bg)), var(--accent-2)); }
       .mrow.miss .mname, .mrow.miss .mval { color: var(--faint); }
       .mrow.miss .mbar { opacity: 0.45; }
       .erank {
@@ -324,7 +334,7 @@
       .ebadge {
         width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
         border: 2px solid var(--accent-lo); box-shadow: 0 0 0 3px var(--panel), 0 0 0 4px var(--line-2);
-        background: linear-gradient(to top, rgba(201, 165, 92, 0.38) var(--fill), var(--bar-bg) var(--fill));
+        background: linear-gradient(to top, color-mix(in srgb, var(--accent) 38%, transparent) var(--fill), var(--bar-bg) var(--fill));
         font: 700 26px/1 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums;
       }
       .einfo { min-width: 0; }
@@ -377,7 +387,7 @@
       .tradecard .pickname .partner { color: var(--accent-hi); }
       .tradecols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; margin-top: 14px; }
       .tradecols .tlabel { font: 600 12px/1.2 var(--display); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 9px; }
-      .tradecols .recv .tlabel { color: #a6dcc0; text-shadow: 0 0 12px rgba(127, 181, 154, 0.35); }
+      .tradecols .recv .tlabel { color: var(--accent-2-hi); text-shadow: 0 0 12px color-mix(in srgb, var(--accent-2) 35%, transparent); }
       .tradecols .gave .tlabel { color: var(--accent); }
       .tradecols ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
       .tradecols li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; color: var(--text); font-size: 14.5px; line-height: 1.35; }
@@ -402,7 +412,7 @@
         content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%;
         background: var(--faint); transition: transform 0.15s, background 0.15s;
       }
-      .notifytoggle input:checked + .sw { background: rgba(201, 165, 92, 0.22); border-color: rgba(201, 165, 92, 0.6); }
+      .notifytoggle input:checked + .sw { background: color-mix(in srgb, var(--accent) 22%, transparent); border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
       .notifytoggle input:checked + .sw::after { transform: translateX(16px); background: var(--accent-hi); }
       .notifytoggle input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
       #panel-account > .cols { align-items: stretch; }
@@ -429,7 +439,7 @@
         display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 3px 14px; align-items: center;
         padding: 14px 16px 14px 14px; background: var(--well); border: 1px solid var(--line); border-radius: 3px;
       }
-      .avcard.starred { --tick: rgba(232, 201, 126, 0.7); border-color: rgba(232, 201, 126, 0.5); box-shadow: inset 0 0 18px rgba(201, 165, 92, 0.08); }
+      .avcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
       .avcard .avicn { grid-row: span 2; width: 56px; height: 56px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6)); }
       .avname { font: 600 16px/1.25 var(--display); letter-spacing: 0.03em; color: var(--text); min-width: 0; }
       .avmeta { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 13.5px; color: var(--muted); }
@@ -444,7 +454,7 @@
       button.star:hover { filter: none; }
       button.star svg { width: 22px; height: 22px; fill: none; stroke: var(--faint); stroke-width: 1.5; stroke-linejoin: round; transition: stroke 0.15s, fill 0.15s; }
       button.star:hover svg { stroke: var(--accent-hi); }
-      button.star.on svg { fill: var(--accent-hi); stroke: var(--accent-hi); filter: drop-shadow(0 0 5px rgba(232, 201, 126, 0.55)); }
+      button.star.on svg { fill: var(--accent-hi); stroke: var(--accent-hi); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent-hi) 55%, transparent)); }
       button.star:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
       .avlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); column-gap: 32px; margin-bottom: 28px; }
       .avrow { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14.5px; }
@@ -467,7 +477,7 @@
       #discoveries .avrow.undiscovered .avn { color: var(--faint); }
       .mempips { display: inline-flex; gap: 7px; padding-right: 2px; }
       .mempips i { width: 7px; height: 7px; border: 1px solid var(--line-2); transform: rotate(45deg); }
-      .mempips i.on { background: var(--accent-2); border-color: var(--accent-2); box-shadow: 0 0 6px rgba(127, 181, 154, 0.45); }
+      .mempips i.on { background: var(--accent-2); border-color: var(--accent-2); box-shadow: 0 0 6px color-mix(in srgb, var(--accent-2) 45%, transparent); }
       .upgroups { columns: 4 300px; }
       #panel-upgrades .upgroups { columns: 3 360px; }
       #panel-upgrades .avrow { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 14px; padding: 9px 0; font-size: 16.5px; }
@@ -496,18 +506,18 @@
       .temperpop .tp-on { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
       .temperpop .tp-on .tp-rank { margin-bottom: 4px; }
       .temperpop .tp-hint { color: var(--faint); font-size: 13px; }
-      .tp-drops h4 { margin: 8px 0 6px; font: 600 11.5px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: #a6dcc0; }
+      .tp-drops h4 { margin: 8px 0 6px; font: 600 11.5px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2-hi); }
       .tp-drops h4:first-of-type { margin-top: 2px; }
       .tp-bosses { list-style: none; display: grid; gap: 6px; margin: 0; padding: 0; }
       .tp-bosses li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 10px; align-items: center; color: var(--text); font-size: 14px; }
       .tp-bosses img { width: 36px; height: 36px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)); }
       .tp-src { margin-top: 8px; font-size: 13px; line-height: 1.45; }
-      .tp-src b { display: block; color: #a6dcc0; font: 600 11.5px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 3px; }
+      .tp-src b { display: block; color: var(--accent-2-hi); font: 600 11.5px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 3px; }
       .temperpop.pinned { width: 440px; max-width: calc(100vw - 24px); }
       .tp-weapons { max-height: 300px; overflow-y: auto; overscroll-behavior: contain; margin: 6px -6px 0 0; padding-right: 6px; }
       .tp-weapons h4 {
         position: sticky; top: 0; z-index: 1; display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 8px 0 6px;
-        background: #1f1812; font: 600 12px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: #a6dcc0;
+        background: color-mix(in srgb, var(--panel), var(--panel-2)); font: 600 12px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-2-hi);
       }
       .tp-weapons h4 span { font: 400 12px/1 var(--body); letter-spacing: 0; color: var(--faint); }
       .tp-weapons ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin: 0 0 8px; padding: 0; }
@@ -517,7 +527,7 @@
       .upgroups .avgroup h3 img { width: 22px; height: 22px; object-fit: contain; align-self: center; }
       .upgroups .avrow.plain { grid-template-columns: minmax(0, 1fr) auto; }
       .upgroups .avr .mempips { justify-content: flex-end; }
-      .avn small.equipped { color: #a6dcc0; }
+      .avn small.equipped, .avn small .equipped { color: var(--accent-2-hi); }
       .upgroups .avrow.miss .avn, .upgroups .avrow.miss .avr { color: var(--faint); }
       .upgroups .avrow.miss .avicn { opacity: 0.45; }
       .poprow { cursor: help; }
@@ -533,7 +543,7 @@
       .tfilters .fchip { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; }
       .tfilters .fchip img { width: 18px; height: 18px; object-fit: contain; margin: -3px 0; }
       .tfilters .fchip .n { color: var(--faint); font: 500 12px/1 var(--body); letter-spacing: 0; }
-      .tfilters .fchip.active .n { color: rgba(27, 20, 11, 0.65); }
+      .tfilters .fchip.active .n { color: color-mix(in srgb, var(--on-accent) 65%, transparent); }
       .tfilters .fchip.active img { filter: brightness(0.25); }
       .tfilters .fchip.active img.keep { filter: none; }
       .histnote { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; margin: -6px 0 20px; color: var(--muted); font-size: 14px; }
@@ -563,14 +573,14 @@
         display: grid; grid-template-columns: 52px 1fr; align-content: start; gap: 4px 14px; padding: 14px 16px 14px 14px;
         background: var(--well); border: 1px solid var(--line); border-left: 3px solid var(--vc, var(--line-2)); border-radius: 3px;
       }
-      .tcard.aligned { border-color: rgba(201, 165, 92, 0.45); border-left-color: var(--vc, var(--line-2)); box-shadow: inset 0 0 18px rgba(201, 165, 92, 0.06); }
+      .tcard.aligned { border-color: color-mix(in srgb, var(--accent) 45%, transparent); border-left-color: var(--vc, var(--line-2)); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 6%, transparent); }
       .tcard .ticon { grid-row: span 3; width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.6)); }
       .tcard .thead { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
       .tcard .tname { font: 600 15.5px/1.3 var(--display); letter-spacing: 0.04em; color: var(--text); }
       .tcard .tcount { color: var(--accent-hi); font-weight: 700; font-size: 14px; }
       .tcard .tpips { margin-left: auto; display: inline-flex; gap: 4px; flex: none; }
       .tcard .tpips i { width: 7px; height: 7px; transform: rotate(45deg); border: 1px solid var(--accent-lo); }
-      .tcard .tpips i.on { background: var(--accent-hi); border-color: var(--accent-hi); box-shadow: 0 0 5px rgba(232, 201, 126, 0.5); }
+      .tcard .tpips i.on { background: var(--accent-hi); border-color: var(--accent-hi); box-shadow: 0 0 5px color-mix(in srgb, var(--accent-hi) 50%, transparent); }
       .tcard .tmeta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 13.5px; color: var(--muted); }
       .tcard .tmeta span { display: inline-flex; align-items: center; gap: 5px; }
       .tcard .tmeta img { width: 16px; height: 16px; object-fit: contain; }
@@ -587,8 +597,8 @@
 
       .temperpop {
         position: fixed; z-index: 50; max-width: 340px; padding: 14px 16px;
-        background: linear-gradient(180deg, #261d15, #19130e); color: var(--text);
-        border: 1px solid rgba(201, 165, 92, 0.55); border-radius: 3px;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--panel-2), var(--accent) 3%), color-mix(in srgb, var(--bar-bg), var(--panel) 40%)); color: var(--text);
+        border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); border-radius: 3px;
         box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), 0 12px 32px rgba(0, 0, 0, 0.6);
       }
       .temperpop .tp-name { font: 600 15px/1.3 var(--display); letter-spacing: 0.06em; color: var(--accent-hi); margin-bottom: 6px; }
@@ -664,8 +674,8 @@
       .gear-head .cw { margin-left: auto; }
       .prop { margin-top: 18px; }
       .prop > .h {
-        color: #a6dcc0; font: 600 13px/1.2 var(--display); letter-spacing: 0.16em; text-transform: uppercase;
-        margin-bottom: 10px; text-shadow: 0 0 12px rgba(127, 181, 154, 0.35);
+        color: var(--accent-2-hi); font: 600 13px/1.2 var(--display); letter-spacing: 0.16em; text-transform: uppercase;
+        margin-bottom: 10px; text-shadow: 0 0 12px color-mix(in srgb, var(--accent-2) 35%, transparent);
       }
       .fxlist { display: grid; gap: 12px; }
       .totemrow { display: grid; gap: 2px; }
@@ -687,7 +697,7 @@
       .lo-virt b, .vlegend b { font-weight: 700; font-variant-numeric: tabular-nums; }
       .vblock { margin-bottom: 20px; }
       .vhead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 9px; }
-      .vhead .h { color: #a6dcc0; font: 600 13px/1.2 var(--display); letter-spacing: 0.16em; text-transform: uppercase; text-shadow: 0 0 12px rgba(127, 181, 154, 0.35); }
+      .vhead .h { color: var(--accent-2-hi); font: 600 13px/1.2 var(--display); letter-spacing: 0.16em; text-transform: uppercase; text-shadow: 0 0 12px color-mix(in srgb, var(--accent-2) 35%, transparent); }
       .vhead .vtot { color: var(--faint); font-size: 13px; }
       .vstrip { display: flex; gap: 2px; height: 7px; border-radius: 2px; overflow: hidden; background: var(--line); }
       .vstrip i { display: block; opacity: 0.85; }
@@ -707,36 +717,36 @@
       .pactarts .pa-sum { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
       .pacttree {
         display: block; width: 100%; max-width: 820px; height: auto; margin: 0 auto;
-        background: radial-gradient(ellipse at 12% 55%, #2c2219 0%, #17120e 60%, #0f0b08 100%);
+        background: radial-gradient(ellipse at 12% 55%, color-mix(in srgb, var(--panel-2), var(--accent) 5%) 0%, var(--bar-bg) 60%, var(--bg) 100%);
         border: 1px solid var(--line); border-radius: 3px;
         box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
       }
-      .pacttree .artedge { fill: none; stroke: #b8964f; stroke-width: 1.4; stroke-dasharray: 5 3; opacity: 0.28; }
+      .pacttree .artedge { fill: none; stroke: color-mix(in srgb, var(--accent) 90%, black); stroke-width: 1.4; stroke-dasharray: 5 3; opacity: 0.28; }
       .pacttree .artedge.on { opacity: 0.8; }
       .pacttree .artnode { cursor: pointer; }
       .pacttree .artnode .hit { fill: transparent; }
-      .pacttree .artnode.on .gem { filter: drop-shadow(0 0 4px rgba(232, 200, 120, 0.75)) drop-shadow(0 0 10px rgba(201, 165, 92, 0.35)); }
+      .pacttree .artnode.on .gem { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent-hi) 75%, transparent)) drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 35%, transparent)); }
       .pacttree .artnode.off image { filter: grayscale(1) brightness(0.5); }
       .pacttree .artnode.off:hover image { filter: grayscale(0.6) brightness(0.8); }
       .pacttree .artnode .pip.off { filter: grayscale(1) brightness(0.38); }
-      .pacttree .artnode.on:hover .gem { filter: brightness(1.2) drop-shadow(0 0 6px rgba(232, 200, 120, 0.9)); }
-      .pacttree .artlabel { font-family: var(--display); font-weight: 500; font-size: 13px; letter-spacing: 0.02em; fill: #e6dac2; }
-      .pacttree .artnode.off .artlabel { fill: #7d7263; }
+      .pacttree .artnode.on:hover .gem { filter: brightness(1.2) drop-shadow(0 0 6px color-mix(in srgb, var(--accent-hi) 90%, transparent)); }
+      .pacttree .artlabel { font-family: var(--display); font-weight: 500; font-size: 13px; letter-spacing: 0.02em; fill: color-mix(in srgb, var(--text) 96%, var(--accent)); }
+      .pacttree .artnode.off .artlabel { fill: color-mix(in srgb, var(--faint), var(--muted) 25%); }
       .pacttree .artrank { font-family: var(--body); font-size: 12px; fill: var(--accent); }
-      .pacttree .artnode.off .artrank { fill: #6a6155; }
+      .pacttree .artnode.off .artrank { fill: var(--faint); }
 
       .rgroups { display: grid; gap: 26px; }
       .rgroups h3.sub { display: flex; align-items: baseline; gap: 10px; }
       .rgroups h3.sub .count { font: 400 13px/1 var(--body); color: var(--faint); letter-spacing: 0; }
       .rgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
       .rcard { display: flex; flex-direction: column; padding: 14px 16px 12px; background: var(--well); border: 1px solid var(--line); border-radius: 3px; }
-      .rcard.ready { --tick: rgba(166, 220, 192, 0.55); border-color: rgba(127, 181, 154, 0.4); }
+      .rcard.ready { --tick: color-mix(in srgb, var(--accent-2-hi) 55%, transparent); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); }
       .rhead { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 3px 14px; align-items: center; }
       .rhead .avicn { grid-row: span 2; width: 48px; height: 48px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6)); }
       .rhead .avmeta { grid-column: 2 / -1; }
       .rgive { margin-left: 6px; color: var(--muted); font: 500 14px/1 var(--body); letter-spacing: 0; }
       .rstate { font: 600 11px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; }
-      .rstate.ok { color: #a6dcc0; text-shadow: 0 0 10px rgba(127, 181, 154, 0.4); }
+      .rstate.ok { color: var(--accent-2-hi); text-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 40%, transparent); }
       .rstate.short { color: var(--courage); }
       .rstate.lock { color: var(--faint); }
       .rings { list-style: none; display: grid; gap: 7px; margin: 14px 0; padding: 0; }
@@ -748,11 +758,11 @@
       .rcard .tradesub { margin-top: auto; padding-top: 10px; }
       .rtop { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: start; }
       .rtop button.star { margin: -2px -6px 0 0; }
-      .rcard.starred { --tick: rgba(232, 201, 126, 0.7); border-color: rgba(232, 201, 126, 0.5); box-shadow: inset 0 0 18px rgba(201, 165, 92, 0.08); }
+      .rcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
       .avprice.short { color: var(--courage); }
 
       .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard {
-        --tick: rgba(201, 165, 92, 0.42);
+        --tick: color-mix(in srgb, var(--accent) 42%, transparent);
         background-image:
           linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
           linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
@@ -764,8 +774,78 @@
           left 3px bottom 3px, left 3px bottom 3px, right 3px bottom 3px, right 3px bottom 3px;
         background-repeat: no-repeat;
       }
-      .lo.open { --tick: rgba(232, 201, 126, 0.6); }
+      .lo.open { --tick: color-mix(in srgb, var(--accent-hi) 60%, transparent); }
+
+      #panel-account > .cols.acctrow { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1.25fr); }
+      @media (max-width: 1320px) {
+        #panel-account > .cols.acctrow { grid-template-columns: 1fr 1fr; }
+        #themeSection { grid-column: 1 / -1; }
+      }
+      @media (max-width: 760px) { #panel-account > .cols.acctrow { grid-template-columns: 1fr; } }
+      .themes { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; }
+      .themes .fchip { display: inline-flex; align-items: center; gap: 9px; }
+      .tsw {
+        width: 11px; height: 11px; flex: none; transform: rotate(45deg);
+        background: linear-gradient(135deg, var(--a) 0 50%, var(--b) 50% 100%); border: 1px solid var(--c); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+      }
+      .tpicks { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+      .tpick { display: flex; align-items: center; gap: 9px; cursor: pointer; color: var(--muted); font-size: 14px; }
+      .tpick input[type="color"] {
+        min-width: 0; width: 34px; height: 26px; padding: 2px; cursor: pointer; border-radius: 3px;
+        background: var(--well); border: 1px solid var(--line-2); box-shadow: none;
+      }
+      .tpick input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+      .tpick input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
+      .tpick:hover { color: var(--text); }
     </style>
+    <script>
+      const THEMES = {
+        soulframe: { name: "Soulframe", bg: "#0e0b09", panel: "#1b1510", text: "#ece2cf", accent: "#c9a55c", accent2: "#7fb59a" },
+        moonlit: { name: "Moonlit", bg: "#0a0c10", panel: "#141922", text: "#e6eaf0", accent: "#b4c3d6", accent2: "#8cb8e0" },
+        verdant: { name: "Verdant", bg: "#070f0b", panel: "#10201a", text: "#e4efe7", accent: "#9ccf98", accent2: "#e0c477" },
+        ember: { name: "Ember", bg: "#110908", panel: "#20120e", text: "#f2e2d8", accent: "#e08a5a", accent2: "#e8c06e" },
+        dusk: { name: "Dusk", bg: "#0d0a12", panel: "#1a1423", text: "#ece5f3", accent: "#bc9fe0", accent2: "#82c4b9" },
+      };
+      const THEME_KEYS = ["bg", "panel", "text", "accent", "accent2"];
+      const THEME_TOKENS = ["--bg", "--panel", "--panel-2", "--well", "--line", "--line-2", "--frame", "--text", "--muted", "--faint", "--accent", "--accent-hi", "--accent-lo", "--accent-2", "--accent-2-hi", "--btn-hi", "--btn-lo", "--on-accent", "--bar-bg", "--winbar", "--scroll", "--scroll-hi", "--glow-1", "--glow-2", "--glow-3"];
+      const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+      const rgbHex = (c) => "#" + c.map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0")).join("");
+      const mixHex = (a, b, t) => { const x = hexRgb(a), y = hexRgb(b); return rgbHex(x.map((v, i) => v + (y[i] - v) * t)); };
+      const alpha = (h, a) => `rgba(${hexRgb(h).join(", ")}, ${a})`;
+      function shade(h, sat, light) {
+        const [r, g, b] = hexRgb(h).map((v) => v / 255);
+        const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
+        const s = d ? d / (1 - Math.abs(2 * l - 1)) : 0;
+        const hue = !d ? 0 : max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+        const S = Math.min(1, s * sat), L = Math.min(0.97, Math.max(0.03, l + light));
+        const C = (1 - Math.abs(2 * L - 1)) * S, X = C * (1 - Math.abs((hue % 2) - 1)), m = L - C / 2;
+        const [R, G, B] = [[C, X, 0], [X, C, 0], [0, C, X], [0, X, C], [X, 0, C], [C, 0, X]][Math.floor(hue) % 6];
+        return rgbHex([R + m, G + m, B + m].map((v) => v * 255));
+      }
+      const luma = (h) => { const [r, g, b] = hexRgb(h); return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255; };
+      function themeTokens(c) {
+        const muted = mixHex(mixHex(c.text, c.accent, 0.5), c.bg, 0.25);
+        const lo = shade(c.accent, 1, -0.2);
+        return {
+          "--bg": c.bg, "--panel": c.panel, "--panel-2": mixHex(c.panel, c.accent, 0.05), "--well": alpha(mixHex(c.bg, "#000000", 0.5), 0.42),
+          "--line": mixHex(c.panel, c.accent, 0.15), "--line-2": mixHex(c.panel, c.accent, 0.28), "--frame": alpha(c.accent, 0.26),
+          "--text": c.text, "--muted": muted, "--faint": mixHex(muted, c.bg, 0.38),
+          "--accent": c.accent, "--accent-hi": shade(c.accent, 1.2, 0.13), "--accent-lo": lo,
+          "--accent-2": c.accent2, "--accent-2-hi": shade(c.accent2, 1.5, 0.16),
+          "--btn-hi": shade(c.accent, 1.2, 0.07), "--btn-lo": shade(c.accent, 0.9, -0.12),
+          "--on-accent": luma(c.accent) > 0.42 ? mixHex(c.bg, c.accent, 0.08) : c.text,
+          "--bar-bg": mixHex(c.bg, c.panel, 0.6), "--winbar": mixHex(c.bg, c.panel, 0.3),
+          "--scroll": mixHex(c.panel, c.accent, 0.18), "--scroll-hi": mixHex(c.panel, c.accent, 0.36),
+          "--glow-1": alpha(mixHex(c.accent, c.bg, 0.4), 0.28), "--glow-2": alpha(mixHex(c.accent2, c.bg, 0.4), 0.12), "--glow-3": alpha(mixHex(lo, c.bg, 0.3), 0.14),
+        };
+      }
+      function paintTheme(t) {
+        const root = document.documentElement.style;
+        for (const k of THEME_TOKENS) root.removeProperty(k);
+        if (t && t.preset !== "soulframe") for (const [k, v] of Object.entries(themeTokens(t.colors))) root.setProperty(k, v);
+      }
+      try { paintTheme(JSON.parse(localStorage.getItem("sfhelper.theme") || "null")); } catch {}
+    </script>
   </head>
   <body>
     <div class="winbar"><img src="img/icon.svg" alt="" /><span>SFHelper</span></div>
@@ -904,6 +984,7 @@
         <section id="gearSection" data-view="gear" hidden>
           <h2>Gear</h2>
           <div class="daily" id="gearSummary"></div>
+          <input id="gearSearch" class="wsearch" placeholder="Search gear, e.g. Courage, lake, bottom feeder…" spellcheck="false" />
           <div class="tfilters" id="gearFilters"></div>
           <div id="gear"></div>
         </section>
@@ -1007,7 +1088,13 @@
       </div>
 
       <div class="panel" id="panel-account">
-        <div class="cols">
+        <section>
+          <h2>Combat</h2>
+          <div class="grid" id="scalars"></div>
+          <div style="margin-top:32px" class="cols" id="tables"></div>
+        </section>
+
+        <div class="cols acctrow">
           <section>
             <h2 class="hdr">Account
               <button id="accountToggle" class="mini" aria-expanded="false">Edit ID</button>
@@ -1040,13 +1127,20 @@
               </label>
             </div>
           </section>
-        </div>
 
-        <section>
-          <h2>Combat</h2>
-          <div class="grid" id="scalars"></div>
-          <div style="margin-top:32px" class="cols" id="tables"></div>
-        </section>
+          <section id="themeSection">
+            <h2>Theme</h2>
+            <div class="daily">Colours for the whole window, title bar included. Icons and the game's own colours, such as Virtues and craftwork, stay as they are.</div>
+            <div class="themes" id="themePresets"></div>
+            <div class="tpicks" id="themePicks">
+              <label class="tpick"><input type="color" data-k="bg" />Background</label>
+              <label class="tpick"><input type="color" data-k="panel" />Panels</label>
+              <label class="tpick"><input type="color" data-k="text" />Text</label>
+              <label class="tpick"><input type="color" data-k="accent" />Accent</label>
+              <label class="tpick"><input type="color" data-k="accent2" />Highlight</label>
+            </div>
+          </section>
+        </div>
       </div>
     </main>
     <footer class="foot" id="appFoot" hidden>
@@ -1465,7 +1559,7 @@
         const hay = parts.filter(Boolean).join(" ").replace(/<[^>]+>/g, "").toLowerCase().replace(/[+%]/g, "");
         return words.every((w) => hay.includes(w));
       };
-      const UPGRADE_Q = { tempers: "", runes: "", joineries: "" };
+      const UPGRADE_Q = { tempers: "", runes: "", joineries: "", gear: "" };
       const TEMPER_UI = { show: "all", sort: "progress" };
       try { Object.assign(TEMPER_UI, JSON.parse(localStorage.getItem("sfhelper.tempers") || "{}")); } catch {}
       function renderTempers() {
@@ -1974,6 +2068,53 @@
       setInterval(loadRequests, 60000);
       loadRequests();
 
+      let THEME = null;
+      let themeSaveTimer = null;
+      const HEX6 = /^#[0-9a-f]{6}$/i;
+      const pickColors = (c) => (c && THEME_KEYS.every((k) => HEX6.test(c[k] || "")) ? Object.fromEntries(THEME_KEYS.map((k) => [k, c[k].toLowerCase()])) : null);
+      const themeColors = () => (THEME ? THEME.colors : pickColors(THEMES.soulframe));
+      function savedCustom() {
+        try { return pickColors(JSON.parse(localStorage.getItem("sfhelper.themeCustom") || "null")); } catch { return null; }
+      }
+      function renderTheme() {
+        const current = THEME ? THEME.preset : "soulframe";
+        const chip = (key, name, c) =>
+          `<button class="fchip${current === key ? " active" : ""}" data-theme="${key}"><i class="tsw" style="--a:${c.accent};--b:${c.accent2};--c:${c.bg}"></i>${name}</button>`;
+        $("themePresets").innerHTML =
+          Object.entries(THEMES).map(([k, t]) => chip(k, t.name, t)).join("") +
+          chip("custom", "Custom", current === "custom" ? THEME.colors : savedCustom() || themeColors());
+        for (const input of $("themePicks").querySelectorAll("input")) if (input !== document.activeElement) input.value = themeColors()[input.dataset.k];
+      }
+      function setTheme(t, save = true) {
+        const colors = t && pickColors(t.colors);
+        THEME = colors && t.preset !== "soulframe" ? { preset: THEMES[t.preset] ? t.preset : "custom", colors } : null;
+        paintTheme(THEME);
+        try {
+          localStorage.setItem("sfhelper.theme", JSON.stringify(THEME));
+          if (THEME && THEME.preset === "custom") localStorage.setItem("sfhelper.themeCustom", JSON.stringify(THEME.colors));
+        } catch {}
+        renderTheme();
+        if (!save) return;
+        clearTimeout(themeSaveTimer);
+        themeSaveTimer = setTimeout(() => {
+          const theme = THEME && { ...THEME, titleBar: { color: themeTokens(THEME.colors)["--winbar"], symbolColor: THEME.colors.accent } };
+          fetch("/api/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ theme }) }).catch(() => {});
+        }, 300);
+      }
+      $("themePresets").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-theme]");
+        if (!b) return;
+        const key = b.dataset.theme;
+        if (key === "custom") setTheme({ preset: "custom", colors: savedCustom() || themeColors() });
+        else setTheme({ preset: key, colors: THEMES[key] });
+      });
+      $("themePicks").addEventListener("input", (e) => {
+        const k = e.target.dataset.k;
+        if (k) setTheme({ preset: "custom", colors: { ...themeColors(), [k]: e.target.value } });
+      });
+      renderTheme();
+      fetch("/api/settings").then((r) => r.json()).then((s) => setTheme(s.theme, false)).catch(() => {});
+
       document.getElementById("pickupSearch").addEventListener("input", (e) => {
         PICKUP_SEARCH = e.target.value;
         renderPickups();
@@ -1985,7 +2126,9 @@
       const DEITY_VIRTUE = { Mora: "Courage", Iridis: "Spirit", Saphene: "Grace" };
       const JOINERY_FAMILIES = ["Verite", "Quicksilver", "Feybalt", "Gildaur"];
       const TIER_ORDER = (label) => (/^Thrice/.test(label) ? 3 : /^Twice/.test(label) ? 2 : 1);
-      const GEAR_KINDS = ["Supplies", "Fishing", "Companion"];
+      const GEAR_KINDS = ["Supplies", "Virtue Elixirs", "Fishing", "Companion"];
+      const NATURE_ORDER = ["Surface", "Ambush", "Bottom", "Morning", "Day", "Evening", "Night", "Rain", "Fog", "Wind", "Lightning"];
+      const gearGroup = (d) => (d.virtue ? "Virtue Elixirs" : GEAR_KINDS.includes(d.kind) ? d.kind : "Supplies");
       const deityHtml = (label) =>
         escHtml(label).replace(/\b(Mora|Iridis|Saphene)\b/, (d) => `<span style="color:${VIRTUE_COLOR[DEITY_VIRTUE[d]]}">${d}</span>`);
       const upIcon = (src, cls = "avicn") => (src ? `<img class="${cls}" src="${escHtml(src)}" alt="" loading="lazy">` : `<span class="${cls}"></span>`);
@@ -2007,7 +2150,7 @@
           .map((g) => `<div class="avgroup"><h3>${g.icon ? upIcon(g.icon, "") : ""}${escHtml(g.name)} <span class="count">${g.count ?? g.rows.length}</span></h3>${g.rows.join("")}</div>`)
           .join("")}</div>`;
 
-      const UPGRADE_UI = { runes: "all", gear: "all", runeArt: "all", runeDrop: "all", joinVirtue: "all", joinTier: "all" };
+      const UPGRADE_UI = { runes: "all", gear: "all", runeArt: "all", runeDrop: "all", joinVirtue: "all", joinTier: "all", gearType: "all", gearHabitat: "all", gearNature: "all" };
       try { Object.assign(UPGRADE_UI, JSON.parse(localStorage.getItem("sfhelper.upgradeItems") || "{}")); } catch {}
       const withUnowned = (owned, known, blank) => {
         const have = new Set(owned.map((o) => o.type));
@@ -2030,7 +2173,7 @@
           renderUpgradeItems();
         });
       }
-      for (const [id, key] of [["runeSearch", "runes"], ["joinerySearch", "joineries"]]) {
+      for (const [id, key] of [["runeSearch", "runes"], ["joinerySearch", "joineries"], ["gearSearch", "gear"]]) {
         $(id).addEventListener("input", (e) => {
           UPGRADE_Q[key] = e.target.value;
           renderUpgradeItems();
@@ -2141,16 +2284,47 @@
         $("gearSummary").innerHTML = gear.length
           ? `Owned <b>${ownedGear.length}/${gear.length}</b> &nbsp;·&nbsp; Equipped <b>${ownedGear.filter((o) => o.equipped).length}</b>`
           : "";
-        $("gearFilters").innerHTML = gear.length ? ownFilter("gear", gear) : "";
+        const habitats = [...new Set(gear.flatMap((o) => o.d.habitat || []))];
+        const natureRank = (n) => { const i = NATURE_ORDER.indexOf(n.split(" ")[0]); return i < 0 ? NATURE_ORDER.length : i; };
+        const natures = [...new Set(gear.flatMap((o) => o.d.natures || []))].sort((a, b) => natureRank(a) - natureRank(b) || a.localeCompare(b));
+        if (!["all", ...GEAR_KINDS].includes(UPGRADE_UI.gearType)) UPGRADE_UI.gearType = "all";
+        if (!["all", ...habitats].includes(UPGRADE_UI.gearHabitat)) UPGRADE_UI.gearHabitat = "all";
+        if (!["all", ...natures].includes(UPGRADE_UI.gearNature)) UPGRADE_UI.gearNature = "all";
+        const lureRows = UPGRADE_UI.gearType === "all" || UPGRADE_UI.gearType === "Fishing";
+        if (!lureRows) UPGRADE_UI.gearHabitat = UPGRADE_UI.gearNature = "all";
+        const gearWords = searchWords(UPGRADE_Q.gear);
+        const gearTextOk = (o) => matchesWords(gearWords, [o.d.name, o.d.desc, gearGroup(o.d), o.d.virtue, ...(o.d.habitat || []), ...(o.d.natures || [])]);
+        const gearTypeOk = (o) => UPGRADE_UI.gearType === "all" || gearGroup(o.d) === UPGRADE_UI.gearType;
+        const habitatOk = (o) => UPGRADE_UI.gearHabitat === "all" || (o.d.habitat || []).includes(UPGRADE_UI.gearHabitat);
+        const natureOk = (o) => UPGRADE_UI.gearNature === "all" || (o.d.natures || []).includes(UPGRADE_UI.gearNature);
+        const gearOwnOk = (o) => passOwned("gear", o);
+        const gearPass = (o, skip) => (skip === "own" || gearOwnOk(o)) && (skip === "type" || gearTypeOk(o)) && (skip === "habitat" || habitatOk(o)) && (skip === "nature" || natureOk(o)) && gearTextOk(o);
+        const gearChips = (k, skip, values, has, img = () => "") => {
+          const pool = gear.filter((o) => gearPass(o, skip));
+          return `${runeChip(k, "all", "All")}${values.map((v) => runeChip(k, v, escHtml(v), pool.filter((o) => has(o, v)).length, img(v))).join("")}`;
+        };
+        $("gearFilters").innerHTML = !gear.length ? ""
+          : ownFilter("gear", gear.filter((o) => gearPass(o, "own"))) +
+            `<span class="fl">Type</span><div class="wfilter">${gearChips("gearType", "type", GEAR_KINDS.filter((k) => gear.some((o) => gearGroup(o.d) === k)), (o, v) => gearGroup(o.d) === v)}</div>` +
+            (lureRows && habitats.length ? `<span class="fl">Habitat</span><div class="wfilter">${gearChips("gearHabitat", "habitat", habitats, (o, v) => (o.d.habitat || []).includes(v))}</div>` : "") +
+            (lureRows && natures.length ? `<span class="fl">Nature</span><div class="wfilter">${gearChips("gearNature", "nature", natures, (o, v) => (o.d.natures || []).includes(v))}</div>` : "");
+        const gearSub = (o) => {
+          const bits = [];
+          if (o.equipped) bits.push('<span class="equipped">Equipped</span>');
+          if (o.d.virtue) bits.push(`<span style="color:${VIRTUE_COLOR[o.d.virtue] || "inherit"}">${escHtml(o.d.virtue)}</span>`);
+          if (o.d.habitat) bits.push(escHtml(o.d.habitat.join(", ")));
+          if (o.d.natures) bits.push(escHtml(o.d.natures.join(", ")));
+          return bits.length ? `<small>${bits.join(" · ")}</small>` : "";
+        };
         const gearRow = (o) =>
-          `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="gear" data-type="${escHtml(o.type)}">${upIcon(o.d.icon || ITEM_ICONS[o.d.name])}<div class="avn">${escHtml(o.d.name)}${o.equipped ? '<small class="equipped">Equipped</small>' : ""}</div><div class="avr">${o.owned ? o.count.toLocaleString() : "Unowned"}</div></div>`;
-        const shownGear = gear.filter((o) => passOwned("gear", o));
+          `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="gear" data-type="${escHtml(o.type)}">${upIcon(o.d.icon || ITEM_ICONS[o.d.name])}<div class="avn">${escHtml(o.d.name)}${gearSub(o)}</div><div class="avr">${o.owned ? o.count.toLocaleString() : "Unowned"}</div></div>`;
+        const shownGear = gear.filter((o) => gearPass(o));
         $("gear").innerHTML = !gear.length
           ? '<span class="muted">No gear in your inventory.</span>'
           : shownGear.length
             ? upGroups(GEAR_KINDS.map((kind) => ({
                 name: kind,
-                rows: shownGear.filter((o) => (GEAR_KINDS.includes(o.d.kind) ? o.d.kind : "Supplies") === kind).sort((a, b) => b.equipped - a.equipped || a.d.name.localeCompare(b.d.name)).map(gearRow),
+                rows: shownGear.filter((o) => gearGroup(o.d) === kind).sort((a, b) => b.equipped - a.equipped || a.d.name.localeCompare(b.d.name)).map(gearRow),
               })))
             : '<span class="muted">Nothing matches these filters.</span>';
       }
@@ -2192,7 +2366,9 @@
         const unowned = kind === "gear" && !u.gear.some((x) => x.type === type);
         return `<div class="tp-head">${icon ? upIcon(icon, "ticn") : ""}<div class="tp-name">${kind === "joinery" ? deityHtml(d.name) : escHtml(d.name)}</div></div>` +
           (unowned ? '<div class="tp-rank">Unowned</div>' : "") +
-          (d.desc ? `<div class="${kind === "joinery" ? "tp-quote" : "tp-eff"}">${escHtml(d.desc)}</div>` : "");
+          (d.desc ? `<div class="${kind === "joinery" ? "tp-quote" : "tp-eff"}">${escHtml(d.desc)}</div>` : "") +
+          (d.habitat ? `<div class="tp-eff">Habitat: <b>${d.habitat.map(escHtml).join(", ")}</b></div>` : "") +
+          (d.natures ? `<div class="tp-eff">Nature: <b>${d.natures.map(escHtml).join(", ")}</b></div>` : "");
       }
 
       let RECIPES = {};
