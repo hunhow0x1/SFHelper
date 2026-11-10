@@ -17,7 +17,7 @@ import { apiPausedUntil, liftPauseAfterLogin, noteApiAccepted, noteApiRefused, p
 import { AVAKOT_VENDOR, avakotDue, avakotDueAt, getAvakot, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameLoggedInAt, gameRefusals, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
+import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
 import { alreadyReported, recordRefusalEnd, recordRefusalStart, type RequestSwitches } from "../src/server/refusalReport";
 import { pruneRequests, readRequests } from "../src/server/requestLog";
 import { findSoulframe } from "../helper/processFinder";
@@ -99,6 +99,7 @@ let session: ImportSession | undefined;
 let lastImportOk = 0;
 const STARTED_AT = Date.now();
 const BACKOFF_HISTORY_MS = 24 * 3600_000;
+const PARTY_WINDOW_MS = 2 * 3600_000;
 let gameWasRefused = false;
 const loggedRefusals = new Set<string>();
 async function logRefusalDetails(): Promise<void> {
@@ -141,6 +142,7 @@ async function reportRefusalStart(r: GameRefusals): Promise<void> {
       gameRunning: await gameRunning(),
       late: r.first < STARTED_AT,
       requests: requestSwitches(await getSettings()),
+      party: await partyAround(r.first, PARTY_WINDOW_MS).catch(() => null),
     });
     log("Saved a report on the refusals to refusals.log in the data folder.");
   } catch (err) {
@@ -405,9 +407,13 @@ async function checkBlessed(): Promise<void> {
   const b = await loggedBlessed();
   if (!b || b.at === blessedSeen || !blessedMeetingNear(b)) return;
   blessedSeen = b.at;
-  log("A Blessed Meeting started near the Envoy.");
+  const who = b.ancestor ? (await displayName(b.ancestor)).replace(/ Boon Npc$/, "") : null;
+  log(who ? `A Blessed Meeting with ${who} started near the Envoy.` : "A Blessed Meeting started near the Envoy.");
   if (!Notification.isSupported() || !(await getSettings()).blessedNotify) return;
-  const n = new Notification({ title: "A Blessed Meeting is nearby", body: "One just started near your Envoy, and today's boon is still available.", icon: ICON_PATH, silent: false });
+  const body = who
+    ? `${who} is waiting near your Envoy, and today's boon is still available.`
+    : "One just started near your Envoy, and today's boon is still available.";
+  const n = new Notification({ title: "A Blessed Meeting is nearby", body, icon: ICON_PATH, silent: false });
   showNotification(n, "overview");
 }
 

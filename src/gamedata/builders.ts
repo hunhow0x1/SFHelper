@@ -41,6 +41,16 @@ function weaponAliases(stem: string): Set<string> {
   return out;
 }
 
+const ANCESTOR_RE = /^\/SF\/Types\/Npcs\/BoonNPC\/(\w+)BoonNpc$/;
+const NPC_NAME_RE = /^_npcName=(\S+)$/m;
+
+function ancestorName(dict: Dict, texts: string[], stem: string): string | undefined {
+  const own = dict[`/SF/Language/Characters/${stem}`];
+  if (own) return own;
+  const key = texts.find((t) => t.includes(`\n_npcTag=${stem}Npc\n`) || t.endsWith(`\n_npcTag=${stem}Npc`))?.match(NPC_NAME_RE)?.[1];
+  return key ? dict[key] : undefined;
+}
+
 export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): NameData {
   const factions: Record<string, string> = {};
   const factionTokens: Record<string, string> = {};
@@ -97,6 +107,10 @@ export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): Na
   }
   for (const [key, value] of Object.entries(overrides)) {
     if (value) items[key] = value;
+  }
+  for (const path of tree.keys()) {
+    const stem = ANCESTOR_RE.exec(path)?.[1];
+    if (stem) setAlias(`${stem}BoonNpc`, ancestorName(dict, texts, stem));
   }
   const arsenal = buildArsenal(dict, texts);
   for (const [type, w] of Object.entries(arsenal.weapons)) items[leafOf(type)] = w.name;

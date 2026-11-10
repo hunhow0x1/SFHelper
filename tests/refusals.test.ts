@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { appendFile, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { gameBeingRefused, gameLoggedInAt, gameRefusals, refusalDetails } from "../src/server/gameLog";
+import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, refusalDetails } from "../src/server/gameLog";
 
 const LOG = `0.040 Sys [Diag]: Build Label: 2026.10.08.15.20 Retail Windows x64 [Stripped]
 0.041 Sys [Diag]: Current time: Mon Oct 26 16:06:24 2026 [UTC: Mon Oct 26 20:06:24 2026]
@@ -116,5 +116,27 @@ describe("a login refused by Akamai", () => {
     const path = await logFile(LOGIN.replace("Server: AkamaiGHost", "Server: nginx"));
     expect(await gameRefusals(path)).toMatchObject({ count: 1, loginRefused: false });
     expect(await gameBeingRefused(REFUSED_AT + 10 * 60_000, path)).toBeNull();
+  });
+});
+
+describe("who was playing together when a block began", () => {
+  const START = Date.UTC(2026, 10, 10, 5, 24, 55);
+  const MIN = 60_000;
+  const PARTY = `0.048 Sys [Diag]: Current time: Tue Nov 10 00:24:55 2026 [UTC: Tue Nov 10 05:24:55 2026]
+18.187 Net [Info]: playerId=0 has been processed, 1 player(s) on the list
+23.287 Game [Info]: 1 players joined, all avatars spawned starting game
+39.318 Net [Info]: AddSquadMember: soulframer, mm=9D2CA3DDBCBC2233E6FD9833, squadCount=1
+600.000 Net [Info]: AddSquadMember: friend, mm=AAAAAAAAAAAAAAAAAAAAAAAA, squadCount=2
+601.000 Net [Info]: playerId=1 has been processed, 2 player(s) on the list
+1800.000 Net [Info]: RemoveSquadMember: friend, squadCount=1
+1801.000 Net [Info]: playerId=1 has been processed, 1 player(s) on the list
+`;
+
+  it("keeps the squad and session size at the block, and the most in the two hours before", async () => {
+    const path = await logFile(PARTY);
+    expect(await partyAround(START + 20 * MIN, 120 * MIN, path)).toEqual({ atRefusal: { squad: 2, players: 2 }, most: { squad: 2, players: 2 } });
+    expect(await partyAround(START + 40 * MIN, 120 * MIN, path)).toEqual({ atRefusal: { squad: 1, players: 1 }, most: { squad: 2, players: 2 } });
+    expect(await partyAround(START + 5 * MIN, 120 * MIN, path)).toEqual({ atRefusal: { squad: 1, players: 1 }, most: { squad: 1, players: 1 } });
+    expect(await partyAround(START + 40 * MIN, 5 * MIN, path)).toEqual({ atRefusal: { squad: 1, players: 1 }, most: { squad: 1, players: 1 } });
   });
 });

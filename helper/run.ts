@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { requireConsent } from "./consent";
 import { findSoulframe } from "./processFinder";
 import { ReadOnlyMemory } from "./memoryReader";
-import { findNonceCandidates } from "./nonceLocator";
+import { findNonceCandidates, type NonceCandidate } from "./nonceLocator";
 import { findAccountIdCandidates, discoverVerifiedAccountId } from "./accountIdLocator";
 import { verifyNonce, saveInventory, EndpointRefusedError } from "./fetchInventory";
 import { writeFileAtomic } from "../src/server/files";
@@ -32,6 +32,22 @@ export interface ImportResult {
   outPath?: string;
   session?: ImportSession;
 }
+
+const rejected = { pid: 0, tokens: new Set<string>() };
+
+function rejectedFor(pid: number): Set<string> {
+  if (rejected.pid !== pid) {
+    rejected.pid = pid;
+    rejected.tokens = new Set();
+  }
+  return rejected.tokens;
+}
+
+const FORM_TEXT: Record<NonceCandidate["form"], string> = {
+  address: "in the game's request addresses",
+  field: "as a nonce field",
+  nearby: "near the account id",
+};
 
 async function rememberAccountId(configPath: string, accountId: string): Promise<void> {
   await writeFileAtomic(configPath, `${JSON.stringify({ accountId }, null, 2)}\n`);
@@ -90,10 +106,11 @@ export async function importInventory(opts: ImportOptions): Promise<ImportResult
       if (err instanceof EndpointRefusedError) return { ok: false, code: 8, message: err.message };
       throw err;
     }
+    rejectedFor(prev.pid).add(prev.nonce);
     log("The session nonce was not accepted (new login?); scanning memory again.");
   }
 
-  let nonceCandidates: string[] = [];
+  let nonceCandidates: NonceCandidate[] = [];
   let usablePid: number | null = null;
 
   for (const proc of procs) {
@@ -128,7 +145,9 @@ export async function importInventory(opts: ImportOptions): Promise<ImportResult
         log("Scanning writable memory for the session nonce...");
         const t0 = Date.now();
         nonceCandidates = await findNonceCandidates(mem, account, progress("nonce"));
-        log(`Found ${nonceCandidates.length} nonce candidate(s) in ${((Date.now() - t0) / 1000).toFixed(1)}s.`);
+        const best = nonceCandidates[0];
+        const bestText = best ? `; the likeliest was seen ${best.seen} time(s) ${FORM_TEXT[best.form]}` : "";
+        log(`Found ${nonceCandidates.length} nonce candidate(s) in ${((Date.now() - t0) / 1000).toFixed(1)}s${bestText}.`);
       }
     } finally {
       await mem.close();
@@ -152,11 +171,24 @@ export async function importInventory(opts: ImportOptions): Promise<ImportResult
     return { ok: false, code: 6, message: "No nonce candidates found. Make sure you are logged in to a character." };
   }
 
-  log(`Verifying ${nonceCandidates.length} nonce candidate(s) against the live endpoint...`);
+  const tried = rejectedFor(usablePid);
+  const fresh = nonceCandidates.filter((c) => !tried.has(c.token));
+  const next = fresh[0];
+  if (!next) {
+    return { ok: false, code: 7, message: "No new nonce candidates since the last ones were turned down. The session may not be live." };
+  }
+  log(`Trying the likeliest of ${fresh.length} untried nonce candidate(s).`);
   try {
-    const result = await verifyNonce(account, nonceCandidates);
+    const result = await verifyNonce(account, [next.token]);
     if (!result) {
-      return { ok: false, code: 7, message: "No candidate was accepted. The session may not be live." };
+      tried.add(next.token);
+      return {
+        ok: false,
+        code: 7,
+        message: fresh.length > 1
+          ? "The likeliest nonce wasn't accepted; SFHelper tries the next one on its next import."
+          : "No candidate was accepted. The session may not be live.",
+      };
     }
     await saveInventory(opts.out, result.body);
     return {

@@ -81,6 +81,7 @@ describe("refusal reports", () => {
       gameRunning: false,
       late: false,
       requests: allOn,
+      party: null,
     });
     const [report] = (await readFile(join(process.env.SFHELPER_HOME!, "refusals.log"), "utf8")).trim().split("\n").map((l) => JSON.parse(l));
     expect(report).toMatchObject({
@@ -109,9 +110,11 @@ describe("refusal reports", () => {
       gameRunning: true,
       late: false,
       requests: { inventory: true, avakot: true, profile: false },
+      party: { atRefusal: { squad: 2, players: 2 }, most: { squad: 3, players: 3 } },
     });
     const [report] = (await readFile(join(process.env.SFHELPER_HOME!, "refusals.log"), "utf8")).trim().split("\n").map((l) => JSON.parse(l));
     expect(report.sfhelper).toEqual({ version: "0.4.47", requests: { inventory: true, avakot: true, profile: false } });
+    expect(report.game.party).toEqual({ atRefusal: { squad: 2, players: 2 }, most: { squad: 3, players: 3 } });
     expect(report.lastSent).toEqual({
       vendor: { at: new Date(first - 3 * HOUR).toISOString(), minutesBefore: 180, status: 200, in24h: 2 },
       inventory: { at: new Date(first - 101_000).toISOString(), minutesBefore: 1.7, status: 200, in24h: 1 },
@@ -120,7 +123,7 @@ describe("refusal reports", () => {
   });
 
   it("reports each block once, and again if it comes back after ending", async () => {
-    const ctx = { refusals, details: [], publicAddress: null, build: null, appVersion: "0.4.45", gameRunning: false, late: true, requests: allOn };
+    const ctx = { refusals, details: [], publicAddress: null, build: null, appVersion: "0.4.45", gameRunning: false, late: true, requests: allOn, party: null };
     expect(await alreadyReported(first)).toBe(false);
     await recordRefusalStart(ctx);
     expect(await alreadyReported(first)).toBe(true);

@@ -154,8 +154,18 @@ describe("Blessed Meetings near the Envoy", () => {
     expect(blessedMeetingNear(b, START + 640_000)).toBe(false);
   });
 
+  it("names the Ancestor who appears, and where", async () => {
+    const log = await write([
+      "1038.425 AI [Info]: ENCMGR: Encounter /SF/Types/Game/Encounters/Ambient/Dynamic/DynamicGodsAndGhostEncounter started at /DynamicRandomEncounterHint2485 at pos [(673.222, -71.3, -731.801, 0)]",
+      "1038.470 Sys [Info]: ResourceLoader 0x000000003C262330 (/SF/Types/Npcs/BoonNPC/VerminiaBoonNpc) Found 11,576 items to load (1ms)",
+      "1038.473 Sys [Info]: Resloader 0x000000003C262330 (/SF/Types/Npcs/BoonNPC/VerminiaBoonNpc) starting",
+      "1500.000 Sys [Info]: Resloader 0x000000003C262331 (/SF/Types/Npcs/BoonNPC/TuvalkaneBoonNpc) starting",
+    ]);
+    expect(await loggedBlessed(log)).toMatchObject({ at: START + 1_038_425, ancestor: "VerminiaBoonNpc", x: 673.222, z: -731.801 });
+  });
+
   it("notifies only for a fresh one that's still running", () => {
-    const b = { at: START, ended: null, logAt: START };
+    const b = { at: START, ended: null, ancestor: null, x: null, z: null, logAt: START };
     expect(blessedMeetingNear(b, START + 500)).toBe(false);
     expect(blessedMeetingNear(b, START + 10_000)).toBe(true);
     expect(blessedMeetingNear(b, START + 6 * 60_000)).toBe(false);

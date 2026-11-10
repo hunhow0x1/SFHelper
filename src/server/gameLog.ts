@@ -107,9 +107,26 @@ export interface LoggedCollector {
   logAt: number;
 }
 
+export interface PartyState {
+  squad: number | null;
+  players: number | null;
+}
+
+export interface PartyAround {
+  atRefusal: PartyState;
+  most: PartyState;
+}
+
+interface PartyChange extends PartyState {
+  at: number;
+}
+
 export interface LoggedBlessed {
   at: number;
   ended: number | null;
+  ancestor: string | null;
+  x: number | null;
+  z: number | null;
   logAt: number;
 }
 
@@ -160,6 +177,12 @@ const COLLECTOR_SAME_ARRIVAL_MS = 5_000;
 const BLESSED_START_RE = /ENCMGR: Encounter \S*GodsAndGhosts?Encounter started at /;
 const BLESSED_END_RE = /ENCMGR: Encounter \[\S*GodsAndGhosts?Encounter\] (?:has completed|was abandoned)/;
 const BLESSED_FAILED_WITHIN_MS = 1_000;
+const BLESSED_POS_RE = /at pos \[\((-?[\d.]+), (-?[\d.]+), (-?[\d.]+)/;
+const BOON_NPC_RE = /\/SF\/Types\/Npcs\/BoonNPC\/(\w+BoonNpc)\b/;
+const BOON_NPC_WITHIN_MS = 10_000;
+const SQUAD_RE = /squadCount=(\d+)/;
+const PLAYERS_RE = /(\d+) player\(s\) on the list|(\d+) players joined, all avatars spawned/;
+const MAX_PARTY_CHANGES = 200;
 const BUILD_RE = /Build Label: (\S+)/;
 const CACHE_DIR_RE = /Scanning (.+?) for cache blocks/;
 const PUBLIC_ADDRESS_RE = /public address \[?([0-9A-Fa-f:.]+?)\]?:\d+/;
@@ -180,6 +203,7 @@ interface Scan {
   game: { build: string | null; cacheDir: string | null; publicAddress: string | null };
   collector: Omit<LoggedCollector, "logAt"> | null;
   blessed: { last: Omit<LoggedBlessed, "logAt"> | null; failedAt: number | null };
+  party: PartyState & { changes: PartyChange[] };
   refusals: {
     count: number;
     first: number;
@@ -219,6 +243,7 @@ function newScan(path: string, head: string): Scan {
     game: { build: null, cacheDir: null, publicAddress: null },
     collector: null,
     blessed: { last: null, failedAt: null },
+    party: { squad: null, players: null, changes: [] },
     refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [], loggingIn: false, loginBlocked: false, loginRefused: false, loginOkAt: null },
     agari: { spawned: {}, spot: null, since: 0, agent: null, agentAt: null, agentSince: 0, location: null, dungeon: null },
     mastery: { other: null, items: null },
@@ -412,10 +437,15 @@ function feedCollector(s: Scan, line: string, start: number): void {
 }
 
 function feedBlessed(b: Scan["blessed"], line: string, start: number): void {
-  if (!line.includes("GodsAndGhost")) return;
+  const boon = line.includes("/BoonNPC/") ? BOON_NPC_RE.exec(line) : null;
+  if (!boon && !line.includes("GodsAndGhost")) return;
   const t = TIME_RE.exec(line);
   const at = t ? start + Math.round(Number(t[1]) * 1000) : null;
   if (at === null) return;
+  if (boon) {
+    if (b.last && b.last.ancestor === null && at - b.last.at <= BOON_NPC_WITHIN_MS) b.last.ancestor = boon[1]!;
+    return;
+  }
   if (line.includes("GodsAndGhostENC: ")) {
     b.failedAt = at;
     if (b.last && b.last.ended === null) b.last.ended = at;
@@ -423,10 +453,26 @@ function feedBlessed(b: Scan["blessed"], line: string, start: number): void {
   }
   if (BLESSED_START_RE.test(line)) {
     const failed = b.failedAt !== null && at - b.failedAt <= BLESSED_FAILED_WITHIN_MS;
-    b.last = { at, ended: failed ? at : null };
+    const pos = BLESSED_POS_RE.exec(line);
+    b.last = { at, ended: failed ? at : null, ancestor: null, x: pos ? Number(pos[1]) : null, z: pos ? Number(pos[3]) : null };
     return;
   }
   if (b.last && b.last.ended === null && BLESSED_END_RE.test(line)) b.last.ended = at;
+}
+
+function feedParty(p: Scan["party"], line: string, start: number): void {
+  const sq = line.includes("squadCount=") ? SQUAD_RE.exec(line) : null;
+  const pl = !sq && line.includes(" player") ? PLAYERS_RE.exec(line) : null;
+  if (!sq && !pl) return;
+  const t = TIME_RE.exec(line);
+  if (!t) return;
+  const squad = sq ? Number(sq[1]) : p.squad;
+  const players = pl ? Number(pl[1] ?? pl[2]) : p.players;
+  if (squad === p.squad && players === p.players) return;
+  p.squad = squad;
+  p.players = players;
+  p.changes.push({ at: start + Math.round(Number(t[1]) * 1000), squad, players });
+  if (p.changes.length > MAX_PARTY_CHANGES) p.changes.shift();
 }
 
 function feed(s: Scan, line: string): void {
@@ -445,6 +491,7 @@ function feed(s: Scan, line: string): void {
   feedEvents(s.events, line, s.start);
   feedCollector(s, line, s.start);
   feedBlessed(s.blessed, line, s.start);
+  feedParty(s.party, line, s.start);
 }
 
 let scan: Scan | null = null;
@@ -520,6 +567,29 @@ function carryLoginRefusal(from: Scan["refusals"], to: Scan["refusals"]): void {
 export async function gameLoggedInAt(path?: string): Promise<number | null> {
   const s = await currentScan(path);
   return s?.refusals.loginOkAt ?? null;
+}
+
+export async function partyAround(at: number, windowMs: number, path?: string): Promise<PartyAround | null> {
+  const s = await currentScan(path);
+  if (!s) return null;
+  let state: PartyState = { squad: null, players: null };
+  const most: PartyState = { squad: null, players: null };
+  const bump = (p: PartyState) => {
+    if (p.squad !== null) most.squad = Math.max(most.squad ?? 0, p.squad);
+    if (p.players !== null) most.players = Math.max(most.players ?? 0, p.players);
+  };
+  let inWindow = false;
+  for (const c of s.party.changes) {
+    if (c.at > at) break;
+    if (c.at >= at - windowMs) {
+      if (!inWindow) bump(state);
+      inWindow = true;
+      bump(c);
+    }
+    state = { squad: c.squad, players: c.players };
+  }
+  bump(state);
+  return { atRefusal: state, most };
 }
 
 export async function gameRefusals(path?: string): Promise<GameRefusals | null> {

@@ -184,6 +184,19 @@ describe("building SFHelper's data from the game", () => {
     });
   });
 
+  it("names the Ancestors of Blessed Meetings by their character names", () => {
+    const tree = new Map<string, string | null>([
+      ["/SF/Types/Npcs/BoonNPC/VerminiaBoonNpc", "/SF/Types/Npcs/VerminiaNpc"],
+      ["/SF/Types/Npcs/BoonNPC/MooseBoonNpc", "/SF/Types/Npcs/MooseNpc"],
+      ["/SF/Types/Npcs/BoonNPC/VerminiaBoonNpcConversationAction", "/SF/Types/Npcs/BoonNPC/BoonNpcConversationAction"],
+    ]);
+    const texts = ["BoneName=\"\"\n_npcName=/SF/Language/Characters/DaleSeer\n_npcTag=MooseNpc\n/SF/Upgrades/Boons/DaleSeer/HealthBoonBoosterUpgrade"];
+    const dict = { "/SF/Language/Characters/Verminia": "The Witch Verminia", "/SF/Language/Characters/DaleSeer": "Dale Seer" };
+    const items = buildNames(dict, tree, texts).items;
+    expect(items).toMatchObject({ VerminiaBoonNpc: "The Witch Verminia", MooseBoonNpc: "Dale Seer" });
+    expect(items).not.toHaveProperty("VerminiaBoonNpcConversationAction");
+  });
+
   it("names enemies whose type lists the same words as their codex entry in another order", () => {
     const base = "/SF/Types/Enemies/Wildlife/Mockeries";
     const tree = new Map<string, string | null>([
