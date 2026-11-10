@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { appendFile, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { gameBeingRefused, gameRefusals, refusalDetails } from "../src/server/gameLog";
+import { gameBeingRefused, gameLoggedInAt, gameRefusals, refusalDetails } from "../src/server/gameLog";
 
 const LOG = `0.040 Sys [Diag]: Build Label: 2026.10.08.15.20 Retail Windows x64 [Stripped]
 0.041 Sys [Diag]: Current time: Mon Oct 26 16:06:24 2026 [UTC: Mon Oct 26 20:06:24 2026]
@@ -100,6 +100,7 @@ describe("a login refused by Akamai", () => {
     expect(await gameBeingRefused(REFUSED_AT + 3 * HOUR, path)).toEqual({ count: 1, first: REFUSED_AT, last: REFUSED_AT, loginRefused: true });
     await appendFile(path, LOGGED_IN);
     expect(await gameBeingRefused(REFUSED_AT + 10 * 60_000, path)).toBeNull();
+    expect(await gameLoggedInAt(path)).toBe(Date.parse("2026-11-10T04:11:23Z"));
   });
 
   it("still holds after the game is restarted, until the new session logs in", async () => {

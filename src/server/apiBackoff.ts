@@ -5,6 +5,7 @@ const MAX_PAUSE_MS = 60 * 60_000;
 
 let pausedUntil = 0;
 let pauseMs = 0;
+let refusedAt = 0;
 
 export function apiPausedUntil(now = Date.now()): number | null {
   return now < pausedUntil ? pausedUntil : null;
@@ -13,12 +14,24 @@ export function apiPausedUntil(now = Date.now()): number | null {
 export function noteApiRefused(now = Date.now()): number {
   pauseMs = pauseMs ? Math.min(pauseMs * 2, MAX_PAUSE_MS) : FIRST_PAUSE_MS;
   pausedUntil = now + pauseMs;
+  refusedAt = now;
   return pausedUntil;
 }
 
 export function noteApiAccepted(): void {
   pauseMs = 0;
   pausedUntil = 0;
+  refusedAt = 0;
+}
+
+export function apiRefusedAt(): number | null {
+  return refusedAt || null;
+}
+
+export function liftPauseAfterLogin(loggedInAt: number | null, now = Date.now()): boolean {
+  if (apiPausedUntil(now) === null || loggedInAt === null || loggedInAt <= refusedAt) return false;
+  noteApiAccepted();
+  return true;
 }
 
 export function restoreApiBackoff(history: Pick<RequestEntry, "at" | "status" | "empty">[]): void {

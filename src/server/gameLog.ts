@@ -190,6 +190,7 @@ interface Scan {
     loggingIn: boolean;
     loginBlocked: boolean;
     loginRefused: boolean;
+    loginOkAt: number | null;
   };
   agari: {
     spawned: Record<string, string>;
@@ -218,7 +219,7 @@ function newScan(path: string, head: string): Scan {
     game: { build: null, cacheDir: null, publicAddress: null },
     collector: null,
     blessed: { last: null, failedAt: null },
-    refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [], loggingIn: false, loginBlocked: false, loginRefused: false },
+    refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [], loggingIn: false, loginBlocked: false, loginRefused: false, loginOkAt: null },
     agari: { spawned: {}, spot: null, since: 0, agent: null, agentAt: null, agentSince: 0, location: null, dungeon: null },
     mastery: { other: null, items: null },
     trades: { out: [], collecting: null, confirm: null, invitedBy: null },
@@ -316,7 +317,7 @@ function feedRefusals(r: Scan["refusals"], line: string, start: number): void {
   if (line.trim() && !HTTP_HEADER_RE.test(line)) r.before = logMessage(line);
 }
 
-function feedLogin(r: Scan["refusals"], line: string): void {
+function feedLogin(r: Scan["refusals"], line: string, start: number): void {
   if (line.includes("Logging in as")) {
     r.loggingIn = true;
     r.loginBlocked = false;
@@ -326,6 +327,8 @@ function feedLogin(r: Scan["refusals"], line: string): void {
   if (!done) return;
   r.loginRefused = done[1] === "false" && r.loggingIn && r.loginBlocked;
   r.loggingIn = false;
+  const t = TIME_RE.exec(line);
+  if (done[1] === "true" && t) r.loginOkAt = start + Math.round(Number(t[1]) * 1000);
 }
 
 function feedTrades(x: Scan["trades"], line: string, start: number): void {
@@ -437,7 +440,7 @@ function feed(s: Scan, line: string): void {
     return;
   }
   feedRefusals(s.refusals, line, s.start);
-  feedLogin(s.refusals, line);
+  feedLogin(s.refusals, line, s.start);
   feedTrades(s.trades, line, s.start);
   feedEvents(s.events, line, s.start);
   feedCollector(s, line, s.start);
@@ -512,6 +515,11 @@ function carryLoginRefusal(from: Scan["refusals"], to: Scan["refusals"]): void {
   to.first = t.first;
   to.last = t.last;
   to.loginRefused = true;
+}
+
+export async function gameLoggedInAt(path?: string): Promise<number | null> {
+  const s = await currentScan(path);
+  return s?.refusals.loginOkAt ?? null;
 }
 
 export async function gameRefusals(path?: string): Promise<GameRefusals | null> {

@@ -13,7 +13,7 @@ import { getSettings, updateSettings } from "./settings";
 import { recordStanding, dailyCaps, preludes17Caps } from "./standing";
 import { getDataRefreshedAt, getImportStatus } from "./importStatus";
 import { getUpdateStatus, requestUpdateAction } from "./updateStatus";
-import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
+import { apiPausedUntil, apiRefusedAt, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
 import { appFile, dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
 import { gameBeingRefused, gameRefusedMessage, loggedCollector } from "./gameLog";
@@ -255,7 +255,8 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
   }
 
   if (url.pathname === "/api/connection") {
-    sendJson(res, 200, { pausedUntil: apiPausedUntil(), gameRefused: await gameBeingRefused(), dataAt: getDataRefreshedAt() });
+    const pausedUntil = apiPausedUntil();
+    sendJson(res, 200, { pausedUntil, refusedAt: pausedUntil ? apiRefusedAt() : null, gameRefused: await gameBeingRefused(), dataAt: getDataRefreshedAt() });
     return;
   }
 

@@ -13,11 +13,11 @@ import { newlyReady, readyRecipes, recipeTimes, recipeVerb } from "../src/server
 import type { RecipeDef } from "../src/gamedata/builders";
 import { noteDataRefreshed, setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
-import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage, restoreApiBackoff } from "../src/server/apiBackoff";
+import { apiPausedUntil, liftPauseAfterLogin, noteApiAccepted, noteApiRefused, pausedMessage, restoreApiBackoff } from "../src/server/apiBackoff";
 import { AVAKOT_VENDOR, avakotDue, avakotDueAt, getAvakot, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameRefusals, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
+import { gameBeingRefused, gameLoggedInAt, gameRefusals, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
 import { alreadyReported, recordRefusalEnd, recordRefusalStart, type RequestSwitches } from "../src/server/refusalReport";
 import { pruneRequests, readRequests } from "../src/server/requestLog";
 import { findSoulframe } from "../helper/processFinder";
@@ -167,6 +167,9 @@ async function importFromMemory(): Promise<void> {
   if (importing) return;
   const settings = await getSettings();
   logSwitches(requestSwitches(settings));
+  if (liftPauseAfterLogin(await gameLoggedInAt().catch(() => null))) {
+    log("The game logged in after Soulframe last refused SFHelper, so SFHelper stops waiting.");
+  }
   const paused = apiPausedUntil();
   if (paused) {
     lastImportCode = 8;

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { pruneRequests, readRequests, recordRequest, summarizeRequests, tracked } from "../src/server/requestLog";
 import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
 import { loggedGame, refusalDetails } from "../src/server/gameLog";
-import { apiPausedUntil, noteApiAccepted, restoreApiBackoff } from "../src/server/apiBackoff";
+import { apiPausedUntil, apiRefusedAt, liftPauseAfterLogin, noteApiAccepted, restoreApiBackoff } from "../src/server/apiBackoff";
 
 const HOUR = 3600_000;
 
@@ -175,6 +175,21 @@ describe("SFHelper's own pause after a refusal", () => {
     expect(apiPausedUntil(t + 16 * 60_000)).toBeNull();
     restoreApiBackoff([]);
     expect(apiPausedUntil(t)).toBeNull();
+    noteApiAccepted();
+  });
+
+  it("ends early once the game logs in after the refusal, since the connection works again", () => {
+    const t = Date.parse("2026-11-10T04:55:15Z");
+    restoreApiBackoff([{ at: new Date(t).toISOString(), status: 403 }]);
+    expect(apiRefusedAt()).toBe(t);
+    expect(liftPauseAfterLogin(null, t + 60_000)).toBe(false);
+    expect(liftPauseAfterLogin(t - 3600_000, t + 60_000)).toBe(false);
+    expect(apiPausedUntil(t + 60_000)).toBe(t + 15 * 60_000);
+    expect(liftPauseAfterLogin(Date.parse("2026-11-10T05:12:14Z"), t + 17 * 60_000)).toBe(false);
+    restoreApiBackoff([{ at: new Date(t).toISOString(), status: 403 }]);
+    expect(liftPauseAfterLogin(t + 5 * 60_000, t + 6 * 60_000)).toBe(true);
+    expect(apiPausedUntil(t + 6 * 60_000)).toBeNull();
+    expect(apiRefusedAt()).toBeNull();
     noteApiAccepted();
   });
 });

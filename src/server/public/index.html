@@ -3169,7 +3169,8 @@
         } else if (c && c.gameRefused) {
           bar.innerHTML = `<span><b>Soulframe's servers are refusing your game's requests</b> (since ${clock(c.gameRefused.first)}), so the game's saves are failing until this clears. SFHelper has paused its own requests until the game gets through again.</span>`;
         } else if (c && c.pausedUntil) {
-          bar.innerHTML = `<span><b>Soulframe's servers refused SFHelper's requests.</b> SFHelper is pausing until ${clock(c.pausedUntil)}, then tries again.</span>`;
+          const when = c.refusedAt ? ` at ${clock(c.refusedAt)}` : "";
+          bar.innerHTML = `<span><b>Soulframe's servers refused SFHelper's last request${when}.</b> SFHelper is pausing until ${clock(c.pausedUntil)}, then tries again, or sooner once the game logs in.</span>`;
         }
         bar.hidden = !(c && (c.gameRefused || c.pausedUntil));
       }
