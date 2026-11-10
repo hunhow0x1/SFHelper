@@ -1,6 +1,7 @@
 import type { ReadOnlyMemory } from "./memoryReader";
 import { EndpointRefusedError } from "./fetchInventory";
 import { userAgent } from "../src/server/userAgent";
+import { tracked } from "../src/server/requestLog";
 
 const OID_RE = /[0-9a-f]{24}/gi;
 const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=";
@@ -40,7 +41,7 @@ export async function verifyAccountId(
   accountId: string,
   fetchImpl: typeof fetch = fetch,
 ): Promise<{ accountId: string; displayName: string | null } | null> {
-  const response = await fetchImpl(PROFILE_ENDPOINT + encodeURIComponent(accountId), {
+  const response = await tracked("account", fetchImpl)(PROFILE_ENDPOINT + encodeURIComponent(accountId), {
     headers: { "user-agent": userAgent() },
   });
   if (response.status === 403 || response.status === 429) throw new EndpointRefusedError(response.status);

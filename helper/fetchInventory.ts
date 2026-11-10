@@ -1,5 +1,6 @@
 import { writeFileAtomic } from "../src/server/files";
 import { userAgent } from "../src/server/userAgent";
+import { tracked } from "../src/server/requestLog";
 
 const ENDPOINT = "https://api.soulframe.com/api/inventory.php";
 const MIN_INTERVAL_MS = 2000;
@@ -38,7 +39,7 @@ export async function verifyNonce(
     const nonce = candidates[i];
     if (!nonce) continue;
 
-    const response = await fetchImpl(buildUrl(accountId, nonce), {
+    const response = await tracked("inventory", fetchImpl, { attempt: i + 1, of: candidates.length })(buildUrl(accountId, nonce), {
       headers: { "user-agent": userAgent() },
     });
     if (response.status === 403 || response.status === 429) {

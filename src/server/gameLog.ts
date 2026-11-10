@@ -159,6 +159,7 @@ const BLESSED_END_RE = /ENCMGR: Encounter \[\S*GodsAndGhosts?Encounter\] (?:has 
 const BLESSED_FAILED_WITHIN_MS = 1_000;
 const BUILD_RE = /Build Label: (\S+)/;
 const CACHE_DIR_RE = /Scanning (.+?) for cache blocks/;
+const PUBLIC_ADDRESS_RE = /public address \[?([0-9A-Fa-f:.]+?)\]?:\d+/;
 const HEAD_BYTES = 256;
 const CHUNK_BYTES = 1 << 20;
 
@@ -173,7 +174,7 @@ interface Scan {
   rest: string;
   decoder: StringDecoder;
   start: number | null;
-  game: { build: string | null; cacheDir: string | null };
+  game: { build: string | null; cacheDir: string | null; publicAddress: string | null };
   collector: Omit<LoggedCollector, "logAt"> | null;
   blessed: { last: Omit<LoggedBlessed, "logAt"> | null; failedAt: number | null };
   refusals: { count: number; first: number; last: number; open: OpenRefusal | null; before: string; details: RefusalDetail[] };
@@ -201,7 +202,7 @@ function newScan(path: string, head: string): Scan {
     rest: "",
     decoder: new StringDecoder("utf8"),
     start: null,
-    game: { build: null, cacheDir: null },
+    game: { build: null, cacheDir: null, publicAddress: null },
     collector: null,
     blessed: { last: null, failedAt: null },
     refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [] },
@@ -268,7 +269,8 @@ function noteRefusal(r: Scan["refusals"], t: number): void {
   r.last = Math.max(r.last, t);
 }
 
-const logMessage = (line: string): string => (LOG_MESSAGE_RE.exec(line)?.[1] ?? line).trim().slice(0, MAX_CONTEXT_CHARS);
+const EMAIL_RE = /[^\s@"'<>]+@[^\s@"'<>]+\.[A-Za-z]{2,}/g;
+const logMessage = (line: string): string => (LOG_MESSAGE_RE.exec(line)?.[1] ?? line).replace(EMAIL_RE, "[email]").trim().slice(0, MAX_CONTEXT_CHARS);
 
 function closeRefusal(r: Scan["refusals"], after: string | null): void {
   const o = r.open!;
@@ -400,6 +402,7 @@ function feedBlessed(b: Scan["blessed"], line: string, start: number): void {
 
 function feed(s: Scan, line: string): void {
   if (s.game.cacheDir === null) feedGame(s.game, line);
+  if (line.includes("public address ")) s.game.publicAddress = PUBLIC_ADDRESS_RE.exec(line)?.[1] ?? s.game.publicAddress;
   feedAgari(s.agari, line);
   feedMastery(s.mastery, line);
   if (s.start === null) {
@@ -498,11 +501,12 @@ export interface LoggedGame {
   log: string;
   build: string | null;
   cacheDir: string | null;
+  publicAddress: string | null;
 }
 
 export async function loggedGame(path?: string): Promise<LoggedGame | null> {
   const s = await currentScan(path);
-  return s ? { log: s.path, build: s.game.build, cacheDir: s.game.cacheDir } : null;
+  return s ? { log: s.path, build: s.game.build, cacheDir: s.game.cacheDir, publicAddress: s.game.publicAddress } : null;
 }
 
 export async function loggedCollector(path?: string): Promise<LoggedCollector | null> {

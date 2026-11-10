@@ -284,7 +284,7 @@ describe("what the game log says about the install", () => {
         "",
       ].join("\n"),
     );
-    expect(await loggedGame(log)).toEqual({ log, build: "2026.10.08.15.20", cacheDir: "C:\\Soulframe\\Downloaded\\Public\\Cache.Windows\\" });
+    expect(await loggedGame(log)).toEqual({ log, build: "2026.10.08.15.20", cacheDir: "C:\\Soulframe\\Downloaded\\Public\\Cache.Windows\\", publicAddress: null });
   });
 });
 

@@ -17,7 +17,10 @@ import { apiPausedUntil, noteApiAccepted, noteApiRefused, pausedMessage } from "
 import { AVAKOT_VENDOR, avakotDue, avakotDueAt, getAvakot, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails } from "../src/server/gameLog";
+import { gameBeingRefused, gameRefusals, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
+import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
+import { pruneRequests } from "../src/server/requestLog";
+import { findSoulframe } from "../helper/processFinder";
 import { readDataJson } from "../src/server/paths";
 import { setAppVersion } from "../src/server/userAgent";
 import { findCacheDir } from "../src/gamedata/cache";
@@ -107,6 +110,34 @@ async function logRefusalDetails(): Promise<void> {
   }
 }
 
+async function gameRunning(): Promise<boolean> {
+  return (await findSoulframe().catch(() => [])).length > 0;
+}
+
+async function reportRefusalStart(r: GameRefusals, late: boolean): Promise<void> {
+  try {
+    if (await alreadyReported(r.first)) return;
+    const game = await loggedGame();
+    await recordRefusalStart({
+      refusals: r,
+      details: await refusalDetails(),
+      publicAddress: game?.publicAddress ?? null,
+      build: game?.build ?? null,
+      appVersion: app.getVersion(),
+      gameRunning: await gameRunning(),
+      late,
+    });
+    log("Saved a report on the refusals to refusals.log in the data folder.");
+  } catch (err) {
+    log(`Couldn't save the refusal report: ${(err as Error).message}`);
+  }
+}
+
+async function reportEarlierRefusals(): Promise<void> {
+  const r = await gameRefusals().catch(() => null);
+  if (r && r.count > 0 && !(await gameBeingRefused())) await reportRefusalStart(r, true);
+}
+
 const WAIT_FOR_GAME_MS = 15_000;
 const WAIT_FOR_LOGIN_MS = 30_000;
 let lastImportCode: number | null = null;
@@ -128,7 +159,10 @@ async function importFromMemory(): Promise<void> {
   const refused = await gameBeingRefused();
   if (refused) {
     const message = gameRefusedMessage(refused);
-    if (!gameWasRefused) log(`Holding off: ${message} (${refused.count} refusals in the game log so far.)`);
+    if (!gameWasRefused) {
+      log(`Holding off: ${message} (${refused.count} refusals in the game log so far.)`);
+      await reportRefusalStart(refused, false);
+    }
     gameWasRefused = true;
     lastImportCode = 9;
     await logRefusalDetails();
@@ -138,6 +172,8 @@ async function importFromMemory(): Promise<void> {
   if (gameWasRefused) {
     await logRefusalDetails();
     log("The game's requests are getting through again; resuming imports.");
+    const ended = await gameRefusals().catch(() => null);
+    if (ended) await recordRefusalEnd(ended, await gameRunning()).catch(() => {});
   }
   gameWasRefused = false;
   importing = true;
@@ -463,7 +499,9 @@ async function proceed(): Promise<void> {
     void checkCollector().catch(() => {});
     void checkBlessed().catch(() => {});
   }, TIMER_CHECK_MS);
+  void pruneRequests();
   void importFromMemory().finally(scheduleImport);
+  setTimeout(() => void reportEarlierRefusals(), GAME_DATA_FIRST_MS);
   setTimeout(() => void gameData.check(), GAME_DATA_FIRST_MS);
   setInterval(() => void gameData.check(), GAME_DATA_CHECK_MS);
 }

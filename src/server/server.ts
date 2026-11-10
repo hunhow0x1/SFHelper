@@ -23,6 +23,7 @@ import { virtuePoints } from "./loadouts";
 import { acknowledgeAvakot, getAvakot } from "./avakot";
 import { getDiscoveries } from "./discoveries";
 import { userAgent } from "./userAgent";
+import { tracked } from "./requestLog";
 import { withAgariNames, withCollector, withStarred } from "./timers";
 import { writeFileAtomic } from "./files";
 
@@ -112,7 +113,7 @@ async function fetchProfile(accountId: string): Promise<ProfileSnapshot> {
   const refused = await gameBeingRefused();
   if (refused) throw new Error(gameRefusedMessage(refused));
 
-  const response = await fetch(PROFILE_ENDPOINT + encodeURIComponent(accountId), {
+  const response = await tracked("profile")(PROFILE_ENDPOINT + encodeURIComponent(accountId), {
     headers: { "user-agent": userAgent() },
   });
   if (response.status === 403 || response.status === 429) {
