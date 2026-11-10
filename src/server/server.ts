@@ -384,6 +384,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         temperProgress: inventory?.temperProgress ?? [],
         upgradeItems: inventory?.upgradeItems ?? null,
         crafting: inventory?.crafting ?? null,
+        pets: inventory?.pets ?? null,
         pickups,
         trades,
         builds,

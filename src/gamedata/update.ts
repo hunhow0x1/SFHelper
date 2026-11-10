@@ -63,6 +63,7 @@ const CURRENCY_ICONS: [string, string][] = [
   ["/SF/Interface/Graphics/StoreItems/Pickups/SubBossToken.png", "img/game/agari.png"],
   ["/SF/Interface/Graphics/Market/DracsCurrencyIcon.png", "img/game/dracs.png"],
   ["/SF/Interface/Graphics/StoreItems/Currency/PremiumCurrency.png", "img/game/arcs.png"],
+  ["/SF/Interface/Graphics/Codex/QuestIcons/PupPawQuestIcon.png", "img/game/pup-paw.png"],
 ];
 const MIN_KEPT = 0.8;
 const DEFAULT_CAPS = [5000, 5000, 20000, 20000, 30000, 30000];

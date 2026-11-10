@@ -5931,5 +5931,37 @@
     "PremiumCredits": "Arcs",
     "PremiumCreditsFree": "Arcs",
     "FusionPoints": "Harmonies"
+  },
+  "pets": {
+    "names": {
+      "/SF/Language/Quests/OrengallPupName1": "Ciar",
+      "/SF/Language/Quests/OrengallPupName2": "Cathal",
+      "/SF/Language/Quests/OrengallPupName3": "Cuan"
+    },
+    "temperaments": {
+      "TEMPERMENT_CURIOUS": "Clever",
+      "TEMPERMENT_LOYAL": "Loyal",
+      "TEMPERMENT_PLAYFUL": "Playful"
+    },
+    "stats": {
+      "Guard": "Guts",
+      "Search": "Curiosity",
+      "Speed": "Speed",
+      "Stamina": "Endurance",
+      "Support": "Heart"
+    },
+    "labels": {
+      "temperament": "Temperament",
+      "training": "Training",
+      "trainingComplete": "Training Complete",
+      "bond": "Bond",
+      "energy": "Energy"
+    },
+    "limits": {
+      "training": 15,
+      "skill": 5,
+      "meals": 5,
+      "snacks": 5
+    }
   }
 }

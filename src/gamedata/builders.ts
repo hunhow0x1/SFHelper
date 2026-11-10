@@ -15,6 +15,54 @@ export interface NameData {
   factionTokens: Record<string, string>;
   tokenLimits: Record<string, number>;
   currencies: Record<string, string>;
+  pets: PetText;
+}
+
+export interface PetText {
+  names: Record<string, string>;
+  temperaments: Record<string, string>;
+  stats: Record<string, string>;
+  labels: Record<string, string>;
+  limits: { training: number; skill: number; meals: number; snacks: number } | null;
+}
+
+const PET_LABELS: Record<string, string> = {
+  temperament: "PetStat_Temperament",
+  training: "PetStat_Maturity",
+  trainingComplete: "PetStat_MaxMaturity",
+  bond: "PetStat_Bond",
+  energy: "PetStat_Energy",
+};
+
+export function buildPetText(dict: Dict, texts: string[]): PetText {
+  const pick = (key: string) => (usable(dict[key]) ? dict[key]!.trim() : undefined);
+  const names: Record<string, string> = {};
+  const temperaments: Record<string, string> = {};
+  const stats: Record<string, string> = {};
+  const labels: Record<string, string> = {};
+  let limits: PetText["limits"] = null;
+  for (const t of texts) {
+    const defaults = /^DefaultPetStats=\{\n([\s\S]*?)\n\}/m.exec(t)?.[1];
+    const tag = defaults ? field(defaults, "Name") : undefined;
+    const name = tag ? pick(tag) : undefined;
+    if (tag && name) names[tag] = name;
+    const training = Number(field(t, "MaxMaturity"));
+    if (!limits && training > 0) {
+      const skill = Math.max(...["Guard", "Speed", "Stamina", "Search", "Support"].map((s) => Number(field(t, `Max${s}Skill`)) || 0));
+      limits = { training, skill, meals: Number(field(t, "MaxMealsToBeOverfed")) || 0, snacks: Number(field(t, "SnackOverfed")) || 0 };
+    }
+  }
+  for (const key of Object.keys(dict)) {
+    const temper = /^\/SF\/Language\/Pets\/PetTemperment_(\w+)$/.exec(key)?.[1];
+    if (temper && pick(key)) temperaments[`TEMPERMENT_${temper.toUpperCase()}`] = pick(key)!;
+    const stat = /^\/SF\/Language\/Pets\/PetStat_(Guard|Speed|Stamina|Search|Support)$/.exec(key)?.[1];
+    if (stat && pick(key)) stats[stat] = pick(key)!;
+  }
+  for (const [label, key] of Object.entries(PET_LABELS)) {
+    const text = pick(`/SF/Language/Pets/${key}`);
+    if (text) labels[label] = text;
+  }
+  return { names: sortedKeys(names), temperaments: sortedKeys(temperaments), stats, labels, limits };
 }
 
 const usable = (v: unknown): v is string => typeof v === "string" && v.trim() !== "" && !v.startsWith("[PH]") && v !== "???";
@@ -128,7 +176,7 @@ export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): Na
     const name = type?.startsWith("/SF/Upgrades/Runes/Weapon/") && field(t, "ProductCategory") === "Upgrades" ? localized(dict, field(t, "LocalizeTag")) : null;
     if (type && name && !(type in items)) items[type] = name;
   }
-  return { items, factions, factionTokens, tokenLimits, currencies };
+  return { items, factions, factionTokens, tokenLimits, currencies, pets: buildPetText(dict, texts) };
 }
 
 export interface EnemyData {

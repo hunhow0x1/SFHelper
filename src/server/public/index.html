@@ -415,7 +415,7 @@
       .notifytoggle input:checked + .sw { background: color-mix(in srgb, var(--accent) 22%, transparent); border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
       .notifytoggle input:checked + .sw::after { transform: translateX(16px); background: var(--accent-hi); }
       .notifytoggle input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
-      #panel-account > .cols { align-items: stretch; }
+      #panel-settings > .cols { align-items: stretch; }
       .reqlist { display: grid; gap: 18px; }
       .notifytoggle.reqrow { display: flex; align-items: flex-start; gap: 14px; }
       .reqrow .sw { margin-top: 1px; }
@@ -546,6 +546,8 @@
       .tfilters .fchip.active .n { color: color-mix(in srgb, var(--on-accent) 65%, transparent); }
       .tfilters .fchip.active img { filter: brightness(0.25); }
       .tfilters .fchip.active img.keep { filter: none; }
+      .tfilters .wfilter.chipgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); max-width: 1216px; min-width: 0; }
+      .tfilters .chipgrid .fchip { justify-content: center; white-space: nowrap; }
       .histnote { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; margin: -6px 0 20px; color: var(--muted); font-size: 14px; }
       .histnote > span:first-child { margin-right: 6px; }
       .histnote .histmsg { color: var(--muted); margin-left: 6px; }
@@ -776,12 +778,34 @@
       }
       .lo.open { --tick: color-mix(in srgb, var(--accent-hi) 60%, transparent); }
 
-      #panel-account > .cols.acctrow { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1.25fr); }
+      #panel-settings > .cols.acctrow { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1.25fr); }
       @media (max-width: 1320px) {
-        #panel-account > .cols.acctrow { grid-template-columns: 1fr 1fr; }
+        #panel-settings > .cols.acctrow { grid-template-columns: 1fr 1fr; }
         #themeSection { grid-column: 1 / -1; }
       }
-      @media (max-width: 760px) { #panel-account > .cols.acctrow { grid-template-columns: 1fr; } }
+      @media (max-width: 760px) { #panel-settings > .cols.acctrow { grid-template-columns: 1fr; } }
+      #panel-stats .grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
+      #panel-stats .statsrow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 420px); gap: 28px; align-items: start; }
+      @media (max-width: 1320px) { #panel-stats .statsrow { grid-template-columns: 1fr; } }
+      .pupcard + .pupcard { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--line); }
+      .puphead { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+      .puphead img { width: 54px; height: 54px; object-fit: contain; flex: none; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6)); }
+      .pupname { font: 600 25px/1.15 var(--display); letter-spacing: 0.06em; color: var(--accent-hi); }
+      .pupsub { color: var(--muted); font-size: 14.5px; margin-top: 3px; }
+      .pupsub .k { color: var(--faint); font: 600 10.5px/1 var(--display); letter-spacing: 0.16em; text-transform: uppercase; margin-right: 8px; }
+      .pupstate { color: var(--accent-2-hi); font-size: 13.5px; margin-top: 4px; }
+      .puptrain { margin-bottom: 18px; }
+      .puptrain .label { font: 600 12px/1 var(--display); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+      .pupstat { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 9px 2px; border-bottom: 1px solid var(--line); font-size: 15.5px; }
+      .paws { display: inline-flex; gap: 6px; }
+      .paws i {
+        width: 20px; height: 20px; background: var(--line-2);
+        --paw: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cellipse cx='4.6' cy='10.4' rx='2.3' ry='3' transform='rotate(-24 4.6 10.4)'/%3E%3Cellipse cx='9.1' cy='5.6' rx='2.4' ry='3.2' transform='rotate(-8 9.1 5.6)'/%3E%3Cellipse cx='14.9' cy='5.6' rx='2.4' ry='3.2' transform='rotate(8 14.9 5.6)'/%3E%3Cellipse cx='19.4' cy='10.4' rx='2.3' ry='3' transform='rotate(24 19.4 10.4)'/%3E%3Cpath d='M12 11.2c-3.4 0-6.9 3.8-6.9 7 0 2.1 1.7 3.3 3.6 3.3 1.4 0 2.1-.7 3.3-.7s1.9.7 3.3.7c1.9 0 3.6-1.2 3.6-3.3 0-3.2-3.5-7-6.9-7z'/%3E%3C/svg%3E");
+        -webkit-mask: var(--paw) center / contain no-repeat; mask: var(--paw) center / contain no-repeat;
+      }
+      .paws i.on { background: var(--accent-hi); }
+      .pupcard h3.sub { margin: 22px 0 4px; }
+      .pupcard .avrow:last-child { border-bottom: 0; }
       .themes { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 18px; }
       .themes .fchip { display: inline-flex; align-items: center; gap: 9px; }
       .tsw {
@@ -874,7 +898,8 @@
         <button class="tab" data-tab="pickups">Pickups</button>
         <button class="tab" data-tab="trades">Trades</button>
         <button class="tab" data-tab="avakot">Avakot</button>
-        <button class="tab" data-tab="account">Account</button>
+        <button class="tab" data-tab="stats">Stats</button>
+        <button class="tab" data-tab="settings">Settings</button>
       </nav>
 
       <div class="panel active" id="panel-overview">
@@ -1087,13 +1112,22 @@
         </section>
       </div>
 
-      <div class="panel" id="panel-account">
-        <section>
-          <h2>Combat</h2>
-          <div class="grid" id="scalars"></div>
-          <div style="margin-top:32px" class="cols" id="tables"></div>
-        </section>
+      <div class="panel" id="panel-stats">
+        <div class="statsrow">
+          <section>
+            <h2>Combat</h2>
+            <div class="grid" id="scalars"></div>
+            <div style="margin-top:32px" class="cols" id="tables"></div>
+          </section>
 
+          <section id="pupSection">
+            <h2>Wolfpup</h2>
+            <div id="pups"><span class="muted">Your Wolfpup shows here once SFHelper has your inventory.</span></div>
+          </section>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-settings">
         <div class="cols acctrow">
           <section>
             <h2 class="hdr">Account
@@ -1180,7 +1214,7 @@
       });
       try {
         const savedTab = localStorage.getItem("sfhelper.tab");
-        const RENAMED_TAB = { totems: "upgrades", weapons: "mastery", stats: "account" };
+        const RENAMED_TAB = { totems: "upgrades", weapons: "mastery", account: "stats" };
         if (savedTab) activateTab(RENAMED_TAB[savedTab] || savedTab);
       } catch {}
 
@@ -1918,7 +1952,7 @@
         const inStock = new Map(rotating.map((o) => [o.storeItem, o]));
 
         const checksOff = !AV.checks ? null
-          : AV.checks.avakot === false ? "Stock checks are off in the Account tab"
+          : AV.checks.avakot === false ? "Stock checks are off in the Settings tab"
           : AV.checks.inventory === false ? "Stock checks are paused while inventory imports are off"
           : null;
         $("avSummary").innerHTML = !stock
@@ -2064,7 +2098,7 @@
         }
       }
       for (const id of REQ_SWITCHES) bindSettingToggle($(id), $(id).dataset.key, () => { loadRequests(); loadAvakot(); });
-      document.querySelector('.tab[data-tab="account"]').addEventListener("click", loadRequests);
+      document.querySelector('.tab[data-tab="settings"]').addEventListener("click", loadRequests);
       setInterval(loadRequests, 60000);
       loadRequests();
 
@@ -2179,6 +2213,63 @@
           renderUpgradeItems();
         });
       }
+
+      let LAST_PETS = null;
+      const PUP_STATS = ["Guard", "Speed", "Stamina", "Search", "Support"];
+      const PUP_FOOD = {
+        "/SF/Types/Items/Consumables/PetConsumeables/WolfMealPetFood": "meals",
+        "/SF/Types/Items/Consumables/PetConsumeables/WolfTreatPetFood": "snacks",
+      };
+      function renderPups() {
+        const box = $("pups");
+        if (!LAST_PETS || !LAST_PETS.length) {
+          box.innerHTML = `<span class="muted">${LAST_PETS ? "No Wolfpup in your inventory." : "Your Wolfpup shows here once SFHelper has your inventory."}</span>`;
+          return;
+        }
+        const P = DICT.pets || {};
+        const labels = P.labels || {};
+        const limits = P.limits || {};
+        const maxSkill = limits.skill || 5;
+        const held = new Map(((LAST_UPGRADE_ITEMS && LAST_UPGRADE_ITEMS.gear) || []).map((g) => [g.type, g.count]));
+        const food = Object.entries(UPGRADES.gear || {})
+          .filter(([type, d]) => d.kind === "Companion" && (PUP_FOOD[type] || held.get(type)))
+          .sort(([a], [b]) => !!PUP_FOOD[b] - !!PUP_FOOD[a] || a.localeCompare(b));
+        box.innerHTML = LAST_PETS.map((p) => {
+          const name = p.name ? (P.names || {})[p.name] || (p.name.startsWith("/") ? "" : p.name) : "";
+          const temper = p.temperament ? (P.temperaments || {})[p.temperament] : null;
+          const trained = PUP_STATS.reduce((n, s) => n + (p.skills[s] || 0), 0);
+          const max = limits.training;
+          const done = max && (trained >= max || p.adult);
+          const training = max
+            ? `<div class="row puptrain"><span class="label">${escHtml(labels.training || "Training")}</span><span class="val">${done ? `<span class="mx">${escHtml(labels.trainingComplete || "")}</span>` : `${trained} / ${max}`}</span><span class="bar"><i style="width:${Math.round(Math.min(1, trained / max) * 100)}%"></i></span></div>`
+            : "";
+          const resting = p.needsRest && p.restUntil && p.restUntil > Date.now()
+            ? `<div class="pupstate">Resting until ${avClock(p.restUntil)} · ${avLeft(p.restUntil - Date.now())} left</div>`
+            : "";
+          const stats = PUP_STATS.filter((s) => (P.stats || {})[s]).map((s) => {
+            const lvl = Math.min(maxSkill, p.skills[s] || 0);
+            const paws = Array.from({ length: maxSkill }, (_, i) => `<i${i < lvl ? ' class="on"' : ""}></i>`).join("");
+            return `<div class="pupstat"><span>${escHtml(P.stats[s])}</span><span class="paws" title="Level ${lvl} of ${maxSkill}">${paws}</span></div>`;
+          }).join("");
+          const eaten = { meals: [p.mealsEaten, limits.meals], snacks: [p.snacksEaten, limits.snacks] };
+          const foodRows = food.map(([type, d]) => {
+            const kind = PUP_FOOD[type];
+            const fed = kind && eaten[kind][1] ? `<small>Fed ${eaten[kind][0]} · overfed at ${eaten[kind][1]}</small>` : "";
+            return `<div class="avrow poprow" data-kind="gear" data-type="${escHtml(type)}">${upIcon(d.icon)}<div class="avn">${escHtml(d.name)}${fed}</div><div class="avr">${(held.get(type) || 0).toLocaleString()}</div></div>`;
+          }).join("");
+          return `<div class="pupcard">
+            <div class="puphead"><img src="img/game/pup-paw.png" alt="" onerror="this.remove()"><div>
+              ${name ? `<div class="pupname">${escHtml(name)}</div>` : ""}
+              ${temper ? `<div class="pupsub"><span class="k">${escHtml(labels.temperament || "Temperament")}</span>${escHtml(temper)}</div>` : ""}
+              ${resting}
+            </div></div>
+            ${training}
+            <div class="pupstats">${stats}</div>
+            ${foodRows ? `<h3 class="sub">Food</h3>${foodRows}` : ""}
+          </div>`;
+        }).join("");
+      }
+      setInterval(renderPups, 30000);
 
       function renderUpgradeItems() {
         const u = LAST_UPGRADE_ITEMS;
@@ -2307,7 +2398,7 @@
           : ownFilter("gear", gear.filter((o) => gearPass(o, "own"))) +
             `<span class="fl">Type</span><div class="wfilter">${gearChips("gearType", "type", GEAR_KINDS.filter((k) => gear.some((o) => gearGroup(o.d) === k)), (o, v) => gearGroup(o.d) === v)}</div>` +
             (lureRows && habitats.length ? `<span class="fl">Habitat</span><div class="wfilter">${gearChips("gearHabitat", "habitat", habitats, (o, v) => (o.d.habitat || []).includes(v))}</div>` : "") +
-            (lureRows && natures.length ? `<span class="fl">Nature</span><div class="wfilter">${gearChips("gearNature", "nature", natures, (o, v) => (o.d.natures || []).includes(v))}</div>` : "");
+            (lureRows && natures.length ? `<span class="fl">Nature</span><div class="wfilter chipgrid">${gearChips("gearNature", "nature", natures, (o, v) => (o.d.natures || []).includes(v))}</div>` : "");
         const gearSub = (o) => {
           const bits = [];
           if (o.equipped) bits.push('<span class="equipped">Equipped</span>');
@@ -3271,7 +3362,7 @@
         const impNote = !imp || imp.state !== "error" || imp.code === 3 || imp.code === 6
           ? ""
           : imp.code === 10
-            ? " · Inventory imports are off in the Account tab"
+            ? " · Inventory imports are off in the Settings tab"
             : ` <span class="err" title="${imp.message.replace(/"/g, "&quot;")}">· Last import failed: ${imp.message}</span>`;
         $("invStatus").innerHTML = data.inventory
           ? `Inventory loaded: <b>${data.inventory.itemCount}</b> items from ${data.inventory.source.split(/[\\/]/).pop()} · updated ${new Date(data.inventory.updatedAt).toLocaleString()}${impNote}`
@@ -3298,6 +3389,10 @@
         if (sectionChanged("upgradeItems", data.upgradeItems)) {
           LAST_UPGRADE_ITEMS = data.upgradeItems || null;
           renderUpgradeItems();
+        }
+        if (sectionChanged("pets", [data.pets, data.upgradeItems])) {
+          LAST_PETS = data.pets || null;
+          renderPups();
         }
         if (sectionChanged("crafting", data.crafting)) {
           LAST_CRAFTING = data.crafting || null;
@@ -3641,7 +3736,7 @@
         } catch {}
         let firstVisit = true;
         try { firstVisit = !localStorage.getItem("sfhelper.tab"); } catch {}
-        if (firstVisit) activateTab("account");
+        if (firstVisit) activateTab("settings");
         if (navigator.userAgent.includes("Electron")) {
           setStatus("Waiting for Soulframe — your account is detected automatically once the game is running. (Or use Edit ID.)");
           accountWait = setInterval(tryDiscoveredAccount, 5000);

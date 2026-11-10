@@ -21,7 +21,8 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 | **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. Pickup and trade history is kept on your computer; export it to move it to a new install. |
 | **Trades** | Your trade history: who you traded with, what you received and gave, with in-game icons (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
 | **Avakot** | What Avakot's Gots has in stock right now, with prices, purchase limits and how long each item stays, plus his weekly and always-stocked wares. Star anything he can sell to get a desktop notification when he stocks it. |
-| **Account** | Your top weapons and enemies by kills, by in-game name; your account id; a switch for each kind of request SFHelper sends to Soulframe's servers, with when each was last sent; and the colour theme: a few presets or your own colours, title bar included. |
+| **Stats** | Your top weapons and enemies by kills, by in-game name, and your Wolfpup: its Temperament, Training, the level trained in each skill (Guts, Speed, Endurance, Curiosity, Heart), when its rest ends, and its food. |
+| **Settings** | Your account id; a switch for each kind of request SFHelper sends to Soulframe's servers, with when each was last sent; and the colour theme: a few presets or your own colours, title bar included. |
 
 ## Screenshots
 
@@ -65,7 +66,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 - **Only while you play:** SFHelper sends nothing to Soulframe's servers while
   the game isn't running.
 - **Switches:** inventory imports, Avakot's stock checks and profile checks can
-  each be turned off in the Account tab. SFHelper keeps a record of its own
+  each be turned off in the Settings tab. SFHelper keeps a record of its own
   requests to Soulframe's servers (`requests.log`, the last 30 days) and of the
   times the game was refused (`refusals.log`), both only in its data folder.
 - **Updates:** the app checks this repo's

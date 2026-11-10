@@ -9,6 +9,7 @@ import { parseTimers, type GameTimer } from "./timers";
 import { parseLoreScans, type LoreScan } from "./discoveries";
 import { parseUpgradeItems, type UpgradeItems } from "./upgradeItems";
 import { parseCrafting, type CraftingState } from "./recipes";
+import { parsePets, type OwnedPet } from "./pets";
 import { appFile } from "./paths";
 
 const candidates = (): string[] =>
@@ -33,6 +34,7 @@ export interface InventoryView {
   totems: OwnedTotem[];
   upgradeItems: UpgradeItems;
   crafting: CraftingState;
+  pets: OwnedPet[];
   daily: { affiliation: number | null; affiliationOde: number | null };
   weaponInstances: WeaponInstance[];
   acquisition: AcquisitionContext;
@@ -70,6 +72,7 @@ export async function getInventory(): Promise<InventoryView | null> {
         totems: parseTotems(raw),
         upgradeItems: parseUpgradeItems(raw),
         crafting: parseCrafting(raw),
+        pets: parsePets(raw),
         daily: {
           affiliation: typeof raw.DailyAffiliation === "number" ? raw.DailyAffiliation : null,
           affiliationOde: typeof raw.DailyAffiliationOde === "number" ? raw.DailyAffiliationOde : null,
