@@ -883,18 +883,22 @@
         <section data-view="tempers">
           <h2>Tempers · Tuvalkane</h2>
           <div class="daily" id="temperSummary"></div>
+          <input id="temperSearch" class="wsearch" placeholder="Search Tempers, effects or weapons, e.g. aerial, parry, Avex…" spellcheck="false" />
           <div class="tfilters" id="temperFilters"></div>
           <div id="tempers" class="rows"><span class="muted">Dismantle weapons to teach Tuvalkane their tempers (10 to learn each).</span></div>
         </section>
         <section id="runesSection" data-view="runes" hidden>
           <h2>Runes</h2>
           <div class="daily" id="runeSummary"></div>
+          <input id="runeSearch" class="wsearch" placeholder="Search runes or effects, e.g. Carrionite, stone, healing…" spellcheck="false" />
           <div class="tfilters" id="runeFilters"></div>
           <div id="runes"></div>
         </section>
         <section id="joinerySection" data-view="joineries" hidden>
           <h2>Joineries</h2>
           <div class="daily" id="joinerySummary"></div>
+          <input id="joinerySearch" class="wsearch" placeholder="Search joineries, e.g. Verite, Mora, Palladium…" spellcheck="false" />
+          <div class="tfilters" id="joineryFilters"></div>
           <div id="joineries"></div>
         </section>
         <section id="gearSection" data-view="gear" hidden>
@@ -1455,6 +1459,13 @@
       });
 
       const TEMPER_GOAL = 10;
+      const searchWords = (q) => q.toLowerCase().replace(/[+%]/g, " ").split(/\s+/).filter(Boolean);
+      const matchesWords = (words, parts) => {
+        if (!words.length) return true;
+        const hay = parts.filter(Boolean).join(" ").replace(/<[^>]+>/g, "").toLowerCase().replace(/[+%]/g, "");
+        return words.every((w) => hay.includes(w));
+      };
+      const UPGRADE_Q = { tempers: "", runes: "", joineries: "" };
       const TEMPER_UI = { show: "all", sort: "progress" };
       try { Object.assign(TEMPER_UI, JSON.parse(localStorage.getItem("sfhelper.tempers") || "{}")); } catch {}
       function renderTempers() {
@@ -1479,8 +1490,14 @@
         $("temperFilters").innerHTML =
           `<span class="fl">Show</span><div class="wfilter">${chip("show", "all", "All", list.length)}${chip("show", "learned", "Learned", learned)}${chip("show", "missing", "Missing", list.length - learned)}</div>` +
           `<span class="fl">Sort</span><div class="wfilter">${chip("sort", "progress", "Most progress")}${chip("sort", "least", "Least progress")}${chip("sort", "name", "Name")}</div>`;
+        const words = searchWords(UPGRADE_Q.tempers);
+        const temperHay = (t) => {
+          const db = TEMPER_DB[t.tag] || {};
+          return [prettyTemper(t.tag), db.effect, ...(db.weapons || [])];
+        };
         const rows = list
           .filter(show[TEMPER_UI.show])
+          .filter((t) => matchesWords(words, temperHay(t)))
           .sort(sorts[TEMPER_UI.sort])
           .map((t) => {
             const status = done(t) ? '<span class="mx">Learned</span>' : `${t.count}/${TEMPER_GOAL}`;
@@ -1494,6 +1511,10 @@
         if (!b) return;
         TEMPER_UI[b.dataset.k] = b.dataset.v;
         try { localStorage.setItem("sfhelper.tempers", JSON.stringify(TEMPER_UI)); } catch {}
+        renderTempers();
+      });
+      $("temperSearch").addEventListener("input", (e) => {
+        UPGRADE_Q.tempers = e.target.value;
         renderTempers();
       });
 
@@ -1986,7 +2007,7 @@
           .map((g) => `<div class="avgroup"><h3>${g.icon ? upIcon(g.icon, "") : ""}${escHtml(g.name)} <span class="count">${g.count ?? g.rows.length}</span></h3>${g.rows.join("")}</div>`)
           .join("")}</div>`;
 
-      const UPGRADE_UI = { runes: "all", gear: "all", runeArt: "all", runeDrop: "all" };
+      const UPGRADE_UI = { runes: "all", gear: "all", runeArt: "all", runeDrop: "all", joinVirtue: "all", joinTier: "all" };
       try { Object.assign(UPGRADE_UI, JSON.parse(localStorage.getItem("sfhelper.upgradeItems") || "{}")); } catch {}
       const withUnowned = (owned, known, blank) => {
         const have = new Set(owned.map((o) => o.type));
@@ -2000,12 +2021,18 @@
         const owned = list.filter((o) => o.owned).length;
         return `<span class="fl">Owned</span><div class="wfilter">${chip("all", "All")}${chip("owned", "Owned", owned)}${chip("unowned", "Unowned", list.length - owned)}</div>`;
       }
-      for (const id of ["runeFilters", "gearFilters"]) {
+      for (const id of ["runeFilters", "gearFilters", "joineryFilters"]) {
         $(id).addEventListener("click", (e) => {
           const b = e.target.closest(".fchip");
           if (!b) return;
           UPGRADE_UI[b.dataset.k] = b.dataset.v;
           try { localStorage.setItem("sfhelper.upgradeItems", JSON.stringify(UPGRADE_UI)); } catch {}
+          renderUpgradeItems();
+        });
+      }
+      for (const [id, key] of [["runeSearch", "runes"], ["joinerySearch", "joineries"]]) {
+        $(id).addEventListener("input", (e) => {
+          UPGRADE_Q[key] = e.target.value;
           renderUpgradeItems();
         });
       }
@@ -2050,7 +2077,9 @@
           const sub = [slotHtml(o.d.slot), o.ranks.length > 1 ? `${o.ranks.length} ranked` : ""].filter(Boolean).join(" · ");
           return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${(o.d.tags || []).includes("Cogah") ? '<span class="rtag" title="Only drops in the Cogah">Cogah</span>' : ""}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}${extra}</div></div>`;
         };
-        const shownRunes = runes.filter((o) => ownOk(o) && artOk(o) && dropOk(o));
+        const runeWords = searchWords(UPGRADE_Q.runes);
+        const runeHay = (o) => [o.d.name, o.d.desc, runeText(o.d), o.d.art, o.d.slot, ...(o.d.tags || [])];
+        const shownRunes = runes.filter((o) => ownOk(o) && artOk(o) && dropOk(o) && matchesWords(runeWords, runeHay(o)));
         const arts = [...new Set(shownRunes.map((o) => o.d.art || "Other"))].sort((a, b) => (a === "Other") - (b === "Other") || a.localeCompare(b));
         $("runes").innerHTML = !runes.length
           ? '<span class="muted">No runes in your inventory.</span>'
@@ -2061,12 +2090,35 @@
               })))
             : '<span class="muted">Nothing matches these filters.</span>';
 
-        const joins = u.joineries.map((o) => ({ ...o, d: UPGRADES.joineries[o.type] || { name: shortName(o.type), family: null } }));
+        const joins = u.joineries.map((o) => {
+          const d = UPGRADES.joineries[o.type] || { name: shortName(o.type), family: null };
+          const deity = /\bby (Mora|Iridis|Saphene)\b/.exec(d.name)?.[1];
+          const tier = /Thrice Blessed/.test(d.name) ? "3" : /Twice Blessed/.test(d.name) ? "2" : /Blessed by/.test(d.name) ? "1" : null;
+          return { ...o, d, virtue: deity ? DEITY_VIRTUE[deity] : null, tier };
+        });
+        const TIERS = [["1", "Blessed"], ["2", "Twice Blessed"], ["3", "Thrice Blessed"]];
+        if (!["all", ...VIRTUES].includes(UPGRADE_UI.joinVirtue)) UPGRADE_UI.joinVirtue = "all";
+        if (!["all", ...TIERS.map(([v]) => v)].includes(UPGRADE_UI.joinTier)) UPGRADE_UI.joinTier = "all";
+        const joinWords = searchWords(UPGRADE_Q.joineries);
+        const textOk = (o) => matchesWords(joinWords, [o.d.name, o.d.family, o.virtue, o.d.desc]);
+        const virtueOk = (o) => UPGRADE_UI.joinVirtue === "all" || o.virtue === UPGRADE_UI.joinVirtue;
+        const tierOk = (o) => UPGRADE_UI.joinTier === "all" || o.tier === UPGRADE_UI.joinTier;
+        const qty = (list) => list.reduce((n, o) => n + o.count, 0).toLocaleString();
+        const byVirtue = joins.filter((o) => tierOk(o) && textOk(o));
+        const byTier = joins.filter((o) => virtueOk(o) && textOk(o));
+        $("joineryFilters").innerHTML = !joins.length ? ""
+          : `<span class="fl">Virtue</span><div class="wfilter">${runeChip("joinVirtue", "all", "All")}${VIRTUES
+              .map((v) => runeChip("joinVirtue", v, v, qty(byVirtue.filter((o) => o.virtue === v)), `<img src="${virtueIcon(v)}" alt="" class="keep">`))
+              .join("")}</div>` +
+            `<span class="fl">Blessing</span><div class="wfilter">${runeChip("joinTier", "all", "All")}${TIERS
+              .map(([v, label]) => runeChip("joinTier", v, label, qty(byTier.filter((o) => o.tier === v))))
+              .join("")}</div>`;
+        const shownJoins = joins.filter((o) => virtueOk(o) && tierOk(o) && textOk(o));
         $("joinerySummary").innerHTML = joins.length
           ? `Kinds <b>${joins.length}</b> &nbsp;·&nbsp; Total <b>${joins.reduce((n, o) => n + o.count, 0).toLocaleString()}</b>`
           : "";
         const joinGroup = (family) => {
-          const list = joins.filter((o) => (o.d.family || null) === family);
+          const list = shownJoins.filter((o) => (o.d.family || null) === family);
           const label = (o) => (family ? o.d.name.slice(family.length + 1).trim() : o.d.name);
           return {
             name: family || "Other",
@@ -2077,9 +2129,11 @@
               .map((o) => `<div class="avrow plain poprow" data-kind="joinery" data-type="${escHtml(o.type)}"><div class="avn">${deityHtml(label(o))}</div><div class="avr">${o.count.toLocaleString()}</div></div>`),
           };
         };
-        $("joineries").innerHTML = joins.length
-          ? upGroups([...JOINERY_FAMILIES, null].map(joinGroup))
-          : '<span class="muted">No joineries in your inventory.</span>';
+        $("joineries").innerHTML = !joins.length
+          ? '<span class="muted">No joineries in your inventory.</span>'
+          : shownJoins.length
+            ? upGroups([...JOINERY_FAMILIES, null].map(joinGroup))
+            : '<span class="muted">Nothing matches these filters.</span>';
 
         const gear = withUnowned(u.gear, UPGRADES.gear, (type) => ({ type, count: 0, equipped: false }))
           .map((o) => ({ ...o, d: UPGRADES.gear[o.type] || { name: shortName(o.type), kind: "Supplies", icon: null } }));
