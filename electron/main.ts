@@ -255,6 +255,7 @@ async function refreshAvakot(): Promise<void> {
   const s = session;
   if (!s || avakotBusy || apiPausedUntil()) return;
   if (!(await getSettings()).avakotRequests) return;
+  if (!(await gameRunning())) return;
   if (!(await avakotDue())) return scheduleAvakot();
   avakotBusy = true;
   try {

@@ -1029,7 +1029,7 @@
                 <span class="sw"></span>
                 <span class="reqtext"><b>Avakot's stock checks</b><small id="reqAvakotNote"></small></span>
               </label>
-              <label class="notifytoggle reqrow" title="Every 2 minutes while SFHelper is open, it requests your public profile: standing, level and combat stats. While off, SFHelper shows the last profile it saved.">
+              <label class="notifytoggle reqrow" title="Every 2 minutes while Soulframe is running, SFHelper requests your public profile: standing, level and combat stats. While off, SFHelper shows the last profile it saved.">
                 <input type="checkbox" id="reqProfile" data-key="profileRequests" data-kind="profile" checked />
                 <span class="sw"></span>
                 <span class="reqtext"><b>Profile checks</b><small id="reqProfileNote"></small></span>
@@ -3146,7 +3146,10 @@
           if (!res.ok) throw new Error(data.error || "Request failed");
           render(data);
           setStatus(
-            data.profileError || (data.profileOff ? "Profile checks are off · showing the last saved profile" : "Live · updates every 2 min"),
+            data.profileError
+              || (data.profileOff ? "Profile checks are off · showing the last saved profile"
+                : data.profileWaiting ? "Waiting for Soulframe · showing the last saved profile"
+                : "Live · updates every 2 min"),
             !!data.profileError,
           );
         } catch (e) {

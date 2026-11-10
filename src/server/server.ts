@@ -26,6 +26,7 @@ import { userAgent } from "./userAgent";
 import { activityByKind, readRequests, tracked } from "./requestLog";
 import { withAgariNames, withCollector, withStarred } from "./timers";
 import { writeFileAtomic } from "./files";
+import { findSoulframe } from "../../helper/processFinder";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
@@ -81,9 +82,16 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(text);
 }
 
-const inflight = new Map<string, Promise<{ snapshot: ProfileSnapshot; error: string | null }>>();
+interface ProfileResult {
+  snapshot: ProfileSnapshot;
+  error: string | null;
+  waiting: boolean;
+}
 
-function getProfile(accountId: string): Promise<{ snapshot: ProfileSnapshot; error: string | null }> {
+const inflight = new Map<string, Promise<ProfileResult>>();
+const soulframeOpen = async () => (await findSoulframe().catch(() => [])).length > 0;
+
+function getProfile(accountId: string): Promise<ProfileResult> {
   let run = inflight.get(accountId);
   if (!run) {
     run = loadProfile(accountId).finally(() => inflight.delete(accountId));
@@ -92,23 +100,27 @@ function getProfile(accountId: string): Promise<{ snapshot: ProfileSnapshot; err
   return run;
 }
 
-async function loadProfile(accountId: string): Promise<{ snapshot: ProfileSnapshot; error: string | null }> {
+async function loadProfile(accountId: string): Promise<ProfileResult> {
   const cached = cache.get(accountId) ?? (await loadSavedProfile(accountId));
   if (!(await getSettings()).profileRequests) {
     if (!cached) throw new Error("Profile checks are off, and no profile has been saved yet.");
-    return { snapshot: cached.snapshot, error: null };
+    return { snapshot: cached.snapshot, error: null, waiting: false };
   }
-  if (cached && Date.now() - cached.at < MIN_FETCH_INTERVAL_MS) return { snapshot: cached.snapshot, error: cached.error };
+  if (cached && Date.now() - cached.at < MIN_FETCH_INTERVAL_MS) return { snapshot: cached.snapshot, error: cached.error, waiting: false };
+  if (!(await soulframeOpen())) {
+    if (!cached) throw new Error("Soulframe isn't running, and no profile has been saved yet.");
+    return { snapshot: cached.snapshot, error: null, waiting: true };
+  }
   try {
     const snapshot = await fetchProfile(accountId);
     cache.set(accountId, { at: Date.now(), snapshot, error: null });
     await saveProfile(accountId, snapshot).catch(() => {});
-    return { snapshot, error: null };
+    return { snapshot, error: null, waiting: false };
   } catch (err) {
     if (!cached) throw err;
     const error = (err as Error).message;
     cache.set(accountId, { at: Date.now(), snapshot: cached.snapshot, error });
-    return { snapshot: cached.snapshot, error };
+    return { snapshot: cached.snapshot, error, waiting: false };
   }
 }
 
@@ -309,7 +321,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
       return;
     }
     try {
-      const { snapshot: snap, error: profileError } = await getProfile(accountId);
+      const { snapshot: snap, error: profileError, waiting: profileWaiting } = await getProfile(accountId);
       const enemyName = await getEnemyNamer();
       const { PlayerLevel, ...profileCurrencies } = snap.currencies;
       const inventory = await getInventory();
@@ -379,6 +391,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         capturedAt: snap.capturedAt,
         profileError,
         profileOff: !(await getSettings()).profileRequests,
+        profileWaiting,
       });
     } catch (err) {
       sendJson(res, 502, { error: (err as Error).message });

@@ -38,7 +38,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 
 - **Public profile:** standing, level and combat stats come from Soulframe's
   public profile endpoint. No login is involved. SFHelper asks for it at most
-  every 2 minutes, and keeps the last copy to show when it can't.
+  every 2 minutes while Soulframe is running, and shows the last copy otherwise.
 - **Inventory, read from the running game (desktop app, opt-in):** Soulframe
   doesn't offer the full inventory any other way, so the desktop app reads a
   session token from the game's memory and uses it to download your inventory.
@@ -62,6 +62,8 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   SFHelper stops all requests to them, for 15 minutes at first and up to an hour.
   If the game's own requests are being refused (its log shows the 403s),
   SFHelper sends nothing until the game gets through again.
+- **Only while you play:** SFHelper sends nothing to Soulframe's servers while
+  the game isn't running.
 - **Switches:** inventory imports, Avakot's stock checks and profile checks can
   each be turned off in the Account tab. SFHelper keeps a record of its own
   requests to Soulframe's servers (`requests.log`, the last 30 days) and of the
