@@ -184,6 +184,15 @@ describe("building SFHelper's data from the game", () => {
     });
   });
 
+  it("reads how many of each Enclave token can be held from the game's store entries", () => {
+    const texts = [
+      "LocalizeTag=/SF/Language/Syndicates/ChampionSyndicateRepTokenName\nTypeName=/SF/Types/Items/FactionItems/ChampionSyndicateRepToken\nStackSize=50",
+      "TypeName=/SF/Types/Items/FactionItems/FeySyndicateRepToken\nStackSize=40",
+      "TypeName=/SF/Types/PickUps/Resources/Organics/SourcapResource\nStackSize=999",
+    ];
+    expect(buildNames({}, new Map(), texts).tokenLimits).toEqual({ ChampionSyndicate: 50, FeySyndicate: 40 });
+  });
+
   it("names the Ancestors of Blessed Meetings by their character names", () => {
     const tree = new Map<string, string | null>([
       ["/SF/Types/Npcs/BoonNPC/VerminiaBoonNpc", "/SF/Types/Npcs/VerminiaNpc"],

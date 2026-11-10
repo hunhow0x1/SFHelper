@@ -7,13 +7,13 @@ in-game names throughout.
 
 Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 
-![The Overview tab: faction standing, cooldowns, faction tokens and trades](screenshots/overview.webp)
+![The Overview tab: faction standing, cooldowns, Enclave Favours and trades](screenshots/overview.webp)
 
 ## Features
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, faction tokens and currencies. Cooldowns: the game's own timers counting down, such as an Agari (sub-boss) respawning 30 minutes after you slay it, a siege's cooldown, the 3 hours before an Organ can be destroyed again, and the 24 hours between Blessed Meetings. Star a cooldown to get a desktop notification when it ends. When the Collector docks in your game, Cooldowns shows the region and when it leaves; star Collector Event to be notified. |
+| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, Enclave Favours and currencies. Cooldowns: the game's own timers counting down, such as an Agari (sub-boss) respawning 30 minutes after you slay it, a siege's cooldown, the 3 hours before an Organ can be destroyed again, and the 24 hours between Blessed Meetings. Star a cooldown to get a desktop notification when it ends. When the Collector docks in your game, Cooldowns shows the region and when it leaves; star Collector Event to be notified. |
 | **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*), plus its armour (Helm, Cuirass, Leggings, with defence and Virtue requirements) and Talisman. Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Pact Arts show the game's own numbers (e.g. Forestall's chance to survive). Loadouts can be shared as short `SFH1:` codes; paste one and press Enter or Import. |
 | **Mastery** | Your Envoy Rank, your Mastery and progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type (weapons, Primary, Sidearm or Pacts). Discoveries lists every place by its in-game name, whether you've found it, and the Memories found there. |
 | **Upgrades** | Split into Tempers, Runes, Joineries, Gear and Totems tabs. Tuvalkane temper learning; your Runes by weapon art with their rank, the Totem slot they add and their numbers at that rank; your Joineries by metal and blessing; your Gear, with what's equipped; and your Totem inventory with search and grip / Virtue / type filters. |

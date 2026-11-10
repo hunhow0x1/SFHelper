@@ -830,7 +830,7 @@
 
           <div class="cols ov-wallet">
             <section>
-              <h2>Faction Tokens</h2>
+              <h2>Enclave Favours</h2>
               <div class="grid" id="factionTokens"></div>
             </section>
 
@@ -1111,7 +1111,7 @@
       for (const s of upgradeSections) upgradeWatch.observe(s, { attributes: true, attributeFilter: ["hidden"] });
       syncUpgradeView();
 
-      let DICT = { items: {}, factions: {}, factionTokens: {}, currencies: {} };
+      let DICT = { items: {}, factions: {}, factionTokens: {}, tokenLimits: {}, currencies: {} };
       let DICT_LC = {};
       let FACTION_RANKS = {};
       let TOTEMS = {};
@@ -3019,12 +3019,13 @@
 
         const owned = data.owned || {};
         const tokenCards = Object.entries(DICT.factionTokens).map(([tag, name]) => {
-          const count = owned[`/SF/Types/Items/FactionItems/${tag}RepToken`] ?? 0;
+          const limit = (DICT.tokenLimits && DICT.tokenLimits[tag]) || 50;
+          const count = Math.min(owned[`/SF/Types/Items/FactionItems/${tag}RepToken`] ?? 0, limit);
           return `<div class="stat"><div class="n">${fmt(count)}</div><div class="l">${name}</div></div>`;
         });
         $("factionTokens").innerHTML = tokenCards.length
           ? tokenCards.join("")
-          : '<span class="muted">Import your inventory to show faction token counts.</span>';
+          : '<span class="muted">Import your inventory to show your Enclave Favours.</span>';
 
         const cur = data.currencies || {};
         const curEntries = Object.entries(cur).filter(([, v]) => v);

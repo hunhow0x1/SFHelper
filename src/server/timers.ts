@@ -39,6 +39,7 @@ const ORGAN_REGIONS: Record<string, string> = { Airdelands: "Fuirlands", Kearnho
 const KNOWN: [RegExp, (m: RegExpExecArray) => Label][] = [
   [/^UPGRADEGIVEN_GODANDGHOST$/, () => ({ kind: "Once a day, after a boon", name: "Blessed Meeting", ready: "Blessed Meetings can happen again" })],
   [new RegExp(`^${COLLECTOR_TAG}$`), () => ({ kind: "Operation cooldown", name: "Collector Event", ready: "The Collector Event can happen again" })],
+  [/^PumpkinRider$/, () => ({ kind: "Event boss cooldown", name: "Veltruska", ready: "Veltruska can emerge again" })],
   [/^(.+)-SubBoss$/i, (m) => {
     const place = words(m[1]!.replace(/-/g, " "));
     return { kind: "Agari respawn", name: place, ready: `The Agari at ${place} can return`, spot: m[1]! };

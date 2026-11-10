@@ -28,6 +28,7 @@ describe("the game's timers", () => {
   it("names unknown tags from their words", () => {
     expect(timerLabel("SiegeKearnholdCastle")).toEqual({ kind: null, name: "Siege Kearnhold Castle", ready: "Siege Kearnhold Castle is over" });
     expect(timerLabel("MirifuirSiege")).toEqual({ kind: "Siege cooldown", name: "Mirifuir Siege", ready: "The Mirifuir Siege can start again" });
+    expect(timerLabel("PumpkinRider")).toEqual({ kind: "Event boss cooldown", name: "Veltruska", ready: "Veltruska can emerge again" });
     expect(timerLabel("PollutionTowerAirdelands")).toEqual({ kind: "Organ cooldown", name: "Fuirlands Organ", ready: "The Fuirlands Organ can be destroyed again" });
     expect(timerLabel("PollutionTowerODell").name).toBe("O'Dell Organ");
     expect(timerLabel("PollutionTowerOdell").name).toBe("O'Dell Organ");
