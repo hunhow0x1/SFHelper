@@ -2,7 +2,7 @@ import { appendFile, readFile } from "node:fs/promises";
 import { appFile } from "./paths";
 import { writeFileAtomic } from "./files";
 
-export type RequestKind = "inventory" | "vendor" | "profile" | "account";
+export type RequestKind = "inventory" | "profile" | "account";
 
 export interface RequestEntry {
   at: string;

@@ -418,12 +418,6 @@
       .notifytoggle input:checked + .sw::after { transform: translateX(16px); background: var(--accent-hi); }
       .notifytoggle input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
       #panel-settings > .cols { align-items: stretch; }
-      .reqlist { display: grid; gap: 18px; }
-      .notifytoggle.reqrow { display: flex; align-items: flex-start; gap: 14px; }
-      .reqrow .sw { margin-top: 1px; }
-      .reqtext { display: grid; gap: 4px; min-width: 0; }
-      .reqtext b { font: 500 15.5px/1.2 var(--body); color: var(--text); }
-      .reqtext small { font-size: 13px; color: var(--faint); font-variant-numeric: tabular-nums; }
       .moonsteel {
         display: inline-block; font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase;
         padding: 4px 8px 3px; margin-left: 8px; border-radius: 2px; vertical-align: 2px;
@@ -432,26 +426,11 @@
         box-shadow: 0 0 12px rgba(200, 220, 245, 0.25);
       }
 
-      @media (min-width: 1320px) {
-        #panel-avakot { grid-template-columns: minmax(0, 1.55fr) minmax(420px, 1fr); align-items: start; }
-      }
-      #panel-avakot h3.sub { margin-top: 4px; }
-      .avgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; margin-bottom: 28px; }
-      .avcard {
-        display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 3px 14px; align-items: center;
-        padding: 14px 16px 14px 14px; background: var(--well); border: 1px solid var(--line); border-radius: 3px;
-      }
-      .avcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
-      .avcard .avicn { grid-row: span 2; width: 56px; height: 56px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6)); }
       .avname { font: 600 16px/1.25 var(--display); letter-spacing: 0.03em; color: var(--text); min-width: 0; }
       .avmeta { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 13.5px; color: var(--muted); }
       .avgrp { color: var(--faint); font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; }
       .avprice { display: inline-flex; align-items: center; gap: 5px; color: var(--accent-hi); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
       .avprice img { width: 17px; height: 17px; object-fit: contain; }
-      .avtime { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin-top: 9px; font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
-      .avtime.soon { color: var(--courage); }
-      .avbar { height: 3px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
-      .avbar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi)); }
       button.star { background: none; border: 0; box-shadow: none; padding: 5px; margin: -5px; line-height: 0; cursor: pointer; }
       button.star:hover { filter: none; }
       button.star svg { width: 22px; height: 22px; fill: none; stroke: var(--faint); stroke-width: 1.5; stroke-linejoin: round; transition: stroke 0.15s, fill 0.15s; }
@@ -765,7 +744,7 @@
       .rcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
       .avprice.short { color: var(--courage); }
 
-      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard {
+      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avgroup, .tradecard, .rcard {
         --tick: color-mix(in srgb, var(--accent) 42%, transparent);
         background-image:
           linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
@@ -780,12 +759,8 @@
       }
       .lo.open { --tick: color-mix(in srgb, var(--accent-hi) 60%, transparent); }
 
-      #panel-settings > .cols.acctrow { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1.25fr); }
-      @media (max-width: 1320px) {
-        #panel-settings > .cols.acctrow { grid-template-columns: 1fr 1fr; }
-        #themeSection { grid-column: 1 / -1; }
-      }
-      @media (max-width: 760px) { #panel-settings > .cols.acctrow { grid-template-columns: 1fr; } }
+      #panel-settings > .cols.acctrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); }
+      @media (max-width: 1100px) { #panel-settings > .cols.acctrow { grid-template-columns: 1fr; } }
       .support { margin: -6px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
       .support a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
       .support a:hover { color: var(--accent-hi); border-bottom-color: var(--accent-hi); }
@@ -904,7 +879,6 @@
         <button class="tab" data-tab="recipes">Recipes</button>
         <button class="tab" data-tab="pickups">Pickups</button>
         <button class="tab" data-tab="trades">Trades</button>
-        <button class="tab" data-tab="avakot">Avakot</button>
         <button class="tab" data-tab="stats">Stats</button>
         <button class="tab" data-tab="settings">Settings</button>
       </nav>
@@ -1045,7 +1019,7 @@
         <section>
           <div class="picktop">
             <h2>Recipes</h2>
-            <label class="notifytoggle" id="recipeNotifyWrap" hidden title="Desktop notification with sound when you can craft a recipe you starred">
+            <label class="notifytoggle" id="recipeNotifyWrap" hidden title="Desktop notification with sound when you can craft a recipe you starred. Soulframe saves what you pick up to its servers about every 10 minutes and when you finish a Votive, so a notification can come up to 10 minutes after the pickup.">
               <input type="checkbox" id="recipeNotify" />
               <span class="sw"></span>
               Notify me when starred recipes are ready
@@ -1094,31 +1068,6 @@
         </section>
       </div>
 
-      <div class="panel" id="panel-avakot">
-        <section>
-          <div class="picktop">
-            <h2>Avakot's Gots</h2>
-            <label class="notifytoggle" id="avNotifyWrap" hidden title="Desktop notification with sound when Avakot stocks an item you starred">
-              <input type="checkbox" id="avNotify" />
-              <span class="sw"></span>
-              Notify me about starred items
-            </label>
-            <label class="notifytoggle" id="avResetNotifyWrap" hidden title="Desktop notification with sound when Avakot's rotating stock resets">
-              <input type="checkbox" id="avResetNotify" />
-              <span class="sw"></span>
-              Notify me when the stock resets
-            </label>
-          </div>
-          <div class="daily" id="avSummary"></div>
-          <div id="avStock"><span class="muted">—</span></div>
-        </section>
-        <section>
-          <h2>Wishlist</h2>
-          <div class="daily" id="avWishSummary"></div>
-          <div id="avPool"><span class="muted">—</span></div>
-        </section>
-      </div>
-
       <div class="panel" id="panel-stats">
         <div class="statsrow">
           <section>
@@ -1144,28 +1093,6 @@
             <div class="setup" id="accountSetup" hidden style="margin-top: 12px">
               <input id="accountId" placeholder="24-character account id" spellcheck="false" />
               <button id="save">Track</button>
-            </div>
-          </section>
-
-          <section>
-            <h2>Requests to Soulframe</h2>
-            <div class="daily">Each switch stops one kind of request SFHelper sends to Soulframe's servers.</div>
-            <div class="reqlist">
-              <label class="notifytoggle reqrow" title="Every 2 minutes while you play, SFHelper requests your inventory using the game's session. While off, the dashboard keeps your last inventory, and Avakot's stock checks pause too because they use that session.">
-                <input type="checkbox" id="reqInventory" data-key="inventoryRequests" data-kind="inventory" checked />
-                <span class="sw"></span>
-                <span class="reqtext"><b>Inventory imports</b><small id="reqInventoryNote"></small></span>
-              </label>
-              <label class="notifytoggle reqrow" title="About every 3 hours while you play, SFHelper asks for Avakot's stock. While off, the Avakot tab keeps the last stock it saw.">
-                <input type="checkbox" id="reqAvakot" data-key="avakotRequests" data-kind="vendor" checked />
-                <span class="sw"></span>
-                <span class="reqtext"><b>Avakot's stock checks</b><small id="reqAvakotNote"></small></span>
-              </label>
-              <label class="notifytoggle reqrow" title="Every 2 minutes while Soulframe is running, SFHelper requests your public profile: standing, level and combat stats. While off, SFHelper shows the last profile it saved.">
-                <input type="checkbox" id="reqProfile" data-key="profileRequests" data-kind="profile" checked />
-                <span class="sw"></span>
-                <span class="reqtext"><b>Profile checks</b><small id="reqProfileNote"></small></span>
-              </label>
             </div>
           </section>
 
@@ -1825,12 +1752,12 @@
           row(
             t,
             t.docked.started
-              ? `<span class="instock">Fighting</span><small>since ${avClock(t.docked.started)}</small>`
-              : `<span class="instock">Docked</span><small>until ${avClock(t.docked.leaves)}</small>`,
+              ? `<span class="instock">Fighting</span><small>since ${clockTime(t.docked.started)}</small>`
+              : `<span class="instock">Docked</span><small>until ${clockTime(t.docked.leaves)}</small>`,
             t.docked.region ? `Docked in ${t.docked.region}` : "Hark, The Collector",
           );
         $("timers").innerHTML = docked.length || running.length || ready.length
-          ? `<div>${docked.map(dockedRow).join("")}${running.map((t) => row(t, `<b>${avLeft(t.expiry - now)}</b><small>until ${avClock(t.expiry)}</small>`)).join("")}${ready
+          ? `<div>${docked.map(dockedRow).join("")}${running.map((t) => row(t, `<b>${timeLeft(t.expiry - now)}</b><small>until ${clockTime(t.expiry)}</small>`)).join("")}${ready
               .map((t) => row(t, '<span class="instock">Ready</span>'))
               .join("")}</div>`
           : '<span class="muted">No cooldowns running.</span>';
@@ -1926,193 +1853,16 @@
         });
       })();
 
-      let AV_POOL = new Map();
-      let AV = null;
-      const AV_GROUPS = ["Materials", "Lures", "Lampyrite", "Joineries", "Pact Fragments", "Supplies", "Other"];
       const STAR_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg>';
       const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-      const avItem = (storeItem) =>
-        AV_POOL.get(storeItem) || { storeItem, name: shortName(storeItem.replace("/SF/StoreItems/", "/SF/")), group: "Other", icon: null, hours: null, price: null };
-      function avLeft(ms) {
+      function timeLeft(ms) {
         const m = Math.max(1, Math.round(ms / 60000));
         if (m < 60) return m + "m";
         const h = Math.floor(m / 60);
         return h < 24 ? h + "h " + (m % 60) + "m" : Math.floor(h / 24) + "d " + (h % 24) + "h";
       }
-      const avClock = (ms) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-      const avDay = (ms) => new Date(ms).toLocaleDateString([], { month: "short", day: "numeric" });
-      function avPrice(currency, amount) {
-        if (!currency || amount == null) return "";
-        const text = Array.isArray(amount)
-          ? amount[0] === amount[1] ? amount[0].toLocaleString() : amount[0].toLocaleString() + "–" + amount[1].toLocaleString()
-          : amount.toLocaleString();
-        return `<span class="avprice" title="${currency}"><img src="img/game/${currency === "Arcs" ? "arcs" : "dracs"}.png" alt="${currency}">${text}</span>`;
-      }
-      const avIcon = (it, cls = "avicn") => (it.icon ? `<img class="${cls}" src="${escHtml(it.icon)}" alt="">` : `<span class="${cls}"></span>`);
-      function avStar(it) {
-        const on = AV.watch.includes(it.storeItem);
-        const tip = on ? "Starred: you'll be notified when Avakot stocks this" : "Star to be notified when Avakot stocks this";
-        return `<button class="star${on ? " on" : ""}" data-star="${escHtml(it.storeItem)}" aria-pressed="${on}" title="${tip}" aria-label="${escHtml(it.name)}">${STAR_SVG}</button>`;
-      }
-
-      function renderAvakot() {
-        if (!AV) return;
-        const now = Date.now();
-        const stock = AV.stock;
-        const offers = stock ? stock.offers.filter((o) => o.expiry === null || o.expiry > now) : [];
-        const rotating = offers.filter((o) => o.expiry !== null).sort((a, b) => a.expiry - b.expiry);
-        const inStock = new Map(rotating.map((o) => [o.storeItem, o]));
-
-        const checksOff = !AV.checks ? null
-          : AV.checks.avakot === false ? "Stock checks are off in the Settings tab"
-          : AV.checks.inventory === false ? "Stock checks are paused while inventory imports are off"
-          : null;
-        $("avSummary").innerHTML = !stock
-          ? checksOff || "SFHelper checks Avakot's stock while Soulframe is running, and shows it here after the first check."
-          : stock.nextChange > now
-            ? `Stock changes in <b>${avLeft(stock.nextChange - now)}</b> · checked ${avClock(stock.fetchedAt)}${checksOff ? ` · ${checksOff}` : ""}`
-            : `Stock as of ${avDay(stock.fetchedAt)}, ${avClock(stock.fetchedAt)} · ${checksOff || "SFHelper checks again while Soulframe is running"}`;
-
-        const card = (o) => {
-          const it = avItem(o.storeItem);
-          const left = o.expiry - now;
-          const total = it.hours ? it.hours[1] * 3600000 : null;
-          const pct = total ? Math.max(2, Math.min(100, (left / total) * 100)) : null;
-          const starred = AV.watch.includes(o.storeItem);
-          return `<div class="avcard${starred ? " starred" : ""}">
-            ${avIcon(it)}
-            <div class="avname">${escHtml(it.name)}</div>
-            ${avStar(it)}
-            <div class="avmeta"><span class="avgrp">${escHtml(it.group)}</span>${avPrice(o.currency, o.price)}${o.limit ? `<span>Limit ${o.limit}</span>` : ""}</div>
-            <div class="avtime${left < 30 * 60000 ? " soon" : ""}">${pct != null ? `<div class="avbar"><i style="width:${pct.toFixed(1)}%"></i></div>` : "<span></span>"}<span>${avLeft(left)} left · until ${avClock(o.expiry)}</span></div>
-          </div>`;
-        };
-        const row = (o, note) => {
-          const it = avItem(o.storeItem);
-          return `<div class="avrow">${avIcon(it)}<div class="avn">${escHtml(it.name)}${note ? `<small>${note}</small>` : ""}</div><div class="avr">${avPrice(o.currency, o.price)}</div></div>`;
-        };
-        const weekly = offers.filter((o) => o.expiry === null && o.weekly);
-        const always = offers.filter((o) => o.expiry === null && !o.weekly);
-        $("avStock").innerHTML = !stock
-          ? '<span class="muted">No stock checked yet.</span>'
-          : (rotating.length
-              ? `<h3 class="sub">In stock now</h3><div class="avgrid">${rotating.map(card).join("")}</div>`
-              : '<p class="muted">Nothing rotating is in stock. SFHelper checks again while Soulframe is running.</p>') +
-            (weekly.length
-              ? `<h3 class="sub">Weekly</h3><div class="avlist">${weekly.map((o) => row(o, o.limit ? `Limit ${o.limit} a week` : "")).join("")}</div>`
-              : "") +
-            (always.length
-              ? `<h3 class="sub">Always in stock</h3><div class="avlist">${always.map((o) => row(o, avItem(o.storeItem).group === "Pact Fragments" ? "Pact Fragment" : "")).join("")}</div>`
-              : "");
-
-        const pool = [...AV_POOL.values()].filter((it) => it.kind === "rotating");
-        for (const o of rotating) if (!AV_POOL.has(o.storeItem)) pool.push(avItem(o.storeItem));
-        const starredCount = pool.filter((it) => AV.watch.includes(it.storeItem)).length;
-        $("avWishSummary").innerHTML =
-          "Star what you're after. While Soulframe and SFHelper are running, you get a desktop notification when Avakot stocks it." +
-          (starredCount ? ` · <b>${starredCount}</b> starred` : "");
-        const status = (it) => {
-          const o = inStock.get(it.storeItem);
-          if (o) return `<span class="instock">In stock</span> · ${avLeft(o.expiry - now)} left`;
-          const seen = AV.seen[it.storeItem];
-          if (!seen) return "Not seen yet";
-          return `Last in stock ${avDay(seen.last)}${seen.count > 1 ? ` · seen ${seen.count}×` : ""}`;
-        };
-        const groups = AV_GROUPS.map((g) => [g, pool.filter((it) => it.group === g)]).filter(([, items]) => items.length);
-        $("avPool").innerHTML = groups.length
-          ? `<div class="avgroups">${groups
-              .map(([g, items]) => `<div class="avgroup"><h3>${escHtml(g)} <span class="count">${items.length}</span></h3>${items
-                .map((it) => `<div class="avrow starrable">${avStar(it)}${avIcon(it)}<div class="avn">${escHtml(it.name)}<small>${status(it)}</small></div><div class="avr">${avPrice(it.currency, it.price)}${it.hours ? `<small>${it.hours[1] >= 23 ? "24h" : it.hours[1] + "h"} offer</small>` : ""}</div></div>`)
-                .join("")}</div>`)
-              .join("")}</div>`
-          : '<span class="muted">Avakot\'s item list didn\'t load.</span>';
-      }
-
-      async function loadAvakot() {
-        try {
-          const r = await fetch("/api/avakot");
-          if (!r.ok) return;
-          AV = await r.json();
-          renderAvakot();
-          const box = $("avNotify");
-          if (document.activeElement !== box) box.checked = AV.notify !== false;
-          const reset = $("avResetNotify");
-          if (document.activeElement !== reset) reset.checked = AV.resetNotify === true;
-        } catch {}
-      }
-      async function saveAvakotSettings(patch) {
-        const r = await fetch("/api/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(patch) });
-        if (!r.ok) throw new Error("save failed");
-        return r.json();
-      }
-      $("panel-avakot").addEventListener("click", async (e) => {
-        const btn = e.target.closest("button.star");
-        if (!btn || !AV) return;
-        const item = btn.dataset.star;
-        const before = AV.watch;
-        AV.watch = before.includes(item) ? before.filter((x) => x !== item) : [...before, item];
-        renderAvakot();
-        try {
-          AV.watch = (await saveAvakotSettings({ avakotWatch: AV.watch })).avakotWatch;
-        } catch {
-          AV.watch = before;
-        }
-        renderAvakot();
-      });
-      if (navigator.userAgent.includes("Electron")) {
-        $("avNotifyWrap").hidden = false;
-        $("avResetNotifyWrap").hidden = false;
-        $("avResetNotify").addEventListener("change", async (e) => {
-          const box = e.target;
-          try {
-            box.checked = (await saveAvakotSettings({ avakotResetNotify: box.checked })).avakotResetNotify;
-          } catch {
-            box.checked = !box.checked;
-          }
-        });
-        $("avNotify").addEventListener("change", async (e) => {
-          const box = e.target;
-          try {
-            box.checked = (await saveAvakotSettings({ avakotNotify: box.checked })).avakotNotify;
-          } catch {
-            box.checked = !box.checked;
-          }
-        });
-      }
-      document.querySelector('.tab[data-tab="avakot"]').addEventListener("click", loadAvakot);
-      setInterval(loadAvakot, 60000);
-      setInterval(renderAvakot, 30000);
-
-      const REQ_SWITCHES = ["reqInventory", "reqAvakot", "reqProfile"];
-      const reqWhen = (iso) => {
-        const t = Date.parse(iso);
-        return new Date(t).toDateString() === new Date().toDateString() ? avClock(t) : `${avDay(t)}, ${avClock(t)}`;
-      };
-      const reqOutcome = (a) =>
-        a.status === null ? " (no answer)"
-          : a.status === 403 || a.status === 429 ? ` (refused, ${a.status})`
-          : a.status < 200 || a.status >= 300 ? ` (${a.status})`
-          : a.empty ? " (empty)"
-          : "";
-      async function loadRequests() {
-        let r = null;
-        try { r = await (await fetch("/api/requests")).json(); } catch {}
-        if (!r || !r.switches) return;
-        for (const id of REQ_SWITCHES) {
-          const box = $(id);
-          if (document.activeElement !== box) box.checked = r.switches[box.dataset.key] !== false;
-          const a = r.kinds[box.dataset.kind];
-          let note = a ? `Last sent ${reqWhen(a.last)}${reqOutcome(a)} · ${a.count} in the last 24 hours` : "None sent in the last 24 hours";
-          if (id === "reqAvakot" && r.switches.avakotRequests !== false && r.switches.inventoryRequests === false) {
-            note = `Paused while inventory imports are off · ${note}`;
-          }
-          $(id + "Note").textContent = note;
-        }
-      }
-      for (const id of REQ_SWITCHES) bindSettingToggle($(id), $(id).dataset.key, () => { loadRequests(); loadAvakot(); });
-      document.querySelector('.tab[data-tab="settings"]').addEventListener("click", loadRequests);
-      setInterval(loadRequests, 60000);
-      loadRequests();
+      const clockTime = (ms) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      const shortDate = (ms) => new Date(ms).toLocaleDateString([], { month: "short", day: "numeric" });
 
       let THEME = null;
       let themeSaveTimer = null;
@@ -2230,7 +1980,7 @@
       const PUP_STATS = ["Guard", "Speed", "Stamina", "Search", "Support"];
       const PUP_ENERGY_RATE = 0.008888888888888889;
       const PUP_SUMMON_SHARE = 0.8;
-      const pupWhen = (ms) => (new Date(ms).toDateString() === new Date().toDateString() ? avClock(ms) : `${avDay(ms)}, ${avClock(ms)}`);
+      const pupWhen = (ms) => (new Date(ms).toDateString() === new Date().toDateString() ? clockTime(ms) : `${shortDate(ms)}, ${clockTime(ms)}`);
       function pupEnergyHtml(p, label, max) {
         if (!p.energySavedAt) return "";
         const now = Date.now();
@@ -2241,9 +1991,9 @@
         const pct = Math.floor((Math.min(max, p.energy + (Math.max(0, now - p.energySavedAt) / 1000) * PUP_ENERGY_RATE) / max) * 100);
         const ready = after(PUP_SUMMON_SHARE * max);
         const full = after(max);
-        const state = ready > now ? `Resting · can be summoned at ${avClock(ready)}, ${avLeft(ready - now)} left` : "Rested enough to summon";
+        const state = ready > now ? `Resting · can be summoned at ${clockTime(ready)}, ${timeLeft(ready - now)} left` : "Rested enough to summon";
         return `<div class="row puptrain"><span class="label">${escHtml(label)}</span><span class="val">${pct}%</span><span class="bar"><i style="width:${pct}%"></i></span></div>` +
-          `<div class="pupstate pupready">${state}${full > now ? ` · full at ${avClock(full)}` : ""}</div>`;
+          `<div class="pupstate pupready">${state}${full > now ? ` · full at ${clockTime(full)}` : ""}</div>`;
       }
       const PUP_FOOD = {
         "/SF/Types/Items/Consumables/PetConsumeables/WolfMealPetFood": "meals",
@@ -3389,9 +3139,7 @@
         const imp = data.importStatus;
         const impNote = !imp || imp.state !== "error" || imp.code === 3 || imp.code === 6
           ? ""
-          : imp.code === 10
-            ? " · Inventory imports are off in the Settings tab"
-            : ` <span class="err" title="${imp.message.replace(/"/g, "&quot;")}">· Last import failed: ${imp.message}</span>`;
+          : ` <span class="err" title="${imp.message.replace(/"/g, "&quot;")}">· Last import failed: ${imp.message}</span>`;
         $("invStatus").innerHTML = data.inventory
           ? `Inventory loaded: <b>${data.inventory.itemCount}</b> items from ${data.inventory.source.split(/[\\/]/).pop()} · updated ${new Date(data.inventory.updatedAt).toLocaleString()}${impNote}`
           : impNote.replace(" · ", "");
@@ -3501,9 +3249,7 @@
           render(data);
           setStatus(
             data.profileError
-              || (data.profileOff ? "Profile checks are off · showing the last saved profile"
-                : data.profileWaiting ? "Waiting for Soulframe · showing the last saved profile"
-                : "Live · updates every 2 min"),
+              || (data.profileWaiting ? "Waiting for Soulframe · showing the last saved profile" : "Live · updates every 2 min"),
             !!data.profileError,
           );
         } catch (e) {
@@ -3631,7 +3377,7 @@
       }
       const DATA_FILES = [
         "names", "faction-ranks", "totems", "totemdata", "tempers", "pactarts", "itemicons",
-        "pactartvalues", "pactarttext", "talismans", "armour", "roster", "upgrades", "recipes", "avakot",
+        "pactartvalues", "pactarttext", "talismans", "armour", "roster", "upgrades", "recipes",
       ];
       async function loadDict() {
         dictLoadedAt = Date.now();
@@ -3660,18 +3406,15 @@
         }
         if (d.upgrades) UPGRADES = d.upgrades;
         if (d.recipes) RECIPES = d.recipes.recipes || {};
-        if (d.avakot) AV_POOL = new Map((d.avakot.items || []).map((it) => [it.storeItem, it]));
         renderUpgradeItems();
         renderRecipes();
         renderTempers();
-        loadAvakot();
       }
 
       let accountWait = null;
       const IMPORT_HINT = {
         3: "Waiting for Soulframe — start the game and log in to a character; your account is detected automatically.",
         6: "Soulframe is running — waiting for you to log in to a character.",
-        10: "Inventory imports are off, so SFHelper isn't requesting your inventory.",
       };
       const IMPORT_WAITING = new Set([3, 6, 10]);
       async function showImportStatus() {

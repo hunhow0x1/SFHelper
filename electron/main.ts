@@ -14,11 +14,8 @@ import type { RecipeDef } from "../src/gamedata/builders";
 import { noteDataRefreshed, setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, liftPauseAfterLogin, noteApiAccepted, noteApiRefused, pausedMessage, restoreApiBackoff } from "../src/server/apiBackoff";
-import { AVAKOT_VENDOR, avakotDue, avakotDueAt, getAvakot, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
-import { fetchVendorInfo } from "../helper/fetchVendor";
-import { EndpointRefusedError } from "../helper/fetchInventory";
 import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
-import { alreadyReported, recordRefusalEnd, recordRefusalStart, type RequestSwitches } from "../src/server/refusalReport";
+import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
 import { pruneRequests, readRequests } from "../src/server/requestLog";
 import { findSoulframe } from "../helper/processFinder";
 import { readDataJson } from "../src/server/paths";
@@ -96,7 +93,6 @@ const gameData = new GameDataWatcher({
 
 let importing = false;
 let session: ImportSession | undefined;
-let lastImportOk = 0;
 const STARTED_AT = Date.now();
 const BACKOFF_HISTORY_MS = 24 * 3600_000;
 const PARTY_WINDOW_MS = 2 * 3600_000;
@@ -117,18 +113,6 @@ async function gameRunning(): Promise<boolean> {
   return (await findSoulframe().catch(() => [])).length > 0;
 }
 
-function requestSwitches(s: Settings): RequestSwitches {
-  return { inventory: s.inventoryRequests, avakot: s.avakotRequests, profile: s.profileRequests };
-}
-
-let loggedSwitches = "";
-function logSwitches(r: RequestSwitches): void {
-  const text = `inventory imports ${r.inventory ? "on" : "off"}, Avakot's stock checks ${r.avakot ? "on" : "off"}, profile checks ${r.profile ? "on" : "off"}`;
-  if (text === loggedSwitches) return;
-  loggedSwitches = text;
-  log(`Requests to Soulframe: ${text}.`);
-}
-
 async function reportRefusalStart(r: GameRefusals): Promise<void> {
   try {
     if (await alreadyReported(r.first)) return;
@@ -141,7 +125,6 @@ async function reportRefusalStart(r: GameRefusals): Promise<void> {
       appVersion: app.getVersion(),
       gameRunning: await gameRunning(),
       late: r.first < STARTED_AT,
-      requests: requestSwitches(await getSettings()),
       party: await partyAround(r.first, PARTY_WINDOW_MS).catch(() => null),
     });
     log("Saved a report on the refusals to refusals.log in the data folder.");
@@ -167,8 +150,6 @@ function scheduleImport(): void {
 
 async function importFromMemory(): Promise<void> {
   if (importing) return;
-  const settings = await getSettings();
-  logSwitches(requestSwitches(settings));
   if (liftPauseAfterLogin(await gameLoggedInAt().catch(() => null))) {
     log("The game logged in after Soulframe last refused SFHelper, so SFHelper stops waiting.");
   }
@@ -198,12 +179,6 @@ async function importFromMemory(): Promise<void> {
     if (ended) await recordRefusalEnd(ended, await gameRunning()).catch(() => {});
   }
   gameWasRefused = false;
-  if (!settings.inventoryRequests) {
-    session = undefined;
-    lastImportCode = 10;
-    setImportStatus({ state: "error", code: 10, message: "Inventory imports are off." });
-    return;
-  }
   importing = true;
   if (lastImportCode !== 3) setImportStatus({ state: "scanning", message: "Looking for Soulframe…" });
   try {
@@ -218,10 +193,7 @@ async function importFromMemory(): Promise<void> {
         setImportStatus({ state: "scanning", message: `Reading game memory for the ${label}… ${pct}%` });
       },
     });
-    if (result.ok) {
-      noteApiAccepted();
-      lastImportOk = Date.now();
-    }
+    if (result.ok) noteApiAccepted();
     if (result.code === 3 && lastImportCode !== 3) log("Waiting for Soulframe to start.");
     lastImportCode = result.code;
     if (result.ok) session = result.session;
@@ -243,7 +215,6 @@ async function importFromMemory(): Promise<void> {
         ? { state: "ok", message: "Inventory imported." }
         : { state: "error", code: result.code, message },
     );
-    if (result.ok) void refreshAvakot();
   } catch (err) {
     lastImportCode = null;
     log(`Inventory import failed: ${(err as Error).stack ?? String(err)}`);
@@ -254,56 +225,6 @@ async function importFromMemory(): Promise<void> {
 }
 
 const REIMPORT_INTERVAL_MS = 120_000;
-
-let avakotBusy = false;
-async function refreshAvakot(): Promise<void> {
-  const s = session;
-  if (!s || avakotBusy || apiPausedUntil()) return;
-  if (!(await getSettings()).avakotRequests) return;
-  if (!(await gameRunning())) return;
-  if (!(await avakotDue())) return scheduleAvakot();
-  avakotBusy = true;
-  try {
-    await noteAvakotAttempt();
-    const stock = parseVendorInfo(await fetchVendorInfo(s.accountId, s.nonce, AVAKOT_VENDOR));
-    noteApiAccepted();
-    const settings = await getSettings();
-    const prev = (await getAvakot()).stock;
-    const fresh = await recordAvakot(stock, settings.avakotWatch);
-    const rotating = stock.offers.filter((o) => o.expiry !== null).length;
-    log(`Avakot's stock updated: ${rotating} rotating offers, next change at ${new Date(stock.nextChange).toLocaleTimeString()}.`);
-    if (settings.avakotResetNotify && stockReset(prev, stock)) notifyAvakotReset(stock);
-    if (fresh.length && settings.avakotNotify) await notifyAvakot(fresh);
-  } catch (err) {
-    if (err instanceof EndpointRefusedError) log(`Avakot's stock: ${pausedMessage(noteApiRefused(), err.status)}`);
-    else log(`Avakot's stock check failed: ${(err as Error).message}`);
-  } finally {
-    avakotBusy = false;
-  }
-  await scheduleAvakot();
-}
-
-let avakotTimer: ReturnType<typeof setTimeout> | undefined;
-const MAX_TIMEOUT_MS = 2 ** 31 - 1;
-async function scheduleAvakot(): Promise<void> {
-  clearTimeout(avakotTimer);
-  const due = await avakotDueAt();
-  const wait = Number.isFinite(due) ? Math.min(MAX_TIMEOUT_MS, Math.max(0, due - Date.now())) : REIMPORT_INTERVAL_MS;
-  avakotTimer = setTimeout(async () => {
-    if (importing || Date.now() - lastImportOk > REIMPORT_INTERVAL_MS + 30_000) return;
-    if (await gameBeingRefused()) return;
-    await refreshAvakot();
-  }, wait);
-}
-
-let avakotNames: Map<string, string> | null = null;
-async function avakotItemName(storeItem: string): Promise<string> {
-  if (!avakotNames) {
-    const pool = await readDataJson<{ items?: { storeItem: string; name: string }[] }>("avakot.json");
-    avakotNames = new Map((pool?.items ?? []).map((i) => [i.storeItem, i.name]));
-  }
-  return avakotNames.get(storeItem) ?? (await displayName(storeItem.replace("/SF/StoreItems/", "/SF/")));
-}
 
 const shownNotifications: Notification[] = [];
 const MAX_KEPT_NOTIFICATIONS = 20;
@@ -329,32 +250,6 @@ function showTab(tab: string): void {
   mainWindow.show();
   mainWindow.focus();
   void mainWindow.webContents.executeJavaScript(`typeof activateTab === "function" && activateTab(${JSON.stringify(tab)})`);
-}
-
-function notifyAvakotReset(stock: AvakotStock): void {
-  if (!Notification.isSupported()) return;
-  const rotating = stock.offers.filter((o) => o.expiry !== null).length;
-  const until = new Date(stock.nextChange).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  const n = new Notification({ title: "Avakot's Gots have reset", body: `${rotating} new offers · until ${until}`, icon: ICON_PATH, silent: false });
-  showNotification(n, "avakot");
-  log("Avakot reset notification.");
-}
-
-async function notifyAvakot(offers: AvakotOffer[]): Promise<void> {
-  if (!Notification.isSupported()) return;
-  const names = await Promise.all(offers.map((o) => avakotItemName(o.storeItem)));
-  const until = (ms: number | null) => (ms ? new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "");
-  const lines = offers.map((o, i) =>
-    [names[i], o.price ? `${o.price.toLocaleString()} ${o.currency}` : "", o.expiry ? `until ${until(o.expiry)}` : ""].filter(Boolean).join(" · "),
-  );
-  const n = new Notification({
-    title: offers.length === 1 ? `Avakot has ${names[0]}!` : `Avakot has ${offers.length} of your starred items!`,
-    body: lines.join("\n"),
-    icon: ICON_PATH,
-    silent: false,
-  });
-  showNotification(n, "avakot");
-  log(`Avakot notification: ${names.join(", ")}.`);
 }
 
 const timerAlarms = new TimerAlarms();
@@ -449,7 +344,6 @@ async function checkRecipes(inv: InventoryView | null): Promise<void> {
 
 let itemNames: Record<string, string> | null = null;
 function resetNameCaches(): void {
-  avakotNames = null;
   itemNames = null;
 }
 

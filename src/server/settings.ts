@@ -4,17 +4,11 @@ import { writeFileAtomic } from "./files";
 
 export interface Settings {
   moonsteelNotify: boolean;
-  avakotNotify: boolean;
-  avakotResetNotify: boolean;
-  avakotWatch: string[];
   timerNotify: boolean;
   timerWatch: string[];
   blessedNotify: boolean;
   recipeNotify: boolean;
   recipeWatch: string[];
-  inventoryRequests: boolean;
-  avakotRequests: boolean;
-  profileRequests: boolean;
   theme: Theme | null;
 }
 
@@ -26,21 +20,13 @@ export interface Theme {
   titleBar: { color: string; symbolColor: string };
 }
 
-export const REQUEST_SWITCHES = ["inventoryRequests", "avakotRequests", "profileRequests"] as const;
-
 const DEFAULTS: Settings = {
   moonsteelNotify: true,
-  avakotNotify: true,
-  avakotResetNotify: false,
-  avakotWatch: [],
   timerNotify: true,
   timerWatch: [],
   blessedNotify: false,
   recipeNotify: true,
   recipeWatch: [],
-  inventoryRequests: true,
-  avakotRequests: true,
-  profileRequests: true,
   theme: null,
 };
 
@@ -67,7 +53,7 @@ export function onSettingsChange(fn: (s: Settings) => void): void {
   listeners.push(fn);
 }
 
-function storeItems(v: unknown): string[] | null {
+function itemTypes(v: unknown): string[] | null {
   if (!Array.isArray(v) || v.length > 200) return null;
   if (!v.every((p) => typeof p === "string" && p.length <= 200 && p.startsWith("/SF/"))) return null;
   return [...new Set(v as string[])];
@@ -86,21 +72,15 @@ export async function getSettings(): Promise<Settings> {
     const s = JSON.parse(await readFile(settingsPath(), "utf8")) as Partial<Settings>;
     return {
       moonsteelNotify: typeof s.moonsteelNotify === "boolean" ? s.moonsteelNotify : DEFAULTS.moonsteelNotify,
-      avakotNotify: typeof s.avakotNotify === "boolean" ? s.avakotNotify : DEFAULTS.avakotNotify,
-      avakotResetNotify: typeof s.avakotResetNotify === "boolean" ? s.avakotResetNotify : DEFAULTS.avakotResetNotify,
-      avakotWatch: storeItems(s.avakotWatch) ?? [],
       timerNotify: typeof s.timerNotify === "boolean" ? s.timerNotify : DEFAULTS.timerNotify,
       timerWatch: timerTags(s.timerWatch) ?? [],
       blessedNotify: typeof s.blessedNotify === "boolean" ? s.blessedNotify : DEFAULTS.blessedNotify,
       recipeNotify: typeof s.recipeNotify === "boolean" ? s.recipeNotify : DEFAULTS.recipeNotify,
-      recipeWatch: storeItems(s.recipeWatch) ?? [],
-      inventoryRequests: typeof s.inventoryRequests === "boolean" ? s.inventoryRequests : DEFAULTS.inventoryRequests,
-      avakotRequests: typeof s.avakotRequests === "boolean" ? s.avakotRequests : DEFAULTS.avakotRequests,
-      profileRequests: typeof s.profileRequests === "boolean" ? s.profileRequests : DEFAULTS.profileRequests,
+      recipeWatch: itemTypes(s.recipeWatch) ?? [],
       theme: theme(s.theme),
     };
   } catch {
-    return { ...DEFAULTS, avakotWatch: [], timerWatch: [], recipeWatch: [] };
+    return { ...DEFAULTS, timerWatch: [], recipeWatch: [] };
   }
 }
 
@@ -110,20 +90,12 @@ export function updateSettings(patch: Record<string, unknown>): Promise<Settings
   const run = queue.then(async () => {
     const s = await getSettings();
     if (typeof patch.moonsteelNotify === "boolean") s.moonsteelNotify = patch.moonsteelNotify;
-    if (typeof patch.avakotNotify === "boolean") s.avakotNotify = patch.avakotNotify;
-    if (typeof patch.avakotResetNotify === "boolean") s.avakotResetNotify = patch.avakotResetNotify;
     if (typeof patch.timerNotify === "boolean") s.timerNotify = patch.timerNotify;
     if (typeof patch.blessedNotify === "boolean") s.blessedNotify = patch.blessedNotify;
     if (typeof patch.recipeNotify === "boolean") s.recipeNotify = patch.recipeNotify;
-    for (const key of REQUEST_SWITCHES) {
-      const v = patch[key];
-      if (typeof v === "boolean") s[key] = v;
-    }
-    const watch = storeItems(patch.avakotWatch);
-    if (watch) s.avakotWatch = watch;
     const timerWatch = timerTags(patch.timerWatch);
     if (timerWatch) s.timerWatch = timerWatch;
-    const recipeWatch = storeItems(patch.recipeWatch);
+    const recipeWatch = itemTypes(patch.recipeWatch);
     if (recipeWatch) s.recipeWatch = recipeWatch;
     if (patch.theme === null) s.theme = null;
     else if (patch.theme !== undefined) s.theme = theme(patch.theme) ?? s.theme;

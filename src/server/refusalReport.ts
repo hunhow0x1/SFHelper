@@ -10,12 +10,6 @@ const MAX_DETAILS = 8;
 const reportPath = () => appFile("refusals.log");
 const iso = (t: number) => new Date(t).toISOString();
 
-export interface RequestSwitches {
-  inventory: boolean;
-  avakot: boolean;
-  profile: boolean;
-}
-
 export interface RefusalContext {
   refusals: GameRefusals;
   details: RefusalDetail[];
@@ -24,7 +18,6 @@ export interface RefusalContext {
   appVersion: string;
   gameRunning: boolean;
   late: boolean;
-  requests: RequestSwitches;
   party: PartyAround | null;
 }
 
@@ -67,7 +60,7 @@ export async function recordRefusalStart(c: RefusalContext, now = Date.now()): P
     late: c.late,
     details: c.details.slice(0, MAX_DETAILS).map((d) => ({ at: iso(d.at), status: d.status, server: d.server, before: d.before, after: d.after })),
     game: { build: c.build, publicAddress: c.publicAddress, running: c.gameRunning, party: c.party },
-    sfhelper: { version: c.appVersion, requests: c.requests },
+    sfhelper: { version: c.appVersion },
     lastSent,
     requestsBefore: summarizeRequests(before),
   });

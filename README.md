@@ -2,10 +2,10 @@
 
 A desktop companion for **Soulframe**, in the spirit of
 [WFHelper](https://github.com/WFHelper/WFHelper). It tracks your faction
-standing, mastery, loadouts, totems, weapon pickups and trades while you play, using
-in-game names throughout.
+standing, mastery, loadouts, upgrades, recipes, cooldowns, weapon pickups, trades
+and your Wolfpup while you play, using in-game names throughout.
 
-Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
+Runs on **Linux** (AppImage) and **Windows** (installer).
 
 ![The Overview tab: faction standing, cooldowns, Enclave Favours and trades](screenshots/overview.webp)
 
@@ -13,16 +13,15 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, Enclave Favours and currencies. Cooldowns: the game's own timers counting down, such as an Agari (sub-boss) respawning 30 minutes after you slay it, a siege's cooldown, the 3 hours before an Organ can be destroyed again, the 24 hours between Blessed Meetings, and your Wolfpup's rest after it runs out of Energy. Star a cooldown to get a desktop notification when it ends. When the Collector docks in your game, Cooldowns shows the region and when it leaves; star Collector Event to be notified. |
+| **Overview** | Faction standing and titles, the daily standing cap counting down, standing earned today per faction, Enclave Favours, currencies and a summary of your trades. Cooldowns: the game's own timers counting down, such as an Agari (sub-boss) respawning 30 minutes after you slay it, a siege's cooldown, the 3 hours before an Organ can be destroyed again, the 24 hours between Blessed Meetings, and your Wolfpup's rest after it runs out of Energy. Star a cooldown to get a desktop notification when it ends. When the Collector docks in your game, Cooldowns shows the region and when it leaves; star Collector Event to be notified. |
 | **Loadouts** | Each loadout's Pact (with its Pact Arts tree), weapons, Runes, Totems by slot, Tempers and Joinery (e.g. *Gildaur: Thrice Blessed by Mora*), plus its armour (Helm, Cuirass, Leggings, with defence and Virtue requirements) and Talisman. Virtue totals match the Arsenal, with a breakdown: allocated points, Pact Arts, Talisman and Fables. Pact Arts show the game's own numbers (e.g. Forestall's chance to survive). Loadouts can be shared as short `SFH1:` codes; paste one and press Enter or Import. |
 | **Mastery** | Your Envoy Rank, your Mastery and progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type (weapons, Primary, Sidearm or Pacts). Discoveries lists every place by its in-game name, whether you've found it, and the Memories found there. |
 | **Upgrades** | Split into Tempers, Runes, Joineries, Gear and Totems tabs. Tuvalkane temper learning; your Runes by weapon art with their rank, the Totem slot they add and their numbers at that rank; your Joineries by metal and blessing, filterable by Virtue and blessing; your Gear, with what's equipped, filterable by type (Virtue Elixirs among them) and lures by Habitat and Nature (e.g. Lake, Bottom Feeder); and your Totem inventory with grip / Virtue / type filters. Every subtab has a search. |
-| **Recipes** | Everything you can brew with the Witch Verminia (Elixirs, Pup Treats and Palettes) and the Chordstones Tuvalkane casts: each recipe's ingredients against what you have, what you're short of, the Dracs and time it takes, and the Bond rank it needs. Filter by station, or by what's ready to make. |
+| **Recipes** | Everything you can brew with the Witch Verminia (Elixirs, Pup Treats and Palettes), the Chordstones Tuvalkane casts, and the weapons and armour you can craft: each recipe's ingredients against what you have, what you're short of, the Dracs and time it takes, and the Bond rank it needs. Filter by type, slot, Virtue, or by what's ready to make. Star a recipe to get a desktop notification once you have everything for it. |
 | **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. Pickup and trade history is kept on your computer; export it to move it to a new install. |
 | **Trades** | Your trade history: who you traded with, what you received and gave, with in-game icons (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
-| **Avakot** | What Avakot's Gots has in stock right now, with prices, purchase limits and how long each item stays, plus his weekly and always-stocked wares. Star anything he can sell to get a desktop notification when he stocks it. |
 | **Stats** | Your top weapons and enemies by kills, by in-game name, and your Wolfpup: its Temperament, Energy, Training, the level trained in each skill (Guts, Speed, Endurance, Curiosity, Heart), and its food. After it runs out of Energy, the card shows when it can be summoned again, and Cooldowns lists it so you can star it for a notification. |
-| **Settings** | Your account id; a switch for each kind of request SFHelper sends to Soulframe's servers, with when each was last sent; and the colour theme: a few presets or your own colours, title bar included. |
+| **Settings** | Your account id, and the colour theme: a few presets or your own colours, title bar included. |
 
 ## Screenshots
 
@@ -33,7 +32,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
 | ![Upgrades, Runes: your Runes by weapon art, with rank and Totem slot](screenshots/upgrades-runes.webp) | ![Upgrades, Joineries: your Joineries by metal and blessing](screenshots/upgrades-joineries.webp) |
 | ![Upgrades, Gear: supplies, fishing gear and companion items, with what's equipped](screenshots/upgrades-gear.webp) | ![Upgrades, Totems: your Totems with search and Virtue, grip, type and trigger filters](screenshots/upgrades-totems.webp) |
 | ![Recipes: Verminia's brews and Tuvalkane's Chordstones, with what you have and what you're short of](screenshots/recipes.webp) | ![Pickups: weapons picked up, with craftwork and tempers](screenshots/pickups.webp) |
-| ![Trades: what you received and gave in each trade, and the Scutage paid](screenshots/trades.webp) | ![Avakot: what Avakot's Gots has in stock, with stars for notifications](screenshots/avakot.webp) |
+| ![Trades: what you received and gave in each trade, and the Scutage paid](screenshots/trades.webp) | |
 
 ## How it gets your data
 
@@ -48,11 +47,6 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   - Nothing runs until you agree on the first-launch consent screen.
   - While the game is running, the inventory is refreshed every 2 minutes. The
     memory is only scanned when your session changes.
-- **Avakot's shop (desktop app):** with the same session, the app asks
-  Soulframe's server for Avakot's stock, the same request the game makes for his
-  shop. It asks about once every 3 hours, just after one of his hourly
-  rotations, while the game is running. Each rotating offer stays for 3 hours,
-  so none are missed.
 - **Game log:** `EE.log` supplies the time each weapon was picked up, and each
   trade's partner and time. The Mastery figure the game writes at login is used
   to check SFHelper's own count (weapon and Pact ranks, plus 5,000 for each place
@@ -65,10 +59,9 @@ Runs on **Linux** (AppImage) and **Windows** (installer or portable zip).
   SFHelper sends nothing until the game gets through again.
 - **Only while you play:** SFHelper sends nothing to Soulframe's servers while
   the game isn't running.
-- **Switches:** inventory imports, Avakot's stock checks and profile checks can
-  each be turned off in the Settings tab. SFHelper keeps a record of its own
-  requests to Soulframe's servers (`requests.log`, the last 30 days) and of the
-  times the game was refused (`refusals.log`), both only in its data folder.
+- **Its own records:** SFHelper keeps a record of its own requests to
+  Soulframe's servers (`requests.log`, the last 30 days) and of the times the
+  game was refused (`refusals.log`), both only in its data folder.
 - **Updates:** the app checks this repo's
   [GitHub releases](https://github.com/hunhow0x1/SFHelper/releases) for a newer
   version. The check sends nothing about you.
@@ -93,13 +86,12 @@ account by itself; there's nothing to type in.
 
 ### Updates
 
-SFHelper checks for a new version at launch and every few hours, and
+SFHelper checks for a new version at launch and every 6 hours, and
 downloads it in the background. When it's ready, a banner offers **Restart to
 update**; otherwise it installs the next time you quit. The footer shows your
 version and has a **Check for updates** button.
 
-The AppImage and the Windows installer update themselves. A portable (zip)
-build can't, so install with the Setup exe instead.
+The AppImage and the Windows installer update themselves.
 
 ### Your data and the log
 

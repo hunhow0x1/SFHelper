@@ -23,13 +23,13 @@ describe("request ledger", () => {
     );
     expect(await res.text()).toBe('{"ok":1}');
     await tracked("inventory", fake(200, "{}"))("https://example.invalid/");
-    await tracked("vendor", fake(403, ""))("https://example.invalid/");
+    await tracked("profile", fake(403, ""))("https://example.invalid/");
 
     const entries = await readRequests();
     expect(entries.map((e) => [e.kind, e.status, e.empty ?? false])).toEqual([
       ["inventory", 200, false],
       ["inventory", 200, true],
-      ["vendor", 403, false],
+      ["profile", 403, false],
     ]);
     expect(entries[0]).toMatchObject({ attempt: 2, of: 3, bytes: 8, server: "AkamaiGHost" });
     const raw = await readFile(join(process.env.SFHELPER_HOME!, "requests.log"), "utf8");
@@ -50,13 +50,13 @@ describe("request ledger", () => {
     await recordRequest({ at: new Date(now - 31 * 24 * HOUR).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 1 });
     await recordRequest({ at: new Date(now - HOUR).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 1 });
     await recordRequest({ at: new Date(now - HOUR + 1).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 2, empty: true });
-    await recordRequest({ at: new Date(now - 60_000).toISOString(), kind: "vendor", status: 403, ms: 1, bytes: 0 });
+    await recordRequest({ at: new Date(now - 60_000).toISOString(), kind: "profile", status: 403, ms: 1, bytes: 0 });
     await pruneRequests(now);
     const kept = await readRequests(0, now);
     expect(kept).toHaveLength(3);
     expect(summarizeRequests(kept)).toMatchObject({
       total: 3,
-      byKind: { inventory: { "200": 1, "200 empty": 1 }, vendor: { "403": 1 } },
+      byKind: { inventory: { "200": 1, "200 empty": 1 }, profile: { "403": 1 } },
       lastOk: new Date(now - HOUR).toISOString(),
     });
   });
@@ -66,12 +66,10 @@ describe("refusal reports", () => {
   const first = Date.parse("2026-11-10T03:06:52Z");
   const refusals = { count: 59, first, last: first + 6 * 60_000, loginRefused: false };
 
-  const allOn = { inventory: true, avakot: true, profile: true };
-
   it("saves what SFHelper sent in the two hours before the game was refused", async () => {
     await recordRequest({ at: new Date(first - 3 * HOUR).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 1 });
     await recordRequest({ at: new Date(first - 101_000).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 1 });
-    await recordRequest({ at: new Date(first - 6 * 60_000).toISOString(), kind: "vendor", status: 200, ms: 1, bytes: 1 });
+    await recordRequest({ at: new Date(first - 6 * 60_000).toISOString(), kind: "profile", status: 200, ms: 1, bytes: 1 });
     await recordRefusalStart({
       refusals,
       details: [{ at: first, status: "403 Forbidden", server: "AkamaiGHost", before: "Hud.lua: false", after: "Stat log event upload failed:" }],
@@ -80,7 +78,6 @@ describe("refusal reports", () => {
       appVersion: "0.4.45",
       gameRunning: false,
       late: false,
-      requests: allOn,
       party: null,
     });
     const [report] = (await readFile(join(process.env.SFHELPER_HOME!, "refusals.log"), "utf8")).trim().split("\n").map((l) => JSON.parse(l));
@@ -90,14 +87,14 @@ describe("refusal reports", () => {
       count: 59,
       game: { publicAddress: "104.181.86.240", build: "2026.11.09.17.14" },
       sfhelper: { version: "0.4.45" },
-      requestsBefore: { total: 2, byKind: { inventory: { "200": 1 }, vendor: { "200": 1 } }, lastOk: new Date(first - 101_000).toISOString() },
+      requestsBefore: { total: 2, byKind: { inventory: { "200": 1 }, profile: { "200": 1 } }, lastOk: new Date(first - 101_000).toISOString() },
     });
     expect(report.details[0]).toMatchObject({ server: "AkamaiGHost", before: "Hud.lua: false" });
   });
 
-  it("notes which kinds of request were switched on, and how long before the block each was last sent", async () => {
-    await recordRequest({ at: new Date(first - 20 * HOUR).toISOString(), kind: "vendor", status: 200, ms: 1, bytes: 1 });
-    await recordRequest({ at: new Date(first - 3 * HOUR).toISOString(), kind: "vendor", status: 200, ms: 1, bytes: 1 });
+  it("notes how long before the block each kind of request was last sent", async () => {
+    await recordRequest({ at: new Date(first - 20 * HOUR).toISOString(), kind: "account", status: 200, ms: 1, bytes: 1 });
+    await recordRequest({ at: new Date(first - 3 * HOUR).toISOString(), kind: "account", status: 200, ms: 1, bytes: 1 });
     await recordRequest({ at: new Date(first - 101_000).toISOString(), kind: "inventory", status: 200, ms: 1, bytes: 1 });
     await recordRequest({ at: new Date(first - 26 * HOUR).toISOString(), kind: "profile", status: 200, ms: 1, bytes: 1 });
     await recordRequest({ at: new Date(first + 60_000).toISOString(), kind: "profile", status: 403, ms: 1, bytes: 0 });
@@ -109,21 +106,20 @@ describe("refusal reports", () => {
       appVersion: "0.4.47",
       gameRunning: true,
       late: false,
-      requests: { inventory: true, avakot: true, profile: false },
       party: { atRefusal: { squad: 2, players: 2 }, most: { squad: 3, players: 3 } },
     });
     const [report] = (await readFile(join(process.env.SFHELPER_HOME!, "refusals.log"), "utf8")).trim().split("\n").map((l) => JSON.parse(l));
-    expect(report.sfhelper).toEqual({ version: "0.4.47", requests: { inventory: true, avakot: true, profile: false } });
+    expect(report.sfhelper).toEqual({ version: "0.4.47" });
     expect(report.game.party).toEqual({ atRefusal: { squad: 2, players: 2 }, most: { squad: 3, players: 3 } });
     expect(report.lastSent).toEqual({
-      vendor: { at: new Date(first - 3 * HOUR).toISOString(), minutesBefore: 180, status: 200, in24h: 2 },
+      account: { at: new Date(first - 3 * HOUR).toISOString(), minutesBefore: 180, status: 200, in24h: 2 },
       inventory: { at: new Date(first - 101_000).toISOString(), minutesBefore: 1.7, status: 200, in24h: 1 },
     });
     expect(report.requestsBefore.total).toBe(1);
   });
 
   it("reports each block once, and again if it comes back after ending", async () => {
-    const ctx = { refusals, details: [], publicAddress: null, build: null, appVersion: "0.4.45", gameRunning: false, late: true, requests: allOn, party: null };
+    const ctx = { refusals, details: [], publicAddress: null, build: null, appVersion: "0.4.45", gameRunning: false, late: true, party: null };
     expect(await alreadyReported(first)).toBe(false);
     await recordRefusalStart(ctx);
     expect(await alreadyReported(first)).toBe(true);
