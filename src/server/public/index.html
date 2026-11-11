@@ -786,6 +786,9 @@
         #themeSection { grid-column: 1 / -1; }
       }
       @media (max-width: 760px) { #panel-settings > .cols.acctrow { grid-template-columns: 1fr; } }
+      .support { margin: -6px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
+      .support a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+      .support a:hover { color: var(--accent-hi); border-bottom-color: var(--accent-hi); }
       #panel-stats .grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
       #panel-stats .statsrow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 420px); gap: 28px; align-items: start; }
       @media (max-width: 1320px) { #panel-stats .statsrow { grid-template-columns: 1fr; } }
@@ -1179,6 +1182,7 @@
             </div>
           </section>
         </div>
+        <p class="support">SFHelper is free. If it helps you, you can support it on <a href="https://github.com/sponsors/hunhow0x1" target="_blank" rel="noopener">GitHub Sponsors</a> or <a href="https://ko-fi.com/hunhow0x1" target="_blank" rel="noopener">Ko-fi</a>.</p>
       </div>
     </main>
     <footer class="foot" id="appFoot" hidden>

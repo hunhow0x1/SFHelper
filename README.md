@@ -153,3 +153,11 @@ import the same file twice.
   the wiki, the only connection is the update check to this repo's releases.
 - **Gentle on DE's servers.** Requests are cached, made one at a time, and
   stopped as soon as the servers say no.
+
+## Support
+
+SFHelper is free. If it's useful to you and you'd like to support its
+development, you can do so through
+[GitHub Sponsors](https://github.com/sponsors/hunhow0x1) or
+[Ko-fi](https://ko-fi.com/hunhow0x1). It's entirely optional and doesn't
+unlock anything.

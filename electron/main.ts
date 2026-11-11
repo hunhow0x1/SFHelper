@@ -493,6 +493,7 @@ function watchZoom(wc: Electron.WebContents): void {
 }
 
 const WINDOW_BG = "#14110f";
+const EXTERNAL_LINKS = ["https://github.com/hunhow0x1/SFHelper", "https://github.com/sponsors/hunhow0x1", "https://ko-fi.com/hunhow0x1"];
 const titleBarOf = (theme: Settings["theme"]) => (theme ? { ...theme.titleBar, height: TITLE_BAR.height } : TITLE_BAR);
 
 function applyTheme(theme: Settings["theme"]): void {
@@ -520,7 +521,7 @@ function createMainWindow(url: string, theme: Settings["theme"]): void {
   void mainWindow.loadURL(url);
   watchZoom(mainWindow.webContents);
   mainWindow.webContents.setWindowOpenHandler(({ url: target }) => {
-    if (target.startsWith("https://github.com/hunhow0x1/SFHelper")) void shell.openExternal(target);
+    if (EXTERNAL_LINKS.some((p) => target === p || target.startsWith(`${p}/`))) void shell.openExternal(target);
     return { action: "deny" };
   });
   mainWindow.webContents.on("will-navigate", (e, target) => {
