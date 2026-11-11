@@ -253,6 +253,9 @@
         box-shadow: inset 0 1px 0 color-mix(in srgb, var(--accent-hi) 5%, transparent);
       }
       .stat .n { font: 600 23px/1.2 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums; }
+      .stat.curstat { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; align-items: center; }
+      .stat.curstat .curicn { grid-row: span 2; width: 40px; height: 40px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)); }
+      .stat.curstat .n, .stat.curstat .l { grid-column: 2; }
       .stat .l { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.14em; margin-top: 4px; }
       .stat .s { color: var(--faint); font-size: 13px; margin-top: 2px; font-variant-numeric: tabular-nums; }
       .stat .n .of { color: var(--faint); font: 500 14px/1 var(--body); letter-spacing: 0; margin-left: 4px; }
@@ -513,6 +516,39 @@
       .row .label .tframe .ticn, .tframe .ticn { width: 27px; height: 27px; margin: 0; vertical-align: 0; }
       .temperrow.unfound .label { color: var(--faint); }
       .temperrow.unfound .tframe { opacity: 0.5; }
+      #tempers .temperrow .tstats { grid-column: 1 / -1; margin: -2px 0 0 52px; font-size: 14px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
+      #tempers .temperrow .tstats b { color: var(--accent-hi); font-weight: 600; }
+      #tempers .temperrow .tstats small { color: var(--faint); font-size: 12.5px; }
+      #tempers .temperrow.unfound .tstats b { color: var(--muted); }
+      #tempers h3.torigin { column-span: all; display: flex; align-items: baseline; gap: 10px; margin: 6px 0 16px; padding-bottom: 7px; border-bottom: 1px solid var(--line); font: 600 17px/1.2 var(--display); letter-spacing: 0.08em; color: var(--accent-hi); }
+      #tempers h3.torigin:not(:first-child) { margin-top: 18px; }
+      #tempers h3.torigin .n { font: 400 13px/1 var(--body); color: var(--faint); letter-spacing: 0; }
+      .temperpop .tp-stats { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 3px; font-size: 14px; line-height: 1.4; font-variant-numeric: tabular-nums; }
+      .temperpop .tp-stats li::before { content: ""; display: inline-block; width: 5px; height: 5px; margin: 0 9px 2px 1px; background: var(--accent); transform: rotate(45deg); }
+      .temperpop .tp-stats b { color: var(--accent-hi); }
+      .temperpop .tp-pips { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 14px; }
+      .temperpop .tp-pips b { color: var(--accent-hi); }
+      .temperpop .tp-pips .vname { color: var(--vc); }
+      .temperpop .vpips { display: inline-flex; gap: 8px; padding: 0 3px; }
+      .temperpop .vpips i { width: 9px; height: 9px; transform: rotate(45deg); background: var(--vc); border: 1px solid var(--vc); box-shadow: 0 0 7px color-mix(in srgb, var(--vc) 60%, transparent); }
+      .temperpop .tp-for { margin-top: 10px; color: var(--accent-2-hi); font: 600 11px/1.3 var(--display); letter-spacing: 0.14em; text-transform: uppercase; }
+      .mring { position: relative; display: inline-grid; place-items: center; width: 32px; height: 32px; flex: none; vertical-align: middle; font: 700 12.5px/1 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums; }
+      .mring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--accent-hi) calc(var(--p) * 1%), var(--line-2) 0); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px)); }
+      .mrow .mval { display: inline-flex; align-items: center; gap: 10px; }
+      .mrow .mval .mnote { margin-right: 0; }
+      .mrow.done .mring { color: var(--accent-2); }
+      .mrow.done .mring::before { background: var(--accent-2); box-shadow: 0 0 8px color-mix(in srgb, var(--accent-2) 45%, transparent); }
+      .mrow.miss .mring { color: var(--muted); }
+      .mrow.miss .mring::before { background: conic-gradient(var(--muted) calc(var(--p) * 1%), var(--line) 0); }
+      .tcard .tpips { gap: 0; margin-right: -4px; }
+      .tcard .tpips .tpip { all: unset; display: inline-grid; place-items: center; width: 16px; height: 18px; cursor: pointer; }
+      .tcard .tpips .tpip:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
+      .tcard .tpips .tpip:hover i { border-color: var(--accent-hi); }
+      .tcard .tpips .tpip.cur i { transform: rotate(45deg) scale(1.3); border-color: var(--accent-hi); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-hi) 28%, transparent), 0 0 9px color-mix(in srgb, var(--accent-hi) 75%, transparent); }
+      .tcard .tpips .tpip.cur:not(.on) i { background: color-mix(in srgb, var(--accent-hi) 30%, transparent); }
+      .tcard.miss .tpips .tpip i { border-color: var(--line-2); }
+      .tcard.miss .tpips .tpip.cur i { border-color: var(--muted); background: color-mix(in srgb, var(--muted) 35%, transparent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--muted) 22%, transparent), 0 0 8px color-mix(in srgb, var(--muted) 55%, transparent); }
+      .tcard .tfx .trankat { color: var(--faint); font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; margin-right: 8px; }
       .rtag { display: inline-block; margin-left: 8px; padding: 1px 6px; border: 1px solid rgba(201, 120, 92, 0.55); color: #e0a189; font: 500 10.5px/1.4 var(--body); letter-spacing: 0.12em; text-transform: uppercase; vertical-align: 2px; }
       .temperpop .tp-on { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
       .temperpop .tp-on .tp-rank { margin-bottom: 4px; }
@@ -1004,6 +1040,7 @@
         <section id="discoveriesSection" hidden>
           <h2>Discoveries</h2>
           <div class="daily" id="discSummary"></div>
+          <input id="discSearch" class="wsearch" placeholder="Search places or regions, e.g. Moray, Fuirlands, Undercity…" spellcheck="false" />
           <div class="tfilters" id="discFilters"></div>
           <div id="discoveries"></div>
         </section>
@@ -1084,6 +1121,7 @@
             </label>
           </div>
           <div class="daily" id="recipeSummary"></div>
+          <input id="recipeSearch" class="wsearch" placeholder="Search recipes or ingredients, e.g. Life Elixir, Brineflour, Courage…" spellcheck="false" />
           <div class="tfilters" id="recipeFilters"></div>
           <div id="recipes"><span class="muted">Import your inventory to see what you can brew and cast.</span></div>
         </section>
@@ -1359,6 +1397,28 @@
         String(tag).replace(/Mod$/, "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/\bAnd\b/g, "&").trim();
       const temperName = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].name) || cleanTemper(tag);
       const temperEffect = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].effect) || "";
+      const temperOrigin = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].origin) || null;
+      const ORIGIN_LABEL = "Origin";
+      const ANY_ORIGIN = "Universal";
+      const statHtml = (line) => escHtml(line).replace(/([+-]?\d+(?:\.\d+)?(?:%|s\b)?)/g, "<b>$1</b>");
+      const temperVariants = (tag) => (TEMPER_DB[tag] && TEMPER_DB[tag].stats) || [];
+      function variantLabel(v, all) {
+        if (v === all[0]) return "Other weapons";
+        if (v.weapons.length <= 6) return v.weapons.join(", ");
+        const classes = [...new Set(v.weapons.map((w) => (WEAPON_ROSTER[w] || {}).class).filter(Boolean))];
+        return classes.length ? classes.join(", ") : `${v.weapons.length} weapons`;
+      }
+      function temperStatsHtml(tag) {
+        const all = temperVariants(tag);
+        const list = (v) => `<ul class="tp-stats">${v.stats.map((line) => `<li>${statHtml(line)}</li>`).join("")}</ul>`;
+        if (all.length <= 1) return all.length ? list(all[0]) : "";
+        return [...all.slice(1), all[0]].map((v) => `<div class="tp-for">${escHtml(variantLabel(v, all))}</div>${list(v)}`).join("");
+      }
+      function temperStatsLine(tag) {
+        const all = temperVariants(tag);
+        if (!all.length) return "";
+        return `<span class="tstats">${all[0].stats.map(statHtml).join(" · ")}${all.length > 1 ? ` <small>(most weapons)</small>` : ""}</span>`;
+      }
       const temperIcon = (tag) =>
         `<img class="ticn" src="${(TEMPER_DB[tag] && TEMPER_DB[tag].icon) || `img/tempers/${temperName(tag).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.png`}" alt="" loading="lazy" onerror="this.remove()">`;
       const framedTemper = (tag) => `<span class="tframe">${temperIcon(tag)}</span>`;
@@ -1414,7 +1474,8 @@
           const effHtml = eff ? `<div class="tp-eff">${eff}</div>` : `<div class="tp-eff muted">Effect not documented yet.</div>`;
           const row = el.classList.contains("temperrow");
           if (row && !hover) temperPop.classList.add("pinned");
-          temperPop.innerHTML = `<div class="tp-head">${row ? framedTemper(tag) : temperIcon(tag)}<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div></div>${dbl}${effHtml}${row ? temperWeaponsHtml(tag, !hover) : ""}`;
+          const origin = temperOrigin(tag);
+          temperPop.innerHTML = `<div class="tp-head">${row ? framedTemper(tag) : temperIcon(tag)}<div class="tp-name">${temperName(tag)}${count > 1 ? ` ×${count}` : ""}</div></div>${origin ? `<div class="tp-rank">${escHtml(ORIGIN_LABEL)} · ${escHtml(origin)}</div>` : ""}${dbl}${effHtml}${temperStatsHtml(tag)}${row ? temperWeaponsHtml(tag, !hover) : ""}`;
         }
         document.body.appendChild(temperPop);
         const r = (el.querySelector(".label") || el).getBoundingClientRect();
@@ -1528,7 +1589,7 @@
         const groupNames = [...new Set(items.map((i) => i.group))].sort((a, b) =>
           a === "Pacts" ? 1 : b === "Pacts" ? -1 : a.localeCompare(b),
         );
-        if (!["all", "weapons", "primary", "sidearm", "pacts"].includes(MASTERY_UI.type)) MASTERY_UI.type = "all";
+        if (!["all", "primary", "sidearm", "pacts"].includes(MASTERY_UI.type)) MASTERY_UI.type = "all";
 
         const q = MASTERY_UI.q.trim().toLowerCase();
         const passOwn = (i) => MASTERY_UI.own === "all" || (MASTERY_UI.own === "owned") === !!i.w;
@@ -1537,7 +1598,7 @@
         const SLOT_OF = { primary: "Primary", sidearm: "Sidearm" };
         const passType = (i) =>
           MASTERY_UI.type === "all" ||
-          (MASTERY_UI.type === "pacts" ? isPact(i) : MASTERY_UI.type === "weapons" ? !isPact(i) : i.slot === SLOT_OF[MASTERY_UI.type]);
+          (MASTERY_UI.type === "pacts" ? isPact(i) : i.slot === SLOT_OF[MASTERY_UI.type]);
         const passSearch = (i) => !q || i.name.toLowerCase().includes(q);
 
         const chip = (key, val, label, n) =>
@@ -1554,7 +1615,6 @@
             chip("mastery", "unmastered", "Not Mastered", countIf((i) => !(i.lvl && i.lvl.maxed) && passOwn(i) && passType(i))) +
           `</div><span class="fl">Type</span><div class="wfilter">` +
             chip("type", "all", "All") +
-            chip("type", "weapons", "Weapons", countIf((i) => !isPact(i) && passOwn(i) && passMastery(i))) +
             chip("type", "primary", "Primary", countIf((i) => i.slot === "Primary" && passOwn(i) && passMastery(i))) +
             chip("type", "sidearm", "Sidearm", countIf((i) => i.slot === "Sidearm" && passOwn(i) && passMastery(i))) +
             chip("type", "pacts", "Pacts", countIf((i) => isPact(i) && passOwn(i) && passMastery(i))) +
@@ -1570,7 +1630,8 @@
             : i.copy.rank < l.rank
               ? `<span class="mnote" title="The copy you hold is rank ${i.copy.rank}; Mastery counts the highest rank this item has reached">copy ${i.copy.rank}</span>`
               : "";
-          const val = l.maxed ? "Mastered" : `${l.rank} / 30`;
+          const ring = `<span class="mring" style="--p:${Math.round((l.rank / 30) * 1000) / 10}" title="Rank ${l.rank} of 30">${l.rank}</span>`;
+          const val = l.maxed ? `Mastered${ring}` : ring;
           const cls = "mrow" + (l.maxed ? " done" : "") + (i.w ? "" : " miss");
           return `<div class="${cls}"><span class="mname">${itemChip(i.name)}</span><span class="mval">${note}${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
         };
@@ -1599,9 +1660,16 @@
       });
 
       let LAST_DISCOVERIES = null;
-      let DISC_FILTER = "all";
-      try { DISC_FILTER = localStorage.getItem("sfhelper.discoveries") || "all"; } catch {}
+      const DISC_UI = { show: "all", region: "all", q: "" };
+      try {
+        const saved = localStorage.getItem("sfhelper.discoveries") || "";
+        if (saved.startsWith("{")) Object.assign(DISC_UI, JSON.parse(saved), { q: "" });
+        else if (saved) DISC_UI.show = saved;
+      } catch {}
+      const saveDiscUi = () => { try { localStorage.setItem("sfhelper.discoveries", JSON.stringify({ show: DISC_UI.show, region: DISC_UI.region })); } catch {} };
+      const REGION_ORDER = ["Greater Curlail", "The Roods", "Kearnhold Lowlands", "Fortress O'Dell", "Fuirlands", "Airde Limbwoods", "Pigwen Skerry"];
       const placeDone = (p) => p.discovered && p.found >= p.memories;
+      const placeArea = (p) => p.region || p.dungeon || null;
       function renderDiscoveries() {
         const d = LAST_DISCOVERIES;
         if (!d) return;
@@ -1613,28 +1681,53 @@
           `Discovered <b>${found}</b> of ${places.length} places &nbsp;·&nbsp; <b>${memFound}</b> of ${memories} Memories found` +
           (d.maps.total ? ` &nbsp;·&nbsp; <b>${d.maps.found}</b> of ${d.maps.total} dungeon maps` : "");
         const pass = { all: () => true, open: (p) => !placeDone(p), done: placeDone };
-        if (!pass[DISC_FILTER]) DISC_FILTER = "all";
-        const chip = (v, label, n) =>
-          `<button class="fchip${DISC_FILTER === v ? " active" : ""}" data-v="${v}">${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
+        if (!pass[DISC_UI.show]) DISC_UI.show = "all";
+        const rank = (r) => { const i = REGION_ORDER.indexOf(r); return i < 0 ? REGION_ORDER.length : i; };
+        const regions = [...new Set(places.map((p) => p.region).filter(Boolean))].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+        const dungeons = [...new Set(places.map((p) => p.dungeon).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+        if (DISC_UI.region !== "all" && !regions.includes(DISC_UI.region) && !dungeons.includes(DISC_UI.region)) DISC_UI.region = "all";
+        const words = searchWords(DISC_UI.q);
+        const textOk = (p) => matchesWords(words, [p.name, p.region, p.dungeon]);
+        const showOk = (p) => pass[DISC_UI.show](p);
+        const areaOk = (p) => DISC_UI.region === "all" || placeArea(p) === DISC_UI.region;
+        const chip = (k, v, label, n) =>
+          `<button class="fchip${DISC_UI[k] === v ? " active" : ""}" data-k="${k}" data-v="${escHtml(v)}">${escHtml(label)}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
+        const byShow = places.filter((p) => areaOk(p) && textOk(p));
+        const byArea = places.filter((p) => showOk(p) && textOk(p));
         $("discFilters").innerHTML =
           `<span class="fl">Show</span><div class="wfilter">` +
-          chip("all", "All") + chip("open", "Not finished", places.filter(pass.open).length) + chip("done", "Finished", places.filter(pass.done).length) +
-          `</div>`;
+          chip("show", "all", "All") + chip("show", "open", "Not finished", byShow.filter(pass.open).length) + chip("show", "done", "Finished", byShow.filter(pass.done).length) +
+          `</div>` +
+          (regions.length
+            ? `<span class="fl">Region</span><div class="wfilter">${chip("region", "all", "All")}${regions
+                .map((r) => chip("region", r, r, byArea.filter((p) => placeArea(p) === r).length))
+                .join("")}</div>`
+            : "") +
+          (regions.length && dungeons.length
+            ? `<span class="fl">Dungeon</span><div class="wfilter">${dungeons
+                .map((r) => chip("region", r, r, byArea.filter((p) => placeArea(p) === r).length))
+                .join("")}</div>`
+            : "");
         const row = (p) => {
           const pips = p.memories ? `<span class="mempips" title="${p.found} of ${p.memories} Memories">${"<i class=\"on\"></i>".repeat(p.found)}${"<i></i>".repeat(p.memories - p.found)}</span>` : "";
-          const sub = !p.discovered ? "Not discovered" : p.memories ? `${p.found} of ${p.memories} Memories` : "Discovered · no Memories";
+          const state = !p.discovered ? "Not discovered" : p.memories ? `${p.found} of ${p.memories} Memories` : "Discovered · no Memories";
+          const sub = [placeArea(p), state].filter(Boolean).map(escHtml).join(" · ");
           return `<div class="avrow${p.discovered ? "" : " undiscovered"}"><div class="avn">${escHtml(p.name)}<small>${sub}</small></div><div class="avr">${pips}</div></div>`;
         };
-        const shown = places.filter(pass[DISC_FILTER]);
+        const shown = places.filter((p) => showOk(p) && areaOk(p) && textOk(p));
         $("discoveries").innerHTML = shown.length
           ? `<div class="avlist">${shown.map(row).join("")}</div>`
-          : '<span class="muted">Nothing here.</span>';
+          : '<span class="muted">Nothing matches these filters.</span>';
       }
       $("discFilters").addEventListener("click", (e) => {
         const b = e.target.closest(".fchip");
         if (!b) return;
-        DISC_FILTER = b.dataset.v;
-        try { localStorage.setItem("sfhelper.discoveries", DISC_FILTER); } catch {}
+        DISC_UI[b.dataset.k] = b.dataset.v;
+        saveDiscUi();
+        renderDiscoveries();
+      });
+      $("discSearch").addEventListener("input", (e) => {
+        DISC_UI.q = e.target.value;
         renderDiscoveries();
       });
 
@@ -1663,27 +1756,39 @@
           progress: (a, b) => b.count - a.count || prettyTemper(a.tag).localeCompare(prettyTemper(b.tag)),
           least: (a, b) => a.count - b.count || prettyTemper(a.tag).localeCompare(prettyTemper(b.tag)),
           name: (a, b) => prettyTemper(a.tag).localeCompare(prettyTemper(b.tag)),
+          origin: (a, b) => prettyTemper(a.tag).localeCompare(prettyTemper(b.tag)),
         };
         if (!sorts[TEMPER_UI.sort]) TEMPER_UI.sort = "progress";
         const chip = (k, v, label, n) =>
           `<button class="fchip${TEMPER_UI[k] === v ? " active" : ""}" data-k="${k}" data-v="${v}">${label}${n == null ? "" : `<span class="n">${n}</span>`}</button>`;
         $("temperFilters").innerHTML =
           `<span class="fl">Show</span><div class="wfilter">${chip("show", "all", "All", list.length)}${chip("show", "learned", "Learned", learned)}${chip("show", "missing", "Missing", list.length - learned)}</div>` +
-          `<span class="fl">Sort</span><div class="wfilter">${chip("sort", "progress", "Most progress")}${chip("sort", "least", "Least progress")}${chip("sort", "name", "Name")}</div>`;
+          `<span class="fl">Sort</span><div class="wfilter">${chip("sort", "progress", "Most progress")}${chip("sort", "least", "Least progress")}${chip("sort", "name", "Name")}${chip("sort", "origin", ORIGIN_LABEL)}</div>`;
         const words = searchWords(UPGRADE_Q.tempers);
         const temperHay = (t) => {
           const db = TEMPER_DB[t.tag] || {};
-          return [prettyTemper(t.tag), db.effect, ...(db.weapons || [])];
+          return [prettyTemper(t.tag), db.effect, db.origin || ANY_ORIGIN, ...(db.stats || []).flatMap((v) => v.stats), ...(db.weapons || [])];
         };
-        const rows = list
+        const shown = list
           .filter(show[TEMPER_UI.show])
           .filter((t) => matchesWords(words, temperHay(t)))
-          .sort(sorts[TEMPER_UI.sort])
-          .map((t) => {
-            const status = done(t) ? '<span class="mx">Learned</span>' : `${t.count}/${TEMPER_GOAL}`;
-            return `<div class="row wrow temperrow${t.count ? "" : " unfound"}" data-tag="${t.tag}"><span class="label">${framedTemper(t.tag)}${prettyTemper(t.tag)}</span><span class="val">${status}</span><span class="bar"><i style="width:${Math.round(Math.min(1, t.count / TEMPER_GOAL) * 100)}%"></i></span></div>`;
-          })
-          .join("");
+          .sort(sorts[TEMPER_UI.sort]);
+        const rowHtml = (t) => {
+          const status = done(t) ? '<span class="mx">Learned</span>' : `${t.count}/${TEMPER_GOAL}`;
+          return `<div class="row wrow temperrow${t.count ? "" : " unfound"}" data-tag="${t.tag}"><span class="label">${framedTemper(t.tag)}${prettyTemper(t.tag)}</span><span class="val">${status}</span>${temperStatsLine(t.tag)}<span class="bar"><i style="width:${Math.round(Math.min(1, t.count / TEMPER_GOAL) * 100)}%"></i></span></div>`;
+        };
+        let rows;
+        if (TEMPER_UI.sort === "origin") {
+          const groups = new Map();
+          for (const t of shown) {
+            const o = temperOrigin(t.tag) || ANY_ORIGIN;
+            (groups.get(o) || groups.set(o, []).get(o)).push(t);
+          }
+          rows = [...groups.keys()]
+            .sort((a, b) => (a === ANY_ORIGIN) - (b === ANY_ORIGIN) || a.localeCompare(b))
+            .map((o) => `<h3 class="torigin">${escHtml(o)}<span class="n">${groups.get(o).length}</span></h3>${groups.get(o).map(rowHtml).join("")}`)
+            .join("");
+        } else rows = shown.map(rowHtml).join("");
         $("tempers").innerHTML = rows || '<span class="muted">No Tempers match.</span>';
       }
       $("temperFilters").addEventListener("click", (e) => {
@@ -2177,6 +2282,7 @@
       let UPGRADES = { runes: {}, joineries: {}, gear: {} };
       let LAST_UPGRADE_ITEMS = null;
       const DEITY_VIRTUE = { Mora: "Courage", Iridis: "Spirit", Saphene: "Grace" };
+      const ATTUNEMENT_LABEL = "Attunement";
       const JOINERY_FAMILIES = ["Verite", "Quicksilver", "Feybalt", "Gildaur"];
       const TIER_ORDER = (label) => (/^Thrice/.test(label) ? 3 : /^Twice/.test(label) ? 2 : 1);
       const GEAR_KINDS = ["Supplies", "Virtue Elixirs", "Fishing", "Companion"];
@@ -2188,6 +2294,9 @@
       const runeInfo = (type) => UPGRADES.runes[type] || { name: shortName(type), art: null, stats: [], icon: null };
       const runeMax = (d) => Math.max(0, ...Object.values((d && d.vals) || {}).map((v) => v.length - 1));
       const runeTop = (o) => (o.ranks.length ? o.ranks[0] : null);
+      const runeRank = (o) => (runeTop(o) ?? 0) + 1;
+      const runeRanks = (d) => runeMax(d) + 1;
+      const runeCopies = (o) => o.ranks.length + o.unranked;
       function runeText(d, rank) {
         if (!d || !d.text) return "";
         return escHtml(d.text).replace(/\|(\w+)\|/g, (m, k) => {
@@ -2313,10 +2422,10 @@
 
         const runes = withUnowned(u.runes, UPGRADES.runes, (type) => ({ type, ranks: [], unranked: 0 })).map((o) => ({ ...o, d: runeInfo(o.type) }));
         const ownedRunes = runes.filter((o) => o.owned);
-        const maxed = ownedRunes.filter((o) => runeTop(o) != null && runeMax(o.d) && runeTop(o) >= runeMax(o.d)).length;
-        const unranked = ownedRunes.reduce((n, o) => n + o.unranked, 0);
+        const maxed = ownedRunes.filter((o) => runeMax(o.d) && runeRank(o) >= runeRanks(o.d)).length;
+        const copies = ownedRunes.reduce((n, o) => n + runeCopies(o), 0);
         $("runeSummary").innerHTML = runes.length
-          ? `Owned <b>${ownedRunes.length}/${runes.length}</b> &nbsp;·&nbsp; At max rank <b>${maxed}</b> &nbsp;·&nbsp; Unranked copies <b>${unranked}</b>`
+          ? `Owned <b>${ownedRunes.length}/${runes.length}</b> &nbsp;·&nbsp; At max rank <b>${maxed}</b> &nbsp;·&nbsp; Copies <b>${copies}</b>`
           : "";
         const cogah = (o) => (o.d.tags || []).includes("Cogah");
         const drops = { cogah, other: (o) => !cogah(o) };
@@ -2337,14 +2446,14 @@
               .join("")}</div>` +
             `<span class="fl">Drops</span><div class="wfilter">${runeChip("runeDrop", "all", "All")}${runeChip("runeDrop", "cogah", "Cogah", byDrop.filter(drops.cogah).length)}${runeChip("runeDrop", "other", "Non-Cogah", byDrop.filter(drops.other).length)}</div>`;
         const runeRow = (o) => {
-          const max = runeMax(o.d);
-          const r = runeTop(o);
+          const max = runeMax(o.d) ? runeRanks(o.d) : 0;
+          const r = runeRank(o);
           const pips = !o.owned ? "Unowned"
-            : max ? `<span class="mempips" title="Rank ${r ?? 0} of ${max}">${Array.from({ length: max }, (_, i) => `<i${r != null && i < r ? ' class="on"' : ""}></i>`).join("")}</span>`
-            : r != null ? `Rank ${r}` : "";
-          const extra = !o.owned ? "" : o.unranked ? `<small>${o.unranked} unranked</small>` : r == null ? "<small>Unranked</small>" : "";
-          const sub = [slotHtml(o.d.slot), o.ranks.length > 1 ? `${o.ranks.length} ranked` : ""].filter(Boolean).join(" · ");
-          return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${(o.d.tags || []).includes("Cogah") ? '<span class="rtag" title="Only drops in the Cogah">Cogah</span>' : ""}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}${extra}</div></div>`;
+            : max ? `<span class="mempips" title="Rank ${r} of ${max}">${Array.from({ length: max }, (_, i) => `<i${i < r ? ' class="on"' : ""}></i>`).join("")}</span>`
+            : `Rank ${r}`;
+          const n = runeCopies(o);
+          const sub = [slotHtml(o.d.slot), o.owned && n > 1 ? `${n} copies` : ""].filter(Boolean).join(" · ");
+          return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${(o.d.tags || []).includes("Cogah") ? '<span class="rtag" title="Only drops in the Cogah">Cogah</span>' : ""}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}</div></div>`;
         };
         const runeWords = searchWords(UPGRADE_Q.runes);
         const runeHay = (o) => [o.d.name, o.d.desc, runeText(o.d), o.d.art, o.d.slot, ...(o.d.tags || [])];
@@ -2419,7 +2528,7 @@
         const lureRows = UPGRADE_UI.gearType === "all" || UPGRADE_UI.gearType === "Fishing";
         if (!lureRows) UPGRADE_UI.gearHabitat = UPGRADE_UI.gearNature = "all";
         const gearWords = searchWords(UPGRADE_Q.gear);
-        const gearTextOk = (o) => matchesWords(gearWords, [o.d.name, o.d.desc, gearGroup(o.d), o.d.virtue, ...(o.d.habitat || []), ...(o.d.natures || [])]);
+        const gearTextOk = (o) => matchesWords(gearWords, [o.d.name, o.d.desc, gearGroup(o.d), o.d.virtue, ...(o.d.habitat || []), ...(o.d.natures || []), ...(o.d.stats || [])]);
         const gearTypeOk = (o) => UPGRADE_UI.gearType === "all" || gearGroup(o.d) === UPGRADE_UI.gearType;
         const habitatOk = (o) => UPGRADE_UI.gearHabitat === "all" || (o.d.habitat || []).includes(UPGRADE_UI.gearHabitat);
         const natureOk = (o) => UPGRADE_UI.gearNature === "all" || (o.d.natures || []).includes(UPGRADE_UI.gearNature);
@@ -2437,7 +2546,9 @@
         const gearSub = (o) => {
           const bits = [];
           if (o.equipped) bits.push('<span class="equipped">Equipped</span>');
-          if (o.d.virtue) bits.push(`<span style="color:${VIRTUE_COLOR[o.d.virtue] || "inherit"}">${escHtml(o.d.virtue)}</span>`);
+          const stats = o.d.stats || [];
+          if (o.d.virtue) bits.push(`<span style="color:${VIRTUE_COLOR[o.d.virtue] || "inherit"}">${escHtml(stats.find((x) => x.startsWith(o.d.virtue)) || o.d.virtue)}</span>`);
+          for (const x of stats) if (!(o.d.virtue && x.startsWith(o.d.virtue))) bits.push(escHtml(x));
           if (o.d.habitat) bits.push(escHtml(o.d.habitat.join(", ")));
           if (o.d.natures) bits.push(escHtml(o.d.natures.join(", ")));
           return bits.length ? `<small>${bits.join(" · ")}</small>` : "";
@@ -2474,30 +2585,35 @@
           const d = runeInfo(type);
           const held = u.runes.find((x) => x.type === type);
           const o = held || { ranks: [], unranked: 0 };
-          const r = runeTop(o);
-          const max = runeMax(d);
-          const rank = !held ? "Unowned" : r == null ? "Unranked" : max ? `Rank ${r} of ${max}` : `Rank ${r}`;
-          const text = runeText(d, r);
+          const r = runeRank(o);
+          const rank = !held ? "Unowned" : runeMax(d) ? `Rank ${r} of ${runeRanks(d)}` : `Rank ${r}`;
+          const text = runeText(d, held ? r - 1 : null);
           const stats = text ? `<div class="tp-eff">${text}</div>` : "";
           const art = (d.art ? `${escHtml(d.art)} rune · ` : "") + ((d.tags || []).includes("Cogah") ? "Cogah · " : "");
           return `<div class="tp-head">${d.icon ? upIcon(d.icon, "ticn") : ""}<div class="tp-name">${escHtml(d.name)}</div></div>` +
             `<div class="tp-rank">${art}${rank}</div>${d.desc ? `<div class="tp-quote">${escHtml(d.desc)}</div>` : ""}` +
             stats +
             (d.slot ? `<div class="tp-eff">Adds a ${slotHtml(d.slot)}.</div>` : "") +
-            (o.unranked ? `<div class="tp-dbl">${o.unranked} unranked ${o.unranked === 1 ? "copy" : "copies"}</div>` : "") +
+            (held && runeCopies(o) > 1 ? `<div class="tp-dbl">${runeCopies(o)} copies</div>` : "") +
             runeDropsHtml(d.drops);
         }
         const d = (kind === "joinery" ? UPGRADES.joineries : UPGRADES.gear)[type] || { name: shortName(type) };
         const icon = d.icon || ITEM_ICONS[d.name];
         const unowned = kind === "gear" && !u.gear.some((x) => x.type === type);
+        const pips = kind === "joinery" && d.pips
+          ? `<div class="tp-rank">${escHtml(ATTUNEMENT_LABEL)}</div><div class="tp-pips" style="--vc:${VIRTUE_COLOR[d.pips.virtue] || "var(--accent)"}"><span class="vpips">${"<i></i>".repeat(d.pips.count)}</span><span>Adds <b>${d.pips.count}</b> <span class="vname">${escHtml(d.pips.virtue)}</span> ${d.pips.count === 1 ? "Pip" : "Pips"}</span></div>`
+          : "";
         return `<div class="tp-head">${icon ? upIcon(icon, "ticn") : ""}<div class="tp-name">${kind === "joinery" ? deityHtml(d.name) : escHtml(d.name)}</div></div>` +
+          pips +
           (unowned ? '<div class="tp-rank">Unowned</div>' : "") +
           (d.desc ? `<div class="${kind === "joinery" ? "tp-quote" : "tp-eff"}">${escHtml(d.desc)}</div>` : "") +
+          (d.stats && d.stats.length ? `<ul class="tp-stats">${d.stats.map((line) => `<li>${statHtml(line)}</li>`).join("")}</ul>` : "") +
           (d.habitat ? `<div class="tp-eff">Habitat: <b>${d.habitat.map(escHtml).join(", ")}</b></div>` : "") +
           (d.natures ? `<div class="tp-eff">Nature: <b>${d.natures.map(escHtml).join(", ")}</b></div>` : "");
       }
 
       let RECIPES = {};
+      let RECIPE_Q = "";
       let LAST_CRAFTING = null;
       let RECIPE_WATCH = [];
       const RECIPE_UI = { station: "all", slot: "all", virtues: [], show: "all" };
@@ -2588,6 +2704,9 @@
         const starredHere = all.filter((o) => RECIPE_WATCH.includes(o.type)).length;
         $("recipeSummary").innerHTML = [`Ready <b>${all.filter((o) => o.s.ready).length}</b> of ${all.length}`, ...(starredHere ? [`Starred <b>${starredHere}</b>`] : []), ...bonds].join(" &nbsp;·&nbsp; ");
 
+        const words = searchWords(RECIPE_Q);
+        const recipeHay = (o) => [o.r.name, o.r.kind, RECIPE_KINDS[o.r.kind], o.r.slot, RECIPE_NPC[o.r.station], o.r.desc, ...(o.r.scaling || []), ...o.r.ingredients.map((i) => i.name)];
+        const found = all.filter((o) => matchesWords(words, recipeHay(o)));
         const groupsHere = RECIPE_GROUPS.map(([k]) => k).filter((k) => all.some((o) => recipeGroup(o.r) === k));
         if (!groupsHere.includes(RECIPE_UI.station)) RECIPE_UI.station = "all";
         const show = { all: () => true, ready: (o) => o.s.ready, missing: (o) => !o.s.ready, starred: (o) => RECIPE_WATCH.includes(o.type) };
@@ -2598,8 +2717,8 @@
           `<span class="fl">${label}</span><div class="wfilter">${chip(k, "all", "All", list.length)}` +
           opts.map((v) => chip(k, v, v, list.filter((o) => test(o, v)).length)).join("") + "</div>";
         const inGroup = (o) => RECIPE_UI.station === "all" || recipeGroup(o.r) === RECIPE_UI.station;
-        const byGroup = all.filter(inGroup);
-        const gearHere = byGroup.filter((o) => isGear(o.r));
+        const byGroup = found.filter(inGroup);
+        const gearHere = all.filter((o) => inGroup(o) && isGear(o.r));
         const slots = RECIPE_SLOTS.filter((v) => gearHere.some((o) => o.r.slot === v));
         if (!slots.includes(RECIPE_UI.slot)) RECIPE_UI.slot = "all";
         const virtues = ["Courage", "Spirit", "Grace"].filter((v) => gearHere.some((o) => (o.r.scaling || []).includes(v)));
@@ -2614,7 +2733,7 @@
           return `<button class="fchip${on ? " active" : ""}" data-k="virtues" data-v="${v}" aria-pressed="${on}" title="${tip}"><img src="${virtueIcon(v)}" alt="" class="keep">${v}<span class="n">${n}</span></button>`;
         };
         $("recipeFilters").innerHTML =
-          row("Type", "station", groupsHere, all, (o, v) => recipeGroup(o.r) === v) +
+          row("Type", "station", groupsHere, found, (o, v) => recipeGroup(o.r) === v) +
           (slots.length ? row("Slot", "slot", slots, byGroup.filter(virtueOk), (o, v) => o.r.slot === v) : "") +
           (virtues.length
             ? `<span class="fl">Virtues</span><div class="wfilter"><button class="fchip${RECIPE_UI.virtues.length ? "" : " active"}" data-k="virtues" data-v="all">All<span class="n">${byGroup.filter(slotOk).length}</span></button>${virtues.map(virtueChip).join("")}</div>`
@@ -2651,6 +2770,10 @@
           (r.requires ? `<div class="tp-eff">Requires ${Object.entries(r.requires).map(([v, n]) => `<b>${n}</b> <span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(" · ")}</div>` : "") +
           (r.bond && !isGear(r) ? `<div class="tp-eff">Needs Bond Rank <b>${r.bond}</b> with ${npc}${bond != null ? ` · you're Rank ${bond}` : ""}</div>` : "");
       }
+      $("recipeSearch").addEventListener("input", (e) => {
+        RECIPE_Q = e.target.value;
+        renderRecipes();
+      });
       $("recipeFilters").addEventListener("click", (e) => {
         const b = e.target.closest(".fchip");
         if (!b) return;
@@ -2841,22 +2964,39 @@
           row("Type", "animal", ANIMALS, animalIcon) +
           row("Trigger", "trigger", TRIGGERS, null);
       }
+      const TOTEM_VIEW_RANK = new Map();
+      const totemViewKey = (v) => [v.name, v.virtue, v.grip, v.rank, v.owned].join("|");
+      function totemEffectAt(v, rank) {
+        if (rank === v.rank && v.owned) return v.effect;
+        const d = TOTEM_DATA[v.name];
+        return d ? totemEffectHtml(d, rank, v.aligned) : effectAtRank(TOTEMS[v.name], rank).replace(/ \(Rank \d\)$/, "");
+      }
       function totemCardHtml(v) {
         const vc = v.virtue ? `var(--${v.virtue.toLowerCase()})` : "var(--line-2)";
-        const pips = [1, 2, 3, 4].map((r) => `<i class="${r <= v.rank ? "on" : ""}"></i>`).join("");
+        const key = totemViewKey(v);
+        const shownRank = TOTEM_VIEW_RANK.get(key) || v.rank;
+        const pips = [1, 2, 3, 4]
+          .map((r) => {
+            const cls = ["tpip", v.owned && r <= v.rank ? "on" : "", r === shownRank ? "cur" : ""].filter(Boolean).join(" ");
+            const tip = r === shownRank ? `Showing rank ${r}` : `Show rank ${r}`;
+            return `<button class="${cls}" data-key="${escHtml(key)}" data-rank="${r}" title="${tip}${v.owned && r === v.rank ? " (yours)" : ""}" aria-label="${tip}" aria-pressed="${r === shownRank}"><i class="${v.owned && r <= v.rank ? "on" : ""}"></i></button>`;
+          })
+          .join("");
+        const effect = totemEffectAt(v, shownRank);
+        const rankNote = shownRank !== v.rank || !v.owned ? `<span class="trankat">Rank ${shownRank}</span>` : "";
         const on = [...v.on].map(shortName);
         const starred = TOTEM_WATCH.includes(v.name);
         const tip = starred ? `Starred: you'll be notified when you get ${v.name}` : `Star to be notified when you get ${v.name}`;
         const star = `<button class="star tstar${starred ? " on" : ""}" data-totem="${escHtml(v.name)}" aria-pressed="${starred}" title="${escHtml(tip)}" aria-label="${escHtml(v.name)}">${STAR_SVG}</button>`;
         return `<div class="tcard${v.aligned ? " aligned" : ""}${v.owned ? "" : " miss"}${starred ? " starred" : ""}" style="--vc:${vc}">
           ${v.animal ? `<img class="ticon" src="${animalIcon(v.animal)}" alt="${v.animal}" title="${v.animal} Totem">` : '<span class="ticon"></span>'}
-          <div class="thead"><span class="tname" title="${v.description || ""}">${v.name}</span>${v.count > 1 ? `<span class="tcount">×${v.count}</span>` : ""}${v.owned ? `<span class="tpips" title="Rank ${v.rank} of 4">${pips}</span>` : ""}${star}</div>
+          <div class="thead"><span class="tname" title="${v.description || ""}">${v.name}</span>${v.count > 1 ? `<span class="tcount">×${v.count}</span>` : ""}<span class="tpips">${pips}</span>${star}</div>
           <div class="tmeta">
             ${v.virtue ? `<span style="color:${vc}"><img src="${virtueIcon(v.virtue)}" alt="">${v.virtue}</span>` : ""}
             ${v.owned ? `<span title="${v.aligned ? `Only fits ${v.grip} weapons, with a stronger effect` : "Fits any weapon"}"><img src="${gripIcon(v.grip)}" alt="" onerror="this.remove()">${v.grip}</span>` : '<span class="tunowned">Unowned</span>'}
             ${v.trigger ? `<span class="trig">${v.trigger}</span>` : ""}
           </div>
-          <div class="tfx">${v.effect || '<span class="muted">Effect unknown</span>'}</div>
+          <div class="tfx">${effect ? rankNote + effect : '<span class="muted">Effect unknown</span>'}</div>
           ${on.length ? `<div class="ton">On <b>${on.join("</b>, <b>")}</b></div>` : ""}
         </div>`;
       }
@@ -2928,6 +3068,12 @@
         renderTotems();
       });
       $("totems").addEventListener("click", async (e) => {
+        const pip = e.target.closest("button.tpip");
+        if (pip) {
+          TOTEM_VIEW_RANK.set(pip.dataset.key, Number(pip.dataset.rank));
+          renderTotems();
+          return;
+        }
         const btn = e.target.closest("button.tstar");
         if (!btn) return;
         const name = btn.dataset.totem;
@@ -3401,6 +3547,7 @@
       renderBuilds();
 
       const CURRENCY_NAMES = { RegularCredits: "Dracs", PremiumCredits: "Arcs", MoteDust: "Harmonies" };
+      const CURRENCY_ICONS = { RegularCredits: "img/game/dracs.png", PremiumCredits: "img/game/arcs.png", PremiumCreditsFree: "img/game/arcs.png", FusionPoints: "img/game/harmonies.png" };
       function currencyName(id) {
         return DICT.currencies[id] || CURRENCY_NAMES[id] || String(id).replace(/([a-z])([A-Z])/g, "$1 $2");
       }
@@ -3511,7 +3658,9 @@
           ? curEntries
               .map(
                 ([k, v]) =>
-                  `<div class="stat"><div class="n">${fmt(v)}</div><div class="l">${currencyName(k)}</div></div>`,
+                  CURRENCY_ICONS[k]
+                    ? `<div class="stat curstat"><img class="curicn" src="${CURRENCY_ICONS[k]}" alt="" onerror="this.remove()"><div class="n">${fmt(v)}</div><div class="l">${currencyName(k)}</div></div>`
+                    : `<div class="stat"><div class="n">${fmt(v)}</div><div class="l">${currencyName(k)}</div></div>`,
               )
               .join("")
           : '<span class="muted">Owned currencies (Dracs, Harmonies…) aren\'t in the public profile — import your inventory to show them.</span>';

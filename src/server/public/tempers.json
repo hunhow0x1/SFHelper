@@ -69,6 +69,89 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +10",
+          "Damage +10 on Aerial Heavy Attacks"
+        ],
+        "weapons": [
+          "Bog & Myrtle",
+          "Cenotaph",
+          "Clivers",
+          "Cobladh",
+          "Creance",
+          "Dewelion",
+          "Dhrullai",
+          "Duhk Halic",
+          "Espadarte",
+          "Falx",
+          "Farilwyd",
+          "Fulkrom",
+          "Gathannan",
+          "Goody's Edge",
+          "Grimana",
+          "Grinn",
+          "Igne Mora",
+          "Ilverac",
+          "Loksprik",
+          "Lyke-Wake",
+          "Marrow's Bane",
+          "Navalha",
+          "Nazilk-Urytes-III",
+          "Needleseye",
+          "Nettle",
+          "Nurash",
+          "Orst-III",
+          "Oryn-Umbr",
+          "Purity",
+          "Rivt-II",
+          "Rook",
+          "Rostrum",
+          "Sollos-I",
+          "Stultin",
+          "Tessard",
+          "The Ivor",
+          "The Paragon",
+          "The Royal Tines",
+          "Unsula",
+          "Vasp-IV",
+          "Veilk",
+          "Vetch",
+          "Virdigris",
+          "Vrusht-IX",
+          "Witan",
+          "Wreath",
+          "Wulder"
+        ]
+      },
+      {
+        "stats": [
+          "Damage +10",
+          "Stagger +12"
+        ],
+        "weapons": [
+          "Avex",
+          "Basker's Wrest",
+          "Blitzel",
+          "Esthelle",
+          "Gwylen",
+          "Gystalt",
+          "Juniper",
+          "Maestro",
+          "Odiac",
+          "Precklies",
+          "Seathorn",
+          "Silistavf",
+          "Skílter",
+          "The Alder",
+          "The Erstroot",
+          "The Starling",
+          "Thistle",
+          "Thrice Spurns"
+        ]
+      }
     ]
   },
   "AttackSpeedMod": {
@@ -126,6 +209,14 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Attack Speed +15%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "BlockingLessStaggerMod": {
@@ -198,42 +289,86 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Parry stability cost -20%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "CassidDamageOnNearDeathMod": {
     "name": "Invader",
     "effect": "Increases Damage on foes below 30% Life.",
+    "origin": "Cassid",
     "icon": "img/game/aspects-cassid-laststrike.png",
     "weapons": [
       "Espadarte",
       "Navalha"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +20"
+        ],
+        "weapons": []
+      }
     ]
   },
   "CassidDamageOnUndamagedMod": {
     "name": "First Strike",
     "effect": "Increases Weapon Damage against foes with full Life.",
+    "origin": "Cassid",
     "icon": "img/game/aspects-cassid-firststrike.png",
     "weapons": [
       "Espadarte",
       "Navalha"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +20"
+        ],
+        "weapons": []
+      }
     ]
   },
   "CassidParryStaggerMod": {
     "name": "Clam's Foot",
     "effect": "Increases Stagger on Parry.",
+    "origin": "Cassid",
     "icon": "img/game/aspects-universal-surprise.png",
     "weapons": [
       "Espadarte",
       "Navalha"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Stagger +30"
+        ],
+        "weapons": []
+      }
     ]
   },
   "CassidPoisonMod": {
     "name": "Sickness",
     "effect": "Grants chance to inflict Poison on hit.",
+    "origin": "Cassid",
     "icon": "img/game/aspects-fey-sickness.png",
     "weapons": [
       "Espadarte",
       "Navalha"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "10% chance to apply Poison"
+        ],
+        "weapons": []
+      }
     ]
   },
   "ChargeRateMod": {
@@ -247,6 +382,14 @@
       "Maestro",
       "The Starling",
       "Thistle"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Weapon charge rate +10%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "ConsecutiveAfterHeavyMod": {
@@ -310,6 +453,14 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +7, up to 4 times"
+        ],
+        "weapons": []
+      }
     ]
   },
   "CritChanceMod": {
@@ -382,6 +533,14 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Chance of Smite 3%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "DamageNoSidearmMod": {
@@ -420,6 +579,14 @@
       "Unsula",
       "Vetch",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +14"
+        ],
+        "weapons": []
+      }
     ]
   },
   "DamageWhenFullHealthMod": {
@@ -457,6 +624,14 @@
       "Virdigris",
       "Witan",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +12"
+        ],
+        "weapons": []
+      }
     ]
   },
   "DeflectDamageMod": {
@@ -473,11 +648,20 @@
       "Silistavf",
       "The Alder",
       "The Erstroot"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Deflected Damage +20%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "DendritFireDamageMod": {
     "name": "Enkindled",
     "effect": "Grants chance to inflict Flame Damage on hit.",
+    "origin": "Dendrit",
     "icon": "img/game/aspects-dendrit-embers.png",
     "weapons": [
       "Basker's Wrest",
@@ -496,11 +680,20 @@
       "Vetch",
       "Virdigris",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "10% chance to apply Flame"
+        ],
+        "weapons": []
+      }
     ]
   },
   "DendritHealOnKillMod": {
     "name": "Renewed Slayer",
     "effect": "Restores Life on slaying a foe.",
+    "origin": "Dendrit",
     "icon": "img/game/aspects-dendrit-nourish.png",
     "weapons": [
       "Basker's Wrest",
@@ -519,11 +712,20 @@
       "Vetch",
       "Virdigris",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Life per second +5 for 4s"
+        ],
+        "weapons": []
+      }
     ]
   },
   "DendritRegainDecayMod": {
     "name": "Well Woven",
     "effect": "Increases the duration of time before Regain potential starts to decay.",
+    "origin": "Dendrit",
     "icon": "img/game/aspects-dendrit-readied.png",
     "weapons": [
       "Bog & Myrtle",
@@ -536,11 +738,20 @@
       "Vetch",
       "Virdigris",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Regain decay delay +5s"
+        ],
+        "weapons": []
+      }
     ]
   },
   "DendritRegainMod": {
     "name": "Hunter's Relish",
     "effect": "Increases Life recovery when attacking during Regain.",
+    "origin": "Dendrit",
     "icon": "img/game/aspects-dendrit-replenish.png",
     "weapons": [
       "Bog & Myrtle",
@@ -553,6 +764,14 @@
       "Vetch",
       "Virdigris",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Regain +10%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "DodgeAttackDamageMod": {
@@ -619,6 +838,15 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +10",
+          "Stagger +12"
+        ],
+        "weapons": []
+      }
     ]
   },
   "DodgeFocusMod": {
@@ -635,20 +863,38 @@
       "Silistavf",
       "The Alder",
       "The Erstroot"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Dodges while Grounded +1"
+        ],
+        "weapons": []
+      }
     ]
   },
   "FeyDuplicateProjMod": {
     "name": "Duplicate",
     "effect": "Grants chance for a second projectile to be cast.",
+    "origin": "Feykin",
     "icon": "img/game/aspects-fey-duplicate.png",
     "weapons": [
       "Esthelle",
       "The Alder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Second cast chance 10%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "FeykinArcanicDamageMod": {
     "name": "Aftershock",
     "effect": "Grants chance to inflict Arcanic Damage on hit.",
+    "origin": "Feykin",
     "icon": "img/game/aspects-fey-aftershock.png",
     "weapons": [
       "Cobladh",
@@ -666,11 +912,20 @@
       "The Starling",
       "Thrice Spurns",
       "Witan"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "10% chance to apply Arcanic"
+        ],
+        "weapons": []
+      }
     ]
   },
   "FeykinDamageToNearbyMod": {
     "name": "Sympathy Pang",
     "effect": "Inflicts Damage to additional foes on hit.",
+    "origin": "Feykin",
     "icon": "img/game/aspects-fey-empathypain.png",
     "weapons": [
       "Cobladh",
@@ -688,6 +943,14 @@
       "The Starling",
       "Thrice Spurns",
       "Witan"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "10% Damage to a nearby enemy"
+        ],
+        "weapons": []
+      }
     ]
   },
   "FocusedHeavyAttackDamageMod": {
@@ -704,6 +967,15 @@
       "Silistavf",
       "The Alder",
       "The Erstroot"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +30",
+          "Stagger +40"
+        ],
+        "weapons": []
+      }
     ]
   },
   "HeavyAttackDamageAndStaggerMod": {
@@ -731,6 +1003,15 @@
       "Veilk",
       "Vrusht-IX",
       "Wreath"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +15",
+          "Stagger +16"
+        ],
+        "weapons": []
+      }
     ]
   },
   "HeavyAttackWindUpMod": {
@@ -788,6 +1069,14 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Heavy charge speed +20%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "HeavyCastWindUpMod": {
@@ -804,6 +1093,14 @@
       "Silistavf",
       "The Alder",
       "The Erstroot"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Heavy charge speed +20%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "LegShotMod": {
@@ -817,6 +1114,14 @@
       "Maestro",
       "The Starling",
       "Thistle"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Leg shot Stagger +20%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "MagickHeavyAttackDamageAndStaggerMod": {
@@ -833,11 +1138,21 @@
       "Silistavf",
       "The Alder",
       "The Erstroot"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +10",
+          "Stagger +18"
+        ],
+        "weapons": []
+      }
     ]
   },
   "MendicantBleedDamageMod": {
     "name": "Savagery",
     "effect": "Grants chance to inflict Bleed Damage on hit.",
+    "origin": "Mendicant",
     "icon": "img/game/aspects-mendicant-savage.png",
     "weapons": [
       "Cenotaph",
@@ -850,19 +1165,38 @@
       "Tessard",
       "The Erstroot",
       "Wreath"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "10% chance to apply Bleed"
+        ],
+        "weapons": []
+      }
     ]
   },
   "MendicantFearMod": {
     "name": "Unnerving Blow",
     "effect": "Grants chance to inflict Fear on foes when hit.",
+    "origin": "Mendicant",
     "icon": "img/game/aspects-mendicant-haunting.png",
     "weapons": [
       "The Erstroot"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "10% chance to apply Fear",
+          "Fear duration 6s"
+        ],
+        "weapons": []
+      }
     ]
   },
   "MendicantFearThrowMod": {
     "name": "Sinister Volley",
     "effect": "Grants chance to inflict Fear on foes when a thrown weapon hits.",
+    "origin": "Mendicant",
     "icon": "img/game/aspects-mendicant-hauntedthrow.png",
     "weapons": [
       "Cenotaph",
@@ -874,11 +1208,21 @@
       "Stultin",
       "Tessard",
       "Wreath"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "10% chance to apply Fear",
+          "Fear duration 6s"
+        ],
+        "weapons": []
+      }
     ]
   },
   "MendicantWeaknessMod": {
     "name": "Hollowed",
     "effect": "Reduces Damage taken from foes.",
+    "origin": "Mendicant",
     "icon": "img/game/aspects-mendicant-hollowing.png",
     "weapons": [
       "Cenotaph",
@@ -891,11 +1235,20 @@
       "Tessard",
       "The Erstroot",
       "Wreath"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "10% chance to apply Weakness"
+        ],
+        "weapons": []
+      }
     ]
   },
   "OdeReduceDefenseMod": {
     "name": "Bypass",
     "effect": "Reduces foe Defence on first hit.",
+    "origin": "Ode'n",
     "icon": "img/game/aspects-ode-crush.png",
     "weapons": [
       "Avex",
@@ -920,11 +1273,20 @@
       "Vasp-IV",
       "Veilk",
       "Vrusht-IX"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Armour -10"
+        ],
+        "weapons": []
+      }
     ]
   },
   "OdeStaggerToKnockdownMod": {
     "name": "Slinger's Tempo",
     "effect": "Grants chance for Stagger to become Knockdown.",
+    "origin": "Ode'n",
     "icon": "img/game/aspects-ode-stars.png",
     "weapons": [
       "Avex",
@@ -949,11 +1311,20 @@
       "Vasp-IV",
       "Veilk",
       "Vrusht-IX"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Knockdown chance 7.5%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "OdeVoltaicDamageMod": {
     "name": "Galvanic Strike",
     "effect": "Applies Voltaic Damage to weapon and Staggers enemies in area of effect when it discharges.",
+    "origin": "Ode'n",
     "icon": "img/game/aspects-ode-cloud.png",
     "weapons": [
       "Avex",
@@ -978,6 +1349,14 @@
       "Vasp-IV",
       "Veilk",
       "Vrusht-IX"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "10% chance to apply Voltaic"
+        ],
+        "weapons": []
+      }
     ]
   },
   "ParryWindowMod": {
@@ -1021,6 +1400,58 @@
       "Virdigris",
       "Witan",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Parry window +0.05s"
+        ],
+        "weapons": [
+          "Avex",
+          "Blitzel",
+          "Bog & Myrtle",
+          "Clivers",
+          "Cobladh",
+          "Dewelion",
+          "Dhrullai",
+          "Falx",
+          "Goody's Edge",
+          "Grimana",
+          "Grinn",
+          "Igne Mora",
+          "Ilverac",
+          "Juniper",
+          "Loksprik",
+          "Lyke-Wake",
+          "Maestro",
+          "Nettle",
+          "Oryn-Umbr",
+          "Precklies",
+          "Rivt-II",
+          "Rostrum",
+          "Skílter",
+          "Sollos-I",
+          "The Ivor",
+          "The Royal Tines",
+          "The Starling",
+          "Thistle",
+          "Thrice Spurns",
+          "Unsula",
+          "Vetch",
+          "Virdigris",
+          "Witan",
+          "Wulder"
+        ]
+      },
+      {
+        "stats": [
+          "Parry window +0.025s"
+        ],
+        "weapons": [
+          "Espadarte",
+          "Navalha"
+        ]
+      }
     ]
   },
   "RiposteDamageMod": {
@@ -1084,6 +1515,14 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +15"
+        ],
+        "weapons": []
+      }
     ]
   },
   "ShatterDamageMod": {
@@ -1097,6 +1536,15 @@
       "Maestro",
       "The Starling",
       "Thistle"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Splinter Stagger +12",
+          "Splinter Damage +8"
+        ],
+        "weapons": []
+      }
     ]
   },
   "SprintAttackDamageMod": {
@@ -1163,6 +1611,83 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Damage +12",
+          "Stagger +14"
+        ],
+        "weapons": [
+          "Bog & Myrtle",
+          "Cenotaph",
+          "Clivers",
+          "Cobladh",
+          "Creance",
+          "Dewelion",
+          "Dhrullai",
+          "Duhk Halic",
+          "Espadarte",
+          "Falx",
+          "Farilwyd",
+          "Fulkrom",
+          "Gathannan",
+          "Goody's Edge",
+          "Grimana",
+          "Grinn",
+          "Igne Mora",
+          "Ilverac",
+          "Loksprik",
+          "Lyke-Wake",
+          "Marrow's Bane",
+          "Navalha",
+          "Nazilk-Urytes-III",
+          "Needleseye",
+          "Nettle",
+          "Nurash",
+          "Orst-III",
+          "Oryn-Umbr",
+          "Purity",
+          "Rivt-II",
+          "Rook",
+          "Rostrum",
+          "Sollos-I",
+          "Stultin",
+          "Tessard",
+          "The Ivor",
+          "The Paragon",
+          "The Royal Tines",
+          "Unsula",
+          "Vasp-IV",
+          "Veilk",
+          "Vetch",
+          "Virdigris",
+          "Vrusht-IX",
+          "Witan",
+          "Wreath",
+          "Wulder"
+        ]
+      },
+      {
+        "stats": [
+          "Damage +12",
+          "Stagger +12"
+        ],
+        "weapons": [
+          "Basker's Wrest",
+          "Esthelle",
+          "Gwylen",
+          "Gystalt",
+          "Odiac",
+          "Precklies",
+          "Seathorn",
+          "Silistavf",
+          "Skílter",
+          "The Alder",
+          "The Erstroot",
+          "Thrice Spurns"
+        ]
+      }
     ]
   },
   "StaggerCritMod": {
@@ -1205,6 +1730,14 @@
       "Veilk",
       "Vrusht-IX",
       "Wreath"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Doubled Stagger chance 10%"
+        ],
+        "weapons": []
+      }
     ]
   },
   "StaggerMod": {
@@ -1277,6 +1810,87 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Stagger +12"
+        ],
+        "weapons": [
+          "Basker's Wrest",
+          "Bog & Myrtle",
+          "Cenotaph",
+          "Clivers",
+          "Cobladh",
+          "Creance",
+          "Dewelion",
+          "Dhrullai",
+          "Duhk Halic",
+          "Espadarte",
+          "Esthelle",
+          "Falx",
+          "Farilwyd",
+          "Fulkrom",
+          "Gathannan",
+          "Goody's Edge",
+          "Grimana",
+          "Grinn",
+          "Gwylen",
+          "Gystalt",
+          "Igne Mora",
+          "Ilverac",
+          "Loksprik",
+          "Lyke-Wake",
+          "Marrow's Bane",
+          "Navalha",
+          "Nazilk-Urytes-III",
+          "Needleseye",
+          "Nettle",
+          "Nurash",
+          "Odiac",
+          "Orst-III",
+          "Oryn-Umbr",
+          "Precklies",
+          "Purity",
+          "Rivt-II",
+          "Rook",
+          "Rostrum",
+          "Seathorn",
+          "Silistavf",
+          "Skílter",
+          "Sollos-I",
+          "Stultin",
+          "Tessard",
+          "The Alder",
+          "The Erstroot",
+          "The Ivor",
+          "The Paragon",
+          "The Royal Tines",
+          "Thrice Spurns",
+          "Unsula",
+          "Vasp-IV",
+          "Veilk",
+          "Vetch",
+          "Virdigris",
+          "Vrusht-IX",
+          "Witan",
+          "Wreath",
+          "Wulder"
+        ]
+      },
+      {
+        "stats": [
+          "Stagger +8"
+        ],
+        "weapons": [
+          "Avex",
+          "Blitzel",
+          "Juniper",
+          "Maestro",
+          "The Starling",
+          "Thistle"
+        ]
+      }
     ]
   },
   "ThrowSpeedMod": {
@@ -1331,6 +1945,15 @@
       "Witan",
       "Wreath",
       "Wulder"
+    ],
+    "stats": [
+      {
+        "stats": [
+          "Weapon charge rate +20%",
+          "Projectile speed +10%"
+        ],
+        "weapons": []
+      }
     ]
   }
 }

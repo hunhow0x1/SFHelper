@@ -14,6 +14,8 @@ export interface Place {
   memories: number;
   found: number;
   discovered: boolean;
+  region: string | null;
+  dungeon: string | null;
 }
 
 export interface Discoveries {
@@ -34,7 +36,7 @@ export function parseLoreScans(raw: Record<string, unknown>): Record<string, Lor
   return out;
 }
 
-type LocationDefs = Record<string, { name: string; memories: number; map: boolean }>;
+type LocationDefs = Record<string, { name: string; memories: number; map: boolean; region?: string; dungeon?: string }>;
 
 export function discoveries(scans: Record<string, LoreScan>, defs: LocationDefs): Discoveries {
   const places: Place[] = [];
@@ -47,7 +49,15 @@ export function discoveries(scans: Record<string, LoreScan>, defs: LocationDefs)
       if (scan) mapsFound += 1;
       continue;
     }
-    places.push({ key, name: def.name, memories: def.memories, found: Math.min(def.memories, scan?.progress ?? 0), discovered: !!scan });
+    places.push({
+      key,
+      name: def.name,
+      memories: def.memories,
+      found: Math.min(def.memories, scan?.progress ?? 0),
+      discovered: !!scan,
+      region: typeof def.region === "string" ? def.region : null,
+      dungeon: typeof def.dungeon === "string" ? def.dungeon : null,
+    });
   }
   places.sort((a, b) => a.name.localeCompare(b.name));
   return { places, maps: { found: mapsFound, total: mapsTotal } };

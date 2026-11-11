@@ -1751,217 +1751,341 @@
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/gildaur.png"
+      "icon": "img/joineries/gildaur.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseR": {
       "name": "Gildaur: Blessed by Saphene",
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/gildaur.png"
+      "icon": "img/joineries/gildaur.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRC": {
       "name": "Gildaur: Thrice Blessed by Mora",
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/gildaur.png"
+      "icon": "img/joineries/gildaur.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRG": {
       "name": "Gildaur: Thrice Blessed by Saphene",
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/gildaur.png"
+      "icon": "img/joineries/gildaur.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRS": {
       "name": "Gildaur: Thrice Blessed by Iridis",
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/gildaur.png"
+      "icon": "img/joineries/gildaur.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseUC": {
       "name": "Gildaur: Blessed by Iridis",
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/gildaur.png"
+      "icon": "img/joineries/gildaur.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeC": {
       "name": "Verite: Blessed by Mora",
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/verite.png"
+      "icon": "img/joineries/verite.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeR": {
       "name": "Verite: Blessed by Saphene",
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/verite.png"
+      "icon": "img/joineries/verite.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRC": {
       "name": "Verite: Twice Blessed by Mora",
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/verite.png"
+      "icon": "img/joineries/verite.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 2
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRG": {
       "name": "Verite: Twice Blessed by Saphene",
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/verite.png"
+      "icon": "img/joineries/verite.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 2
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRS": {
       "name": "Verite: Twice Blessed by Iridis",
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/verite.png"
+      "icon": "img/joineries/verite.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 2
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeUC": {
       "name": "Verite: Blessed by Iridis",
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/verite.png"
+      "icon": "img/joineries/verite.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedC": {
       "name": "Quicksilver: Blessed by Mora",
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": null,
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/joineries/quicksilver.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedR": {
       "name": "Quicksilver: Blessed by Saphene",
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": null,
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/joineries/quicksilver.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRC": {
       "name": "Quicksilver: Thrice Blessed by Mora",
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/joineries/quicksilver.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRCTwo": {
       "name": "Quicksilver: Twice Blessed by Mora",
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/joineries/quicksilver.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 2
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRG": {
       "name": "Quicksilver: Thrice Blessed by Saphene",
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/joineries/quicksilver.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRGTwo": {
       "name": "Quicksilver: Twice Blessed by Saphene",
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/joineries/quicksilver.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 2
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRS": {
       "name": "Quicksilver: Thrice Blessed by Iridis",
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/joineries/quicksilver.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRSTwo": {
       "name": "Quicksilver: Twice Blessed by Iridis",
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/joineries/quicksilver.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 2
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedUC": {
       "name": "Quicksilver: Blessed by Iridis",
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": null,
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/joineries/quicksilver.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterC": {
       "name": "Feybalt: Blessed by Mora",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": null,
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterFeySRS": {
       "name": "Feybalt: Thrice Blessed by Saphene",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterR": {
       "name": "Feybalt: Blessed by Saphene",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": null,
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 1
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRC": {
       "name": "Feybalt: Thrice Blessed by Mora",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRCTwo": {
       "name": "Feybalt: Twice Blessed by Mora",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Courage",
+        "count": 2
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRG": {
       "name": "Feybalt: Thrice Blessed by Saphene",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRGTwo": {
       "name": "Feybalt: Twice Blessed by Saphene",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Grace",
+        "count": 2
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRS": {
       "name": "Feybalt: Thrice Blessed by Iridis",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 3
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRSTwo": {
       "name": "Feybalt: Twice Blessed by Iridis",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 2
+      }
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterUC": {
       "name": "Feybalt: Blessed by Iridis",
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": null,
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/joineries/feybalt.png",
+      "pips": {
+        "virtue": "Spirit",
+        "count": 1
+      }
     }
   },
   "gear": {
@@ -1975,7 +2099,10 @@
       "name": "Life Elixir",
       "desc": "Essence of life. Drink to regain health.",
       "kind": "Supplies",
-      "icon": "img/game/storeitems-consumables-healingpotion.png"
+      "icon": "img/game/storeitems-consumables-healingpotion.png",
+      "stats": [
+        "Heals 30% of Maximum Life"
+      ]
     },
     "/SF/Types/Items/Consumables/PetConsumeables/WoldAdultUpgradePetFood": {
       "name": "Bairnday Biscuit",
@@ -2012,21 +2139,33 @@
       "desc": "A vial of liquid Courage. Drink to your virtue.",
       "kind": "Supplies",
       "icon": "img/game/storeitems-consumables-courageelixir.png",
-      "virtue": "Courage"
+      "virtue": "Courage",
+      "stats": [
+        "Courage +10",
+        "Lasts 1 hour"
+      ]
     },
     "/SF/Types/Items/Consumables/Syndicates/FeyVirtueElixir": {
       "name": "Dancing Galdre",
       "desc": "A vial of liquid Spirit. Drink to your virtue.",
       "kind": "Supplies",
       "icon": "img/game/storeitems-consumables-spiritelixir.png",
-      "virtue": "Spirit"
+      "virtue": "Spirit",
+      "stats": [
+        "Spirit +10",
+        "Lasts 1 hour"
+      ]
     },
     "/SF/Types/Items/Consumables/Syndicates/SilentRoseVirtueElixir": {
       "name": "Shademaker",
       "desc": "A vial of liquid Grace. Drink to your virtue.",
       "kind": "Supplies",
       "icon": "img/game/storeitems-consumables-graceelixir.png",
-      "virtue": "Grace"
+      "virtue": "Grace",
+      "stats": [
+        "Grace +10",
+        "Lasts 1 hour"
+      ]
     },
     "/SF/Types/Items/Consumables/Tackle/BugLureStarterCommon": {
       "name": "Feathered Flier",

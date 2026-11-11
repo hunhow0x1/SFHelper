@@ -287,6 +287,26 @@ export interface LocationDef {
   name: string;
   memories: number;
   map: boolean;
+  region?: string;
+  dungeon?: string;
+}
+
+const PLACE_REGIONS: Record<number, string[]> = {
+  1: ["AuldPrioriLocation", "ChampionHubLocation", "CurlailTowerLocation", "FeyHubLocation", "FortCurlailCamp", "GladeEntranceCamp", "HamletCamp", "HewsVillageLocation", "LuminnsVillageLocation", "MinesCamp", "OomullLocation", "SilentRoseHubLocation", "SproutCaveLocation", "TowerCamp", "VillageCamp", "WishingWellLocation"],
+  2: ["BirdiesBogLocation", "BrackenBraeLocation", "FonnishFortLocation", "HeedowayTowerLocation", "KearnholdVillageLocation", "RoodsLocation", "SawneyWayLocation", "SidaesStakeLocation", "StroaicLocation", "TurretJotarLocation"],
+  3: ["FallenSkycastleDungeon", "KearnholdCastleLocation", "NewVisciiLocation"],
+  4: ["KairnessLocation", "KearnholdFortLocation", "RorasHyneLocation"],
+  5: ["CreedanceHighTowerLocation", "MirifuirLocation", "MoonsWatchTowerLocation", "MorayVillageLocation", "NellynochLocation", "SkelfiesLocation", "WyndounLocation"],
+  6: ["CombersLeveLocation", "SkycastleLocation", "TaughslaneLocation", "VertonnlLocation", "WazzardAreaLocation", "WevetwoodLocation"],
+};
+const REGION_OF = new Map<string, number>(Object.entries(PLACE_REGIONS).flatMap(([n, keys]) => keys.map((k): [string, number] => [`${k}LoreFragment`, Number(n)])));
+
+export function placeArea(dict: Dict, key: string, dungeons: Record<string, string>): Pick<LocationDef, "region" | "dungeon"> {
+  const n = REGION_OF.get(key);
+  const region = n ? dict[`/SF/Language/Locations/RegionName${String(n).padStart(2, "0")}`]?.trim() : undefined;
+  if (region && !region.startsWith("[PH]")) return { region };
+  const stem = Object.keys(dungeons).find((d) => key.startsWith(d));
+  return stem ? { dungeon: dungeons[stem]! } : {};
 }
 
 const LORE_DIR = "/SF/Types/Quests/LocationLoreQuests/";
@@ -302,6 +322,7 @@ export function buildDungeons(dict: Dict): Record<string, string> {
 }
 
 export function buildLocations(dict: Dict, tree: TypeTree, texts: string[]): { locations: Record<string, LocationDef>; skipped: string[] } {
+  const dungeons = buildDungeons(dict);
   const types = [...tree.keys()].filter((p) => p.startsWith(LORE_DIR) && !p.slice(LORE_DIR.length).includes("/"));
   const stem = (s: string) => s.replace(/(Location)?(Map)?LoreFragment$/, "").replace(/Name$/, "").toLowerCase();
   const nameKey = (t: string) => /^Name=(\/SF\/Language\/Locations\/\S+)$/m.exec(t)?.[1];
@@ -327,7 +348,8 @@ export function buildLocations(dict: Dict, tree: TypeTree, texts: string[]): { l
       continue;
     }
     const memories = (/^Memories=\{\n([\s\S]*?)\n\}/m.exec(text)?.[1] ?? "").split("\n").filter((l) => l.trim()).length;
-    locations[leafOf(path)] = { name, memories, map: /MapLoreFragment$/.test(leafOf(path)) };
+    const map = /MapLoreFragment$/.test(leafOf(path));
+    locations[leafOf(path)] = { name, memories, map, ...(map ? {} : placeArea(dict, leafOf(path), dungeons)) };
   }
   return { locations, skipped };
 }
@@ -616,6 +638,27 @@ export interface JoineryEntry {
   desc: string | null;
   rarity: string | null;
   icon: string;
+  pips?: { virtue: string; count: number };
+}
+
+const KINTSUGI = "/SF/Types/Items/Kintsugi/";
+const ATTUNEMENT_PER_PIP = 5;
+
+export function kintsugiDefs(texts: string[]): Map<string, string> {
+  const items = texts.filter((t) => field(t, "TypeName")?.startsWith(KINTSUGI) && field(t, "ProductCategory") === "Upgrades");
+  const defs = texts.filter((t) => !field(t, "TypeName") && field(t, "LocalizeTag")?.startsWith("/SF/Language/Materials/Kintsugi") && /^UpgradeType=/m.test(t));
+  if (!items.length || items.length !== defs.length) return new Map();
+  const key = (t: string) => `${field(t, "LocalizeTag")}|${field(t, "Icon") ?? ""}`;
+  if (items.some((t, i) => key(t) !== key(defs[i]!))) return new Map();
+  return new Map(items.map((t, i) => [field(t, "TypeName")!, defs[i]!]));
+}
+
+function joineryPips(dict: Dict, def: string | undefined): JoineryEntry["pips"] | undefined {
+  const u = upgradesIn(def ?? "").find((x) => /^WEAPON_ATTUNEMENT_(COURAGE|SPIRIT|GRACE)$/.test(x.type));
+  if (!u || u.value <= 0 || u.value % ATTUNEMENT_PER_PIP) return undefined;
+  const v = u.type.slice("WEAPON_ATTUNEMENT_".length);
+  const virtue = dict[`/SF/Language/Upgrades/AVATAR_ATTRIBUTE_PRIMARY_${v}`]?.trim() || v[0] + v.slice(1).toLowerCase();
+  return { virtue, count: u.value / ATTUNEMENT_PER_PIP };
 }
 
 export interface GearEntry {
@@ -626,6 +669,68 @@ export interface GearEntry {
   virtue?: string;
   habitat?: string[];
   natures?: string[];
+  stats?: string[];
+}
+
+interface RawUpgrade {
+  type: string;
+  op: string;
+  value: number;
+  damage: string;
+  symbol: string;
+}
+
+const upgradesIn = (t: string): RawUpgrade[] =>
+  [...t.matchAll(/UpgradeType=(\w+)\nOperationType=(\w+)\nValue=(\S+)\nDamageType=(\w+)\n(?:.*\n){0,4}?SymbolFilter=(.*)/g)].map((m) => ({
+    type: m[1]!,
+    op: m[2]!,
+    value: Number(m[3]),
+    damage: m[4]!,
+    symbol: m[5]!.replace(/"/g, ""),
+  }));
+
+const scriptParams = (t: string): Record<string, string> => {
+  const block = /^(?:Script|ScriptInstance)=\{\n([\s\S]*?)\n\}$/m.exec(t)?.[1] ?? "";
+  return Object.fromEntries([...block.matchAll(/^(_\w+)=(.*)$/gm)].map((m) => [m[1]!, m[2]!]));
+};
+
+const plain = (v: number): string => String(Number(v.toFixed(3)));
+const signed = (text: string, v: number): string => (v < 0 ? `-${text.replace(/^-/, "")}` : `+${text}`);
+const percent = (v: number): string => `${plain(v * 100)}%`;
+
+export function boosterRecords(texts: string[], tree: TypeTree): Map<string, string> {
+  const types = [...tree].filter(([p, parent]) => parent === "/SF/Types/Game/SFBoosterUpgrade" && p.startsWith("/SF/Types/Game/")).map(([p]) => p);
+  const bodies = texts.filter((t) => /^LocalizeTag=\/SF\/Language\/Boosters\/\w+BoosterName$/m.test(t) && /^DurationOverride=/m.test(t));
+  if (!types.length || types.length !== bodies.length) return new Map();
+  const out = new Map<string, string>();
+  for (const [i, body] of bodies.entries()) {
+    const name = /\/Boosters\/(\w+)BoosterName$/m.exec(body)?.[1] ?? "";
+    if (!leafOf(types[i]!).includes(name)) return new Map();
+    out.set(types[i]!, body);
+  }
+  return out;
+}
+
+function lastsFor(seconds: number): string {
+  if (seconds % 3600 === 0) return `Lasts ${seconds / 3600} hour${seconds === 3600 ? "" : "s"}`;
+  return `Lasts ${plain(seconds / 60)} min`;
+}
+
+function gearStats(dict: Dict, def: string | undefined, boosters: Map<string, string>): string[] {
+  if (!def) return [];
+  const p = scriptParams(def);
+  const label = (type: string): string | null => (usable(dict[`/SF/Language/Upgrades/${type}`]) ? dict[`/SF/Language/Upgrades/${type}`]!.trim() : null);
+  const out: string[] = [];
+  const booster = p._boostersRes ? boosters.get(p._boostersRes) : undefined;
+  if (booster) {
+    for (const u of upgradesIn(booster)) {
+      const name = label(u.type);
+      if (name && u.op === "ADD" && u.value) out.push(`${name} ${signed(plain(u.value), u.value)}`);
+    }
+    if (out.length && Number(p._duration) > 0) out.push(lastsFor(Number(p._duration)));
+  }
+  if (Number(p._chunkHealPrc) > 0 && p._DoChugHeal === "1") out.push(`Heals ${percent(Number(p._chunkHealPrc))} of ${label("AVATAR_HEALTH_MAX") ?? "Maximum Life"}`);
+  return out;
 }
 
 const FISH_NATURES = [
@@ -796,6 +901,8 @@ export async function buildUpgrades(
   previous: UpgradeData | null,
   icon: (path: string | null) => Promise<string | null>,
   gameValues: GameValues = async () => null,
+  boosters: Map<string, string> = new Map(),
+  joineryDefs: Map<string, string> = new Map(),
 ): Promise<UpgradeData> {
   const loc = (tag: string | undefined) => localized(dict, tag);
   const searchTags = (t: string) =>
@@ -835,14 +942,16 @@ export async function buildUpgrades(
 
   const joineries: Record<string, JoineryEntry> = {};
   for (const [type, { t, cat, name }] of items) {
-    if (cat !== "Upgrades" || !type.startsWith("/SF/Types/Items/Kintsugi/")) continue;
+    if (cat !== "Upgrades" || !type.startsWith(KINTSUGI)) continue;
     const family = JOINERY_FAMILIES.find((f) => name.startsWith(`${f}:`)) ?? null;
+    const pips = joineryPips(dict, joineryDefs.get(type));
     joineries[type] = {
       name,
       family,
       desc: loc(field(t, "LocalizeDescTag")),
       rarity: field(t, "Rarity") ?? null,
       icon: `img/joineries/${family ? family.toLowerCase() : "joinery"}.png`,
+      ...(pips ? { pips } : {}),
     };
   }
 
@@ -861,6 +970,7 @@ export async function buildUpgrades(
       .sort((a, b) => a - b)
       .map((i) => loc(`/SF/Language/Fish/FishingFamily${i + 1}`))
       .filter((x): x is string => !!x);
+    const stats = gearStats(dict, def, boosters);
     gear[type] = {
       name,
       desc,
@@ -869,6 +979,7 @@ export async function buildUpgrades(
       ...(virtue ? { virtue } : {}),
       ...(habitat.length ? { habitat } : {}),
       ...(natures.length ? { natures } : {}),
+      ...(stats.length ? { stats } : {}),
     };
   }
 
@@ -1165,19 +1276,31 @@ export function parseWikiImages(lua: string, into: Map<string, string>): void {
   }
 }
 
+export interface TemperVariant {
+  stats: string[];
+  weapons: string[];
+}
+
 export interface TemperEntry {
   name: string;
   effect: string;
+  origin?: string;
   icon?: string;
   weapons?: string[];
+  stats?: TemperVariant[];
 }
 
 export interface ManifestEntry {
   tag: string;
   icon: string | null;
+  origin: string;
+  faction: string;
+  body: string;
 }
 
 const MANIFESTS = "/SF/Types/Items/Aspects/";
+const ASPECT_UPGRADES = "/SF/Types/Items/Aspects/Upgrades/";
+const ORIGINS = ["Cassid", "Dendrit", "Fey", "Mendicant", "Ode"];
 
 export function aspectManifests(texts: string[], tree: TypeTree): Map<string, ManifestEntry[]> {
   const paths = [...tree.keys()].filter((p) => p.startsWith(MANIFESTS) && p.endsWith("AspectManifest") && !p.endsWith("/BaseAspectManifest"));
@@ -1189,23 +1312,169 @@ export function aspectManifests(texts: string[], tree: TypeTree): Map<string, Ma
     const leaf = path.slice(path.lastIndexOf("/") + 1);
     const tag = field(body, "LocalizeTag") ?? "";
     const named = /(\w+AspectManifest)"?$/.exec(tag)?.[1];
-    const origin = /Origin(\w+)$/.exec(tag)?.[1];
+    const origin = /Origin(\w+)$/.exec(tag)?.[1] ?? ORIGINS.find((o) => leaf.startsWith(o));
     if (named ? named !== leaf : !origin || !leaf.startsWith(origin)) return new Map();
-    out.set(path, [...body.matchAll(/^Tag=(\w+)\nIcon=(\S*)$/gm)].map((m) => ({ tag: m[1]!, icon: m[2]!.startsWith("/") ? m[2]! : null })));
+    const chunks = body.split(/^(?=Tag=\w+\nIcon=)/m).slice(1);
+    out.set(
+      path,
+      chunks.map((c) => {
+        const [, entryTag = "", entryIcon = ""] = /^Tag=(\w+)\nIcon=(\S*)$/m.exec(c) ?? [];
+        return { tag: entryTag, icon: entryIcon.startsWith("/") ? entryIcon : null, origin: origin ?? "", faction: (field(c, "Faction") ?? "").replace(/"/g, ""), body: c };
+      }),
+    );
   }
   return out;
 }
 
-export function buildTempers(dict: Dict, texts: string[], manifests: Map<string, ManifestEntry[]> = new Map(), weaponNames: Record<string, string> = {}): Record<string, TemperEntry> {
+export function aspectUpgrades(texts: string[], tree: TypeTree): Map<string, string> {
+  const leaves = [...tree.keys()].filter((p) => p.startsWith(ASPECT_UPGRADES) && !p.slice(ASPECT_UPGRADES.length).includes("/")).map(leafOf);
+  const label = (t: string) => /^LocalizeTag="\[HC\] ?(\w+)"$/m.exec(t)?.[1];
+  const votes = new Map<number, number>();
+  texts.forEach((t, i) => {
+    const j = leaves.indexOf(label(t) ?? "");
+    if (j >= 0) votes.set(i - j, (votes.get(i - j) ?? 0) + 1);
+  });
+  const [offset, agree = 0] = [...votes.entries()].sort((a, b) => b[1] - a[1])[0] ?? [];
+  const out = new Map<string, string>();
+  if (offset === undefined || agree < leaves.length / 2) return out;
+  for (const [j, leaf] of leaves.entries()) {
+    const t = texts[j + offset];
+    if (!t || !/^ItemCompatibility=\/SF\/Types\/Game\/SFArtifactUpgrade$/m.test(t)) continue;
+    const named = label(t);
+    if (named && named !== leaf) continue;
+    out.set(leaf, t);
+  }
+  return out;
+}
+
+const OWN_STAT_LABELS: Record<string, string> = {
+  WEAPON_PROJECTILE_DEFLECTION_DAMAGE_MULTI: "Deflected Damage",
+  AVATAR_REGAIN_HEALTH_DECAY_DELAY: "Regain decay delay",
+  WEAPON_REGAIN_HEALTH_MULTI: "Regain",
+  WEAPON_FIRE_ITERATIONS: "Second cast chance",
+  WEAPON_KNOCKDOWN_ON_PROC_CHANCE: "Knockdown chance",
+  WEAPON_PARRY_COUNTER_WINDOW: "Parry window",
+  WEAPON_STABILITY_DAMAGE_LEGSHOT: "Leg shot Stagger",
+  WEAPON_STABILITY_CRIT_CHANCE: "Doubled Stagger chance",
+  WEAPON_PROJECTILE_SPEED: "Projectile speed",
+  AVATAR_HEAL_RATE: "Life per second",
+};
+const CHANCE_STATS = new Set(["WEAPON_CRIT_CHANCE", "WEAPON_FORCED_PROC_CHANCE", "WEAPON_KNOCKDOWN_ON_PROC_CHANCE", "WEAPON_FIRE_ITERATIONS", "WEAPON_STABILITY_CRIT_CHANCE"]);
+const SYMBOL_QUALIFIERS: Record<string, string> = { CC_AIR_HEAVY: "Aerial Heavy Attacks" };
+const SECOND_STATS = new Set(["WEAPON_PARRY_COUNTER_WINDOW", "AVATAR_REGAIN_HEALTH_DECAY_DELAY"]);
+const STATUS_EFFECTS: Record<string, [string, string]> = {
+  DT_POISON: ["", "Poison"],
+  DT_FIRE: ["", "Flame"],
+  DT_RADIANT: ["/SF/Language/Menu/DT_RADIANT", "Arcanic"],
+  DT_SLASH: ["/SF/Language/Motes/MoteUpgrade_Bleed", "Bleed"],
+  DT_PUNCTURE: ["", "Weakness"],
+  DT_ELECTRICITY: ["/SF/Language/Menu/DT_ELECTRICITY", "Voltaic"],
+};
+
+function temperStatText(dict: Dict) {
+  const loc = (tag: string, fallback: string): string => {
+    const v = dict[tag];
+    return usable(v) && !v.includes("|") ? v.trim() : fallback;
+  };
+  const stagger = loc("/SF/Language/Menu/StabilityDamage", "Stagger");
+  const damage = loc("/SF/Language/Upgrades/WEAPON_MELEE_DAMAGE", "Damage");
+  const label = (u: RawUpgrade): string | null => {
+    if (u.type === "WEAPON_STABILITY_DAMAGE") return stagger;
+    if (u.type === "WEAPON_VICTIM_DAMAGE_AMOUNT") return damage;
+    if (u.type === "WEAPON_TECHNIQUE_SKILL_UNLOCK") {
+      if (u.symbol === "FOCUSED_SKILL_IGNORE_DODGE_COUNT") return "Dodges while Grounded";
+      if (u.symbol === "ARROW_SHATTER_STABILITY_DAMAGE") return `${loc("/SF/Language/Skills/ShatterName", "Splinter")} ${stagger}`;
+      if (u.symbol === "ARROW_SHATTER_DAMAGE") return `${loc("/SF/Language/Skills/ShatterName", "Splinter")} ${damage}`;
+      return null;
+    }
+    return OWN_STAT_LABELS[u.type] ?? (loc(`/SF/Language/Upgrades/${u.type}`, "") || null);
+  };
+  const chanceTo = (chance: number, effect: string): string => {
+    const game = dict["/SF/Language/Motes/MoteUpgrade_ForcedProcChance"];
+    const tpl = usable(game) && game.includes("|CHANCE|") && game.includes("|EFFECT|") ? game : "|CHANCE|% chance to apply |EFFECT|";
+    return tpl.replace("|CHANCE|", plain(chance * 100)).replace("|EFFECT|", effect).trim();
+  };
+  const lines = (ups: RawUpgrade[]): string[] => {
+    const out: string[] = [];
+    const status = ups.find((u) => u.type === "WEAPON_ELEMENTAL_FX" && STATUS_EFFECTS[u.damage]);
+    const named = new Set<string>();
+    for (const u of ups) {
+      if (u.type === "NONE" || u.type === "WEAPON_ELEMENTAL_FX" || u.op === "SET_BASE") continue;
+      if (u.type === "WEAPON_FORCED_PROC_CHANCE" && status) {
+        const [tag, fallback] = STATUS_EFFECTS[status.damage]!;
+        out.push(chanceTo(u.value, tag ? loc(tag, fallback) : fallback));
+        continue;
+      }
+      const name = label(u);
+      if (!name || !Number.isFinite(u.value) || u.value === 0) continue;
+      const shown = /MULTIPLY/.test(u.op) || CHANCE_STATS.has(u.type) ? percent(u.value) : SECOND_STATS.has(u.type) ? `${plain(u.value)}s` : plain(u.value);
+      const on = named.has(name) && SYMBOL_QUALIFIERS[u.symbol] ? ` on ${SYMBOL_QUALIFIERS[u.symbol]}` : "";
+      named.add(name);
+      out.push(`${name} ${CHANCE_STATS.has(u.type) ? shown : signed(shown, u.value)}${on}`);
+    }
+    return out;
+  };
+  const sub = (t: string): string[] => {
+    const out = lines(upgradesIn(t.split(/^ConditionalUpgrades=/m)[0]!.split(/^(?:Script|UnappliedScript)=\{$/m)[0]!));
+    const stacks = Number(field(t, "MaxConditionalStacks"));
+    const lasts = Number(field(t, "UpgradeDuration"));
+    const p = scriptParams(t);
+    const n = (k: string): number => Number(p[k]);
+    if (p._upgradeDamage && n("_upgradeDamage")) out.push(`${damage} ${signed(plain(n("_upgradeDamage")), n("_upgradeDamage"))}`);
+    if (p._upgradeStaggerDamage && n("_upgradeStaggerDamage")) out.push(`${stagger} ${signed(plain(n("_upgradeStaggerDamage")), n("_upgradeStaggerDamage"))}`);
+    if (p._spillDamagePct) {
+      const text = dict[field(t, "EnhancementTag") ?? ""] ?? "";
+      const holes = [...new Set([...text.matchAll(/\|(\w+)\|/g)].map((m) => m[1]))];
+      out.push(holes.length === 1 ? text.replace(`|${holes[0]}|`, plain(n("_spillDamagePct") * 100)).trim() : `${percent(n("_spillDamagePct"))} ${damage}`);
+    }
+    if (p._fearChance) out.push(chanceTo(n("_fearChance"), "Fear"));
+    if (p._fearDuration) out.push(`Fear duration ${plain(n("_fearDuration"))}s`);
+    if (p._armorReduction) out.push(`${loc("/SF/Language/Upgrades/AVATAR_ARMOUR", "Armour")} -${plain(n("_armorReduction"))}`);
+    if (out.length && stacks > 1) out[out.length - 1] += `, up to ${stacks} times`;
+    if (out.length && lasts > 0) out[out.length - 1] += ` for ${plain(lasts)}s`;
+    return out;
+  };
+  return { lines, sub };
+}
+
+export function buildTempers(
+  dict: Dict,
+  texts: string[],
+  manifests: Map<string, ManifestEntry[]> = new Map(),
+  weaponNames: Record<string, string> = {},
+  subUpgrades: Map<string, string> = new Map(),
+): Record<string, TemperEntry> {
   const icons = new Map<string, string>();
   const weapons = new Map<string, Set<string>>();
+  const onManifest = new Map<string, Set<string>>();
   for (const entries of manifests.values()) for (const e of entries) if (e.icon && !icons.has(e.tag)) icons.set(e.tag, e.icon);
   for (const t of texts) {
     const type = field(t, "TypeName");
     const manifest = field(t, "AspectManifest");
     const name = type ? weaponNames[type] : undefined;
     if (!name || !manifest) continue;
+    (onManifest.get(manifest) ?? onManifest.set(manifest, new Set()).get(manifest)!).add(name);
     for (const e of manifests.get(manifest) ?? []) (weapons.get(e.tag) ?? weapons.set(e.tag, new Set()).get(e.tag)!).add(name);
+  }
+  const text = temperStatText(dict);
+  const variants = new Map<string, Map<string, Set<string>>>();
+  const origins = new Map<string, Set<string>>();
+  for (const [path, entries] of manifests) {
+    const held = onManifest.get(path);
+    for (const e of entries) {
+      if (e.faction) (origins.get(e.tag) ?? origins.set(e.tag, new Set()).get(e.tag)!).add(e.origin);
+      if (!held?.size) continue;
+      const own = text.lines(upgradesIn(e.body.split(/^SubUpgrades=/m)[0]!));
+      const subLeaf = /^SubUpgrades=\{\n"?([\w/]+)"?\n\}/m.exec(e.body)?.[1];
+      const subText = subLeaf ? subUpgrades.get(leafOf(subLeaf)) : undefined;
+      const fromSub = subText ? text.sub(subText) : [];
+      const stats = fromSub.length ? fromSub : own;
+      if (!stats.length) continue;
+      const byStats = variants.get(e.tag) ?? variants.set(e.tag, new Map()).get(e.tag)!;
+      const key = JSON.stringify(stats);
+      const set = byStats.get(key) ?? byStats.set(key, new Set()).get(key)!;
+      for (const w of held) set.add(w);
+    }
   }
   const out: Record<string, TemperEntry> = {};
   for (const t of texts) {
@@ -1216,7 +1485,19 @@ export function buildTempers(dict: Dict, texts: string[], manifests: Map<string,
     const effect = localized(dict, field(t, "LocalizeDescTag"));
     if (!name || !effect) continue;
     const on = [...(weapons.get(key) ?? [])].sort((a, b) => a.localeCompare(b));
-    out[key] = { name, effect, ...(icons.has(key) ? { icon: icons.get(key)! } : {}), ...(on.length ? { weapons: on } : {}) };
+    const from = [...(origins.get(key) ?? [])];
+    const origin = from.length === 1 ? localized(dict, `/SF/Language/Menu/Origin_${from[0]!.toUpperCase()}`) : null;
+    const stats = [...(variants.get(key) ?? new Map<string, Set<string>>())]
+      .map(([k, ws]) => ({ stats: JSON.parse(k) as string[], weapons: [...ws].sort((a, b) => a.localeCompare(b)) }))
+      .sort((a, b) => b.weapons.length - a.weapons.length || a.stats.join().localeCompare(b.stats.join()));
+    out[key] = {
+      name,
+      effect,
+      ...(origin ? { origin } : {}),
+      ...(icons.has(key) ? { icon: icons.get(key)! } : {}),
+      ...(on.length ? { weapons: on } : {}),
+      ...(stats.length ? { stats: stats.length === 1 ? [{ stats: stats[0]!.stats, weapons: [] }] : stats } : {}),
+    };
   }
   return sortedKeys(out);
 }

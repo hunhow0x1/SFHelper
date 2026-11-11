@@ -6,6 +6,9 @@ import { readLanguages, readPackageTexts, readTypeTree } from "./formats";
 import {
   buildArmour,
   aspectManifests,
+  aspectUpgrades,
+  boosterRecords,
+  kintsugiDefs,
   buildArsenal,
   buildAvakot,
   buildEnemies,
@@ -70,6 +73,7 @@ const CURRENCY_ICONS: [string, string][] = [
   ["/SF/Interface/Graphics/CategoryIcons/Inventory/Craft.png", "img/game/category-tempers.png"],
   ["/SF/Interface/Graphics/CategoryIcons/Inventory/Core.png", "img/game/category-runes.png"],
   ["/SF/Interface/Graphics/CategoryIcons/Inventory/Joinery.png", "img/game/category-joineries.png"],
+  ["/SF/Interface/Icons/GlimmerDust.png", "img/game/harmonies.png"],
 ];
 const MIN_KEPT = 0.8;
 const DEFAULT_CAPS = [5000, 5000, 20000, 20000, 30000, 30000];
@@ -235,7 +239,7 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
 
   await step("upgrades.json", async () => {
     const prev = await previous<UpgradeData>("upgrades.json");
-    const upgrades = await buildUpgrades(dict, unique, null, prev, (path) => icon(path), scriptValues);
+    const upgrades = await buildUpgrades(dict, unique, null, prev, (path) => icon(path), scriptValues, boosterRecords(texts, tree), kintsugiDefs(texts));
     const lua = wiki ? await wiki.wikitext("Module:Data/Runes").catch(() => null) : null;
     const tags = lua ? parseRuneTags(lua) : null;
     if (wiki && !tags?.size) incomplete = true;
@@ -263,7 +267,7 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
 
   await step("tempers.json", async () => {
     const weaponNames = Object.fromEntries(Object.entries(buildArsenal(dict, unique).weapons).map(([type, w]) => [type, w.name]));
-    const tempers = buildTempers(dict, unique, aspectManifests(texts, tree), weaponNames);
+    const tempers = buildTempers(dict, unique, aspectManifests(texts, tree), weaponNames, aspectUpgrades(texts, tree));
     for (const t of Object.values(tempers)) {
       const drawn = t.icon ? await icon(t.icon) : null;
       if (drawn) t.icon = drawn;

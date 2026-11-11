@@ -3,32 +3,38 @@
     "AuldPrioriLocationLoreFragment": {
       "name": "Auld Priori",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "BirdiesBogLocationLoreFragment": {
       "name": "Birdie's Bog",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "BrackenBraeLocationLoreFragment": {
       "name": "Bracken Brae",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "ChampionHubLocationLoreFragment": {
       "name": "Kith Of Kings Enclave",
       "memories": 0,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "CombersLeveLocationLoreFragment": {
       "name": "Comber's Leve",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Airde Limbwoods"
     },
     "CreedanceHighTowerLocationLoreFragment": {
       "name": "Creedance High",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fuirlands"
     },
     "CryptCastleMapLoreFragment": {
       "name": "The Crypt of The Circade",
@@ -38,7 +44,8 @@
     "CryptCircadeTombLocationLoreFragment": {
       "name": "The Tomb of The Circade",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "The Crypt of The Circade"
     },
     "CryptFuirlandsMapLoreFragment": {
       "name": "The Crypt of The Circade",
@@ -58,7 +65,8 @@
     "CurlailTowerLocationLoreFragment": {
       "name": "Astrologer's Watch",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "FFNewVisciiMapLoreFragment": {
       "name": "Rovgot Ruins",
@@ -68,22 +76,26 @@
     "FallenSkycastleDungeonLoreFragment": {
       "name": "Rovgot Ruins",
       "memories": 9,
-      "map": false
+      "map": false,
+      "region": "Kearnhold Lowlands"
     },
     "FeyHubLocationLoreFragment": {
       "name": "Alca's Children Enclave",
       "memories": 0,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "FonnishFortLocationLoreFragment": {
       "name": "Fonnish Fort Ruins",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "FortCurlailCampLoreFragment": {
       "name": "Fort Curlail",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "FuirlandMinesMapLoreFragment": {
       "name": "Carntyne Colliery",
@@ -93,7 +105,8 @@
     "GladeEntranceCampLoreFragment": {
       "name": "Garren Shrine",
       "memories": 4,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "GladesDounMapLoreFragment": {
       "name": "Glades of Andurin",
@@ -108,7 +121,8 @@
     "GladesGroveLocationLoreFragment": {
       "name": "Folksgrove",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Glades of Andurin"
     },
     "GladesKearnholdMapLoreFragment": {
       "name": "Glades of Andurin",
@@ -118,12 +132,14 @@
     "GladesSpawnLocationLoreFragment": {
       "name": "Glades of Andurin",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Glades of Andurin"
     },
     "GladesThicketLocationLoreFragment": {
       "name": "Picktrix Thicket",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Glades of Andurin"
     },
     "GladesTreeRootsMapLoreFragment": {
       "name": "Glades of Andurin",
@@ -148,32 +164,38 @@
     "HamletCampLoreFragment": {
       "name": "Curlail",
       "memories": 5,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "HeedowayTowerLocationLoreFragment": {
       "name": "Heedoway",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "HewsVillageLocationLoreFragment": {
       "name": "Oo-Mull",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "KairnessLocationLoreFragment": {
       "name": "Kairness",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fortress O'Dell"
     },
     "KearnholdCastleLocationLoreFragment": {
       "name": "Castle Kearnhold",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Kearnhold Lowlands"
     },
     "KearnholdFortLocationLoreFragment": {
       "name": "Fort Kearnhold",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fortress O'Dell"
     },
     "KearnholdMinesMapLoreFragment": {
       "name": "Carntyne Colliery",
@@ -183,32 +205,38 @@
     "KearnholdVillageLocationLoreFragment": {
       "name": "Bradan Bank",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "LuminnsVillageLocationLoreFragment": {
       "name": "Luminns",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "MinesCampLoreFragment": {
       "name": "Mines of Borro",
       "memories": 4,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "MirifuirLocationLoreFragment": {
       "name": "Mirifuir",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fuirlands"
     },
     "MoonsWatchTowerLocationLoreFragment": {
       "name": "Moon's Watch",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fuirlands"
     },
     "MorayVillageLocationLoreFragment": {
       "name": "Moray",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fuirlands"
     },
     "NeathunsKearnholdMapLoreFragment": {
       "name": "Neath'uns",
@@ -218,7 +246,8 @@
     "NeathunsLocationLoreFragment": {
       "name": "Neath'uns",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Neath'uns"
     },
     "NeathunsMorayMapLoreFragment": {
       "name": "Neath'uns",
@@ -238,77 +267,92 @@
     "NellynochLocationLoreFragment": {
       "name": "Nellynoch",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fuirlands"
     },
     "NewVisciiLocationLoreFragment": {
       "name": "New Viscii",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Kearnhold Lowlands"
     },
     "OomullLocationLoreFragment": {
       "name": "Hews",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "RoodsLocationLoreFragment": {
       "name": "Roods",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "RorasHyneLocationLoreFragment": {
       "name": "Othavess",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fortress O'Dell"
     },
     "SawneyWayLocationLoreFragment": {
       "name": "Sawney Way",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "SidaesStakeLocationLoreFragment": {
       "name": "Sidae's Stake",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "SilentRoseHubLocationLoreFragment": {
       "name": "Silent Rose Enclave",
       "memories": 0,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "SkelfiesLocationLoreFragment": {
       "name": "Skelfies",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fuirlands"
     },
     "SkycastleLocationLoreFragment": {
       "name": "Fallen Skytower",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Airde Limbwoods"
     },
     "SproutCaveLocationLoreFragment": {
       "name": "Hilly-Den",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "StroaicLocationLoreFragment": {
       "name": "Stroaic",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "TaughslaneLocationLoreFragment": {
       "name": "Taughslane",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Airde Limbwoods"
     },
     "TowerCampLoreFragment": {
       "name": "College of Pensives",
       "memories": 5,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "TurretJotarLocationLoreFragment": {
       "name": "Turret Jotar",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "The Roods"
     },
     "UCCurlailNorthMapLoreFragment": {
       "name": "Dermak Undercity",
@@ -383,72 +427,86 @@
     "UnderCityBastionLocationLoreFragment": {
       "name": "Bastion",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Dermak Undercity"
     },
     "UnderCityCliffCaveLocationLoreFragment": {
       "name": "Fenn's Sanctuary",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Dermak Undercity"
     },
     "UnderCityCliffTownLocationLoreFragment": {
       "name": "Terpeth District",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Dermak Undercity"
     },
     "UnderCityCryptLocationLoreFragment": {
       "name": "Crypt of Auld Jotar",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Dermak Undercity"
     },
     "UnderCityMillLocationLoreFragment": {
       "name": "Pegroot Mill",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Dermak Undercity"
     },
     "UnderCityNeighborhoodLocationLoreFragment": {
       "name": "Dermak Market",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Dermak Undercity"
     },
     "UnderCityPortCityLocationLoreFragment": {
       "name": "Brackport",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Dermak Undercity"
     },
     "UnderCityRefugeLocationLoreFragment": {
       "name": "Forgotten Refuge",
       "memories": 0,
-      "map": false
+      "map": false,
+      "dungeon": "Dermak Undercity"
     },
     "VertonnlLocationLoreFragment": {
       "name": "Vertonn",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Airde Limbwoods"
     },
     "VillageCampLoreFragment": {
       "name": "Salzbrim",
       "memories": 4,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "WazzardAreaLocationLoreFragment": {
       "name": "Galvinar Wastes",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Airde Limbwoods"
     },
     "WevetwoodLocationLoreFragment": {
       "name": "Wevetwood",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Airde Limbwoods"
     },
     "WishingWellLocationLoreFragment": {
       "name": "Oro's Well",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Greater Curlail"
     },
     "WyndounLocationLoreFragment": {
       "name": "Wyndoun",
       "memories": 3,
-      "map": false
+      "map": false,
+      "region": "Fuirlands"
     },
     "WyndounMinesMapLoreFragment": {
       "name": "Carntyne Colliery",
