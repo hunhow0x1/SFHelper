@@ -529,8 +529,8 @@
       .temperpop .tp-pips { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 14px; }
       .temperpop .tp-pips b { color: var(--accent-hi); }
       .temperpop .tp-pips .vname { color: var(--vc); }
-      .temperpop .vpips { display: inline-flex; gap: 8px; padding: 0 3px; }
-      .temperpop .vpips i { width: 9px; height: 9px; transform: rotate(45deg); background: var(--vc); border: 1px solid var(--vc); box-shadow: 0 0 7px color-mix(in srgb, var(--vc) 60%, transparent); }
+      .temperpop .vpips { display: inline-flex; gap: 5px; filter: drop-shadow(0 0 4px color-mix(in srgb, var(--vc) 55%, transparent)); }
+      .temperpop .vpips i { width: 22px; height: 22px; background: var(--vc); -webkit-mask: var(--vicon) center / contain no-repeat; mask: var(--vicon) center / contain no-repeat; }
       .temperpop .tp-for { margin-top: 10px; color: var(--accent-2-hi); font: 600 11px/1.3 var(--display); letter-spacing: 0.14em; text-transform: uppercase; }
       .mring { position: relative; display: inline-grid; place-items: center; width: 32px; height: 32px; flex: none; vertical-align: middle; font: 700 12.5px/1 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums; }
       .mring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--accent-hi) calc(var(--p) * 1%), var(--line-2) 0); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px)); }
@@ -603,12 +603,36 @@
       .histnote .histmsg.err { color: var(--courage); }
       .tbar { display: flex; align-items: center; gap: 12px 18px; flex-wrap: wrap; margin: 4px 0 20px; }
       .tbar .daily { margin: 0; flex: 1; }
-      .tsort { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; }
-      select {
-        background: var(--well); color: var(--text); border: 1px solid var(--line-2); border-radius: 3px;
-        padding: 7px 10px; font: 15px/1.2 var(--body); cursor: pointer;
+      .tsort { display: inline-flex; align-items: center; gap: 10px; color: var(--faint); font: 500 11px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; }
+      #panel-upgrades .tbar { margin: -8px 0 18px; }
+      .dd { position: relative; display: inline-block; text-transform: none; letter-spacing: 0; }
+      .dd .dd-btn {
+        display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; min-width: 180px;
+        background: var(--well); color: var(--text); border: 1px solid var(--line-2); border-radius: 3px; box-shadow: none;
+        padding: 8px 12px 8px 14px; font: 600 12px/1.2 var(--display); letter-spacing: 0.12em; text-transform: uppercase;
       }
-      select:focus { outline: none; border-color: var(--accent); }
+      .dd .dd-btn:hover { border-color: var(--accent); color: var(--accent-hi); filter: none; }
+      .dd .dd-btn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent-hi); background: color-mix(in srgb, var(--accent) 7%, var(--well)); }
+      .dd .dd-chev { width: 7px; height: 7px; border-right: 1.5px solid var(--accent); border-bottom: 1.5px solid var(--accent); transform: translateY(-2px) rotate(45deg); transition: transform 0.15s; }
+      .dd .dd-btn[aria-expanded="true"] .dd-chev { transform: translateY(2px) rotate(-135deg); }
+      .dd .dd-menu {
+        position: absolute; right: 0; top: calc(100% + 5px); z-index: 60; min-width: 100%; margin: 0; padding: 5px; list-style: none;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--panel-2), var(--accent) 3%), color-mix(in srgb, var(--bar-bg), var(--panel) 40%));
+        border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); border-radius: 3px;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6), 0 12px 32px rgba(0, 0, 0, 0.6);
+      }
+      .dd .dd-menu li {
+        position: relative; padding: 9px 16px 9px 30px; border-radius: 2px; cursor: pointer; white-space: nowrap;
+        color: var(--muted); font: 600 12px/1.2 var(--display); letter-spacing: 0.12em; text-transform: uppercase;
+      }
+      .dd .dd-menu li:hover, .dd .dd-menu li:focus { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--text); outline: none; }
+      .dd .dd-menu li[aria-selected="true"] { color: var(--accent-hi); }
+      .dd .dd-menu li[aria-selected="true"]::before {
+        content: ""; position: absolute; left: 12px; top: 50%; width: 6px; height: 6px; margin-top: -3px;
+        background: var(--accent-hi); transform: rotate(45deg); box-shadow: 0 0 6px color-mix(in srgb, var(--accent-hi) 60%, transparent);
+      }
+      .upgroups.upflat { padding: 6px 20px; background-color: var(--well); border: 1px solid var(--line); border-radius: 3px; }
+      .upgroups.upflat .avrow { break-inside: avoid; }
       .tgroup { margin-bottom: 28px; }
       .tgroup:last-child { margin-bottom: 0; }
       .tgroup h3 {
@@ -817,7 +841,7 @@
       .rcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
       .avprice.short { color: var(--courage); }
 
-      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard {
+      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat {
         --tick: color-mix(in srgb, var(--accent) 42%, transparent);
         background-image:
           linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
@@ -1056,28 +1080,28 @@
         </div>
         <section data-view="tempers">
           <h2>Tempers · Tuvalkane</h2>
-          <div class="daily" id="temperSummary"></div>
+          <div class="tbar"><div class="daily" id="temperSummary"></div><div class="tsort">Sort by <div id="temperSort"></div></div></div>
           <input id="temperSearch" class="wsearch" placeholder="Search Tempers, effects or weapons, e.g. aerial, parry, Avex…" spellcheck="false" />
           <div class="tfilters" id="temperFilters"></div>
           <div id="tempers" class="rows"><span class="muted">Dismantle weapons to teach Tuvalkane their tempers (10 to learn each).</span></div>
         </section>
         <section id="runesSection" data-view="runes" hidden>
           <h2>Runes</h2>
-          <div class="daily" id="runeSummary"></div>
+          <div class="tbar"><div class="daily" id="runeSummary"></div><div class="tsort">Sort by <div id="runeSort"></div></div></div>
           <input id="runeSearch" class="wsearch" placeholder="Search runes or effects, e.g. Carrionite, stone, healing…" spellcheck="false" />
           <div class="tfilters" id="runeFilters"></div>
           <div id="runes"></div>
         </section>
         <section id="joinerySection" data-view="joineries" hidden>
           <h2>Joineries</h2>
-          <div class="daily" id="joinerySummary"></div>
+          <div class="tbar"><div class="daily" id="joinerySummary"></div><div class="tsort">Sort by <div id="joinerySort"></div></div></div>
           <input id="joinerySearch" class="wsearch" placeholder="Search joineries, e.g. Verite, Mora, Palladium…" spellcheck="false" />
           <div class="tfilters" id="joineryFilters"></div>
           <div id="joineries"></div>
         </section>
         <section id="gearSection" data-view="gear" hidden>
           <h2>Gear</h2>
-          <div class="daily" id="gearSummary"></div>
+          <div class="tbar"><div class="daily" id="gearSummary"></div><div class="tsort">Sort by <div id="gearSort"></div></div></div>
           <input id="gearSearch" class="wsearch" placeholder="Search gear, e.g. Courage, lake, bottom feeder…" spellcheck="false" />
           <div class="tfilters" id="gearFilters"></div>
           <div id="gear"></div>
@@ -1091,21 +1115,9 @@
               Notify me about starred Totems
             </label>
           </div>
+          <div class="tbar"><div class="daily" id="totemSummary"></div><div class="tsort">Sort by <div id="totemSort"></div></div></div>
           <input id="totemSearch" class="wsearch" placeholder="Search names or effects, e.g. rune damage, pull smite, armour…" spellcheck="false" />
           <div class="tfilters" id="totemFilters"></div>
-          <div class="tbar">
-            <div class="daily" id="totemSummary"></div>
-            <label class="tsort">Sort by
-              <select id="totemSort">
-                <option value="name">Name</option>
-                <option value="rank">Rank</option>
-                <option value="virtue">Virtue</option>
-                <option value="grip">Grip</option>
-                <option value="animal">Totem type</option>
-                <option value="trigger">Trigger</option>
-              </select>
-            </label>
-          </div>
           <div id="totems"><span class="muted">Import your inventory to see your totems.</span></div>
         </section>
       </div>
@@ -1738,10 +1750,79 @@
         const hay = parts.filter(Boolean).join(" ").replace(/<[^>]+>/g, "").toLowerCase().replace(/[+%]/g, "");
         return words.every((w) => hay.includes(w));
       };
+      function sortMenu(id, options, value, onPick) {
+        const el = $(id);
+        const cur = options.find(([v]) => v === value) || options[0];
+        el.className = "dd";
+        el.ddPick = onPick;
+        el.innerHTML =
+          `<button type="button" class="dd-btn" aria-haspopup="listbox" aria-expanded="false"><span>${escHtml(cur[1])}</span><i class="dd-chev"></i></button>` +
+          `<ul class="dd-menu" role="listbox" hidden>${options
+            .map(([v, label]) => `<li role="option" tabindex="-1" data-v="${escHtml(v)}" aria-selected="${v === cur[0]}">${escHtml(label)}</li>`)
+            .join("")}</ul>`;
+      }
+      function closeMenus(except) {
+        for (const menu of document.querySelectorAll(".dd-menu:not([hidden])")) {
+          if (menu.parentElement === except) continue;
+          menu.hidden = true;
+          menu.parentElement.querySelector(".dd-btn").setAttribute("aria-expanded", "false");
+        }
+      }
+      function openMenu(dd) {
+        closeMenus(dd);
+        const menu = dd.querySelector(".dd-menu");
+        menu.hidden = false;
+        dd.querySelector(".dd-btn").setAttribute("aria-expanded", "true");
+        (menu.querySelector('[aria-selected="true"]') || menu.firstElementChild).focus();
+      }
+      function pickMenu(li, keyboard) {
+        const dd = li.closest(".dd");
+        closeMenus();
+        if (li.getAttribute("aria-selected") !== "true" && dd.ddPick) dd.ddPick(li.dataset.v);
+        if (keyboard) dd.querySelector(".dd-btn").focus();
+      }
+      document.addEventListener("click", (e) => {
+        const li = e.target.closest && e.target.closest(".dd-menu li");
+        if (li) { pickMenu(li, false); return; }
+        const btn = e.target.closest && e.target.closest(".dd-btn");
+        if (!btn) { closeMenus(); return; }
+        const dd = btn.closest(".dd");
+        if (dd.querySelector(".dd-menu").hidden) openMenu(dd);
+        else closeMenus();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && document.querySelector(".dd-menu:not([hidden])")) {
+          const open = document.querySelector(".dd-menu:not([hidden])");
+          closeMenus();
+          open.parentElement.querySelector(".dd-btn").focus();
+          return;
+        }
+        const dd = e.target.closest && e.target.closest(".dd");
+        if (!dd) return;
+        if (e.target.classList.contains("dd-btn")) {
+          if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) { e.preventDefault(); openMenu(dd); }
+          return;
+        }
+        const items = [...dd.querySelectorAll(".dd-menu li")];
+        const i = items.indexOf(e.target);
+        if (i < 0) return;
+        const go = { ArrowDown: Math.min(items.length - 1, i + 1), ArrowUp: Math.max(0, i - 1), Home: 0, End: items.length - 1 }[e.key];
+        if (go !== undefined) { e.preventDefault(); items[go].focus(); }
+        else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickMenu(e.target, true); }
+        else if (e.key === "Tab") closeMenus();
+      });
+
       const UPGRADE_Q = { tempers: "", runes: "", joineries: "", gear: "" };
       const TEMPER_UI = { show: "all", sort: "progress" };
       try { Object.assign(TEMPER_UI, JSON.parse(localStorage.getItem("sfhelper.tempers") || "{}")); } catch {}
+      const TEMPER_SORTS = [["progress", "Most progress"], ["least", "Least progress"], ["name", "Name"], ["origin", "Origin"]];
       function renderTempers() {
+        if (!TEMPER_SORTS.some(([v]) => v === TEMPER_UI.sort)) TEMPER_UI.sort = "progress";
+        sortMenu("temperSort", TEMPER_SORTS, TEMPER_UI.sort, (v) => {
+          TEMPER_UI.sort = v;
+          try { localStorage.setItem("sfhelper.tempers", JSON.stringify(TEMPER_UI)); } catch {}
+          renderTempers();
+        });
         const seen = new Map((LAST_TEMPERS || []).map((t) => [t.tag, t.count]));
         const tags = [...new Set([...Object.keys(TEMPER_DB), ...seen.keys()])];
         if (!LAST_TEMPERS) return;
@@ -1762,8 +1843,7 @@
         const chip = (k, v, label, n) =>
           `<button class="fchip${TEMPER_UI[k] === v ? " active" : ""}" data-k="${k}" data-v="${v}">${label}${n == null ? "" : `<span class="n">${n}</span>`}</button>`;
         $("temperFilters").innerHTML =
-          `<span class="fl">Show</span><div class="wfilter">${chip("show", "all", "All", list.length)}${chip("show", "learned", "Learned", learned)}${chip("show", "missing", "Missing", list.length - learned)}</div>` +
-          `<span class="fl">Sort</span><div class="wfilter">${chip("sort", "progress", "Most progress")}${chip("sort", "least", "Least progress")}${chip("sort", "name", "Name")}${chip("sort", "origin", ORIGIN_LABEL)}</div>`;
+          `<span class="fl">Show</span><div class="wfilter">${chip("show", "all", "All", list.length)}${chip("show", "learned", "Learned", learned)}${chip("show", "missing", "Missing", list.length - learned)}</div>`;
         const words = searchWords(UPGRADE_Q.tempers);
         const temperHay = (t) => {
           const db = TEMPER_DB[t.tag] || {};
@@ -2312,7 +2392,19 @@
           .map((g) => `<div class="avgroup"><h3>${g.icon ? upIcon(g.icon, "") : ""}${escHtml(g.name)} <span class="count">${g.count ?? g.rows.length}</span></h3>${g.rows.join("")}</div>`)
           .join("")}</div>`;
 
-      const UPGRADE_UI = { runes: "all", gear: "all", runeArt: "all", runeDrop: "all", joinVirtue: "all", joinTier: "all", gearType: "all", gearHabitat: "all", gearNature: "all" };
+      const UPGRADE_UI = { runes: "all", gear: "all", runeArt: "all", runeDrop: "all", joinVirtue: "all", joinTier: "all", gearType: "all", gearHabitat: "all", gearNature: "all", runeSort: "weapon", joinSort: "metal", gearSort: "type" };
+      const upFlat = (rows) => `<div class="upgroups upflat">${rows.join("")}</div>`;
+      const RUNE_SORTS = [["weapon", "Weapon"], ["slot", "Totem slot"], ["name", "Name"], ["rank", "Rank"], ["copies", "Copies"]];
+      const JOIN_SORTS = [["metal", "Metal"], ["virtue", "Virtue"], ["blessing", "Blessing"], ["name", "Name"], ["count", "Count"]];
+      const GEAR_SORTS = [["type", "Type"], ["name", "Name"], ["count", "Count"]];
+      function upgradeSortMenu(id, key, options, fallback) {
+        if (!options.some(([v]) => v === UPGRADE_UI[key])) UPGRADE_UI[key] = fallback;
+        sortMenu(id, options, UPGRADE_UI[key], (v) => {
+          UPGRADE_UI[key] = v;
+          try { localStorage.setItem("sfhelper.upgradeItems", JSON.stringify(UPGRADE_UI)); } catch {}
+          renderUpgradeItems();
+        });
+      }
       try { Object.assign(UPGRADE_UI, JSON.parse(localStorage.getItem("sfhelper.upgradeItems") || "{}")); } catch {}
       const withUnowned = (owned, known, blank) => {
         const have = new Set(owned.map((o) => o.type));
@@ -2418,6 +2510,9 @@
       function renderUpgradeItems() {
         const u = LAST_UPGRADE_ITEMS;
         for (const id of ["runesSection", "joinerySection", "gearSection"]) $(id).hidden = !u;
+        upgradeSortMenu("runeSort", "runeSort", RUNE_SORTS, "weapon");
+        upgradeSortMenu("joinerySort", "joinSort", JOIN_SORTS, "metal");
+        upgradeSortMenu("gearSort", "gearSort", GEAR_SORTS, "type");
         if (!u) return;
 
         const runes = withUnowned(u.runes, UPGRADES.runes, (type) => ({ type, ranks: [], unranked: 0 })).map((o) => ({ ...o, d: runeInfo(o.type) }));
@@ -2445,28 +2540,35 @@
               .map((a) => runeChip("runeArt", a, escHtml(a), byArt.filter((o) => o.d.art === a).length, `<img src="${gripIcon(a)}" alt="" onerror="this.remove()">`))
               .join("")}</div>` +
             `<span class="fl">Drops</span><div class="wfilter">${runeChip("runeDrop", "all", "All")}${runeChip("runeDrop", "cogah", "Cogah", byDrop.filter(drops.cogah).length)}${runeChip("runeDrop", "other", "Non-Cogah", byDrop.filter(drops.other).length)}</div>`;
-        const runeRow = (o) => {
+        const runeRow = (o, ctx = {}) => {
           const max = runeMax(o.d) ? runeRanks(o.d) : 0;
           const r = runeRank(o);
           const pips = !o.owned ? "Unowned"
             : max ? `<span class="mempips" title="Rank ${r} of ${max}">${Array.from({ length: max }, (_, i) => `<i${i < r ? ' class="on"' : ""}></i>`).join("")}</span>`
             : `Rank ${r}`;
           const n = runeCopies(o);
-          const sub = [slotHtml(o.d.slot), o.owned && n > 1 ? `${n} copies` : ""].filter(Boolean).join(" · ");
+          const sub = [ctx.art && o.d.art ? escHtml(o.d.art) : "", ctx.slot === false ? "" : slotHtml(o.d.slot), o.owned && n > 1 ? `${n} copies` : ""].filter(Boolean).join(" · ");
           return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${(o.d.tags || []).includes("Cogah") ? '<span class="rtag" title="Only drops in the Cogah">Cogah</span>' : ""}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}</div></div>`;
         };
         const runeWords = searchWords(UPGRADE_Q.runes);
         const runeHay = (o) => [o.d.name, o.d.desc, runeText(o.d), o.d.art, o.d.slot, ...(o.d.tags || [])];
         const shownRunes = runes.filter((o) => ownOk(o) && artOk(o) && dropOk(o) && matchesWords(runeWords, runeHay(o)));
         const arts = [...new Set(shownRunes.map((o) => o.d.art || "Other"))].sort((a, b) => (a === "Other") - (b === "Other") || a.localeCompare(b));
+        const runeByName = (a, b) => a.d.name.localeCompare(b.d.name);
+        const runeFlat = { name: runeByName, rank: (a, b) => b.owned - a.owned || runeRank(b) - runeRank(a) || runeByName(a, b), copies: (a, b) => runeCopies(b) - runeCopies(a) || runeByName(a, b) };
+        const runeSlots = [...VIRTUES.filter((v) => shownRunes.some((o) => o.d.slot === v)), ...(shownRunes.some((o) => !o.d.slot) ? [null] : [])];
+        const runeHtml = UPGRADE_UI.runeSort === "weapon"
+          ? upGroups(arts.map((art) => ({ name: art, rows: shownRunes.filter((o) => (o.d.art || "Other") === art).sort(runeByName).map((o) => runeRow(o)) })))
+          : UPGRADE_UI.runeSort === "slot"
+            ? upGroups(runeSlots.map((v) => ({
+                name: v ? `${v} Totem slot` : "No Totem slot",
+                icon: v ? virtueIcon(v) : null,
+                rows: shownRunes.filter((o) => (o.d.slot || null) === v).sort(runeByName).map((o) => runeRow(o, { art: true, slot: false })),
+              })))
+            : upFlat(shownRunes.slice().sort(runeFlat[UPGRADE_UI.runeSort]).map((o) => runeRow(o, { art: true })));
         $("runes").innerHTML = !runes.length
           ? '<span class="muted">No runes in your inventory.</span>'
-          : shownRunes.length
-            ? upGroups(arts.map((art) => ({
-                name: art,
-                rows: shownRunes.filter((o) => (o.d.art || "Other") === art).sort((a, b) => a.d.name.localeCompare(b.d.name)).map(runeRow),
-              })))
-            : '<span class="muted">Nothing matches these filters.</span>';
+          : shownRunes.length ? runeHtml : '<span class="muted">Nothing matches these filters.</span>';
 
         const joins = u.joineries.map((o) => {
           const d = UPGRADES.joineries[o.type] || { name: shortName(o.type), family: null };
@@ -2495,22 +2597,38 @@
         $("joinerySummary").innerHTML = joins.length
           ? `Kinds <b>${joins.length}</b> &nbsp;·&nbsp; Total <b>${joins.reduce((n, o) => n + o.count, 0).toLocaleString()}</b>`
           : "";
+        const joinRow = (o, label = o.d.name) =>
+          `<div class="avrow plain poprow" data-kind="joinery" data-type="${escHtml(o.type)}"><div class="avn">${deityHtml(label)}</div><div class="avr">${o.count.toLocaleString()}</div></div>`;
+        const familyRank = (o) => { const i = JOINERY_FAMILIES.indexOf(o.d.family); return i < 0 ? JOINERY_FAMILIES.length : i; };
+        const joinByName = (a, b) => a.d.name.localeCompare(b.d.name);
         const joinGroup = (family) => {
           const list = shownJoins.filter((o) => (o.d.family || null) === family);
           const label = (o) => (family ? o.d.name.slice(family.length + 1).trim() : o.d.name);
           return {
             name: family || "Other",
             icon: `img/joineries/${family ? family.toLowerCase() : "joinery"}.png`,
-            count: list.reduce((n, o) => n + o.count, 0).toLocaleString(),
+            count: qty(list),
             rows: list
               .sort((a, b) => TIER_ORDER(label(a)) - TIER_ORDER(label(b)) || label(a).localeCompare(label(b)))
-              .map((o) => `<div class="avrow plain poprow" data-kind="joinery" data-type="${escHtml(o.type)}"><div class="avn">${deityHtml(label(o))}</div><div class="avr">${o.count.toLocaleString()}</div></div>`),
+              .map((o) => joinRow(o, label(o))),
           };
+        };
+        const joinBy = (key, values, name, icon) =>
+          upGroups([...values, null].map((v) => {
+            const list = shownJoins.filter((o) => (o[key] || null) === v).sort((a, b) => familyRank(a) - familyRank(b) || (a.tier || 0) - (b.tier || 0) || joinByName(a, b));
+            return { name: name(v), icon: v ? icon(v) : null, count: qty(list), rows: list.map((o) => joinRow(o)) };
+          }));
+        const joinSorts = {
+          metal: () => upGroups([...JOINERY_FAMILIES, null].map(joinGroup)),
+          virtue: () => joinBy("virtue", VIRTUES, (v) => v || "Other", virtueIcon),
+          blessing: () => joinBy("tier", TIERS.map(([v]) => v), (v) => (TIERS.find(([t]) => t === v) || [null, "Other"])[1], () => null),
+          name: () => upFlat(shownJoins.slice().sort(joinByName).map((o) => joinRow(o))),
+          count: () => upFlat(shownJoins.slice().sort((a, b) => b.count - a.count || joinByName(a, b)).map((o) => joinRow(o))),
         };
         $("joineries").innerHTML = !joins.length
           ? '<span class="muted">No joineries in your inventory.</span>'
           : shownJoins.length
-            ? upGroups([...JOINERY_FAMILIES, null].map(joinGroup))
+            ? joinSorts[UPGRADE_UI.joinSort]()
             : '<span class="muted">Nothing matches these filters.</span>';
 
         const gear = withUnowned(u.gear, UPGRADES.gear, (type) => ({ type, count: 0, equipped: false }))
@@ -2543,8 +2661,9 @@
             `<span class="fl">Type</span><div class="wfilter">${gearChips("gearType", "type", GEAR_KINDS.filter((k) => gear.some((o) => gearGroup(o.d) === k)), (o, v) => gearGroup(o.d) === v)}</div>` +
             (lureRows && habitats.length ? `<span class="fl">Habitat</span><div class="wfilter">${gearChips("gearHabitat", "habitat", habitats, (o, v) => (o.d.habitat || []).includes(v))}</div>` : "") +
             (lureRows && natures.length ? `<span class="fl">Nature</span><div class="wfilter chipgrid">${gearChips("gearNature", "nature", natures, (o, v) => (o.d.natures || []).includes(v))}</div>` : "");
-        const gearSub = (o) => {
+        const gearSub = (o, ctx = {}) => {
           const bits = [];
+          if (ctx.type) bits.push(escHtml(gearGroup(o.d)));
           if (o.equipped) bits.push('<span class="equipped">Equipped</span>');
           const stats = o.d.stats || [];
           if (o.d.virtue) bits.push(`<span style="color:${VIRTUE_COLOR[o.d.virtue] || "inherit"}">${escHtml(stats.find((x) => x.startsWith(o.d.virtue)) || o.d.virtue)}</span>`);
@@ -2553,17 +2672,21 @@
           if (o.d.natures) bits.push(escHtml(o.d.natures.join(", ")));
           return bits.length ? `<small>${bits.join(" · ")}</small>` : "";
         };
-        const gearRow = (o) =>
-          `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="gear" data-type="${escHtml(o.type)}">${upIcon(o.d.icon || ITEM_ICONS[o.d.name])}<div class="avn">${escHtml(o.d.name)}${gearSub(o)}</div><div class="avr">${o.owned ? o.count.toLocaleString() : "Unowned"}</div></div>`;
+        const gearRow = (o, ctx) =>
+          `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="gear" data-type="${escHtml(o.type)}">${upIcon(o.d.icon || ITEM_ICONS[o.d.name])}<div class="avn">${escHtml(o.d.name)}${gearSub(o, ctx)}</div><div class="avr">${o.owned ? o.count.toLocaleString() : "Unowned"}</div></div>`;
         const shownGear = gear.filter((o) => gearPass(o));
+        const gearByName = (a, b) => a.d.name.localeCompare(b.d.name);
+        const gearHtml = UPGRADE_UI.gearSort === "type"
+          ? upGroups(GEAR_KINDS.map((kind) => ({
+              name: kind,
+              rows: shownGear.filter((o) => gearGroup(o.d) === kind).sort((a, b) => b.equipped - a.equipped || gearByName(a, b)).map((o) => gearRow(o)),
+            })))
+          : upFlat(shownGear.slice()
+              .sort(UPGRADE_UI.gearSort === "count" ? (a, b) => b.owned - a.owned || b.count - a.count || gearByName(a, b) : gearByName)
+              .map((o) => gearRow(o, { type: true })));
         $("gear").innerHTML = !gear.length
           ? '<span class="muted">No gear in your inventory.</span>'
-          : shownGear.length
-            ? upGroups(GEAR_KINDS.map((kind) => ({
-                name: kind,
-                rows: shownGear.filter((o) => gearGroup(o.d) === kind).sort((a, b) => b.equipped - a.equipped || a.d.name.localeCompare(b.d.name)).map(gearRow),
-              })))
-            : '<span class="muted">Nothing matches these filters.</span>';
+          : shownGear.length ? gearHtml : '<span class="muted">Nothing matches these filters.</span>';
       }
 
       function runeDropsHtml(drops) {
@@ -2601,7 +2724,7 @@
         const icon = d.icon || ITEM_ICONS[d.name];
         const unowned = kind === "gear" && !u.gear.some((x) => x.type === type);
         const pips = kind === "joinery" && d.pips
-          ? `<div class="tp-rank">${escHtml(ATTUNEMENT_LABEL)}</div><div class="tp-pips" style="--vc:${VIRTUE_COLOR[d.pips.virtue] || "var(--accent)"}"><span class="vpips">${"<i></i>".repeat(d.pips.count)}</span><span>Adds <b>${d.pips.count}</b> <span class="vname">${escHtml(d.pips.virtue)}</span> ${d.pips.count === 1 ? "Pip" : "Pips"}</span></div>`
+          ? `<div class="tp-rank">${escHtml(ATTUNEMENT_LABEL)}</div><div class="tp-pips" style="--vc:${VIRTUE_COLOR[d.pips.virtue] || "var(--accent)"};--vicon:url(img/game/attunement-${d.pips.virtue.toLowerCase()}.png)"><span class="vpips" title="${escHtml(d.pips.virtue)}">${"<i></i>".repeat(d.pips.count)}</span><span>Adds <b>${d.pips.count}</b> <span class="vname">${escHtml(d.pips.virtue)}</span> ${d.pips.count === 1 ? "Pip" : "Pips"}</span></div>`
           : "";
         return `<div class="tp-head">${icon ? upIcon(icon, "ticn") : ""}<div class="tp-name">${kind === "joinery" ? deityHtml(d.name) : escHtml(d.name)}</div></div>` +
           pips +
@@ -2880,6 +3003,7 @@
       try { Object.assign(TOTEM_UI, JSON.parse(localStorage.getItem("sfhelper.totems") || "{}"), { q: "" }); } catch {}
       const saveTotemUi = () => { try { localStorage.setItem("sfhelper.totems", JSON.stringify({ ...TOTEM_UI, q: "" })); } catch {} };
       const TOTEM_ALIAS = { HealCast: "Rivers Revive" };
+      const TOTEM_SORTS = [["name", "Name"], ["rank", "Rank"], ["virtue", "Virtue"], ["grip", "Grip"], ["animal", "Totem type"], ["trigger", "Trigger"]];
       const VIRTUES = ["Courage", "Grace", "Spirit"];
       const GRIPS = ["Universal", "Bow", "Flyblade", "Heavy", "Long Blade", "Magick", "Polearm", "Shield", "Short Blade"];
       const ANIMALS = ["Beaver", "Duck", "Fawn", "Rabbit", "Rat", "Squirrel"];
@@ -3001,10 +3125,11 @@
         </div>`;
       }
       function renderTotems() {
+        if (!TOTEM_SORTS.some(([v]) => v === TOTEM_UI.sort)) TOTEM_UI.sort = "name";
+        sortMenu("totemSort", TOTEM_SORTS, TOTEM_UI.sort, (v) => { TOTEM_UI.sort = v; saveTotemUi(); renderTotems(); });
         if (!LAST_TOTEMS) return;
         const all = totemViews();
         renderTotemFilters(all);
-        $("totemSort").value = TOTEM_UI.sort;
         const words = TOTEM_UI.q.toLowerCase().replace(/[+%]/g, " ").split(/\s+/).filter(Boolean);
         if (!["all", "owned", "unowned", "starred"].includes(TOTEM_UI.owned)) TOTEM_UI.owned = "all";
         const shown = all.filter((v) =>
@@ -3055,11 +3180,6 @@
         const b = e.target.closest(".fchip");
         if (!b) return;
         TOTEM_UI[b.dataset.k] = b.dataset.v;
-        saveTotemUi();
-        renderTotems();
-      });
-      $("totemSort").addEventListener("change", (e) => {
-        TOTEM_UI.sort = e.target.value;
         saveTotemUi();
         renderTotems();
       });
@@ -3646,7 +3766,10 @@
         const tokenCards = Object.entries(DICT.factionTokens).map(([tag, name]) => {
           const limit = (DICT.tokenLimits && DICT.tokenLimits[tag]) || 50;
           const count = Math.min(owned[`/SF/Types/Items/FactionItems/${tag}RepToken`] ?? 0, limit);
-          return `<div class="stat"><div class="n">${fmt(count)}</div><div class="l">${name}</div></div>`;
+          const icon = ITEM_ICONS[name];
+          return icon
+            ? `<div class="stat curstat"><img class="curicn" src="${escHtml(icon)}" alt="" onerror="this.remove()"><div class="n">${fmt(count)}</div><div class="l">${escHtml(name)}</div></div>`
+            : `<div class="stat"><div class="n">${fmt(count)}</div><div class="l">${escHtml(name)}</div></div>`;
         });
         $("factionTokens").innerHTML = tokenCards.length
           ? tokenCards.join("")

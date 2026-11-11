@@ -74,6 +74,9 @@ const CURRENCY_ICONS: [string, string][] = [
   ["/SF/Interface/Graphics/CategoryIcons/Inventory/Core.png", "img/game/category-runes.png"],
   ["/SF/Interface/Graphics/CategoryIcons/Inventory/Joinery.png", "img/game/category-joineries.png"],
   ["/SF/Interface/Icons/GlimmerDust.png", "img/game/harmonies.png"],
+  ["/SF/Interface/Graphics/CategoryIcons/Attunement/Courage.png", "img/game/attunement-courage.png"],
+  ["/SF/Interface/Graphics/CategoryIcons/Attunement/Grace.png", "img/game/attunement-grace.png"],
+  ["/SF/Interface/Graphics/CategoryIcons/Attunement/Spirit.png", "img/game/attunement-spirit.png"],
 ];
 const MIN_KEPT = 0.8;
 const DEFAULT_CAPS = [5000, 5000, 20000, 20000, 30000, 30000];
