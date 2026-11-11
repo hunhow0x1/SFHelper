@@ -8,7 +8,7 @@ names throughout.
 
 Runs on **Linux** (AppImage) and **Windows** (installer).
 
-![The Overview tab: faction standing, cooldowns, Enclave Favours and trades](screenshots/overview.webp)
+![The Overview tab: faction standing with each faction's emblem, cooldowns, Enclave Favours, currencies and trades](screenshots/overview.webp)
 
 ## Features
 
@@ -31,11 +31,12 @@ Runs on **Linux** (AppImage) and **Windows** (installer).
 | | |
 |---|---|
 | ![Loadouts: a loadout opened to its Virtues, armour and Pact Arts](screenshots/loadouts.webp) | ![Loadouts: the same loadout's Pact Arts tree and weapons, with Joinery, Runes, Totems by slot and Tempers](screenshots/loadouts-2.webp) |
-| ![Mastery: Envoy Rank and every weapon's Mastery](screenshots/mastery.webp) | ![Upgrades, Tempers: what Tuvalkane has learned and how close the rest are](screenshots/upgrades-tempers.webp) |
+| ![Mastery: Envoy Rank and every weapon's and Pact's rank, with in-game icons](screenshots/mastery.webp) | ![Upgrades, Tempers: what Tuvalkane has learned, with each Temper's numbers from the game files](screenshots/upgrades-tempers.webp) |
 | ![Upgrades, Runes: your Runes by weapon art, with rank and Totem slot](screenshots/upgrades-runes.webp) | ![Upgrades, Joineries: your Joineries by metal and blessing](screenshots/upgrades-joineries.webp) |
-| ![Upgrades, Gear: supplies, fishing gear and companion items, with what's equipped](screenshots/upgrades-gear.webp) | ![Upgrades, Totems: your Totems with search and Virtue, grip, type and trigger filters](screenshots/upgrades-totems.webp) |
-| ![Recipes: Verminia's brews and Tuvalkane's Chordstones, with what you have and what you're short of](screenshots/recipes.webp) | ![Pickups: weapons picked up, with craftwork and tempers](screenshots/pickups.webp) |
-| ![Trades: what you received and gave in each trade, and the Scutage paid](screenshots/trades.webp) | ![Avakot: what Avakot's Gots has in stock, with stars for notifications](screenshots/avakot.webp) |
+| ![Upgrades, Gear: supplies, fishing gear and companion items, with what's equipped and the game's numbers](screenshots/upgrades-gear.webp) | ![Upgrades, Totems: every kind of Totem with search, filters, stars and rank diamonds](screenshots/upgrades-totems.webp) |
+| ![Recipes: brews, Chordstones, weapons and armour, with what you have and what you're short of](screenshots/recipes.webp) | ![Forge: what's curing with Tuvalkane and Verminia, and how long is left](screenshots/forge.webp) |
+| ![Pickups: weapons picked up, with their pictures, craftwork and tempers](screenshots/pickups.webp) | ![Trades: what you received and gave in each trade, and the Scutage paid](screenshots/trades.webp) |
+| ![Avakot: what Avakot's Gots has in stock, with stars for notifications](screenshots/avakot.webp) | ![Stats: combat totals, your weapons, Pacts and enemies, and your Wolfpup](screenshots/stats.webp) |
 
 ## How it gets your data
 
