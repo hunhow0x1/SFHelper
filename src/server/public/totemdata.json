@@ -1,5 +1,8 @@
 {
   "Arcanic Gnaws": {
+    "types": [
+      "/SF/Upgrades/Totems/ArcDmgIncreaseReveal"
+    ],
     "animal": "Rat",
     "enhances": "Smite Proc",
     "description": "Just a nibble",
@@ -22,6 +25,9 @@
     ]
   },
   "Armour Coat": {
+    "types": [
+      "/SF/Upgrades/Totems/PhysicalArmourRuneCount"
+    ],
     "animal": "Beaver",
     "enhances": "Runes (Passive)",
     "description": "Sheltered by thick hide",
@@ -44,6 +50,9 @@
     ]
   },
   "Bandicota Blast": {
+    "types": [
+      "/SF/Upgrades/Totems/StagAOEReveal"
+    ],
     "animal": "Rat",
     "enhances": "Smite Proc",
     "description": "Small and stout",
@@ -66,6 +75,9 @@
     ]
   },
   "Binky Kick": {
+    "types": [
+      "/SF/Upgrades/Totems/AoeCollect"
+    ],
     "animal": "Rabbit",
     "enhances": "Pull Smite",
     "description": "Swift thud by rabbit foot",
@@ -100,6 +112,9 @@
     ]
   },
   "Blinding Bite": {
+    "types": [
+      "/SF/Upgrades/Totems/BlindReveal"
+    ],
     "animal": "Squirrel",
     "enhances": "Smite Proc",
     "description": "Shining luster in buck teeth",
@@ -122,6 +137,9 @@
     ]
   },
   "Cervid Ward": {
+    "types": [
+      "/SF/Upgrades/Totems/MagikArmourRuneCount"
+    ],
     "animal": "Fawn",
     "enhances": "Runes (Passive)",
     "description": "Protection of cloven hoof",
@@ -144,6 +162,9 @@
     ]
   },
   "Dabble Dredge": {
+    "types": [
+      "/SF/Upgrades/Totems/HealRip"
+    ],
     "animal": "Duck",
     "enhances": "Pull Smite",
     "description": "Squirming prey, freshly caught",
@@ -166,6 +187,9 @@
     ]
   },
   "Dewclawer": {
+    "types": [
+      "/SF/Upgrades/Totems/RuneDamageBuff"
+    ],
     "animal": "Rabbit",
     "enhances": "Runes (Passive)",
     "description": "Soft paw, fierce claw",
@@ -188,6 +212,9 @@
     ]
   },
   "Diving Drake": {
+    "types": [
+      "/SF/Upgrades/Totems/DamageRip"
+    ],
     "animal": "Duck",
     "enhances": "Pull Smite",
     "description": "Dredged from the mud",
@@ -210,6 +237,9 @@
     ]
   },
   "Draft Dam": {
+    "types": [
+      "/SF/Upgrades/Totems/RuneDrainSpeed"
+    ],
     "animal": "Beaver",
     "enhances": "Rune Activation",
     "description": "Restraining current's flow",
@@ -232,6 +262,9 @@
     ]
   },
   "Far Foul": {
+    "types": [
+      "/SF/Upgrades/Totems/SoulRipRangeBuff"
+    ],
     "animal": "Duck",
     "enhances": "Pull Smite",
     "description": "Within feather's reach",
@@ -254,6 +287,9 @@
     ]
   },
   "Hare Harms": {
+    "types": [
+      "/SF/Upgrades/Totems/AoeRip"
+    ],
     "animal": "Rabbit",
     "enhances": "Pull Smite",
     "description": "Tremors 'neath rabbit foot",
@@ -288,6 +324,9 @@
     ]
   },
   "Heal Preens": {
+    "types": [
+      "/SF/Upgrades/Totems/HealAoeCollect"
+    ],
     "animal": "Duck",
     "enhances": "Pull Smite",
     "description": "A flock alight in rippling waves",
@@ -322,6 +361,9 @@
     ]
   },
   "Hollowed Herd": {
+    "types": [
+      "/SF/Upgrades/Totems/CloneCollect"
+    ],
     "animal": "Fawn",
     "enhances": "Pull Smite",
     "description": "No fawn grazes alone",
@@ -344,6 +386,9 @@
     ]
   },
   "Lingering Litter": {
+    "types": [
+      "/SF/Upgrades/Totems/SmiteTimeReveal"
+    ],
     "animal": "Rat",
     "enhances": "Smite Proc",
     "description": "Tracked by beady eyes",
@@ -366,6 +411,9 @@
     ]
   },
   "Moving Musk": {
+    "types": [
+      "/SF/Upgrades/Totems/DragAiRip"
+    ],
     "animal": "Fawn",
     "enhances": "Pull Smite",
     "description": "The scent of fearful prey",
@@ -388,6 +436,9 @@
     ]
   },
   "Noble Nestling": {
+    "types": [
+      "/SF/Upgrades/Totems/VirtueBuffCollect"
+    ],
     "animal": "Rat",
     "enhances": "Pull Smite",
     "description": "Beady dignity",
@@ -410,6 +461,9 @@
     ]
   },
   "Quick Drey": {
+    "types": [
+      "/SF/Upgrades/Totems/AttackSpeedCollect"
+    ],
     "animal": "Squirrel",
     "enhances": "Pull Smite",
     "description": "Razor-quick from nest's embrace",
@@ -432,6 +486,9 @@
     ]
   },
   "Rivers Revive": {
+    "types": [
+      "/SF/Upgrades/Totems/HealCast"
+    ],
     "animal": "Beaver",
     "enhances": "Rune Activation",
     "description": "Mended by webbed paw",
@@ -466,6 +523,9 @@
     ]
   },
   "Smiting Stag": {
+    "types": [
+      "/SF/Upgrades/Totems/SmiteChanceRuneCount"
+    ],
     "animal": "Fawn",
     "enhances": "Runes (Passive)",
     "description": "Charged forth in bone wreath",
@@ -488,6 +548,9 @@
     ]
   },
   "Spreading Sploot": {
+    "types": [
+      "/SF/Upgrades/Totems/AOESmiteChanceCollect"
+    ],
     "animal": "Squirrel",
     "enhances": "Pull Smite",
     "description": "Unfurled and ready",
@@ -522,6 +585,9 @@
     ]
   },
   "Sprout Spring": {
+    "types": [
+      "/SF/Upgrades/Totems/CoopDuplicateRip"
+    ],
     "animal": "Rabbit",
     "enhances": "Pull Smite",
     "description": "One field feeds many",
@@ -544,6 +610,9 @@
     ]
   },
   "Stocky Lodge": {
+    "types": [
+      "/SF/Upgrades/Totems/ArmourBuffCast"
+    ],
     "animal": "Beaver",
     "enhances": "Rune Activation",
     "description": "Tough of tooth and paw",
@@ -566,6 +635,9 @@
     ]
   },
   "Thunder Tail": {
+    "types": [
+      "/SF/Upgrades/Totems/AOEStunCast"
+    ],
     "animal": "Beaver",
     "enhances": "Rune Activation",
     "description": "Laid low by flat tail",
@@ -600,6 +672,9 @@
     ]
   },
   "Turn Tusk": {
+    "types": [
+      "/SF/Upgrades/Totems/ConfuseRip"
+    ],
     "animal": "Fawn",
     "enhances": "Pull Smite",
     "description": "Mesmerized by tail's flick",
@@ -622,6 +697,9 @@
     ]
   },
   "Voltaic Scurry": {
+    "types": [
+      "/SF/Upgrades/Totems/VolDmgIncreaseReveal"
+    ],
     "animal": "Squirrel",
     "enhances": "Smite Proc",
     "description": "Lightning quick pitter-patter",

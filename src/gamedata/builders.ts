@@ -17,6 +17,31 @@ export interface NameData {
   currencies: Record<string, string>;
   pets: PetText;
   crafting: Record<string, string>;
+  founders: string[];
+}
+
+export function buildFounderItems(texts: string[]): string[] {
+  const out = new Set<string>();
+  for (const t of texts) {
+    if (!/^MarketSubcategoryOverride=founders$/m.test(t)) continue;
+    const parts = t.split(/^PackageComponents=\{$/m)[1];
+    if (!parts) continue;
+    for (const [, type] of parts.matchAll(/^TypeName=(\S+)$/gm)) {
+      if (type!.startsWith("/SF/StoreItems/")) out.add(type!.replace("/SF/StoreItems/", "/SF/"));
+    }
+  }
+  return [...out].sort();
+}
+
+export function factionIconPaths(texts: string[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const t of texts) {
+    const stem = /^SyndicateName=\/SF\/Language\/Syndicates\/(\w+)Name$/m.exec(t)?.[1];
+    const icon = /^IconTexture=(\S+\.png)$/m.exec(t)?.[1];
+    const tag = stem ? `${stem}Syndicate` : null;
+    if (tag && icon && FACTION_TAGS.includes(tag) && !out[tag]) out[tag] = icon;
+  }
+  return sortedKeys(out);
 }
 
 const CRAFTING_LABELS: Record<string, string> = {
@@ -199,7 +224,7 @@ export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): Na
     const name = type?.startsWith("/SF/Upgrades/Runes/Weapon/") && field(t, "ProductCategory") === "Upgrades" ? localized(dict, field(t, "LocalizeTag")) : null;
     if (type && name && !(type in items)) items[type] = name;
   }
-  return { items, factions, factionTokens, tokenLimits, currencies, pets: buildPetText(dict, texts), crafting: buildCraftingText(dict) };
+  return { items, factions, factionTokens, tokenLimits, currencies, pets: buildPetText(dict, texts), crafting: buildCraftingText(dict), founders: buildFounderItems(texts) };
 }
 
 export interface EnemyData {
@@ -1197,6 +1222,7 @@ export function buildTempers(dict: Dict, texts: string[], manifests: Map<string,
 }
 
 export interface TotemEntry {
+  types: string[];
   animal: string;
   enhances: string;
   description: string;
@@ -1217,12 +1243,14 @@ export async function buildTotemData(dict: Dict, texts: string[], previous: Reco
     const key = defKey(t);
     const def = key ? defs.get(key) : undefined;
     const text = def ? localized(dict, field(def, "EnhancementTag")) : null;
+    if (name && out[name] && !out[name]!.types.includes(type)) out[name]!.types.push(type);
     if (!name || !def || !text || out[name]) continue;
     const order = [...new Set([...text.matchAll(/\|(\w+)\|/g)].map((m) => m[1]!))];
     const base = order.length ? await values(type, def) : null;
     const grip = order.length ? await values(type, def, 1) : null;
     const prev = previous?.[name];
     out[name] = {
+      types: [type],
       animal: prev?.animal ?? /\/Animals\/(\w+)\.png$/.exec(field(t, "Icon") ?? "")?.[1] ?? "",
       enhances: prev?.enhances ?? "",
       description: localized(dict, field(t, "LocalizeDescTag")) ?? "",

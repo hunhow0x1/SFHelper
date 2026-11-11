@@ -512,9 +512,9 @@ describe("Tempers, Totem cards and Pact Arts in the game's own words", () => {
   it("uses the game's descriptions and script numbers", async () => {
     expect(buildTempers(dict, texts)).toEqual({ AerialAttackDamageAMod: { name: "From Above", effect: "Increases Weapon Damage during Aerial Attacks." } });
     const values = async (_type: string, _def: string, variant?: number) => ({ RANGE: variant === 1 ? ["3", "4", "6", "8"] : ["2", "3", "4", "5"] });
-    const prev = { "Far Foul": { animal: "Hare", enhances: "Pull Smite", description: "", effect: "", base: [], grip: [] } };
+    const prev = { "Far Foul": { types: [], animal: "Hare", enhances: "Pull Smite", description: "", effect: "", base: [], grip: [] } };
     expect(await buildTotemData(dict, texts, prev, values)).toEqual({
-      "Far Foul": { animal: "Hare", enhances: "Pull Smite", description: "Within feather's reach", effect: "Increases Pull Smite Range by +$1m.", base: [["2", "3", "4", "5"]], grip: [["3", "4", "6", "8"]] },
+      "Far Foul": { types: ["/SF/Upgrades/Totems/FarFoul"], animal: "Hare", enhances: "Pull Smite", description: "Within feather's reach", effect: "Increases Pull Smite Range by +$1m.", base: [["2", "3", "4", "5"]], grip: [["3", "4", "6", "8"]] },
     });
     expect((await buildTotemData(dict, texts, null, async () => null))["Far Foul"]).toMatchObject({ animal: "Rabbit", base: [[]] });
     expect(buildPactArtTexts(dict, texts)).toEqual({ Barkbare: "Like grafting tree bark." });

@@ -149,7 +149,8 @@
       .panel { display: grid; gap: 28px; }
       .panel:not(.active) { content-visibility: hidden; }
       .subtabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: -8px; }
-      .subtabs .fchip { padding: 9px 20px; font-size: 12px; }
+      .subtabs .fchip { padding: 9px 20px 9px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 9px; }
+      .subtabs .fchip img { width: 24px; height: 24px; object-fit: contain; margin: -6px 0; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7)); }
       .panel > section.offview { display: none; }
       .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
       .ov-col { display: contents; }
@@ -224,6 +225,9 @@
       .row .val { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
       .row .label .today { white-space: nowrap; margin-left: 12px; font-weight: 500; font-size: 13.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
       .row .label .today.up { color: var(--accent-2); }
+      #factions .row { grid-template-columns: 38px minmax(0, 1fr) auto; column-gap: 14px; }
+      #factions .row .ficon { grid-row: span 2; width: 38px; height: 38px; object-fit: contain; align-self: center; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)); }
+      #factions .row .bar { grid-column: 2 / -1; }
       .bar {
         grid-column: 1 / -1; height: 6px; background: var(--bar-bg); border-radius: 1px; overflow: hidden;
         box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6), 0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent);
@@ -329,6 +333,13 @@
       .mrow.done .mbar > i { background: linear-gradient(90deg, color-mix(in srgb, var(--accent-2) 62%, var(--bg)), var(--accent-2)); }
       .mrow.miss .mname, .mrow.miss .mval { color: var(--faint); }
       .mrow.miss .mbar { opacity: 0.45; }
+      .mrow { align-items: center; }
+      .mrow .mname { display: flex; }
+      .wchip { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 2px 10px 2px 3px; border: 1px solid var(--line-2); border-radius: 3px; background: color-mix(in srgb, var(--accent) 5%, transparent); }
+      .wchip img { width: 34px; height: 34px; margin: -3px 0; object-fit: contain; flex: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6)) brightness(1.15); }
+      .wchip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .mrow.miss .wchip { border-color: var(--line); background: none; }
+      .mrow.miss .wchip img { opacity: 0.4; filter: grayscale(1); }
       .erank {
         display: grid; grid-template-columns: auto 1fr auto; gap: 18px 22px; align-items: center;
         background: var(--well); border: 1px solid var(--line); border-radius: 3px; padding: 16px 20px; margin-bottom: 22px;
@@ -380,6 +391,7 @@
         #pickups .pickrow .wtempers:empty { display: none; }
       }
       .pickhead { display: flex; align-items: center; gap: 4px; }
+      #pickups .pickicon { width: 40px; height: 40px; object-fit: contain; flex: none; margin: -6px 10px -6px 0; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)); }
       .pickhead .pickname { font: 600 16px/1.3 var(--display); letter-spacing: 0.04em; }
       .pickhead .pickwhen { margin-left: auto; color: var(--faint); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
       .picktop { display: flex; align-items: center; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 22px; }
@@ -590,6 +602,13 @@
       .tcard .tfx b { color: var(--accent-hi); }
       .tcard .ton { grid-column: 2; font-size: 12.5px; color: var(--faint); }
       .tcard .ton b { color: var(--muted); font-weight: 500; }
+      .tcard .thead .tstar { margin-left: auto; }
+      .tcard .thead .tpips + .tstar { margin-left: 10px; }
+      .tcard.starred { border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent-hi) 9%, transparent); }
+      .tcard.miss .ticon { opacity: 0.35; filter: grayscale(1); }
+      .tcard.miss .tname, .tcard.miss .tfx { color: var(--faint); }
+      .tcard.miss .tfx b { color: var(--muted); }
+      .tcard .tmeta .tunowned { color: var(--faint); font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; }
       @media (max-width: 640px) {
         .tfilters { grid-template-columns: 1fr; gap: 6px; }
         .tfilters .fl { margin-top: 6px; }
@@ -778,6 +797,12 @@
       .lo.open { --tick: color-mix(in srgb, var(--accent-hi) 60%, transparent); }
 
       #panel-settings > .cols.acctrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); }
+      .setcol { display: grid; gap: 28px; align-content: start; }
+      .settoggle { display: flex; align-items: flex-start; gap: 14px; }
+      .settoggle .sw { margin-top: 1px; flex: none; }
+      .settoggle .settext { display: grid; gap: 4px; min-width: 0; }
+      .settoggle .settext b { font: 500 15.5px/1.2 var(--body); color: var(--text); }
+      .settoggle .settext small { font-size: 13px; line-height: 1.4; color: var(--faint); }
       @media (max-width: 1100px) { #panel-settings > .cols.acctrow { grid-template-columns: 1fr; } }
       .support { margin: -6px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
       .support a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
@@ -986,11 +1011,11 @@
 
       <div class="panel" id="panel-upgrades">
         <div class="subtabs" id="upgradeTabs" role="tablist" aria-label="Upgrades">
-          <button class="fchip" role="tab" data-view="tempers">Tempers</button>
-          <button class="fchip" role="tab" data-view="runes">Runes</button>
-          <button class="fchip" role="tab" data-view="joineries">Joineries</button>
-          <button class="fchip" role="tab" data-view="gear">Gear</button>
-          <button class="fchip" role="tab" data-view="totems">Totems</button>
+          <button class="fchip" role="tab" data-view="tempers"><img src="img/game/category-tempers.png" alt="" onerror="this.remove()">Tempers</button>
+          <button class="fchip" role="tab" data-view="runes"><img src="img/game/category-runes.png" alt="" onerror="this.remove()">Runes</button>
+          <button class="fchip" role="tab" data-view="joineries"><img src="img/game/category-joineries.png" alt="" onerror="this.remove()">Joineries</button>
+          <button class="fchip" role="tab" data-view="gear"><img src="img/game/storeitems-consumables-courageelixir.png" alt="" onerror="this.remove()">Gear</button>
+          <button class="fchip" role="tab" data-view="totems"><img src="img/totems/squirrel.png" alt="" onerror="this.remove()">Totems</button>
         </div>
         <section data-view="tempers">
           <h2>Tempers · Tuvalkane</h2>
@@ -1021,7 +1046,14 @@
           <div id="gear"></div>
         </section>
         <section data-view="totems">
-          <h2>Totems</h2>
+          <div class="picktop">
+            <h2>Totems</h2>
+            <label class="notifytoggle" id="totemNotifyWrap" hidden title="Desktop notification with sound when you get a Totem you starred">
+              <input type="checkbox" id="totemNotify" />
+              <span class="sw"></span>
+              Notify me about starred Totems
+            </label>
+          </div>
           <input id="totemSearch" class="wsearch" placeholder="Search names or effects, e.g. rune damage, pull smite, armour…" spellcheck="false" />
           <div class="tfilters" id="totemFilters"></div>
           <div class="tbar">
@@ -1151,16 +1183,26 @@
 
       <div class="panel" id="panel-settings">
         <div class="cols acctrow">
-          <section>
-            <h2 class="hdr">Account
-              <button id="accountToggle" class="mini" aria-expanded="false">Edit ID</button>
-            </h2>
-            <span class="status" id="status">Enter your account id to begin.</span>
-            <div class="setup" id="accountSetup" hidden style="margin-top: 12px">
-              <input id="accountId" placeholder="24-character account id" spellcheck="false" />
-              <button id="save">Track</button>
-            </div>
-          </section>
+          <div class="setcol">
+            <section>
+              <h2 class="hdr">Account
+                <button id="accountToggle" class="mini" aria-expanded="false">Edit ID</button>
+              </h2>
+              <span class="status" id="status">Enter your account id to begin.</span>
+              <div class="setup" id="accountSetup" hidden style="margin-top: 12px">
+                <input id="accountId" placeholder="24-character account id" spellcheck="false" />
+                <button id="save">Track</button>
+              </div>
+            </section>
+            <section>
+              <h2>Display</h2>
+              <label class="notifytoggle settoggle" title="Founder's items came only in the Founder packs, so they can't be earned in the game">
+                <input type="checkbox" id="hideFounders" />
+                <span class="sw"></span>
+                <span class="settext"><b>Hide Founder's items</b><small>Leaves the weapons and Pacts from the Founder packs out of the Mastery and Stats tabs</small></span>
+              </label>
+            </section>
+          </div>
 
           <section id="themeSection">
             <h2>Theme</h2>
@@ -1444,6 +1486,10 @@
         </div>`;
       }
 
+      let HIDE_FOUNDERS = false;
+      let FOUNDER_NAMES = new Set();
+      const itemChip = (name) =>
+        `<span class="wchip">${ITEM_ICONS[name] ? `<img src="${ITEM_ICONS[name]}" alt="" loading="lazy" onerror="this.remove()">` : ""}<span>${escHtml(name)}</span></span>`;
       function renderMastery() {
         const sections = [
           { roster: WEAPON_ROSTER, owned: LAST_WEAPONS, prefix: "/SF/Weapons/", C: WEAPON_RANK_C, groupOf: (n) => (WEAPON_ROSTER[n] && WEAPON_ROSTER[n].class) || "Other" },
@@ -1459,6 +1505,7 @@
             earnedByName.set(n, Math.max(earnedByName.get(n) || 0, xp));
           }
           for (const name of new Set([...Object.keys(sec.roster), ...ownedByName.keys(), ...earnedByName.keys()])) {
+            if (HIDE_FOUNDERS && FOUNDER_NAMES.has(name)) continue;
             const w = ownedByName.get(name) || null;
             const earned = Math.max(earnedByName.get(name) || 0, w ? w.xp : 0);
             items.push({
@@ -1516,7 +1563,7 @@
         const rowFor = (i) => {
           const l = i.lvl;
           if (!l) {
-            return `<div class="mrow miss"><span class="mname">${i.name}</span><span class="mval">Unowned</span><span class="mbar"></span></div>`;
+            return `<div class="mrow miss"><span class="mname">${itemChip(i.name)}</span><span class="mval">Unowned</span><span class="mbar"></span></div>`;
           }
           const note = !i.w
             ? `<span class="mnote" title="Mastery earned before this item left your inventory">unowned</span>`
@@ -1525,7 +1572,7 @@
               : "";
           const val = l.maxed ? "Mastered" : `${l.rank} / 30`;
           const cls = "mrow" + (l.maxed ? " done" : "") + (i.w ? "" : " miss");
-          return `<div class="${cls}"><span class="mname">${i.name}</span><span class="mval">${note}${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
+          return `<div class="${cls}"><span class="mname">${itemChip(i.name)}</span><span class="mval">${note}${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
         };
         const shown = items.filter((i) => passOwn(i) && passMastery(i) && passType(i) && passSearch(i));
         $("mastery").classList.toggle("single", MASTERY_UI.type === "pacts");
@@ -1689,7 +1736,7 @@
             const cwBadge = cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : "";
             const chips = temperChips(p.tempers);
             return `<div class="pickrow">
-              <div class="pickhead"><span class="pickname">${shortName(p.key)}</span> ${cwBadge}${p.moonsteel ? '<span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : ""}</div>
+              <div class="pickhead">${ITEM_ICONS[shortName(p.key)] ? `<img class="pickicon" src="${ITEM_ICONS[shortName(p.key)]}" alt="" loading="lazy" onerror="this.remove()">` : ""}<span class="pickname">${shortName(p.key)}</span> ${cwBadge}${p.moonsteel ? '<span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : ""}</div>
               <div class="wtempers">${chips}</div>
               ${pickWhen(p)}
             </div>`;
@@ -2705,7 +2752,8 @@
       })();
 
       let LAST_TOTEMS = null;
-      const TOTEM_UI = { q: "", virtue: "all", grip: "all", animal: "all", trigger: "all", sort: "name" };
+      const TOTEM_UI = { q: "", owned: "all", virtue: "all", grip: "all", animal: "all", trigger: "all", sort: "name" };
+      let TOTEM_WATCH = [];
       try { Object.assign(TOTEM_UI, JSON.parse(localStorage.getItem("sfhelper.totems") || "{}"), { q: "" }); } catch {}
       const saveTotemUi = () => { try { localStorage.setItem("sfhelper.totems", JSON.stringify({ ...TOTEM_UI, q: "" })); } catch {} };
       const TOTEM_ALIAS = { HealCast: "Rivers Revive" };
@@ -2748,9 +2796,20 @@
             animal: d ? d.animal : null,
             trigger: d ? TRIGGER_LABEL[d.enhances] || d.enhances : null,
             description: d ? d.description : "",
+            owned: true,
           });
         }
-        return [...groups.values()];
+        const views = [...groups.values()];
+        const ownedNames = new Set(views.map((v) => v.name));
+        for (const [name, d] of Object.entries(TOTEM_DATA)) {
+          if (ownedNames.has(name)) continue;
+          views.push({
+            id: null, type: (d.types || [])[0] || null, name, rank: 1, virtue: null, grip: null, equippedOn: [],
+            count: 0, on: new Set(), aligned: false, effect: totemEffectHtml(d, 1, false),
+            animal: d.animal || null, trigger: TRIGGER_LABEL[d.enhances] || d.enhances || null, description: d.description || "", owned: false,
+          });
+        }
+        return views;
       }
       function totemMatches(v, words) {
         if (!words.length) return true;
@@ -2768,7 +2827,15 @@
             .join("");
           return `<span class="fl">${label}</span><div class="wfilter"><button class="fchip${TOTEM_UI[key] === "all" ? " active" : ""}" data-k="${key}" data-v="all">All</button>${chips}</div>`;
         };
+        const ownChip = (val, label, n) =>
+          `<button class="fchip${TOTEM_UI.owned === val ? " active" : ""}" data-k="owned" data-v="${val}">${label}<span class="n">${n}</span></button>`;
+        const starredN = all.filter((v) => TOTEM_WATCH.includes(v.name)).reduce((n, v) => n + Math.max(1, v.count), 0);
         $("totemFilters").innerHTML =
+          `<span class="fl">Owned</span><div class="wfilter"><button class="fchip${TOTEM_UI.owned === "all" ? " active" : ""}" data-k="owned" data-v="all">All</button>` +
+            ownChip("owned", "Owned", all.reduce((n, v) => n + v.count, 0)) +
+            ownChip("unowned", "Unowned", all.filter((v) => !v.owned).length) +
+            (starredN || TOTEM_UI.owned === "starred" ? ownChip("starred", "Starred", starredN) : "") +
+          `</div>` +
           row("Virtue", "virtue", VIRTUES, virtueIcon) +
           row("Grip", "grip", GRIPS, gripIcon) +
           row("Type", "animal", ANIMALS, animalIcon) +
@@ -2778,12 +2845,15 @@
         const vc = v.virtue ? `var(--${v.virtue.toLowerCase()})` : "var(--line-2)";
         const pips = [1, 2, 3, 4].map((r) => `<i class="${r <= v.rank ? "on" : ""}"></i>`).join("");
         const on = [...v.on].map(shortName);
-        return `<div class="tcard${v.aligned ? " aligned" : ""}" style="--vc:${vc}">
+        const starred = TOTEM_WATCH.includes(v.name);
+        const tip = starred ? `Starred: you'll be notified when you get ${v.name}` : `Star to be notified when you get ${v.name}`;
+        const star = `<button class="star tstar${starred ? " on" : ""}" data-totem="${escHtml(v.name)}" aria-pressed="${starred}" title="${escHtml(tip)}" aria-label="${escHtml(v.name)}">${STAR_SVG}</button>`;
+        return `<div class="tcard${v.aligned ? " aligned" : ""}${v.owned ? "" : " miss"}${starred ? " starred" : ""}" style="--vc:${vc}">
           ${v.animal ? `<img class="ticon" src="${animalIcon(v.animal)}" alt="${v.animal}" title="${v.animal} Totem">` : '<span class="ticon"></span>'}
-          <div class="thead"><span class="tname" title="${v.description || ""}">${v.name}</span>${v.count > 1 ? `<span class="tcount">×${v.count}</span>` : ""}<span class="tpips" title="Rank ${v.rank} of 4">${pips}</span></div>
+          <div class="thead"><span class="tname" title="${v.description || ""}">${v.name}</span>${v.count > 1 ? `<span class="tcount">×${v.count}</span>` : ""}${v.owned ? `<span class="tpips" title="Rank ${v.rank} of 4">${pips}</span>` : ""}${star}</div>
           <div class="tmeta">
             ${v.virtue ? `<span style="color:${vc}"><img src="${virtueIcon(v.virtue)}" alt="">${v.virtue}</span>` : ""}
-            <span title="${v.aligned ? `Only fits ${v.grip} weapons, with a stronger effect` : "Fits any weapon"}"><img src="${gripIcon(v.grip)}" alt="" onerror="this.remove()">${v.grip}</span>
+            ${v.owned ? `<span title="${v.aligned ? `Only fits ${v.grip} weapons, with a stronger effect` : "Fits any weapon"}"><img src="${gripIcon(v.grip)}" alt="" onerror="this.remove()">${v.grip}</span>` : '<span class="tunowned">Unowned</span>'}
             ${v.trigger ? `<span class="trig">${v.trigger}</span>` : ""}
           </div>
           <div class="tfx">${v.effect || '<span class="muted">Effect unknown</span>'}</div>
@@ -2796,7 +2866,9 @@
         renderTotemFilters(all);
         $("totemSort").value = TOTEM_UI.sort;
         const words = TOTEM_UI.q.toLowerCase().replace(/[+%]/g, " ").split(/\s+/).filter(Boolean);
+        if (!["all", "owned", "unowned", "starred"].includes(TOTEM_UI.owned)) TOTEM_UI.owned = "all";
         const shown = all.filter((v) =>
+          (TOTEM_UI.owned === "all" || (TOTEM_UI.owned === "starred" ? TOTEM_WATCH.includes(v.name) : (TOTEM_UI.owned === "owned") === v.owned)) &&
           (TOTEM_UI.virtue === "all" || v.virtue === TOTEM_UI.virtue) &&
           (TOTEM_UI.grip === "all" || v.grip === TOTEM_UI.grip) &&
           (TOTEM_UI.animal === "all" || v.animal === TOTEM_UI.animal) &&
@@ -2804,10 +2876,12 @@
           totemMatches(v, words));
         const total = all.reduce((n, v) => n + v.count, 0);
         const nShown = shown.reduce((n, v) => n + v.count, 0);
-        $("totemSummary").innerHTML = total
-          ? (nShown === total ? `<b>${total}</b> totems` : `Showing <b>${nShown}</b> of <b>${total}</b> totems`)
-          : "";
-        if (!total) { $("totems").innerHTML = '<span class="muted">No totems in your inventory yet.</span>'; return; }
+        const missing = all.filter((v) => !v.owned).length;
+        const missingShown = shown.filter((v) => !v.owned).length;
+        const ownedText = !total || (!nShown && missingShown) ? "" : nShown === total ? `<b>${total}</b> totems` : `Showing <b>${nShown}</b> of <b>${total}</b> totems`;
+        const missingText = missingShown ? `<b>${missingShown}</b> of the ${Object.keys(TOTEM_DATA).length} kinds unowned` : "";
+        $("totemSummary").innerHTML = [ownedText, missingText].filter(Boolean).join(" &nbsp;·&nbsp; ");
+        if (!total && !missing) { $("totems").innerHTML = '<span class="muted">No totems in your inventory yet.</span>'; return; }
         if (!shown.length) { $("totems").innerHTML = '<span class="muted">No totems match.</span>'; return; }
 
         const byName = (a, b) => a.name.localeCompare(b.name) || b.rank - a.rank || String(a.virtue).localeCompare(String(b.virtue));
@@ -2821,18 +2895,18 @@
         const ICON = { virtue: virtueIcon, grip: gripIcon, animal: animalIcon };
         const groups = new Map();
         for (const v of shown) {
-          const k = v[sort] || "Unknown";
+          const k = v[sort] || (v.owned ? "Unknown" : "Unowned");
           if (!groups.has(k)) groups.set(k, []);
           groups.get(k).push(v);
         }
         const order = ORDER[sort];
-        const keys = [...groups.keys()].sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99) || a.localeCompare(b));
+        const keys = [...groups.keys()].sort((a, b) => (a === "Unowned") - (b === "Unowned") || (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99) || a.localeCompare(b));
         $("totems").innerHTML = keys
           .map((k) => {
             const list = groups.get(k).sort(byName);
             const n = list.reduce((m, v) => m + v.count, 0);
-            const icon = ICON[sort] && k !== "Unknown" ? `<img src="${ICON[sort](k)}" alt="">` : "";
-            const label = sort === "animal" && k !== "Unknown" ? `${k} Totems` : k;
+            const icon = ICON[sort] && k !== "Unknown" && k !== "Unowned" ? `<img src="${ICON[sort](k)}" alt="">` : "";
+            const label = sort === "animal" && k !== "Unknown" && k !== "Unowned" ? `${k} Totems` : k;
             return `<div class="tgroup"><h3>${icon}${label}<span class="n">${n}</span></h3><div class="tgrid">${list.map(totemCardHtml).join("")}</div></div>`;
           })
           .join("");
@@ -2852,6 +2926,41 @@
       $("totemSearch").addEventListener("input", (e) => {
         TOTEM_UI.q = e.target.value;
         renderTotems();
+      });
+      $("totems").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button.tstar");
+        if (!btn) return;
+        const name = btn.dataset.totem;
+        const before = TOTEM_WATCH;
+        TOTEM_WATCH = before.includes(name) ? before.filter((x) => x !== name) : [...before, name];
+        renderTotems();
+        try {
+          const r = await fetch("/api/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ totemWatch: TOTEM_WATCH }) });
+          TOTEM_WATCH = (await r.json()).totemWatch || TOTEM_WATCH;
+        } catch {
+          TOTEM_WATCH = before;
+        }
+        renderTotems();
+      });
+      (async () => {
+        let s = null;
+        try { s = await (await fetch("/api/settings")).json(); } catch {}
+        if (!s) return;
+        TOTEM_WATCH = Array.isArray(s.totemWatch) ? s.totemWatch : [];
+        HIDE_FOUNDERS = s.hideFounders === true;
+        $("hideFounders").checked = HIDE_FOUNDERS;
+        $("totemNotify").checked = s.totemNotify !== false;
+        renderTotems();
+        renderMastery();
+        renderCombat();
+        if (!navigator.userAgent.includes("Electron")) return;
+        $("totemNotifyWrap").hidden = false;
+        bindSettingToggle($("totemNotify"), "totemNotify");
+      })();
+      bindSettingToggle($("hideFounders"), "hideFounders", () => {
+        HIDE_FOUNDERS = $("hideFounders").checked;
+        renderMastery();
+        renderCombat();
       });
 
       let LAST_BUILDS = [];
@@ -3378,6 +3487,7 @@
               const pct = info ? Math.round(info.pct * 100) : 0;
               return `
           <div class="row">
+            <img class="ficon" src="img/game/faction-${tag.toLowerCase()}.png" alt="" onerror="this.style.visibility='hidden'">
             <span class="label">${factionName(tag)}${st ? `<span class="today${todayOf(tag) > 0 ? " up" : ""}">+${fmt(todayOf(tag))} today</span>` : ""}</span>
             <span class="val">${val}</span>
             <span class="bar"><i style="width:${pct}%"></i></span>
@@ -3499,7 +3609,7 @@
           for (const [k] of STAT_TABLES[key].cols) if (typeof e[k] === "number") row[k] = (row[k] || 0) + e[k];
           rows.set(name, row);
         }
-        return [...rows.values()].filter((r) => r.kills || r.assists || r.headshots || r.executions);
+        return [...rows.values()].filter((r) => (r.kills || r.assists || r.headshots || r.executions) && !(HIDE_FOUNDERS && FOUNDER_NAMES.has(r.name)));
       }
       function statTable(key, rows, wide) {
         const t = STAT_TABLES[key];
@@ -3718,6 +3828,7 @@
         if (d["faction-ranks"]) FACTION_RANKS = d["faction-ranks"];
         if (d.totems) TOTEMS = d.totems;
         if (d.totemdata) TOTEM_DATA = d.totemdata;
+        FOUNDER_NAMES = new Set((DICT.founders || []).map((t) => shortName(t)));
         if (d.tempers) TEMPER_DB = d.tempers;
         if (d.pactarts) PACT_ARTS = d.pactarts;
         if (d.pactarttext) PACT_ART_TEXT = d.pactarttext;

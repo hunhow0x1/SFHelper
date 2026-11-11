@@ -15,6 +15,7 @@ import {
   buildPactArtTexts,
   buildPactArtValues,
   buildOtherCrafts,
+  factionIconPaths,
   buildRecipes,
   buildTalismans,
   buildTempers,
@@ -66,6 +67,9 @@ const CURRENCY_ICONS: [string, string][] = [
   ["/SF/Interface/Graphics/Market/DracsCurrencyIcon.png", "img/game/dracs.png"],
   ["/SF/Interface/Graphics/StoreItems/Currency/PremiumCurrency.png", "img/game/arcs.png"],
   ["/SF/Interface/Graphics/Codex/QuestIcons/PupPawQuestIcon.png", "img/game/pup-paw.png"],
+  ["/SF/Interface/Graphics/CategoryIcons/Inventory/Craft.png", "img/game/category-tempers.png"],
+  ["/SF/Interface/Graphics/CategoryIcons/Inventory/Core.png", "img/game/category-runes.png"],
+  ["/SF/Interface/Graphics/CategoryIcons/Inventory/Joinery.png", "img/game/category-joineries.png"],
 ];
 const MIN_KEPT = 0.8;
 const DEFAULT_CAPS = [5000, 5000, 20000, 20000, 30000, 30000];
@@ -223,6 +227,7 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
       if (rel) icons[name] = rel;
     }
     for (const [path, as] of CURRENCY_ICONS) await icon(path, as);
+    for (const [tag, path] of Object.entries(factionIconPaths(unique))) await icon(path, `img/game/faction-${tag.toLowerCase()}.png`);
     enough("item icons", Object.keys(icons).length, Object.keys(prev).length);
     await put("itemicons.json", `${JSON.stringify(icons, null, 2)}\n`);
     return `${Object.keys(icons).length} item icons`;

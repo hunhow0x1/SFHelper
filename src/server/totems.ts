@@ -71,3 +71,33 @@ export function parseTotems(raw: unknown): OwnedTotem[] {
   }
   return out;
 }
+
+export function totemNamer(data: Record<string, { types?: string[] }> | null, items: Record<string, string> = {}): (type: string) => string {
+  const byType = new Map<string, string>();
+  for (const [name, d] of Object.entries(data ?? {})) for (const t of d.types ?? []) byType.set(t, name);
+  return (type) => {
+    const leaf = type.split("/").pop() ?? type;
+    return byType.get(type) ?? items[type] ?? items[leaf] ?? leaf.replace(/([a-z])([A-Z])/g, "$1 $2");
+  };
+}
+
+export function newStarredTotems(before: OwnedTotem[] | null, after: OwnedTotem[], watch: readonly string[], nameOf: (type: string) => string): OwnedTotem[] {
+  if (!before || !watch.length) return [];
+  const starred = new Set(watch);
+  const counts = (list: OwnedTotem[]) => {
+    const m = new Map<string, number>();
+    for (const t of list) m.set(nameOf(t.type), (m.get(nameOf(t.type)) ?? 0) + 1);
+    return m;
+  };
+  const had = counts(before);
+  const room = new Map([...counts(after)].map(([n, c]) => [n, c - (had.get(n) ?? 0)]));
+  const known = new Set(before.map((t) => t.id));
+  const out: OwnedTotem[] = [];
+  for (const t of after) {
+    const name = nameOf(t.type);
+    if (!starred.has(name) || known.has(t.id) || (room.get(name) ?? 0) <= 0) continue;
+    room.set(name, room.get(name)! - 1);
+    out.push(t);
+  }
+  return out;
+}

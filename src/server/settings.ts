@@ -13,6 +13,9 @@ export interface Settings {
   recipeNotify: boolean;
   recipeWatch: string[];
   forgeNotify: boolean;
+  totemNotify: boolean;
+  totemWatch: string[];
+  hideFounders: boolean;
   theme: Theme | null;
 }
 
@@ -35,6 +38,9 @@ const DEFAULTS: Settings = {
   recipeNotify: true,
   recipeWatch: [],
   forgeNotify: true,
+  totemNotify: true,
+  totemWatch: [],
+  hideFounders: false,
   theme: null,
 };
 
@@ -67,6 +73,12 @@ function itemTypes(v: unknown): string[] | null {
   return [...new Set(v as string[])];
 }
 
+function itemNames(v: unknown): string[] | null {
+  if (!Array.isArray(v) || v.length > 200) return null;
+  if (!v.every((n) => typeof n === "string" && /^[\p{L}\p{N}][\p{L}\p{N} '’:.,!-]{0,79}$/u.test(n))) return null;
+  return [...new Set(v as string[])];
+}
+
 function timerTags(v: unknown): string[] | null {
   if (!Array.isArray(v) || v.length > 200) return null;
   if (!v.every((t) => typeof t === "string" && /^[\w-]{1,120}$/.test(t))) return null;
@@ -89,10 +101,13 @@ export async function getSettings(): Promise<Settings> {
       recipeNotify: typeof s.recipeNotify === "boolean" ? s.recipeNotify : DEFAULTS.recipeNotify,
       recipeWatch: itemTypes(s.recipeWatch) ?? [],
       forgeNotify: typeof s.forgeNotify === "boolean" ? s.forgeNotify : DEFAULTS.forgeNotify,
+      totemNotify: typeof s.totemNotify === "boolean" ? s.totemNotify : DEFAULTS.totemNotify,
+      totemWatch: itemNames(s.totemWatch) ?? [],
+      hideFounders: typeof s.hideFounders === "boolean" ? s.hideFounders : DEFAULTS.hideFounders,
       theme: theme(s.theme),
     };
   } catch {
-    return { ...DEFAULTS, avakotWatch: [], timerWatch: [], recipeWatch: [] };
+    return { ...DEFAULTS, avakotWatch: [], timerWatch: [], recipeWatch: [], totemWatch: [] };
   }
 }
 
@@ -108,6 +123,10 @@ export function updateSettings(patch: Record<string, unknown>): Promise<Settings
     if (typeof patch.blessedNotify === "boolean") s.blessedNotify = patch.blessedNotify;
     if (typeof patch.recipeNotify === "boolean") s.recipeNotify = patch.recipeNotify;
     if (typeof patch.forgeNotify === "boolean") s.forgeNotify = patch.forgeNotify;
+    if (typeof patch.totemNotify === "boolean") s.totemNotify = patch.totemNotify;
+    if (typeof patch.hideFounders === "boolean") s.hideFounders = patch.hideFounders;
+    const totemWatch = itemNames(patch.totemWatch);
+    if (totemWatch) s.totemWatch = totemWatch;
     const avakotWatch = itemTypes(patch.avakotWatch);
     if (avakotWatch) s.avakotWatch = avakotWatch;
     const timerWatch = timerTags(patch.timerWatch);

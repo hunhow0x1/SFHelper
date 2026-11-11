@@ -8,6 +8,7 @@ import { recordHistory, startServer, type RunningServer } from "../src/server/se
 import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings, onSettingsChange, type Settings } from "../src/server/settings";
 import { getInventory, type InventoryView } from "../src/server/inventory";
+import { newStarredTotems, totemNamer, type OwnedTotem } from "../src/server/totems";
 import { blessedMeetingNear, COLLECTOR_TAG, dockedCollector, TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
 import { craftTimers, newlyReady, readyRecipes, recipeTimes, recipeVerb } from "../src/server/recipes";
 import type { CraftDef, RecipeDef } from "../src/gamedata/builders";
@@ -210,6 +211,7 @@ async function importFromMemory(): Promise<void> {
         timerAlarms.set(await withAgariNames(inventory?.timers ?? []));
         await armCrafts(inventory);
         await checkRecipes(inventory);
+        await checkTotems(inventory);
       } catch (err) {
         log(`Recording pickups/trades failed: ${(err as Error).message}`);
       }
@@ -360,6 +362,7 @@ async function armSavedTimers(): Promise<void> {
     timerAlarms.set(await withAgariNames(inventory?.timers ?? []));
     await armCrafts(inventory);
     await checkRecipes(inventory);
+    totemsBefore = inventory?.totems ?? null;
   } catch (err) {
     log(`Setting cooldown alarms failed: ${(err as Error).message}`);
   }
@@ -441,6 +444,29 @@ async function checkRecipes(inv: InventoryView | null): Promise<void> {
     silent: false,
   });
   showNotification(n, "recipes");
+}
+
+let totemsBefore: OwnedTotem[] | null = null;
+async function checkTotems(inv: InventoryView | null): Promise<void> {
+  if (!inv) return;
+  const before = totemsBefore;
+  totemsBefore = inv.totems;
+  const settings = await getSettings();
+  if (!before || !settings.totemWatch.length) return;
+  const items = (await readDataJson<{ items?: Record<string, string> }>("names.json"))?.items ?? {};
+  const nameOf = totemNamer(await readDataJson<Record<string, { types?: string[] }>>("totemdata.json"), items);
+  const fresh = newStarredTotems(before, inv.totems, settings.totemWatch, nameOf);
+  if (!fresh.length) return;
+  log(`Starred Totems obtained: ${fresh.map((t) => nameOf(t.type)).join(", ")}.`);
+  if (!settings.totemNotify || !Notification.isSupported()) return;
+  const line = (t: OwnedTotem) => [nameOf(t.type), t.virtue, t.grip, `Rank ${t.rank}`].filter(Boolean).join(" · ");
+  const n = new Notification({
+    title: fresh.length === 1 ? `New Totem: ${nameOf(fresh[0]!.type)}` : `${fresh.length} of your starred Totems came in`,
+    body: fresh.map(line).join("\n"),
+    icon: ICON_PATH,
+    silent: false,
+  });
+  showNotification(n, "upgrades");
 }
 
 let itemNames: Record<string, string> | null = null;
