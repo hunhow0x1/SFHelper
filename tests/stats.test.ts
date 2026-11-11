@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { aspectManifests, aspectUpgrades, boosterRecords, buildTempers, buildUpgrades, kintsugiDefs, placeArea } from "../src/gamedata/builders";
+import { aspectManifests, aspectUpgrades, boosterRecords, buildAvakot, buildEnemies, buildTempers, buildUpgrades, kintsugiDefs, placeArea } from "../src/gamedata/builders";
 import { discoveries } from "../src/server/discoveries";
+import { enemyName } from "../src/server/enemies";
 
 const upgrade = (type: string, op: string, value: number, extra: { damage?: string; symbol?: string } = {}) =>
   `{\nUpgrade={\nUpgradeType=${type}\nOperationType=${op}\nValue=${value}\nDamageType=${extra.damage ?? "DT_ANY"}\nAutoType=1\nValidType=""\nCheckTypeOnInstall=0\nSymbolFilter=${extra.symbol ?? '""'}\nUpgradeObject=""\n}\nSchema={\nLocTag=""\n}\n}`;
@@ -158,5 +159,51 @@ describe("Discoveries regions", () => {
       ["Moray", "Fuirlands", null],
       ["Pegroot Mill", null, "Dermak Undercity"],
     ]);
+  });
+});
+
+describe("Enemy names", () => {
+  const E = "/SF/Types/Enemies";
+  const tree = new Map<string, string | null>([
+    [`${E}/Sinecure/Soldier/GruntAvatarBase`, "/SF/Types/Game/SFNpcAvatar"],
+    [`${E}/Sinecure/Soldier/MeleeGruntAvatar`, `${E}/Sinecure/Soldier/GruntAvatarBase`],
+    [`${E}/Sinecure/Soldier/MeleeGruntEliteAvatar`, `${E}/Sinecure/Soldier/GruntAvatarBase`],
+    [`${E}/Melee/WanderingGhostKnight/WanderingGhostKnightAvatar`, `${E}/Sinecure/Soldier/GruntAvatarBase`],
+    [`${E}/Melee/WanderingGhostKnight/WanderingGhostSoldierAvatar`, `${E}/Sinecure/Soldier/GruntAvatarBase`],
+  ]);
+  const names = {
+    "/SF/Language/Codex/MeleeGruntAvatarName": "Sinecure Soldier",
+    "/SF/Language/Codex/MeleeGruntEliteAvatarName": "Sinecure Elite Soldier",
+    "/SF/Language/Codex/WanderingGhostKnightAvatarName": "Fallen Jotar",
+    "/SF/Language/Codex/WanderingGhostSoldierAvatarName": "A wandering Ghost Knight",
+  };
+  const enemies = buildEnemies(names, tree);
+
+  it("uses the name the enemy's own record shows, not an unused codex line", () => {
+    expect(enemyName(`${E}/Melee/WanderingGhostKnight/WanderingGhostSoldierAvatar`, enemies)).toBe("Fallen Jotar");
+  });
+
+  it("names retired dungeon variants after the enemies that replaced them", () => {
+    expect(enemyName(`${E}/Melee/UnderCity/UCGruntAvatar`, enemies)).toBe("Sinecure Soldier");
+    expect(enemyName(`${E}/Melee/UnderCity/EliteUCGruntAvatar`, enemies)).toBe("Sinecure Elite Soldier");
+    expect(enemyName(`${E}/Melee/MeleeGruntAvatar`, enemies)).toBe("Sinecure Soldier");
+  });
+});
+
+describe("Avakot's bundles", () => {
+  const offer = (storeItem: string) => `{\nStoreItem=${storeItem}\nRegularPrice={100,100}\nPremiumPrice={0,0}\nAlwaysOffered=0\nRotatedWeekly=0\nDurationAvailable={3,3}\nAppearanceFrequency=1\nPurchaseQuantityLimit=0\nIncreasePerNegativeRank=0\n}`;
+  const lures = Array.from({ length: 10 }, (_, i) => `/SF/StoreItems/Types/Items/Consumables/Tackle/Lure${i}`);
+  const bundle = "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystALargeBundle";
+  const texts = [
+    `ItemManifest={\n${[...lures, bundle].map(offer).join(",\n")}\n}\nNumItemsAvailable={4,4}`,
+    "ProductCategory=Packages\nLocalizeTag=/SF/Language/Materials/CatalystALargeBundleName\nPackageComponents={\n{\nTypeName=/SF/StoreItems/Types/PickUps/Resources/Ingots/Catalysts/CatalystAResourceItem\nPurchaseQuantity=12\nDurability=COMMON\n}\n}",
+  ];
+  const dict = { "/SF/Language/Materials/CatalystALargeBundleName": "Cratesworth of Glow Lampyrite" };
+
+  it("records which resource a bundle gives, so the tab can show how much of it you hold", () => {
+    const pool = buildAvakot(dict, texts, { CatalystALargeBundle: "Cratesworth of Glow Lampyrite" });
+    const crate = pool.items.find((i) => i.storeItem === bundle);
+    expect(crate?.gives).toEqual({ item: "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystAResourceItem", count: 12 });
+    expect(pool.items.find((i) => i.storeItem === lures[0])?.gives).toBeUndefined();
   });
 });

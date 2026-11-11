@@ -630,7 +630,11 @@
       ],
       "weight": 0.35,
       "limit": 2,
-      "icon": "img/game/storeitems-materials-catalysta.png"
+      "icon": "img/game/storeitems-materials-catalysta.png",
+      "gives": {
+        "item": "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystAResourceItem",
+        "count": 6
+      }
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystBMediumBundle",
@@ -648,7 +652,11 @@
       ],
       "weight": 0.25,
       "limit": 2,
-      "icon": "img/game/storeitems-materials-catalystb.png"
+      "icon": "img/game/storeitems-materials-catalystb.png",
+      "gives": {
+        "item": "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystBResourceItem",
+        "count": 6
+      }
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystCMediumBundle",
@@ -666,7 +674,11 @@
       ],
       "weight": 0.15,
       "limit": 2,
-      "icon": "img/game/storeitems-materials-catalystc.png"
+      "icon": "img/game/storeitems-materials-catalystc.png",
+      "gives": {
+        "item": "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystCResourceItem",
+        "count": 6
+      }
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystALargeBundle",
@@ -684,7 +696,11 @@
       ],
       "weight": 0.15,
       "limit": null,
-      "icon": "img/game/storeitems-materials-catalysta.png"
+      "icon": "img/game/storeitems-materials-catalysta.png",
+      "gives": {
+        "item": "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystAResourceItem",
+        "count": 12
+      }
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystBLargeBundle",
@@ -702,7 +718,11 @@
       ],
       "weight": 0.1,
       "limit": null,
-      "icon": "img/game/storeitems-materials-catalystb.png"
+      "icon": "img/game/storeitems-materials-catalystb.png",
+      "gives": {
+        "item": "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystBResourceItem",
+        "count": 12
+      }
     },
     {
       "storeItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystCLargeBundle",
@@ -720,7 +740,11 @@
       ],
       "weight": 0.05,
       "limit": null,
-      "icon": "img/game/storeitems-materials-catalystc.png"
+      "icon": "img/game/storeitems-materials-catalystc.png",
+      "gives": {
+        "item": "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystCResourceItem",
+        "count": 12
+      }
     }
   ]
 }

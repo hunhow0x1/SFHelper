@@ -327,7 +327,7 @@
       #mastery.single .xpgroup h3.wclass { column-span: all; }
       #mastery .xpgroup h3.wclass { font-size: 15px; margin-bottom: 12px; padding-bottom: 7px; }
       .mrows { display: grid; gap: 11px; }
-      .mrow { display: grid; grid-template-columns: 1fr auto; gap: 5px 12px; align-items: baseline; break-inside: avoid; }
+      .mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 12px; align-items: baseline; break-inside: avoid; }
       .mrow .mname { font-size: 15px; font-weight: 500; min-width: 0; }
       .mrow .mval { font-size: 13.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
       .mrow .mbar { grid-column: 1 / -1; height: 3px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
@@ -340,7 +340,7 @@
       .mrow .mname { display: flex; }
       .wchip { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 2px 10px 2px 3px; border: 1px solid var(--line-2); border-radius: 3px; background: color-mix(in srgb, var(--accent) 5%, transparent); }
       .wchip img { width: 34px; height: 34px; margin: -3px 0; object-fit: contain; flex: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6)) brightness(1.15); }
-      .wchip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .wchip span { padding: 3px 0; line-height: 1.2; overflow-wrap: break-word; }
       .mrow.miss .wchip { border-color: var(--line); background: none; }
       .mrow.miss .wchip img { opacity: 0.4; filter: grayscale(1); }
       .erank {
@@ -455,6 +455,8 @@
       .avname { font: 600 16px/1.25 var(--display); letter-spacing: 0.03em; color: var(--text); min-width: 0; }
       .avmeta { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 13.5px; color: var(--muted); }
       .avgrp { color: var(--faint); font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; }
+      .avown { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .avown b { color: var(--text); font-weight: 600; }
       .avprice { display: inline-flex; align-items: center; gap: 5px; color: var(--accent-hi); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
       .avprice img { width: 17px; height: 17px; object-fit: contain; }
       .avtime { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin-top: 9px; font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
@@ -532,14 +534,8 @@
       .temperpop .vpips { display: inline-flex; gap: 5px; filter: drop-shadow(0 0 4px color-mix(in srgb, var(--vc) 55%, transparent)); }
       .temperpop .vpips i { width: 22px; height: 22px; background: var(--vc); -webkit-mask: var(--vicon) center / contain no-repeat; mask: var(--vicon) center / contain no-repeat; }
       .temperpop .tp-for { margin-top: 10px; color: var(--accent-2-hi); font: 600 11px/1.3 var(--display); letter-spacing: 0.14em; text-transform: uppercase; }
-      .mring { position: relative; display: inline-grid; place-items: center; width: 32px; height: 32px; flex: none; vertical-align: middle; font: 700 12.5px/1 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums; }
-      .mring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--accent-hi) calc(var(--p) * 1%), var(--line-2) 0); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px)); }
-      .mrow .mval { display: inline-flex; align-items: center; gap: 10px; }
+      .mrow .mval { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; white-space: nowrap; }
       .mrow .mval .mnote { margin-right: 0; }
-      .mrow.done .mring { color: var(--accent-2); }
-      .mrow.done .mring::before { background: var(--accent-2); box-shadow: 0 0 8px color-mix(in srgb, var(--accent-2) 45%, transparent); }
-      .mrow.miss .mring { color: var(--muted); }
-      .mrow.miss .mring::before { background: conic-gradient(var(--muted) calc(var(--p) * 1%), var(--line) 0); }
       .tcard .tpips { gap: 0; margin-right: -4px; }
       .tcard .tpips .tpip { all: unset; display: inline-grid; place-items: center; width: 16px; height: 18px; cursor: pointer; }
       .tcard .tpips .tpip:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
@@ -1642,8 +1638,7 @@
             : i.copy.rank < l.rank
               ? `<span class="mnote" title="The copy you hold is rank ${i.copy.rank}; Mastery counts the highest rank this item has reached">copy ${i.copy.rank}</span>`
               : "";
-          const ring = `<span class="mring" style="--p:${Math.round((l.rank / 30) * 1000) / 10}" title="Rank ${l.rank} of 30">${l.rank}</span>`;
-          const val = l.maxed ? `Mastered${ring}` : ring;
+          const val = l.maxed ? "Mastered" : `${l.rank} / 30`;
           const cls = "mrow" + (l.maxed ? " done" : "") + (i.w ? "" : " miss");
           return `<div class="${cls}"><span class="mname">${itemChip(i.name)}</span><span class="mval">${note}${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
         };
@@ -2175,6 +2170,15 @@
         return `<span class="avprice" title="${currency}"><img src="img/game/${currency === "Arcs" ? "arcs" : "dracs"}.png" alt="${currency}">${text}</span>`;
       }
       const avIcon = (it, cls = "avicn") => (it.icon ? `<img class="${cls}" src="${escHtml(it.icon)}" alt="">` : `<span class="${cls}"></span>`);
+      let AV_OWNED = null;
+      function avOwned(it) {
+        if (!AV_OWNED) return "";
+        const key = it.gives ? it.gives.item : it.storeItem.replace("/SF/StoreItems/", "/SF/");
+        const n = (AV_OWNED[key] ?? 0).toLocaleString();
+        return it.gives
+          ? `<span class="avown" title="Gives ${it.gives.count} ${escHtml(shortName(it.gives.item))}">Owned <b>${n}</b> ${escHtml(shortName(it.gives.item))}</span>`
+          : `<span class="avown">Owned <b>${n}</b></span>`;
+      }
       function avStar(it) {
         const on = AV.watch.includes(it.storeItem);
         const tip = on ? "Starred: you'll be notified when Avakot stocks this" : "Star to be notified when Avakot stocks this";
@@ -2206,13 +2210,14 @@
             ${avIcon(it)}
             <div class="avname">${escHtml(it.name)}</div>
             ${avStar(it)}
-            <div class="avmeta"><span class="avgrp">${escHtml(it.group)}</span>${avPrice(o.currency, o.price)}${o.limit ? `<span>Limit ${o.limit}</span>` : ""}</div>
+            <div class="avmeta"><span class="avgrp">${escHtml(it.group)}</span>${avPrice(o.currency, o.price)}${o.limit ? `<span>Limit ${o.limit}</span>` : ""}${avOwned(it)}</div>
             <div class="avtime${left < 30 * 60000 ? " soon" : ""}">${pct != null ? `<div class="avbar"><i style="width:${pct.toFixed(1)}%"></i></div>` : "<span></span>"}<span>${timeLeft(left)} left · until ${clockTime(o.expiry)}</span></div>
           </div>`;
         };
         const row = (o, note) => {
           const it = avItem(o.storeItem);
-          return `<div class="avrow">${avIcon(it)}<div class="avn">${escHtml(it.name)}${note ? `<small>${note}</small>` : ""}</div><div class="avr">${avPrice(o.currency, o.price)}</div></div>`;
+          const sub = [note, avOwned(it)].filter(Boolean).join(" · ");
+          return `<div class="avrow">${avIcon(it)}<div class="avn">${escHtml(it.name)}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${avPrice(o.currency, o.price)}</div></div>`;
         };
         const weekly = offers.filter((o) => o.expiry === null && o.weekly);
         const always = offers.filter((o) => o.expiry === null && !o.weekly);
@@ -2245,7 +2250,7 @@
         $("avPool").innerHTML = groups.length
           ? `<div class="avgroups">${groups
               .map(([g, items]) => `<div class="avgroup"><h3>${escHtml(g)} <span class="count">${items.length}</span></h3>${items
-                .map((it) => `<div class="avrow starrable">${avStar(it)}${avIcon(it)}<div class="avn">${escHtml(it.name)}<small>${status(it)}</small></div><div class="avr">${avPrice(it.currency, it.price)}${it.hours ? `<small>${it.hours[1] >= 23 ? "24h" : it.hours[1] + "h"} offer</small>` : ""}</div></div>`)
+                .map((it) => `<div class="avrow starrable">${avStar(it)}${avIcon(it)}<div class="avn">${escHtml(it.name)}<small>${[status(it), avOwned(it)].filter(Boolean).join(" · ")}</small></div><div class="avr">${avPrice(it.currency, it.price)}${it.hours ? `<small>${it.hours[1] >= 23 ? "24h" : it.hours[1] + "h"} offer</small>` : ""}</div></div>`)
                 .join("")}</div>`)
               .join("")}</div>`
           : '<span class="muted">Avakot\'s item list didn\'t load.</span>';
@@ -3848,6 +3853,10 @@
           LAST_TRADES = data.trades || null;
           renderTrades();
         }
+        if (sectionChanged("avOwned", data.inventory ? data.owned || {} : null)) {
+          AV_OWNED = data.inventory ? data.owned || {} : null;
+          renderAvakot();
+        }
 
         LAST_STATS = data.stats || null;
         renderCombat();
@@ -3920,9 +3929,11 @@
           .map(([l, v]) => `<div class="stat"><div class="n">${fmt(v)}</div><div class="l">${l}</div></div>`)
           .join("");
         const weapons = stats?.weapons || [];
-        const isPact = (w) => typeof w.type === "string" && w.type.startsWith("/SF/Souls/");
-        const weaponRows = statRows("weapons", weapons.filter((w) => !isPact(w)));
-        const pactRows = statRows("pacts", weapons.filter(isPact));
+        const isSoul = (w) => w.type.startsWith("/SF/Souls/");
+        const inRoster = (roster, w) => Object.hasOwn(roster, w.name || shortName(w.type));
+        const known = weapons.filter((w) => typeof w.type === "string");
+        const weaponRows = statRows("weapons", known.filter((w) => !isSoul(w) && inRoster(WEAPON_ROSTER, w)));
+        const pactRows = statRows("pacts", known.filter((w) => isSoul(w) && inRoster(PACT_ROSTER, w)));
         const enemyRows = statRows("enemies", enemies);
         $("tables").innerHTML =
           (weaponRows.length ? statTable("weapons", weaponRows, !pactRows.length) : "") +

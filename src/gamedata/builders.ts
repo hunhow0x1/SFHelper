@@ -232,6 +232,27 @@ export interface EnemyData {
   parents: Record<string, string>;
 }
 
+const ENEMY_RECORD_NAMES: Record<string, string> = {
+  MiniGhostKnightAvatar: "WanderingGhostKnightAvatarName",
+  WanderingGhostSoldierAvatar: "WanderingGhostKnightAvatarName",
+  MockeryWoodWomanAvatar: "MockeryWoodWomanCasterAvatarName",
+  MeleeHeavyNightAvatar: "SinecureKnightAvatarName",
+};
+
+const RETIRED_ENEMIES: Record<string, string> = {
+  UCGruntAvatar: "MeleeGruntAvatar",
+  UCDualGruntAvatar: "MeleeGruntDualAvatar",
+  EliteUCGruntAvatar: "MeleeGruntEliteAvatar",
+  MeleeGruntGateGuardAvatar: "MeleeGruntAvatar",
+  MeleeLongSwordGruntGladesAvatar: "MeleeGruntAvatar",
+  MeleeAxeGruntGladesAvatar: "MeleeGruntAxeEliteAvatar",
+  MeleeDualAxeGruntGladesAvatar: "MeleeGruntDualAxeEliteAvatar",
+  MeleeSpikedMaceGruntGladesAvatar: "MeleeGruntSpikedMaceEliteAvatar",
+  RangedHunterGladesDaggerAvatar: "MeleeHunterDaggerEliteAvatar",
+  BaliqShrimpGladesAvatar: "BaliqShrimpAvatar",
+  DaggerHunterDisguisedAvatar: "MeleeHunterDaggerDisguisedAvatar",
+};
+
 export function buildEnemies(dict: Dict, tree: TypeTree): EnemyData {
   const parentOf = new Map<string, string>();
   for (const [path, parent] of tree) if (parent) parentOf.set(path, parent);
@@ -258,6 +279,7 @@ export function buildEnemies(dict: Dict, tree: TypeTree): EnemyData {
   const CODEX = "/SF/Language/Codex/";
   const TITLES = "/SF/Language/Titles/";
   const CHARACTERS = "/SF/Language/Characters/";
+  for (const [leaf, key] of Object.entries(ENEMY_RECORD_NAMES)) add(leaf, dict[CODEX + key]);
   for (const [k, v] of Object.entries(dict)) {
     if (k.startsWith(CODEX) && k.endsWith("AvatarName")) add(k.slice(CODEX.length, -"Name".length), v);
   }
@@ -276,6 +298,17 @@ export function buildEnemies(dict: Dict, tree: TypeTree): EnemyData {
     if (!leaf.endsWith("Avatar") || leaf.toLowerCase() in names) continue;
     const name = byWords.get(wordKey(leaf));
     if (name) names[leaf.toLowerCase()] = name;
+  }
+  const nameVia = (leaf: string): string | undefined => {
+    for (let l: string | undefined = leaf, hops = 0; l && hops < 20; l = parents[l], hops += 1) {
+      const name = names[l.toLowerCase()];
+      if (name) return name;
+    }
+    return undefined;
+  };
+  for (const [old, now] of Object.entries(RETIRED_ENEMIES)) {
+    const name = old in parents ? undefined : nameVia(now);
+    if (name && !(old.toLowerCase() in names)) names[old.toLowerCase()] = name;
   }
   return { names: sortedKeys(names), parents: sortedKeys(parents) };
 }
@@ -409,6 +442,7 @@ export interface AvakotItem {
   weight: number;
   limit: number | null;
   icon: string | null;
+  gives?: { item: string; count: number };
 }
 
 export interface AvakotPool {
@@ -452,6 +486,19 @@ export function buildAvakot(dict: Dict, texts: string[], names: Record<string, s
     return names[type] ?? names[leaf] ?? leaf.replace(/([a-z])([A-Z])/g, "$1 $2");
   };
 
+  const packages = new Map<string, { item: string; count: number }>();
+  for (const t of texts) {
+    if (field(t, "ProductCategory") !== "Packages") continue;
+    const tag = field(t, "LocalizeTag");
+    const parts = [...t.matchAll(/^TypeName=(\S+)\nPurchaseQuantity=(\d+)$/gm)];
+    if (tag && parts.length === 1) packages.set(tag, { item: parts[0]![1]!.replace("/SF/StoreItems/", "/SF/"), count: Number(parts[0]![2]) });
+  }
+  const givesOf = (storeItem: string, name: string): AvakotItem["gives"] => {
+    const suffix = `/${leafOf(storeItem)}Name`;
+    const hits = [...packages].filter(([tag]) => tag.endsWith(suffix) && dict[tag]?.trim() === name);
+    return hits.length === 1 ? hits[0]![1] : undefined;
+  };
+
   const items: AvakotItem[] = [];
   for (const [, storeItem, block] of manifest.matchAll(/\{\nStoreItem=([^\n]+)\n([\s\S]*?)\nIncreasePerNegativeRank=[^\n]*\n\}/g)) {
     const regular = pair(field(block!, "RegularPrice"));
@@ -459,9 +506,11 @@ export function buildAvakot(dict: Dict, texts: string[], names: Record<string, s
     const [currency, price]: [AvakotItem["currency"], AvakotItem["price"]] =
       regular && regular[1] > 0 ? ["Dracs", regular] : premium && premium[1] > 0 ? ["Arcs", premium] : [null, null];
     const limit = Number(field(block!, "PurchaseQuantityLimit"));
+    const name = nameOf(storeItem!);
+    const gives = givesOf(storeItem!, name);
     items.push({
       storeItem: storeItem!,
-      name: nameOf(storeItem!),
+      name,
       group: AVAKOT_GROUPS.find(([re]) => re.test(storeItem!))?.[1] ?? "Other",
       kind: field(block!, "AlwaysOffered") === "1" ? "always" : field(block!, "RotatedWeekly") === "1" ? "weekly" : "rotating",
       currency,
@@ -470,6 +519,7 @@ export function buildAvakot(dict: Dict, texts: string[], names: Record<string, s
       weight: Number(Number(field(block!, "AppearanceFrequency")).toFixed(3)),
       limit: limit > 0 ? limit : null,
       icon: null,
+      ...(gives ? { gives } : {}),
     });
   }
   if (items.length < 10) throw new Error(`Avakot manifest: only ${items.length} items parsed`);
