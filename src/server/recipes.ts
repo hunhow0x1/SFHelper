@@ -1,10 +1,18 @@
-import type { RecipeDef } from "../gamedata/builders";
+import type { CraftDef, RecipeDef } from "../gamedata/builders";
+import type { GameTimer } from "./timers";
 
 export interface CraftingState {
   recipes: Record<string, number>;
   stock: Record<string, number>;
   dracs: number;
   bond: Record<string, number>;
+  pending: PendingCraft[];
+}
+
+export interface PendingCraft {
+  id: string | null;
+  recipe: string;
+  completes: number;
 }
 
 type Entry = { ItemType?: unknown; ItemCount?: unknown; Rank?: unknown };
@@ -32,7 +40,44 @@ export function parseCrafting(raw: Record<string, unknown>): CraftingState {
     stock: counts(raw.Consumables, counts(raw.MiscItems)),
     dracs: typeof raw.RegularCredits === "number" ? raw.RegularCredits : 0,
     bond,
+    pending: parsePendingCrafts(raw.PendingRecipes),
   };
+}
+
+export function parsePendingCrafts(list: unknown): PendingCraft[] {
+  const out: PendingCraft[] = [];
+  for (const e of Array.isArray(list) ? (list as Record<string, unknown>[]) : []) {
+    if (!e || typeof e.ItemType !== "string") continue;
+    const raw = (e.CompletionDate as { $date?: { $numberLong?: unknown } } | undefined)?.$date?.$numberLong;
+    const completes = typeof raw === "string" || typeof raw === "number" ? Number(raw) : NaN;
+    if (!Number.isFinite(completes) || completes <= 0) continue;
+    const id = (e.ItemId as { $oid?: unknown } | undefined)?.$oid;
+    out.push({ id: typeof id === "string" ? id : null, recipe: e.ItemType, completes });
+  }
+  return out.sort((a, b) => a.completes - b.completes);
+}
+
+const KIND_ONE: Record<string, string> = {
+  Elixirs: "Elixir",
+  "Pup Treats": "Pup Treat",
+  Palettes: "Palette",
+  Chordstones: "Chordstone",
+  Pacts: "Pact",
+  Talismans: "Talisman",
+};
+
+export function craftKind(d: Pick<CraftDef, "kind" | "slot">): string {
+  return d.slot ?? (d.kind ? KIND_ONE[d.kind] ?? "" : "");
+}
+
+export function craftTimers(pending: PendingCraft[], defs: Record<string, CraftDef>): GameTimer[] {
+  const out: GameTimer[] = [];
+  for (const p of pending) {
+    const d = defs[p.recipe];
+    if (!d) continue;
+    out.push({ tag: `Craft-${p.id ?? `${p.recipe}@${p.completes}`}`, kind: craftKind(d) || null, name: d.name, ready: `${d.name} is ready to claim`, expiry: p.completes });
+  }
+  return out;
 }
 
 const RECIPE_NPC: Record<string, string> = { Brewing: "Verminia", Blacksmith: "Tuvalkane" };

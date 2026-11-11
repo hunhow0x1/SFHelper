@@ -20,6 +20,7 @@ import { gameBeingRefused, gameRefusedMessage, loggedCollector } from "./gameLog
 import { getEnvoyRank } from "./envoyRank";
 import { getRoster } from "./roster";
 import { virtuePoints } from "./loadouts";
+import { acknowledgeAvakot, getAvakot } from "./avakot";
 import { getDiscoveries } from "./discoveries";
 import { userAgent } from "./userAgent";
 import { tracked } from "./requestLog";
@@ -281,7 +282,15 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
   if (url.pathname === "/api/settings" && req.method === "POST") {
     const patch = await readJsonBody(req, res);
     if (!patch) return;
-    sendJson(res, 200, await updateSettings(patch));
+    const settings = await updateSettings(patch);
+    if ("avakotWatch" in patch) await acknowledgeAvakot(settings.avakotWatch);
+    sendJson(res, 200, settings);
+    return;
+  }
+
+  if (url.pathname === "/api/avakot" && req.method === "GET") {
+    const { avakotWatch, avakotNotify, avakotResetNotify } = await getSettings();
+    sendJson(res, 200, { ...(await getAvakot()), watch: avakotWatch, notify: avakotNotify, resetNotify: avakotResetNotify });
     return;
   }
 

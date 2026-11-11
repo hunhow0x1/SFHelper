@@ -426,11 +426,29 @@
         box-shadow: 0 0 12px rgba(200, 220, 245, 0.25);
       }
 
+      @media (min-width: 1320px) {
+        #panel-avakot { grid-template-columns: minmax(0, 1.55fr) minmax(420px, 1fr); align-items: start; }
+      }
+      #panel-avakot h3.sub { margin-top: 4px; }
+      .avgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; margin-bottom: 28px; }
+      .avcard {
+        display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 3px 14px; align-items: center;
+        padding: 14px 16px 14px 14px; background: var(--well); border: 1px solid var(--line); border-radius: 3px;
+      }
+      .avcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
+      .avcard .avicn { grid-row: span 2; width: 56px; height: 56px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6)); }
       .avname { font: 600 16px/1.25 var(--display); letter-spacing: 0.03em; color: var(--text); min-width: 0; }
       .avmeta { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 13.5px; color: var(--muted); }
       .avgrp { color: var(--faint); font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; }
       .avprice { display: inline-flex; align-items: center; gap: 5px; color: var(--accent-hi); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
       .avprice img { width: 17px; height: 17px; object-fit: contain; }
+      .avtime { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin-top: 9px; font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+      .avtime.soon { color: var(--courage); }
+      .avbar { height: 3px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
+      .avbar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi)); }
+      .forgecard { grid-template-columns: 56px minmax(0, 1fr); }
+      .avcard.ready { --tick: color-mix(in srgb, var(--accent-2-hi) 55%, transparent); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); }
+      .avcard.ready .avtime .instock { text-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 40%, transparent); }
       button.star { background: none; border: 0; box-shadow: none; padding: 5px; margin: -5px; line-height: 0; cursor: pointer; }
       button.star:hover { filter: none; }
       button.star svg { width: 22px; height: 22px; fill: none; stroke: var(--faint); stroke-width: 1.5; stroke-linejoin: round; transition: stroke 0.15s, fill 0.15s; }
@@ -744,7 +762,7 @@
       .rcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
       .avprice.short { color: var(--courage); }
 
-      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avgroup, .tradecard, .rcard {
+      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard {
         --tick: color-mix(in srgb, var(--accent) 42%, transparent);
         background-image:
           linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
@@ -764,7 +782,13 @@
       .support { margin: -6px 0 0; text-align: center; color: var(--muted); font-size: 14px; }
       .support a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
       .support a:hover { color: var(--accent-hi); border-bottom-color: var(--accent-hi); }
-      #panel-stats .grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
+      #panel-stats .grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      @media (max-width: 760px) { #panel-stats .grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); } }
+      #tables .wide { grid-column: 1 / -1; }
+      #tables .mini { margin-top: 12px; }
+      th .thsort { all: unset; cursor: pointer; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; }
+      th .thsort:hover, th .thsort.on { color: var(--accent); }
+      th .thsort:focus-visible { outline: 1px solid color-mix(in srgb, var(--accent) 75%, transparent); outline-offset: 3px; }
       #panel-stats .statsrow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 420px); gap: 28px; align-items: start; }
       @media (max-width: 1320px) { #panel-stats .statsrow { grid-template-columns: 1fr; } }
       .pupcard + .pupcard { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--line); }
@@ -877,8 +901,10 @@
         <button class="tab" data-tab="mastery">Mastery</button>
         <button class="tab" data-tab="upgrades">Upgrades</button>
         <button class="tab" data-tab="recipes">Recipes</button>
+        <button class="tab" data-tab="forge">Forge</button>
         <button class="tab" data-tab="pickups">Pickups</button>
         <button class="tab" data-tab="trades">Trades</button>
+        <button class="tab" data-tab="avakot">Avakot</button>
         <button class="tab" data-tab="stats">Stats</button>
         <button class="tab" data-tab="settings">Settings</button>
       </nav>
@@ -1031,6 +1057,21 @@
         </section>
       </div>
 
+      <div class="panel" id="panel-forge">
+        <section>
+          <div class="picktop">
+            <h2>Forge</h2>
+            <label class="notifytoggle" id="forgeNotifyWrap" hidden title="Desktop notification with sound when something you're crafting is ready to claim">
+              <input type="checkbox" id="forgeNotify" />
+              <span class="sw"></span>
+              Notify me when crafts are ready to claim
+            </label>
+          </div>
+          <div class="daily" id="forgeSummary"></div>
+          <div id="forge"><span class="muted">Import your inventory to see what you're crafting.</span></div>
+        </section>
+      </div>
+
       <div class="panel" id="panel-pickups">
         <section>
           <div class="picktop">
@@ -1065,6 +1106,31 @@
           <input type="file" id="historyFile" accept=".json,application/json" hidden />
           <div class="grid" id="tradeTiles"></div>
           <div id="trades"><span class="muted">Import your inventory to track your trades.</span></div>
+        </section>
+      </div>
+
+      <div class="panel" id="panel-avakot">
+        <section>
+          <div class="picktop">
+            <h2>Avakot's Gots</h2>
+            <label class="notifytoggle" id="avNotifyWrap" hidden title="Desktop notification with sound when Avakot stocks an item you starred">
+              <input type="checkbox" id="avNotify" />
+              <span class="sw"></span>
+              Notify me about starred items
+            </label>
+            <label class="notifytoggle" id="avResetNotifyWrap" hidden title="Desktop notification with sound when a check finds new rotating offers">
+              <input type="checkbox" id="avResetNotify" />
+              <span class="sw"></span>
+              Notify me about new stock
+            </label>
+          </div>
+          <div class="daily" id="avSummary"></div>
+          <div id="avStock"><span class="muted">—</span></div>
+        </section>
+        <section>
+          <h2>Wishlist</h2>
+          <div class="daily" id="avWishSummary"></div>
+          <div id="avPool"><span class="muted">—</span></div>
         </section>
       </div>
 
@@ -1864,6 +1930,150 @@
       const clockTime = (ms) => new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
       const shortDate = (ms) => new Date(ms).toLocaleDateString([], { month: "short", day: "numeric" });
 
+      let AV_POOL = new Map();
+      let AV = null;
+      const AV_GROUPS = ["Materials", "Lures", "Lampyrite", "Joineries", "Pact Fragments", "Supplies", "Other"];
+      const avItem = (storeItem) =>
+        AV_POOL.get(storeItem) || { storeItem, name: shortName(storeItem.replace("/SF/StoreItems/", "/SF/")), group: "Other", icon: null, hours: null, price: null };
+      function avPrice(currency, amount) {
+        if (!currency || amount == null) return "";
+        const text = Array.isArray(amount)
+          ? amount[0] === amount[1] ? amount[0].toLocaleString() : amount[0].toLocaleString() + "–" + amount[1].toLocaleString()
+          : amount.toLocaleString();
+        return `<span class="avprice" title="${currency}"><img src="img/game/${currency === "Arcs" ? "arcs" : "dracs"}.png" alt="${currency}">${text}</span>`;
+      }
+      const avIcon = (it, cls = "avicn") => (it.icon ? `<img class="${cls}" src="${escHtml(it.icon)}" alt="">` : `<span class="${cls}"></span>`);
+      function avStar(it) {
+        const on = AV.watch.includes(it.storeItem);
+        const tip = on ? "Starred: you'll be notified when Avakot stocks this" : "Star to be notified when Avakot stocks this";
+        return `<button class="star${on ? " on" : ""}" data-star="${escHtml(it.storeItem)}" aria-pressed="${on}" title="${tip}" aria-label="${escHtml(it.name)}">${STAR_SVG}</button>`;
+      }
+
+      function renderAvakot() {
+        if (!AV) return;
+        const now = Date.now();
+        const stock = AV.stock;
+        const offers = stock ? stock.offers.filter((o) => o.expiry === null || o.expiry > now) : [];
+        const rotating = offers.filter((o) => o.expiry !== null).sort((a, b) => a.expiry - b.expiry);
+        const inStock = new Map(rotating.map((o) => [o.storeItem, o]));
+
+        $("avSummary").innerHTML = !stock
+          ? "SFHelper checks Avakot's stock every 3 hours while Soulframe is running, and shows it here after the first check."
+          : AV.nextCheck > now
+            ? `Checked ${clockTime(stock.fetchedAt)} · next check around <b>${clockTime(AV.nextCheck)}</b>`
+            : `Stock as of ${shortDate(stock.fetchedAt)}, ${clockTime(stock.fetchedAt)} · SFHelper checks again while Soulframe is running`;
+        $("avSummary").title = "His rotating offers change every hour and each one stays for 3 hours, so one check every 3 hours, just after a change, sees every offer.";
+
+        const card = (o) => {
+          const it = avItem(o.storeItem);
+          const left = o.expiry - now;
+          const total = it.hours ? it.hours[1] * 3600000 : null;
+          const pct = total ? Math.max(2, Math.min(100, (left / total) * 100)) : null;
+          const starred = AV.watch.includes(o.storeItem);
+          return `<div class="avcard${starred ? " starred" : ""}">
+            ${avIcon(it)}
+            <div class="avname">${escHtml(it.name)}</div>
+            ${avStar(it)}
+            <div class="avmeta"><span class="avgrp">${escHtml(it.group)}</span>${avPrice(o.currency, o.price)}${o.limit ? `<span>Limit ${o.limit}</span>` : ""}</div>
+            <div class="avtime${left < 30 * 60000 ? " soon" : ""}">${pct != null ? `<div class="avbar"><i style="width:${pct.toFixed(1)}%"></i></div>` : "<span></span>"}<span>${timeLeft(left)} left · until ${clockTime(o.expiry)}</span></div>
+          </div>`;
+        };
+        const row = (o, note) => {
+          const it = avItem(o.storeItem);
+          return `<div class="avrow">${avIcon(it)}<div class="avn">${escHtml(it.name)}${note ? `<small>${note}</small>` : ""}</div><div class="avr">${avPrice(o.currency, o.price)}</div></div>`;
+        };
+        const weekly = offers.filter((o) => o.expiry === null && o.weekly);
+        const always = offers.filter((o) => o.expiry === null && !o.weekly);
+        $("avStock").innerHTML = !stock
+          ? '<span class="muted">No stock checked yet.</span>'
+          : (rotating.length
+              ? `<h3 class="sub">In stock now</h3><div class="avgrid">${rotating.map(card).join("")}</div>`
+              : '<p class="muted">Nothing rotating is in stock. SFHelper checks again while Soulframe is running.</p>') +
+            (weekly.length
+              ? `<h3 class="sub">Weekly</h3><div class="avlist">${weekly.map((o) => row(o, o.limit ? `Limit ${o.limit} a week` : "")).join("")}</div>`
+              : "") +
+            (always.length
+              ? `<h3 class="sub">Always in stock</h3><div class="avlist">${always.map((o) => row(o, avItem(o.storeItem).group === "Pact Fragments" ? "Pact Fragment" : "")).join("")}</div>`
+              : "");
+
+        const pool = [...AV_POOL.values()].filter((it) => it.kind === "rotating");
+        for (const o of rotating) if (!AV_POOL.has(o.storeItem)) pool.push(avItem(o.storeItem));
+        const starredCount = pool.filter((it) => AV.watch.includes(it.storeItem)).length;
+        $("avWishSummary").innerHTML =
+          "Star what you're after. SFHelper checks his stock every 3 hours while Soulframe is running, and you get a desktop notification when a starred item is in." +
+          (starredCount ? ` · <b>${starredCount}</b> starred` : "");
+        const status = (it) => {
+          const o = inStock.get(it.storeItem);
+          if (o) return `<span class="instock">In stock</span> · ${timeLeft(o.expiry - now)} left`;
+          const seen = AV.seen[it.storeItem];
+          if (!seen) return "Not seen yet";
+          return `Last in stock ${shortDate(seen.last)}${seen.count > 1 ? ` · seen ${seen.count}×` : ""}`;
+        };
+        const groups = AV_GROUPS.map((g) => [g, pool.filter((it) => it.group === g)]).filter(([, items]) => items.length);
+        $("avPool").innerHTML = groups.length
+          ? `<div class="avgroups">${groups
+              .map(([g, items]) => `<div class="avgroup"><h3>${escHtml(g)} <span class="count">${items.length}</span></h3>${items
+                .map((it) => `<div class="avrow starrable">${avStar(it)}${avIcon(it)}<div class="avn">${escHtml(it.name)}<small>${status(it)}</small></div><div class="avr">${avPrice(it.currency, it.price)}${it.hours ? `<small>${it.hours[1] >= 23 ? "24h" : it.hours[1] + "h"} offer</small>` : ""}</div></div>`)
+                .join("")}</div>`)
+              .join("")}</div>`
+          : '<span class="muted">Avakot\'s item list didn\'t load.</span>';
+      }
+
+      async function loadAvakot() {
+        try {
+          const r = await fetch("/api/avakot");
+          if (!r.ok) return;
+          AV = await r.json();
+          renderAvakot();
+          const box = $("avNotify");
+          if (document.activeElement !== box) box.checked = AV.notify !== false;
+          const reset = $("avResetNotify");
+          if (document.activeElement !== reset) reset.checked = AV.resetNotify === true;
+        } catch {}
+      }
+      async function saveAvakotSettings(patch) {
+        const r = await fetch("/api/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(patch) });
+        if (!r.ok) throw new Error("save failed");
+        return r.json();
+      }
+      $("panel-avakot").addEventListener("click", async (e) => {
+        const btn = e.target.closest("button.star");
+        if (!btn || !AV) return;
+        const item = btn.dataset.star;
+        const before = AV.watch;
+        AV.watch = before.includes(item) ? before.filter((x) => x !== item) : [...before, item];
+        renderAvakot();
+        try {
+          AV.watch = (await saveAvakotSettings({ avakotWatch: AV.watch })).avakotWatch;
+        } catch {
+          AV.watch = before;
+        }
+        renderAvakot();
+      });
+      if (navigator.userAgent.includes("Electron")) {
+        $("avNotifyWrap").hidden = false;
+        $("avResetNotifyWrap").hidden = false;
+        $("avResetNotify").addEventListener("change", async (e) => {
+          const box = e.target;
+          try {
+            box.checked = (await saveAvakotSettings({ avakotResetNotify: box.checked })).avakotResetNotify;
+          } catch {
+            box.checked = !box.checked;
+          }
+        });
+        $("avNotify").addEventListener("change", async (e) => {
+          const box = e.target;
+          try {
+            box.checked = (await saveAvakotSettings({ avakotNotify: box.checked })).avakotNotify;
+          } catch {
+            box.checked = !box.checked;
+          }
+        });
+      }
+      document.querySelector('.tab[data-tab="avakot"]').addEventListener("click", loadAvakot);
+      setInterval(loadAvakot, 60000);
+      setInterval(renderAvakot, 30000);
+
       let THEME = null;
       let themeSaveTimer = null;
       const HEX6 = /^#[0-9a-f]{6}$/i;
@@ -2433,6 +2643,65 @@
         if (!navigator.userAgent.includes("Electron")) return;
         $("recipeNotifyWrap").hidden = false;
         bindSettingToggle($("recipeNotify"), "recipeNotify");
+      })();
+
+      let OTHER_CRAFTS = {};
+      const FORGE_KIND = { Elixirs: "Elixir", "Pup Treats": "Pup Treat", Palettes: "Palette", Chordstones: "Chordstone", Pacts: "Pact", Talismans: "Talisman" };
+      const FORGE_TEXT = { readyToClaim: "Ready To Claim", inProgress: "In Progress", nothingToClaim: "Nothing to Claim", curingTime: "Curing Time" };
+      const forgeWhen = (ms) => (new Date(ms).toDateString() === new Date().toDateString() ? clockTime(ms) : `${shortDate(ms)}, ${clockTime(ms)}`);
+      function renderForge() {
+        const c = LAST_CRAFTING;
+        if (!c) return;
+        const L = { ...FORGE_TEXT, ...((DICT && DICT.crafting) || {}) };
+        const now = Date.now();
+        const crafts = (c.pending || []).map((p) => {
+          const d = RECIPES[p.recipe] || OTHER_CRAFTS[p.recipe] || null;
+          return { ...p, d, name: d ? d.name : shortName(p.recipe.replace(/Blueprint$/, "")) };
+        });
+        const ready = crafts.filter((p) => p.completes <= now);
+        const curing = crafts.filter((p) => p.completes > now);
+        const next = curing[0];
+        $("forgeSummary").innerHTML = crafts.length
+          ? [
+              `${escHtml(L.readyToClaim)} <b>${ready.length}</b>`,
+              `${escHtml(L.inProgress)} <b>${curing.length}</b>`,
+              ...(next ? [`next ready in <b>${timeLeft(next.completes - now)}</b>, at ${forgeWhen(next.completes)}`] : []),
+            ].join(" &nbsp;·&nbsp; ")
+          : "";
+        const card = (p) => {
+          const d = p.d;
+          const done = p.completes <= now;
+          const total = d && d.seconds ? d.seconds * 1000 : null;
+          const pct = total ? Math.max(2, Math.min(100, ((total - (p.completes - now)) / total) * 100)) : null;
+          const kind = d ? d.slot || FORGE_KIND[d.kind] || "" : "";
+          const npc = d && d.station ? RECIPE_NPC[d.station] : null;
+          const meta = [
+            kind ? `<span class="avgrp">${escHtml(kind)}</span>` : "",
+            npc ? `<span>${npc}</span>` : "",
+            d && d.gives > 1 ? `<span>×${d.gives}</span>` : "",
+            d && d.seconds ? `<span>${escHtml(L.curingTime)} ${craftTime(d.seconds)}</span>` : "",
+          ].join("");
+          const time = done
+            ? `<span class="instock">${escHtml(L.readyToClaim)}</span><span>since ${forgeWhen(p.completes)}</span>`
+            : `${pct != null ? `<div class="avbar"><i style="width:${pct.toFixed(1)}%"></i></div>` : "<span></span>"}<span>${timeLeft(p.completes - now)} left · until ${forgeWhen(p.completes)}</span>`;
+          return `<div class="avcard forgecard${done ? " ready" : ""}">${avIcon({ icon: d && d.icon })}<div class="avname">${escHtml(p.name)}</div><div class="avmeta">${meta}</div><div class="avtime">${time}</div></div>`;
+        };
+        $("forge").innerHTML = !crafts.length
+          ? `<p class="muted">${escHtml(L.nothingToClaim)}. What you craft with Tuvalkane or Verminia shows here with its curing time.</p>`
+          : `<h3 class="sub">${escHtml(L.readyToClaim)}</h3>` +
+            (ready.length ? `<div class="avgrid">${ready.map(card).join("")}</div>` : `<p class="muted">${escHtml(L.nothingToClaim)}</p>`) +
+            (curing.length ? `<h3 class="sub">${escHtml(L.inProgress)}</h3><div class="avgrid">${curing.map(card).join("")}</div>` : "");
+      }
+      setInterval(renderForge, 30000);
+      (async () => {
+        if (!navigator.userAgent.includes("Electron")) return;
+        try {
+          $("forgeNotify").checked = (await (await fetch("/api/settings")).json()).forgeNotify !== false;
+        } catch {
+          return;
+        }
+        $("forgeNotifyWrap").hidden = false;
+        bindSettingToggle($("forgeNotify"), "forgeNotify");
       })();
 
       let LAST_TOTEMS = null;
@@ -3173,6 +3442,7 @@
         if (sectionChanged("crafting", data.crafting)) {
           LAST_CRAFTING = data.crafting || null;
           renderRecipes();
+          renderForge();
         }
         if (sectionChanged("totems", data.totems)) {
           LAST_TOTEMS = data.totems || null;
@@ -3197,9 +3467,67 @@
           renderTrades();
         }
 
-        const s = data.stats?.scalars || {};
+        LAST_STATS = data.stats || null;
+        renderCombat();
+      }
+
+      let LAST_STATS = null;
+      const STAT_TOP = 10;
+      const STAT_TABLES = {
+        weapons: { title: "Weapons", first: "Weapon", cols: [["kills", "Kills"], ["headshots", "Headshots"], ["assists", "Assists"], ["equipTime", "Equipped"]] },
+        pacts: { title: "Pacts", first: "Pact", cols: [["kills", "Kills"], ["headshots", "Headshots"], ["assists", "Assists"], ["equipTime", "Equipped"]] },
+        enemies: { title: "Enemies", first: "Enemy", cols: [["kills", "Kills"], ["headshots", "Headshots"], ["assists", "Assists"], ["executions", "Executions"], ["deaths", "Killed you"]] },
+      };
+      const STATS_SORT = { weapons: "kills", pacts: "kills", enemies: "kills" };
+      try {
+        const saved = JSON.parse(localStorage.getItem("sfhelper.statsSort") || "{}");
+        for (const k of Object.keys(STATS_SORT)) if (STAT_TABLES[k].cols.some(([c]) => c === saved[k])) STATS_SORT[k] = saved[k];
+      } catch {}
+      const STATS_ALL = { weapons: false, pacts: false, enemies: false };
+      function equippedTime(sec) {
+        if (!sec) return "—";
+        const m = Math.max(1, Math.round(sec / 60));
+        if (m < 60) return `${m}m`;
+        const h = Math.floor(m / 60);
+        return h < 10 ? `${h}h ${m % 60}m` : `${h.toLocaleString()}h`;
+      }
+      function statRows(key, list) {
+        const rows = new Map();
+        for (const e of list) {
+          const name = e.name || shortName(e.type);
+          const row = rows.get(name) || { name };
+          for (const [k] of STAT_TABLES[key].cols) if (typeof e[k] === "number") row[k] = (row[k] || 0) + e[k];
+          rows.set(name, row);
+        }
+        return [...rows.values()].filter((r) => r.kills || r.assists || r.headshots || r.executions);
+      }
+      function statTable(key, rows, wide) {
+        const t = STAT_TABLES[key];
+        const sort = STATS_SORT[key];
+        rows.sort((a, b) => (b[sort] || 0) - (a[sort] || 0) || a.name.localeCompare(b.name));
+        const shown = STATS_ALL[key] ? rows : rows.slice(0, STAT_TOP);
+        const cell = (k, v) => (k === "equipTime" ? equippedTime(v) : fmt(v || 0));
+        const head = t.cols
+          .map(([k, label]) => `<th class="num"><button class="thsort${k === sort ? " on" : ""}" data-stat="${key}" data-sort="${k}" title="Sort by ${label.toLowerCase()}">${label}</button></th>`)
+          .join("");
+        const more = rows.length > STAT_TOP
+          ? `<button class="mini" data-statall="${key}">${STATS_ALL[key] ? `Show the top ${STAT_TOP}` : `Show all ${rows.length}`}</button>`
+          : "";
+        return `<div${wide ? ' class="wide"' : ""}><h3 class="sub">${t.title}</h3>
+          <table><tr><th>${t.first}</th>${head}</tr>
+          ${shown.map((r) => `<tr><td>${escHtml(r.name)}</td>${t.cols.map(([k]) => `<td class="num">${cell(k, r[k])}</td>`).join("")}</tr>`).join("")}</table>${more}</div>`;
+      }
+      function renderCombat() {
+        const stats = LAST_STATS;
+        const s = stats?.scalars || {};
+        const enemies = stats?.enemies || [];
+        const total = (k) => (enemies.length ? enemies.reduce((n, e) => n + (typeof e[k] === "number" ? e[k] : 0), 0) : undefined);
         const cards = [
-          ["Kills (melee)", s.MeleeKills],
+          ["Kills", total("kills")],
+          ["Headshots", total("headshots")],
+          ["Assists", total("assists")],
+          ["Executions", total("executions")],
+          ["Melee kills", s.MeleeKills],
           ["Deaths", s.Deaths],
           ["Revives", s.ReviveCount],
           ["Heals", s.HealCount],
@@ -3209,30 +3537,27 @@
         $("scalars").innerHTML = cards
           .map(([l, v]) => `<div class="stat"><div class="n">${fmt(v)}</div><div class="l">${l}</div></div>`)
           .join("");
-
-        const topWeapons = (data.stats?.weapons || [])
-          .filter((w) => w.kills)
-          .sort((a, b) => (b.kills || 0) - (a.kills || 0))
-          .slice(0, 8);
-        const enemyRows = new Map();
-        for (const e of data.stats?.enemies || []) {
-          const name = e.name || shortName(e.type);
-          const row = enemyRows.get(name) || { name, kills: 0, executions: undefined };
-          row.kills += e.kills || 0;
-          if (typeof e.executions === "number") row.executions = (row.executions || 0) + e.executions;
-          enemyRows.set(name, row);
-        }
-        const topEnemies = [...enemyRows.values()]
-          .sort((a, b) => b.kills - a.kills)
-          .slice(0, 8);
-        const wTable = `<div><h3 class="sub">Top Weapons by Kills</h3>
-          <table><tr><th>Weapon</th><th class="num">Kills</th><th class="num">XP</th></tr>
-          ${topWeapons.map((w) => `<tr><td>${shortName(w.type)}</td><td class="num">${fmt(w.kills)}</td><td class="num">${fmt(w.xp)}</td></tr>`).join("")}</table></div>`;
-        const eTable = `<div><h3 class="sub">Top Enemies by Kills</h3>
-          <table><tr><th>Enemy</th><th class="num">Kills</th><th class="num">Exec.</th></tr>
-          ${topEnemies.map((e) => `<tr><td>${e.name}</td><td class="num">${fmt(e.kills)}</td><td class="num">${fmt(e.executions)}</td></tr>`).join("")}</table></div>`;
-        $("tables").innerHTML = wTable + eTable;
+        const weapons = stats?.weapons || [];
+        const isPact = (w) => typeof w.type === "string" && w.type.startsWith("/SF/Souls/");
+        const weaponRows = statRows("weapons", weapons.filter((w) => !isPact(w)));
+        const pactRows = statRows("pacts", weapons.filter(isPact));
+        const enemyRows = statRows("enemies", enemies);
+        $("tables").innerHTML =
+          (weaponRows.length ? statTable("weapons", weaponRows, !pactRows.length) : "") +
+          (pactRows.length ? statTable("pacts", pactRows, !weaponRows.length) : "") +
+          (enemyRows.length ? statTable("enemies", enemyRows, true) : "");
       }
+      $("tables").addEventListener("click", (e) => {
+        const sortBtn = e.target.closest("button.thsort");
+        const allBtn = e.target.closest("button[data-statall]");
+        if (sortBtn) {
+          STATS_SORT[sortBtn.dataset.stat] = sortBtn.dataset.sort;
+          try { localStorage.setItem("sfhelper.statsSort", JSON.stringify(STATS_SORT)); } catch {}
+        } else if (allBtn) {
+          STATS_ALL[allBtn.dataset.statall] = !STATS_ALL[allBtn.dataset.statall];
+        } else return;
+        renderCombat();
+      });
 
       let timer = null;
       async function refresh() {
@@ -3377,7 +3702,7 @@
       }
       const DATA_FILES = [
         "names", "faction-ranks", "totems", "totemdata", "tempers", "pactarts", "itemicons",
-        "pactartvalues", "pactarttext", "talismans", "armour", "roster", "upgrades", "recipes",
+        "pactartvalues", "pactarttext", "talismans", "armour", "roster", "upgrades", "recipes", "avakot",
       ];
       async function loadDict() {
         dictLoadedAt = Date.now();
@@ -3405,10 +3730,16 @@
           PACT_ROSTER = d.roster.pacts || {};
         }
         if (d.upgrades) UPGRADES = d.upgrades;
-        if (d.recipes) RECIPES = d.recipes.recipes || {};
+        if (d.recipes) {
+          RECIPES = d.recipes.recipes || {};
+          OTHER_CRAFTS = d.recipes.otherCrafts || {};
+        }
+        if (d.avakot) AV_POOL = new Map((d.avakot.items || []).map((it) => [it.storeItem, it]));
         renderUpgradeItems();
         renderRecipes();
         renderTempers();
+        renderForge();
+        loadAvakot();
       }
 
       let accountWait = null;

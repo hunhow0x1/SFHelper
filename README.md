@@ -2,8 +2,9 @@
 
 A desktop companion for **Soulframe**, in the spirit of
 [WFHelper](https://github.com/WFHelper/WFHelper). It tracks your faction
-standing, mastery, loadouts, upgrades, recipes, cooldowns, weapon pickups, trades
-and your Wolfpup while you play, using in-game names throughout.
+standing, mastery, loadouts, upgrades, recipes, crafts, cooldowns, weapon
+pickups, trades, Avakot's shop and your Wolfpup while you play, using in-game
+names throughout.
 
 Runs on **Linux** (AppImage) and **Windows** (installer).
 
@@ -18,9 +19,11 @@ Runs on **Linux** (AppImage) and **Windows** (installer).
 | **Mastery** | Your Envoy Rank, your Mastery and progress to the next rank, and the patch's maximum rank. Every weapon and pact shows its Mastery, which comes from the game's own record, so a re-crafted weapon still counts. Filter by owned, mastered and type (weapons, Primary, Sidearm or Pacts). Discoveries lists every place by its in-game name, whether you've found it, and the Memories found there. |
 | **Upgrades** | Split into Tempers, Runes, Joineries, Gear and Totems tabs. Tuvalkane temper learning; your Runes by weapon art with their rank, the Totem slot they add and their numbers at that rank; your Joineries by metal and blessing, filterable by Virtue and blessing; your Gear, with what's equipped, filterable by type (Virtue Elixirs among them) and lures by Habitat and Nature (e.g. Lake, Bottom Feeder); and your Totem inventory with grip / Virtue / type filters. Every subtab has a search. |
 | **Recipes** | Everything you can brew with the Witch Verminia (Elixirs, Pup Treats and Palettes), the Chordstones Tuvalkane casts, and the weapons and armour you can craft: each recipe's ingredients against what you have, what you're short of, the Dracs and time it takes, and the Bond rank it needs. Filter by type, slot, Virtue, or by what's ready to make. Star a recipe to get a desktop notification once you have everything for it. |
+| **Forge** | What you're crafting with Tuvalkane or Verminia, using the game's own words: each craft's curing time and how long is left (Ready To Claim, In Progress). Get a desktop notification when a craft is ready to claim. |
 | **Pickups** | Weapons you've picked up, with times taken from the game's log. Optional desktop notifications for Moonsteel finds. Pickup and trade history is kept on your computer; export it to move it to a new install. |
 | **Trades** | Your trade history: who you traded with, what you received and gave, with in-game icons (weapons with their craftwork and tempers), and the Dracs spent on Scutage. Plus how many trades you have left today. |
-| **Stats** | Your top weapons and enemies by kills, by in-game name, and your Wolfpup: its Temperament, Energy, Training, the level trained in each skill (Guts, Speed, Endurance, Curiosity, Heart), and its food. After it runs out of Energy, the card shows when it can be summoned again, and Cooldowns lists it so you can star it for a notification. |
+| **Avakot** | What Avakot's Gots has in stock, with prices, purchase limits and how long each item stays, plus his weekly and always-stocked wares. SFHelper checks his stock every 3 hours. Star anything he can sell to get a desktop notification when he stocks it. |
+| **Stats** | Your kills, headshots, assists and executions, deaths, revives and more; your weapons, Pacts and enemies by in-game name, with kills, headshots, assists, executions, time equipped and how often each enemy killed you, sortable by any column; and your Wolfpup: its Temperament, Energy, Training, the level trained in each skill (Guts, Speed, Endurance, Curiosity, Heart), and its food. After it runs out of Energy, the card shows when it can be summoned again, and Cooldowns lists it so you can star it for a notification. |
 | **Settings** | Your account id, and the colour theme: a few presets or your own colours, title bar included. |
 
 ## Screenshots
@@ -32,7 +35,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer).
 | ![Upgrades, Runes: your Runes by weapon art, with rank and Totem slot](screenshots/upgrades-runes.webp) | ![Upgrades, Joineries: your Joineries by metal and blessing](screenshots/upgrades-joineries.webp) |
 | ![Upgrades, Gear: supplies, fishing gear and companion items, with what's equipped](screenshots/upgrades-gear.webp) | ![Upgrades, Totems: your Totems with search and Virtue, grip, type and trigger filters](screenshots/upgrades-totems.webp) |
 | ![Recipes: Verminia's brews and Tuvalkane's Chordstones, with what you have and what you're short of](screenshots/recipes.webp) | ![Pickups: weapons picked up, with craftwork and tempers](screenshots/pickups.webp) |
-| ![Trades: what you received and gave in each trade, and the Scutage paid](screenshots/trades.webp) | |
+| ![Trades: what you received and gave in each trade, and the Scutage paid](screenshots/trades.webp) | ![Avakot: what Avakot's Gots has in stock, with stars for notifications](screenshots/avakot.webp) |
 
 ## How it gets your data
 
@@ -47,6 +50,12 @@ Runs on **Linux** (AppImage) and **Windows** (installer).
   - Nothing runs until you agree on the first-launch consent screen.
   - While the game is running, the inventory is refreshed every 2 minutes. The
     memory is only scanned when your session changes.
+- **Avakot's shop (desktop app):** with the same session, the app asks
+  Soulframe's server for Avakot's stock, the same request the game makes for his
+  shop. It asks once every 3 hours while the game is running, a minute after an
+  inventory import so the two never go out together. His offers change every
+  hour and each stays for 3 hours, so none are missed. If the answer comes back
+  before his stock has changed, it asks once more 10 minutes later.
 - **Game log:** `EE.log` supplies the time each weapon was picked up, and each
   trade's partner and time. The Mastery figure the game writes at login is used
   to check SFHelper's own count (weapon and Pact ranks, plus 5,000 for each place

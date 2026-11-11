@@ -4,11 +4,15 @@ import { writeFileAtomic } from "./files";
 
 export interface Settings {
   moonsteelNotify: boolean;
+  avakotNotify: boolean;
+  avakotResetNotify: boolean;
+  avakotWatch: string[];
   timerNotify: boolean;
   timerWatch: string[];
   blessedNotify: boolean;
   recipeNotify: boolean;
   recipeWatch: string[];
+  forgeNotify: boolean;
   theme: Theme | null;
 }
 
@@ -22,11 +26,15 @@ export interface Theme {
 
 const DEFAULTS: Settings = {
   moonsteelNotify: true,
+  avakotNotify: true,
+  avakotResetNotify: false,
+  avakotWatch: [],
   timerNotify: true,
   timerWatch: [],
   blessedNotify: false,
   recipeNotify: true,
   recipeWatch: [],
+  forgeNotify: true,
   theme: null,
 };
 
@@ -72,15 +80,19 @@ export async function getSettings(): Promise<Settings> {
     const s = JSON.parse(await readFile(settingsPath(), "utf8")) as Partial<Settings>;
     return {
       moonsteelNotify: typeof s.moonsteelNotify === "boolean" ? s.moonsteelNotify : DEFAULTS.moonsteelNotify,
+      avakotNotify: typeof s.avakotNotify === "boolean" ? s.avakotNotify : DEFAULTS.avakotNotify,
+      avakotResetNotify: typeof s.avakotResetNotify === "boolean" ? s.avakotResetNotify : DEFAULTS.avakotResetNotify,
+      avakotWatch: itemTypes(s.avakotWatch) ?? [],
       timerNotify: typeof s.timerNotify === "boolean" ? s.timerNotify : DEFAULTS.timerNotify,
       timerWatch: timerTags(s.timerWatch) ?? [],
       blessedNotify: typeof s.blessedNotify === "boolean" ? s.blessedNotify : DEFAULTS.blessedNotify,
       recipeNotify: typeof s.recipeNotify === "boolean" ? s.recipeNotify : DEFAULTS.recipeNotify,
       recipeWatch: itemTypes(s.recipeWatch) ?? [],
+      forgeNotify: typeof s.forgeNotify === "boolean" ? s.forgeNotify : DEFAULTS.forgeNotify,
       theme: theme(s.theme),
     };
   } catch {
-    return { ...DEFAULTS, timerWatch: [], recipeWatch: [] };
+    return { ...DEFAULTS, avakotWatch: [], timerWatch: [], recipeWatch: [] };
   }
 }
 
@@ -90,9 +102,14 @@ export function updateSettings(patch: Record<string, unknown>): Promise<Settings
   const run = queue.then(async () => {
     const s = await getSettings();
     if (typeof patch.moonsteelNotify === "boolean") s.moonsteelNotify = patch.moonsteelNotify;
+    if (typeof patch.avakotNotify === "boolean") s.avakotNotify = patch.avakotNotify;
+    if (typeof patch.avakotResetNotify === "boolean") s.avakotResetNotify = patch.avakotResetNotify;
     if (typeof patch.timerNotify === "boolean") s.timerNotify = patch.timerNotify;
     if (typeof patch.blessedNotify === "boolean") s.blessedNotify = patch.blessedNotify;
     if (typeof patch.recipeNotify === "boolean") s.recipeNotify = patch.recipeNotify;
+    if (typeof patch.forgeNotify === "boolean") s.forgeNotify = patch.forgeNotify;
+    const avakotWatch = itemTypes(patch.avakotWatch);
+    if (avakotWatch) s.avakotWatch = avakotWatch;
     const timerWatch = timerTags(patch.timerWatch);
     if (timerWatch) s.timerWatch = timerWatch;
     const recipeWatch = itemTypes(patch.recipeWatch);

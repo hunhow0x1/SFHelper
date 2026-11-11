@@ -100,6 +100,7 @@ describe("what the inventory says about crafting", () => {
       stock: { "/I/Sap": 4, "/I/Iron": 12 },
       dracs: 2500,
       bond: { Verminia: 2, Tuvalkane: 4 },
+      pending: [],
     });
   });
 });
@@ -109,7 +110,7 @@ describe("starred recipes", () => {
     name: "Curaidh's Breath", station: "Brewing", kind: "Elixirs", result: "/R/Out", rarity: null, fragments: 1, consumed: false,
     gives: 1, dracs: 100, seconds: 0, ingredients: [{ type: "/I/Sap", name: "Sap", count: 2 }], desc: null, icon: null, bond: null, ...extra,
   });
-  const state = (extra: Partial<CraftingState>): CraftingState => ({ recipes: { "/R/A": 1 }, stock: { "/I/Sap": 5 }, dracs: 1000, bond: {}, ...extra });
+  const state = (extra: Partial<CraftingState>): CraftingState => ({ recipes: { "/R/A": 1 }, stock: { "/I/Sap": 5 }, dracs: 1000, bond: {}, pending: [], ...extra });
 
   it("works out how many times a recipe can be crafted, as the Recipes tab does", () => {
     expect(recipeTimes("/R/A", def({}), state({}))).toBe(2);

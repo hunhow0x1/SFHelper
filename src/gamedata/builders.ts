@@ -16,6 +16,23 @@ export interface NameData {
   tokenLimits: Record<string, number>;
   currencies: Record<string, string>;
   pets: PetText;
+  crafting: Record<string, string>;
+}
+
+const CRAFTING_LABELS: Record<string, string> = {
+  readyToClaim: "Foundry_ReadyToClaimHeader",
+  inProgress: "Foundry_InProgressHeader",
+  nothingToClaim: "NothingToClaim",
+  curingTime: "Foundry_CuringTimeTitle",
+};
+
+export function buildCraftingText(dict: Dict): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [label, key] of Object.entries(CRAFTING_LABELS)) {
+    const text = dict[`/SF/Language/Crafting/${key}`];
+    if (usable(text)) out[label] = text.trim();
+  }
+  return out;
 }
 
 export interface PetText {
@@ -182,7 +199,7 @@ export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): Na
     const name = type?.startsWith("/SF/Upgrades/Runes/Weapon/") && field(t, "ProductCategory") === "Upgrades" ? localized(dict, field(t, "LocalizeTag")) : null;
     if (type && name && !(type in items)) items[type] = name;
   }
-  return { items, factions, factionTokens, tokenLimits, currencies, pets: buildPetText(dict, texts) };
+  return { items, factions, factionTokens, tokenLimits, currencies, pets: buildPetText(dict, texts), crafting: buildCraftingText(dict) };
 }
 
 export interface EnemyData {
@@ -332,6 +349,85 @@ export function buildPactArtValues(dict: Dict, texts: string[], arts: Record<str
     if (stats) out[key] = stats;
   }
   return out;
+}
+
+export interface AvakotItem {
+  storeItem: string;
+  name: string;
+  group: string;
+  kind: "always" | "weekly" | "rotating";
+  currency: "Dracs" | "Arcs" | null;
+  price: [number, number] | null;
+  hours: [number, number] | null;
+  weight: number;
+  limit: number | null;
+  icon: string | null;
+}
+
+export interface AvakotPool {
+  vendor: string;
+  slots: number | null;
+  items: AvakotItem[];
+}
+
+export const AVAKOT_VENDOR = "/SF/Types/Game/AvakotVendorManifest";
+const AVAKOT_GROUPS: [RegExp, string][] = [
+  [/\/Consumables\/Tackle\//, "Lures"],
+  [/\/Resources\/Bundles\/Catalysts\//, "Lampyrite"],
+  [/\/Kintsugi\//, "Joineries"],
+  [/\/Recipes\/Pacts\//, "Pact Fragments"],
+  [/\/PickUps\/Resources\//, "Materials"],
+  [/\/Consumables\//, "Supplies"],
+];
+
+const pair = (s: string | undefined): [number, number] | null => {
+  const m = /^\{(-?[\d.]+),(-?[\d.]+)\}$/.exec(s ?? "");
+  return m ? [Number(m[1]), Number(m[2])] : null;
+};
+
+export function buildAvakot(dict: Dict, texts: string[], names: Record<string, string>): AvakotPool {
+  const manifests = texts.filter((t) => t.includes("ItemManifest={") && t.includes("NumItemsAvailable=") && t.includes("/Consumables/Tackle/"));
+  if (manifests.length !== 1) throw new Error(`expected one Avakot vendor manifest, found ${manifests.length}`);
+  const manifest = manifests[0]!;
+
+  const tagOf = new Map<string, string>();
+  for (const t of texts) {
+    const type = /^TypeName=(\S+)$/m.exec(t)?.[1];
+    const tag = /^LocalizeTag=(\S+)$/m.exec(t)?.[1];
+    if (type && tag && !tagOf.has(type)) tagOf.set(type, tag);
+  }
+  const nameOf = (storeItem: string): string => {
+    const type = storeItem.replace("/SF/StoreItems/", "/SF/");
+    const tag = tagOf.get(type);
+    const fromTag = tag ? dict[tag] : undefined;
+    if (usable(fromTag)) return fromTag.trim();
+    const leaf = leafOf(storeItem);
+    return names[type] ?? names[leaf] ?? leaf.replace(/([a-z])([A-Z])/g, "$1 $2");
+  };
+
+  const items: AvakotItem[] = [];
+  for (const [, storeItem, block] of manifest.matchAll(/\{\nStoreItem=([^\n]+)\n([\s\S]*?)\nIncreasePerNegativeRank=[^\n]*\n\}/g)) {
+    const regular = pair(field(block!, "RegularPrice"));
+    const premium = pair(field(block!, "PremiumPrice"));
+    const [currency, price]: [AvakotItem["currency"], AvakotItem["price"]] =
+      regular && regular[1] > 0 ? ["Dracs", regular] : premium && premium[1] > 0 ? ["Arcs", premium] : [null, null];
+    const limit = Number(field(block!, "PurchaseQuantityLimit"));
+    items.push({
+      storeItem: storeItem!,
+      name: nameOf(storeItem!),
+      group: AVAKOT_GROUPS.find(([re]) => re.test(storeItem!))?.[1] ?? "Other",
+      kind: field(block!, "AlwaysOffered") === "1" ? "always" : field(block!, "RotatedWeekly") === "1" ? "weekly" : "rotating",
+      currency,
+      price,
+      hours: pair(field(block!, "DurationAvailable")),
+      weight: Number(Number(field(block!, "AppearanceFrequency")).toFixed(3)),
+      limit: limit > 0 ? limit : null,
+      icon: null,
+    });
+  }
+  if (items.length < 10) throw new Error(`Avakot manifest: only ${items.length} items parsed`);
+  const slots = pair(field(manifest, "NumItemsAvailable"));
+  return { vendor: AVAKOT_VENDOR, slots: slots ? slots[1] : null, items };
 }
 
 export interface WikiRune {
@@ -988,6 +1084,42 @@ export function buildRecipes(dict: Dict, texts: string[], names: Record<string, 
       bond: null,
       ...gear(kind[1], made),
     };
+  }
+  return sortedKeys(out);
+}
+
+export interface CraftDef {
+  name: string;
+  kind: string | null;
+  result: string;
+  seconds: number;
+  icon: string | null;
+  slot?: string;
+}
+
+const OTHER_CRAFT_KINDS: Record<string, string> = { Pacts: "Pacts", Totems: "Talismans" };
+
+export function buildOtherCrafts(dict: Dict, texts: string[], names: Record<string, string>, recipes: Record<string, RecipeDef>): Record<string, CraftDef> {
+  const tagOf = new Map<string, string>();
+  for (const t of texts) {
+    const type = /^TypeName=(\S+)$/m.exec(t)?.[1];
+    const tag = /^LocalizeTag=(\S+)$/m.exec(t)?.[1];
+    if (type && tag && !tagOf.has(type)) tagOf.set(type, tag);
+  }
+  const out: Record<string, CraftDef> = {};
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    if (!type?.startsWith(RECIPES) || type in recipes || type in out) continue;
+    const result = field(t, "ResultItem");
+    const seconds = Number(field(t, "BuildTime") ?? 0);
+    if (!result || !(seconds > 0)) continue;
+    const made = result.replace("/SF/StoreItems/", "/SF/");
+    const tag = field(t, "OverrideLocalizeTag") ?? field(t, "LocalizeTag") ?? tagOf.get(made);
+    const leaf = leafOf(made);
+    const name = (tag && usable(dict[tag]) ? dict[tag]!.trim() : null) ?? names[made] ?? names[leaf] ?? null;
+    if (!name) continue;
+    const top = type.slice(RECIPES.length).split("/")[0] ?? "";
+    out[type] = { name, kind: OTHER_CRAFT_KINDS[top] ?? null, result: made, seconds, icon: null };
   }
   return sortedKeys(out);
 }

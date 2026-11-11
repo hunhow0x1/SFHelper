@@ -5771,5 +5771,210 @@
         "Spirit": 16
       }
     }
+  },
+  "otherCrafts": {
+    "/SF/Types/Recipes/Holiday/FemaleCardinalBlueprint": {
+      "name": "Lady Cardinal",
+      "kind": null,
+      "result": "/SF/Upgrades/Skins/Sparrow/FemaleCardinalSparrowBody",
+      "seconds": 36000,
+      "icon": "img/game/storeitems-guides-cardinalfemale.png"
+    },
+    "/SF/Types/Recipes/Holiday/MaleCardinalBlueprint": {
+      "name": "Lord Cardinal",
+      "kind": null,
+      "result": "/SF/Upgrades/Skins/Sparrow/MaleCardinalSparrowBody",
+      "seconds": 36000,
+      "icon": "img/game/storeitems-guides-cardinalmale.png"
+    },
+    "/SF/Types/Recipes/Pacts/BromiusPactBlueprint": {
+      "name": "Bromius",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Bromius/BromiusSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-bromius.png"
+    },
+    "/SF/Types/Recipes/Pacts/ChampionPactBlueprint": {
+      "name": "Tethren",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Default/ChampionSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-tethren.png"
+    },
+    "/SF/Types/Recipes/Pacts/FencerPactBlueprint": {
+      "name": "Duelo",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Fencer/FencerSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-duelo.png"
+    },
+    "/SF/Types/Recipes/Pacts/FennJotarPactBlueprint": {
+      "name": "Mora's Hand",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Fenn/FennSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-fennjotar.png"
+    },
+    "/SF/Types/Recipes/Pacts/GarrenPactBlueprint": {
+      "name": "Garren Rood",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Stag/StagSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-garren.png"
+    },
+    "/SF/Types/Recipes/Pacts/LocksuitPactBlueprint": {
+      "name": "Ode Shrike",
+      "kind": "Pacts",
+      "result": "/SF/Souls/OdeHunter/OdeHunterSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-odehunter.png"
+    },
+    "/SF/Types/Recipes/Pacts/OrengalPactBlueprint": {
+      "name": "Orengall",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Wolf/WolfSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-orengal.png"
+    },
+    "/SF/Types/Recipes/Pacts/SaboteurPactBlueprint": {
+      "name": "Sirin",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Default/SaboteurSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-sirin.png"
+    },
+    "/SF/Types/Recipes/Pacts/TempestPactBlueprint": {
+      "name": "Ode Tempest",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Ode/OdeSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-ode.png"
+    },
+    "/SF/Types/Recipes/Pacts/WardPactBlueprint": {
+      "name": "Oscelda",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Default/WardSoul",
+      "seconds": 97200,
+      "icon": "img/game/storeitems-pacts-oscelda.png"
+    },
+    "/SF/Types/Recipes/Quests/OrlickProgression/BrassIngotBlueprint": {
+      "name": "Brass Ingot",
+      "kind": null,
+      "result": "/SF/Types/PickUps/Resources/Ingots/BrassIngotResourceItem",
+      "seconds": 2412,
+      "icon": "img/game/storeitems-materials-ingotbrass.png"
+    },
+    "/SF/Types/Recipes/Totems/AlcasChildrenTotemBlueprint": {
+      "name": "Sproutfolk Seed",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/FeyHubTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-alcaschildrentotem.png"
+    },
+    "/SF/Types/Recipes/Totems/AlcasChildrenTotemUpgradedBlueprint": {
+      "name": "Sproutfolk Shoot",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/FeyHubUpgradedTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-alcaschildrentotem.png"
+    },
+    "/SF/Types/Recipes/Totems/CardinalTotemBlueprint": {
+      "name": "Cardinal Charm",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/CardinalTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-cardinaltalisman.png"
+    },
+    "/SF/Types/Recipes/Totems/CircadeTotemBlueprint": {
+      "name": "Triune Talisman",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/CircadeCompleteTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-ghostofcircadecombined.png"
+    },
+    "/SF/Types/Recipes/Totems/CogahCorruptedTalismanBlueprint": {
+      "name": "The Cogah Grod",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/CogahCorruptedTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-corruptedtalisman.png"
+    },
+    "/SF/Types/Recipes/Totems/CogahCreatureTalismanBlueprint": {
+      "name": "The Cogah Creutair",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/CogahCreatureTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-creaturetalisman.png"
+    },
+    "/SF/Types/Recipes/Totems/CogahHumanTalismanBlueprint": {
+      "name": "The Cogah Lorcaan",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/CogahHumanTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-humanoidtalisman.png"
+    },
+    "/SF/Types/Recipes/Totems/IchorousTotemBlueprint": {
+      "name": "Wazzard's Wish",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/IchorousTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-ichoroustotem.png"
+    },
+    "/SF/Types/Recipes/Totems/KithOfKingsTotemBlueprint": {
+      "name": "Medallion of Mora",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/ChampionHubTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-kithofkingstotem.png"
+    },
+    "/SF/Types/Recipes/Totems/KithOfKingsTotemUpgradedBlueprint": {
+      "name": "Molten Mora",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/ChampionHubUpgradedTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-kithofkingstotem.png"
+    },
+    "/SF/Types/Recipes/Totems/OdeSoulBoonTotemBlueprint": {
+      "name": "Synod's Bell Jar",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/OdeSoulBoonTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-odesoulboontotem.png"
+    },
+    "/SF/Types/Recipes/Totems/OrengalIdolTotemBlueprint": {
+      "name": "Direskull",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/OrengalIdolTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-orengalltotem.png"
+    },
+    "/SF/Types/Recipes/Totems/OrengalSoulBoonTotemBlueprint": {
+      "name": "Orengall's Fang",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/OrengalSoulBoonTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-orengallsoulboon.png"
+    },
+    "/SF/Types/Recipes/Totems/SilentRoseTotemBlueprint": {
+      "name": "Rose's Bodkin",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/SilentRoseHubTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-silentrosetotem.png"
+    },
+    "/SF/Types/Recipes/Totems/SilentRoseTotemUpgradedBlueprint": {
+      "name": "Bloomin' Bodkin",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/SilentRoseHubUpgradedTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-silentrosetotem.png"
+    },
+    "/SF/Types/Recipes/Totems/WovenTotemBlueprint": {
+      "name": "Incubu",
+      "kind": "Talismans",
+      "result": "/SF/Upgrades/Skins/Totem/WovenTotem",
+      "seconds": 86400,
+      "icon": "img/game/storeitems-totems-bitastalisman.png"
+    }
   }
 }

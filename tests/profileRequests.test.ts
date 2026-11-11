@@ -76,7 +76,8 @@ describe("profile requests", () => {
     );
     const settings = await getSettings();
     expect(settings.timerNotify).toBe(false);
-    for (const key of ["inventoryRequests", "avakotRequests", "profileRequests", "avakotWatch", "avakotNotify"]) expect(settings).not.toHaveProperty(key);
+    expect(settings.avakotWatch).toEqual(["/SF/StoreItems/X"]);
+    for (const key of ["inventoryRequests", "avakotRequests", "profileRequests"]) expect(settings).not.toHaveProperty(key);
     expect(await json(`/api/profile?accountId=${account}`)).toMatchObject({ profileWaiting: false, profileError: null });
     expect(outside).toEqual([`https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=${account}`]);
   });

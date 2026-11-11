@@ -9,11 +9,14 @@ import { onMoonsteelAcquired, type Pickup } from "../src/server/pickups";
 import { getSettings, onSettingsChange, type Settings } from "../src/server/settings";
 import { getInventory, type InventoryView } from "../src/server/inventory";
 import { blessedMeetingNear, COLLECTOR_TAG, dockedCollector, TimerAlarms, withAgariNames, type GameTimer } from "../src/server/timers";
-import { newlyReady, readyRecipes, recipeTimes, recipeVerb } from "../src/server/recipes";
-import type { RecipeDef } from "../src/gamedata/builders";
+import { craftTimers, newlyReady, readyRecipes, recipeTimes, recipeVerb } from "../src/server/recipes";
+import type { CraftDef, RecipeDef } from "../src/gamedata/builders";
 import { noteDataRefreshed, setImportStatus } from "../src/server/importStatus";
 import { startUpdater } from "./updater";
 import { apiPausedUntil, liftPauseAfterLogin, noteApiAccepted, noteApiRefused, pausedMessage, restoreApiBackoff } from "../src/server/apiBackoff";
+import { AVAKOT_VENDOR, getAvakot, nextAvakotCheck, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotCheck, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
+import { fetchVendorInfo } from "../helper/fetchVendor";
+import { EndpointRefusedError } from "../helper/fetchInventory";
 import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
 import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
 import { pruneRequests, readRequests } from "../src/server/requestLog";
@@ -205,6 +208,7 @@ async function importFromMemory(): Promise<void> {
         const inventory = await getInventory();
         await recordHistory(inventory);
         timerAlarms.set(await withAgariNames(inventory?.timers ?? []));
+        await armCrafts(inventory);
         await checkRecipes(inventory);
       } catch (err) {
         log(`Recording pickups/trades failed: ${(err as Error).message}`);
@@ -215,6 +219,7 @@ async function importFromMemory(): Promise<void> {
         ? { state: "ok", message: "Inventory imported." }
         : { state: "error", code: result.code, message },
     );
+    if (result.ok) void planAvakot();
   } catch (err) {
     lastImportCode = null;
     log(`Inventory import failed: ${(err as Error).stack ?? String(err)}`);
@@ -225,6 +230,56 @@ async function importFromMemory(): Promise<void> {
 }
 
 const REIMPORT_INTERVAL_MS = 120_000;
+const AVAKOT_AFTER_IMPORT_MS = 60_000;
+
+let avakotTimer: ReturnType<typeof setTimeout> | undefined;
+async function planAvakot(): Promise<void> {
+  const check = await nextAvakotCheck();
+  if (check.at > Date.now() + AVAKOT_AFTER_IMPORT_MS) return;
+  clearTimeout(avakotTimer);
+  avakotTimer = setTimeout(() => void checkAvakot(check), AVAKOT_AFTER_IMPORT_MS);
+}
+
+let avakotBusy = false;
+async function checkAvakot(check: AvakotCheck): Promise<void> {
+  const s = session;
+  if (!s || avakotBusy || importing || apiPausedUntil()) return;
+  if (await gameBeingRefused()) return;
+  if (!(await gameRunning())) return;
+  avakotBusy = true;
+  try {
+    await noteAvakotAttempt(check);
+    const stock = parseVendorInfo(await fetchVendorInfo(s.accountId, s.nonce, AVAKOT_VENDOR));
+    noteApiAccepted();
+    const settings = await getSettings();
+    const prev = (await getAvakot()).stock;
+    const fresh = await recordAvakot(stock, settings.avakotWatch);
+    const rotated = stock.nextChange > stock.fetchedAt;
+    const rotating = stock.offers.filter((o) => o.expiry !== null).length;
+    const next = new Date((await nextAvakotCheck()).at).toLocaleTimeString();
+    log(rotated
+      ? `Avakot's stock updated: ${rotating} rotating offers. Next check around ${next}.`
+      : check.retry
+        ? `Avakot's stock still hadn't changed. Next check around ${next}.`
+        : `Avakot's stock came back before his rotation; asking once more around ${next}.`);
+    if (rotated && settings.avakotResetNotify && stockReset(prev, stock)) notifyAvakotReset(stock);
+    if (fresh.length && settings.avakotNotify) await notifyAvakot(fresh);
+  } catch (err) {
+    if (err instanceof EndpointRefusedError) log(`Avakot's stock: ${pausedMessage(noteApiRefused(), err.status)}`);
+    else log(`Avakot's stock check failed: ${(err as Error).message}`);
+  } finally {
+    avakotBusy = false;
+  }
+}
+
+let avakotNames: Map<string, string> | null = null;
+async function avakotItemName(storeItem: string): Promise<string> {
+  if (!avakotNames) {
+    const pool = await readDataJson<{ items?: { storeItem: string; name: string }[] }>("avakot.json");
+    avakotNames = new Map((pool?.items ?? []).map((i) => [i.storeItem, i.name]));
+  }
+  return avakotNames.get(storeItem) ?? (await displayName(storeItem.replace("/SF/StoreItems/", "/SF/")));
+}
 
 const shownNotifications: Notification[] = [];
 const MAX_KEPT_NOTIFICATIONS = 20;
@@ -252,12 +307,58 @@ function showTab(tab: string): void {
   void mainWindow.webContents.executeJavaScript(`typeof activateTab === "function" && activateTab(${JSON.stringify(tab)})`);
 }
 
+function notifyAvakotReset(stock: AvakotStock): void {
+  if (!Notification.isSupported()) return;
+  const rotating = stock.offers.filter((o) => o.expiry !== null).length;
+  const until = new Date(stock.nextChange).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const n = new Notification({ title: "Avakot's Gots have new stock", body: `${rotating} offers · the next change is at ${until}`, icon: ICON_PATH, silent: false });
+  showNotification(n, "avakot");
+  log("Avakot new stock notification.");
+}
+
+async function notifyAvakot(offers: AvakotOffer[]): Promise<void> {
+  if (!Notification.isSupported()) return;
+  const names = await Promise.all(offers.map((o) => avakotItemName(o.storeItem)));
+  const until = (ms: number | null) => (ms ? new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "");
+  const lines = offers.map((o, i) =>
+    [names[i], o.price ? `${o.price.toLocaleString()} ${o.currency}` : "", o.expiry ? `until ${until(o.expiry)}` : ""].filter(Boolean).join(" · "),
+  );
+  const n = new Notification({
+    title: offers.length === 1 ? `Avakot has ${names[0]}!` : `Avakot has ${offers.length} of your starred items!`,
+    body: lines.join("\n"),
+    icon: ICON_PATH,
+    silent: false,
+  });
+  showNotification(n, "avakot");
+  log(`Avakot notification: ${names.join(", ")}.`);
+}
+
 const timerAlarms = new TimerAlarms();
+const craftAlarms = new TimerAlarms();
 const TIMER_CHECK_MS = 10_000;
+
+async function armCrafts(inv: InventoryView | null): Promise<void> {
+  const data = await readDataJson<{ recipes?: Record<string, RecipeDef>; otherCrafts?: Record<string, CraftDef> }>("recipes.json");
+  craftAlarms.set(craftTimers(inv?.crafting.pending ?? [], { ...data?.otherCrafts, ...data?.recipes }));
+}
+
+async function notifyCrafts(ready: GameTimer[]): Promise<void> {
+  log(`Ready to claim: ${ready.map((t) => t.name).join(", ")}.`);
+  if (!Notification.isSupported() || !(await getSettings()).forgeNotify) return;
+  const n = new Notification({
+    title: ready.length === 1 ? ready[0]!.ready : `${ready.length} of your crafts are ready to claim`,
+    body: ready.map((t) => (t.kind ? `${t.name} · ${t.kind}` : t.name)).join("\n"),
+    icon: ICON_PATH,
+    silent: false,
+  });
+  showNotification(n, "forge");
+}
+
 async function armSavedTimers(): Promise<void> {
   try {
     const inventory = await getInventory();
     timerAlarms.set(await withAgariNames(inventory?.timers ?? []));
+    await armCrafts(inventory);
     await checkRecipes(inventory);
   } catch (err) {
     log(`Setting cooldown alarms failed: ${(err as Error).message}`);
@@ -344,6 +445,7 @@ async function checkRecipes(inv: InventoryView | null): Promise<void> {
 
 let itemNames: Record<string, string> | null = null;
 function resetNameCaches(): void {
+  avakotNames = null;
   itemNames = null;
 }
 
@@ -443,6 +545,8 @@ async function proceed(): Promise<void> {
   void armSavedTimers();
   setInterval(() => {
     for (const t of timerAlarms.due()) void notifyTimer(t);
+    const crafted = craftAlarms.due();
+    if (crafted.length) void notifyCrafts(crafted);
     void checkCollector().catch(() => {});
     void checkBlessed().catch(() => {});
   }, TIMER_CHECK_MS);

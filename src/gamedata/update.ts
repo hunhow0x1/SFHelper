@@ -7,12 +7,14 @@ import {
   buildArmour,
   aspectManifests,
   buildArsenal,
+  buildAvakot,
   buildEnemies,
   buildDungeons,
   buildLocations,
   buildNames,
   buildPactArtTexts,
   buildPactArtValues,
+  buildOtherCrafts,
   buildRecipes,
   buildTalismans,
   buildTempers,
@@ -29,6 +31,8 @@ import {
   withRetired,
   type ArmourEntry,
   type ArsenalData,
+  type CraftDef,
+  type AvakotPool,
   type GameValues,
   type RecipeDef,
   type TotemEntry,
@@ -45,6 +49,7 @@ export const GAME_DATA_FILES = [
   "pactartvalues.json",
   "itemicons.json",
   "upgrades.json",
+  "avakot.json",
   "faction-ranks.json",
   "recipes.json",
   "arsenal.json",
@@ -281,9 +286,27 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     return `${Object.keys(arts).length} Pact Art texts`;
   });
 
+  await step("avakot.json", async () => {
+    const pool = buildAvakot(dict, unique, names.items);
+    const prev = await previous<AvakotPool>("avakot.json");
+    enough("Avakot's items", pool.items.length, prev?.items.length);
+    const prevIcon = new Map((prev?.items ?? []).map((i) => [i.storeItem, i.icon]));
+    for (const it of pool.items) {
+      if (it.group === "Joineries") {
+        it.icon = `img/joineries/${it.name.split(":")[0]!.trim().toLowerCase()}.png`;
+        continue;
+      }
+      const path = iconOfType.get(it.storeItem.replace("/SF/StoreItems/", "/SF/")) ?? iconOfName.get(/ of (.+)$/.exec(it.name)?.[1] ?? "") ?? null;
+      it.icon = (await icon(path)) ?? prevIcon.get(it.storeItem) ?? null;
+    }
+    await put("avakot.json", `${JSON.stringify(pool, null, 2)}\n`);
+    return `${pool.items.length} Avakot items`;
+  });
+
   await step("recipes.json", async () => {
     const recipes = buildRecipes(dict, unique, names.items);
-    const prev = (await previous<{ recipes?: Record<string, RecipeDef> }>("recipes.json"))?.recipes;
+    const prevFile = await previous<{ recipes?: Record<string, RecipeDef>; otherCrafts?: Record<string, CraftDef> }>("recipes.json");
+    const prev = prevFile?.recipes;
     enough("recipes", Object.keys(recipes).length, prev ? Object.keys(prev).length : undefined);
     const lua = wiki ? await wiki.wikitext("Module:Data/CraftingTable") : null;
     const crafts = lua ? parseCraftingTable(lua) : null;
@@ -293,8 +316,12 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
       r.bond = crafts?.size ? (wikiEntry(crafts, r) ?? null) : (old?.bond ?? null);
       r.icon = (await icon(iconOfType.get(r.result) ?? iconOfType.get(type) ?? null)) ?? old?.icon ?? null;
     }
-    await put("recipes.json", `${JSON.stringify({ recipes }, null, 2)}\n`);
-    return `${Object.keys(recipes).length} recipes`;
+    const otherCrafts = buildOtherCrafts(dict, unique, names.items, recipes);
+    for (const [type, c] of Object.entries(otherCrafts)) {
+      c.icon = (await icon(iconOfType.get(c.result) ?? iconOfType.get(type) ?? null)) ?? prevFile?.otherCrafts?.[type]?.icon ?? null;
+    }
+    await put("recipes.json", `${JSON.stringify({ recipes, otherCrafts }, null, 2)}\n`);
+    return `${Object.keys(recipes).length} recipes, ${Object.keys(otherCrafts).length} other crafts`;
   });
 
   await step("talismans.json", async () => {
@@ -336,7 +363,7 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   return { hash: files.hash, changed, failed, incomplete, drawn, summary };
 }
 
-const RETIRED = ["runes.json", "pacts.json", "totems.json", "avakot.json", "img/items", "img/runes", "img/avakot"];
+const RETIRED = ["runes.json", "pacts.json", "totems.json", "img/items", "img/runes", "img/avakot"];
 
 export async function clearGameData(outDir: string): Promise<void> {
   for (const name of [...GAME_DATA_FILES, ...RETIRED]) await rm(join(outDir, name), { force: true, recursive: true });

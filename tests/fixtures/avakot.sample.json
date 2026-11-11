@@ -1,0 +1,167 @@
+{
+  "VendorInfo": {
+    "_id": {
+      "$oid": "6658f9a3b19b0b213e76c750"
+    },
+    "TypeName": "/SF/Types/Game/AvakotVendorManifest",
+    "ItemManifest": [
+      {
+        "StoreItem": "/SF/StoreItems/Types/Items/Consumables/HealingPotion",
+        "RegularPrice": [
+          200,
+          200
+        ],
+        "Bin": "BIN_0",
+        "QuantityMultiplier": 1,
+        "Expiry": {
+          "$date": {
+            "$numberLong": "2051240400000"
+          }
+        },
+        "PurchaseQuantityLimit": 100,
+        "AllowMultipurchase": true,
+        "Id": {
+          "$oid": "6aad8aac59a2261bfad7cea4"
+        }
+      },
+      {
+        "StoreItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRC",
+        "PremiumPrice": [
+          52,
+          52
+        ],
+        "Bin": "BIN_0",
+        "QuantityMultiplier": 1,
+        "Expiry": {
+          "$date": {
+            "$numberLong": "2051240400000"
+          }
+        },
+        "PurchaseQuantityLimit": 1,
+        "RotatedWeekly": true,
+        "AllowMultipurchase": true,
+        "Id": {
+          "$oid": "6aad8aac59a2261bfad7cea8"
+        }
+      },
+      {
+        "StoreItem": "/SF/StoreItems/Types/Recipes/Pacts/GarrenPactBlueprint",
+        "RegularPrice": [
+          3000,
+          3000
+        ],
+        "Bin": "BIN_0",
+        "QuantityMultiplier": 1,
+        "Expiry": {
+          "$date": {
+            "$numberLong": "2051240400000"
+          }
+        },
+        "AllowMultipurchase": true,
+        "Id": {
+          "$oid": "6aad8aac59a2261bfad7ceb0"
+        }
+      },
+      {
+        "StoreItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystAMediumBundle",
+        "PremiumPrice": [
+          32,
+          32
+        ],
+        "Bin": "BIN_0",
+        "QuantityMultiplier": 1,
+        "Expiry": {
+          "$date": {
+            "$numberLong": "2051240400000"
+          }
+        },
+        "PurchaseQuantityLimit": 2,
+        "RotatedWeekly": true,
+        "AllowMultipurchase": true,
+        "Id": {
+          "$oid": "6aad8aac59a2261bfad7ceb3"
+        }
+      },
+      {
+        "StoreItem": "/SF/Types/PickUps/Resources/Bundles/Catalysts/CatalystALargeBundle",
+        "PremiumPrice": [
+          57,
+          57
+        ],
+        "Bin": "BIN_0",
+        "QuantityMultiplier": 1,
+        "Expiry": {
+          "$date": {
+            "$numberLong": "1793059200000"
+          }
+        },
+        "AllowMultipurchase": true,
+        "Id": {
+          "$oid": "6ad1bc722c6ca7ea9e4a9411"
+        }
+      },
+      {
+        "StoreItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/RiverPearlResource",
+        "RegularPrice": [
+          1500,
+          1500
+        ],
+        "Bin": "BIN_0",
+        "QuantityMultiplier": 1,
+        "Expiry": {
+          "$date": {
+            "$numberLong": "1793055600000"
+          }
+        },
+        "PurchaseQuantityLimit": 2,
+        "AllowMultipurchase": true,
+        "Id": {
+          "$oid": "6ad1bc722c6ca7ea9e4a9412"
+        }
+      },
+      {
+        "StoreItem": "/SF/StoreItems/Types/Items/Consumables/Tackle/CricketLureRare",
+        "RegularPrice": [
+          325,
+          325
+        ],
+        "Bin": "BIN_0",
+        "QuantityMultiplier": 1,
+        "Expiry": {
+          "$date": {
+            "$numberLong": "1793131200000"
+          }
+        },
+        "PurchaseQuantityLimit": 3,
+        "AllowMultipurchase": true,
+        "Id": {
+          "$oid": "6ad1bc722c6ca7ea9e4a9413"
+        }
+      },
+      {
+        "StoreItem": "/SF/StoreItems/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
+        "RegularPrice": [
+          50,
+          50
+        ],
+        "Bin": "BIN_0",
+        "QuantityMultiplier": 1,
+        "Expiry": {
+          "$date": {
+            "$numberLong": "1793059200000"
+          }
+        },
+        "PurchaseQuantityLimit": 100,
+        "AllowMultipurchase": true,
+        "Id": {
+          "$oid": "6ad1bc722c6ca7ea9e4a9415"
+        }
+      }
+    ],
+    "Expiry": {
+      "$date": {
+        "$numberLong": "1793055600000"
+      }
+    }
+  }
+}

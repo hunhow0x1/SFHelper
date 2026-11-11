@@ -5964,5 +5964,11 @@
       "snacks": 5,
       "energy": 100
     }
+  },
+  "crafting": {
+    "readyToClaim": "Ready To Claim",
+    "inProgress": "In Progress",
+    "nothingToClaim": "Nothing to Claim",
+    "curingTime": "Curing Time"
   }
 }
