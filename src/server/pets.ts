@@ -1,5 +1,12 @@
+import type { GameTimer } from "./timers";
+
 export const PET_STATS = ["Guard", "Speed", "Stamina", "Search", "Support"] as const;
 export type PetStat = (typeof PET_STATS)[number];
+
+export const PUP_ENERGY_PER_SECOND = 0.008888888888888889;
+export const PUP_SUMMON_SHARE = 0.8;
+export const PUP_MAX_ENERGY = 100;
+export const PUP_REST_TAG = "WolfpupRest";
 
 export interface OwnedPet {
   id: string | null;
@@ -10,8 +17,9 @@ export interface OwnedPet {
   skills: Record<PetStat, number>;
   xp: Record<PetStat, number>;
   bond: number;
+  energy: number;
   needsRest: boolean;
-  restUntil: number | null;
+  energySavedAt: number | null;
   mealsEaten: number;
   snacksEaten: number;
 }
@@ -40,11 +48,31 @@ export function parsePets(raw: Record<string, unknown>): OwnedPet[] {
       skills: Object.fromEntries(PET_STATS.map((s) => [s, num(d[`${s}Skill`])])) as Record<PetStat, number>,
       xp: Object.fromEntries(PET_STATS.map((s) => [s, num(d[s])])) as Record<PetStat, number>,
       bond: num(d.Bond),
+      energy: num(d.Energy),
       needsRest: d.NeedsRest === true,
-      restUntil: dateMs(d.RestDate),
+      energySavedAt: dateMs(d.RestDate),
       mealsEaten: num(d.MealsEaten),
       snacksEaten: num(d.SnacksEaten),
     });
   }
   return pets;
+}
+
+export function pupEnergyAt(p: OwnedPet, now: number, max = PUP_MAX_ENERGY): number {
+  const rested = p.energySavedAt ? Math.max(0, now - p.energySavedAt) / 1000 : 0;
+  return Math.min(max, p.energy + rested * PUP_ENERGY_PER_SECOND);
+}
+
+export function pupSummonableAt(p: OwnedPet, max = PUP_MAX_ENERGY): number | null {
+  if (!p.needsRest || !p.energySavedAt) return null;
+  return p.energySavedAt + Math.max(0, (PUP_SUMMON_SHARE * max - p.energy) / PUP_ENERGY_PER_SECOND) * 1000;
+}
+
+export function pupRestTimers(pets: OwnedPet[], names: Record<string, string> = {}, max = PUP_MAX_ENERGY): GameTimer[] {
+  return pets.flatMap((p, i) => {
+    const at = pupSummonableAt(p, max);
+    if (at === null) return [];
+    const name = (p.name && names[p.name]) || "Your Wolfpup";
+    return [{ tag: i ? `${PUP_REST_TAG}-${i}` : PUP_REST_TAG, kind: "Wolfpup resting", name, ready: `${name} can be summoned again`, expiry: Math.round(at) }];
+  });
 }

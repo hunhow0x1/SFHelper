@@ -9,7 +9,8 @@ import { parseTimers, type GameTimer } from "./timers";
 import { parseLoreScans, type LoreScan } from "./discoveries";
 import { parseUpgradeItems, type UpgradeItems } from "./upgradeItems";
 import { parseCrafting, type CraftingState } from "./recipes";
-import { parsePets, type OwnedPet } from "./pets";
+import { parsePets, pupRestTimers, type OwnedPet } from "./pets";
+import { getNames } from "./names";
 import { appFile } from "./paths";
 
 const candidates = (): string[] =>
@@ -61,6 +62,8 @@ export async function getInventory(): Promise<InventoryView | null> {
     try {
       const raw = JSON.parse(await readFile(path, "utf8"));
       const snap = snapshotFromExport(raw, new Date().toISOString());
+      const pets = parsePets(raw);
+      const petText = (await getNames()).pets as { names?: Record<string, string>; limits?: { energy?: number } } | null;
       const view: InventoryView = {
         currencies: snap.currencies,
         items: snap.items.map((i) => ({ key: i.key, displayName: i.displayName, count: i.count })),
@@ -72,7 +75,7 @@ export async function getInventory(): Promise<InventoryView | null> {
         totems: parseTotems(raw),
         upgradeItems: parseUpgradeItems(raw),
         crafting: parseCrafting(raw),
-        pets: parsePets(raw),
+        pets,
         daily: {
           affiliation: typeof raw.DailyAffiliation === "number" ? raw.DailyAffiliation : null,
           affiliationOde: typeof raw.DailyAffiliationOde === "number" ? raw.DailyAffiliationOde : null,
@@ -80,7 +83,7 @@ export async function getInventory(): Promise<InventoryView | null> {
         weaponInstances: parseWeaponInstances(raw),
         acquisition: parseAcquisitionContext(raw),
         holdings: parseHoldings(raw),
-        timers: parseTimers(raw),
+        timers: [...parseTimers(raw), ...pupRestTimers(pets, petText?.names, petText?.limits?.energy)].sort((a, b) => a.expiry - b.expiry),
         loreScans: parseLoreScans(raw),
         source: path,
         updatedAt: new Date(mtimeMs).toISOString(),

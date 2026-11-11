@@ -23,7 +23,7 @@ export interface PetText {
   temperaments: Record<string, string>;
   stats: Record<string, string>;
   labels: Record<string, string>;
-  limits: { training: number; skill: number; meals: number; snacks: number } | null;
+  limits: { training: number; skill: number; meals: number; snacks: number; energy: number } | null;
 }
 
 const PET_LABELS: Record<string, string> = {
@@ -49,7 +49,13 @@ export function buildPetText(dict: Dict, texts: string[]): PetText {
     const training = Number(field(t, "MaxMaturity"));
     if (!limits && training > 0) {
       const skill = Math.max(...["Guard", "Speed", "Stamina", "Search", "Support"].map((s) => Number(field(t, `Max${s}Skill`)) || 0));
-      limits = { training, skill, meals: Number(field(t, "MaxMealsToBeOverfed")) || 0, snacks: Number(field(t, "SnackOverfed")) || 0 };
+      limits = {
+        training,
+        skill,
+        meals: Number(field(t, "MaxMealsToBeOverfed")) || 0,
+        snacks: Number(field(t, "SnackOverfed")) || 0,
+        energy: Number(field(t, "MaxEnergy")) || 0,
+      };
     }
   }
   for (const key of Object.keys(dict)) {

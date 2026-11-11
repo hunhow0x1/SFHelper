@@ -197,6 +197,8 @@
         box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35); transition: border-color 0.15s, box-shadow 0.15s;
       }
       input::placeholder { color: var(--faint); }
+      :focus { outline: none; }
+      :focus-visible { outline: 1px solid color-mix(in srgb, var(--accent) 75%, transparent); outline-offset: 3px; }
       input:focus { outline: none; border-color: var(--accent); box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35), 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
       button {
         background: linear-gradient(180deg, var(--btn-hi), var(--btn-lo)); color: var(--on-accent);
@@ -794,6 +796,8 @@
       .pupsub { color: var(--muted); font-size: 14.5px; margin-top: 3px; }
       .pupsub .k { color: var(--faint); font: 600 10.5px/1 var(--display); letter-spacing: 0.16em; text-transform: uppercase; margin-right: 8px; }
       .pupstate { color: var(--accent-2-hi); font-size: 13.5px; margin-top: 4px; }
+      .pupstate.pupready { margin: -10px 0 18px; }
+      .pupnote { color: var(--faint); }
       .puptrain { margin-bottom: 18px; }
       .puptrain .label { font: 600 12px/1 var(--display); letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
       .pupstat { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 9px 2px; border-bottom: 1px solid var(--line); font-size: 15.5px; }
@@ -1206,6 +1210,10 @@
         document.querySelectorAll(".tab").forEach((x) => x.classList.toggle("active", x.dataset.tab === name));
         document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === "panel-" + name));
       }
+      document.addEventListener("click", (e) => {
+        const b = e.detail && e.target.closest && e.target.closest("button");
+        if (b) b.blur();
+      });
       document.querySelectorAll(".tab").forEach((t) => {
         t.addEventListener("click", () => {
           activateTab(t.dataset.tab);
@@ -2216,6 +2224,23 @@
 
       let LAST_PETS = null;
       const PUP_STATS = ["Guard", "Speed", "Stamina", "Search", "Support"];
+      const PUP_ENERGY_RATE = 0.008888888888888889;
+      const PUP_SUMMON_SHARE = 0.8;
+      const pupWhen = (ms) => (new Date(ms).toDateString() === new Date().toDateString() ? avClock(ms) : `${avDay(ms)}, ${avClock(ms)}`);
+      function pupEnergyHtml(p, label, max) {
+        if (!p.energySavedAt) return "";
+        const now = Date.now();
+        const after = (energy) => p.energySavedAt + Math.max(0, (energy - p.energy) / PUP_ENERGY_RATE) * 1000;
+        if (!p.needsRest) {
+          return `<div class="pupsub"><span class="k">${escHtml(label)}</span>${Math.round((p.energy / max) * 100)}%<span class="pupnote"> when last saved, ${pupWhen(p.energySavedAt)}</span></div>`;
+        }
+        const pct = Math.floor((Math.min(max, p.energy + (Math.max(0, now - p.energySavedAt) / 1000) * PUP_ENERGY_RATE) / max) * 100);
+        const ready = after(PUP_SUMMON_SHARE * max);
+        const full = after(max);
+        const state = ready > now ? `Resting · can be summoned at ${avClock(ready)}, ${avLeft(ready - now)} left` : "Rested enough to summon";
+        return `<div class="row puptrain"><span class="label">${escHtml(label)}</span><span class="val">${pct}%</span><span class="bar"><i style="width:${pct}%"></i></span></div>` +
+          `<div class="pupstate pupready">${state}${full > now ? ` · full at ${avClock(full)}` : ""}</div>`;
+      }
       const PUP_FOOD = {
         "/SF/Types/Items/Consumables/PetConsumeables/WolfMealPetFood": "meals",
         "/SF/Types/Items/Consumables/PetConsumeables/WolfTreatPetFood": "snacks",
@@ -2243,9 +2268,7 @@
           const training = max
             ? `<div class="row puptrain"><span class="label">${escHtml(labels.training || "Training")}</span><span class="val">${done ? `<span class="mx">${escHtml(labels.trainingComplete || "")}</span>` : `${trained} / ${max}`}</span><span class="bar"><i style="width:${Math.round(Math.min(1, trained / max) * 100)}%"></i></span></div>`
             : "";
-          const resting = p.needsRest && p.restUntil && p.restUntil > Date.now()
-            ? `<div class="pupstate">Resting until ${avClock(p.restUntil)} · ${avLeft(p.restUntil - Date.now())} left</div>`
-            : "";
+          const energy = pupEnergyHtml(p, labels.energy || "Energy", limits.energy || 100);
           const stats = PUP_STATS.filter((s) => (P.stats || {})[s]).map((s) => {
             const lvl = Math.min(maxSkill, p.skills[s] || 0);
             const paws = Array.from({ length: maxSkill }, (_, i) => `<i${i < lvl ? ' class="on"' : ""}></i>`).join("");
@@ -2261,8 +2284,9 @@
             <div class="puphead"><img src="img/game/pup-paw.png" alt="" onerror="this.remove()"><div>
               ${name ? `<div class="pupname">${escHtml(name)}</div>` : ""}
               ${temper ? `<div class="pupsub"><span class="k">${escHtml(labels.temperament || "Temperament")}</span>${escHtml(temper)}</div>` : ""}
-              ${resting}
+              ${energy && !p.needsRest ? energy : ""}
             </div></div>
+            ${p.needsRest ? energy : ""}
             ${training}
             <div class="pupstats">${stats}</div>
             ${foodRows ? `<h3 class="sub">Food</h3>${foodRows}` : ""}

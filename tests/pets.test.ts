@@ -2,7 +2,8 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parsePets } from "../src/server/pets";
+import { parsePets, pupEnergyAt, pupRestTimers, pupSummonableAt } from "../src/server/pets";
+import { timerLabel } from "../src/server/timers";
 import { buildPetText } from "../src/gamedata/builders";
 import { getNames } from "../src/server/names";
 
@@ -45,13 +46,29 @@ describe("the Wolfpup", () => {
         skills: { Guard: 3, Speed: 2, Stamina: 2, Search: 3, Support: 1 },
         xp: { Guard: 4214, Speed: 3192, Stamina: 2820, Search: 4668, Support: 625 },
         bond: 6215,
+        energy: 0,
         needsRest: true,
-        restUntil: 1794347873000,
+        energySavedAt: 1794347873000,
         mealsEaten: 1,
         snacksEaten: 0,
       },
     ]);
     expect(parsePets({})).toEqual([]);
+  });
+
+  it("works out energy the way the game does: 32 an hour from the last save, summonable again past 80% after running out", () => {
+    const [cuan] = parsePets({ KubrowPets: [CUAN] });
+    const saved = 1794347873000;
+    expect(pupEnergyAt(cuan!, saved + 1896_000)).toBeCloseTo(16.85, 1);
+    expect(pupEnergyAt(cuan!, saved + 5 * 3600_000)).toBe(100);
+    expect(pupSummonableAt(cuan!)).toBe(saved + 2.5 * 3600_000);
+    expect(pupRestTimers([cuan!], { "/SF/Language/Quests/OrengallPupName3": "Cuan" })).toEqual([
+      { tag: "WolfpupRest", kind: "Wolfpup resting", name: "Cuan", ready: "Cuan can be summoned again", expiry: saved + 2.5 * 3600_000 },
+    ]);
+    const rested = parsePets({ KubrowPets: [{ ...CUAN, Details: { ...CUAN.Details, Energy: 100, NeedsRest: false } }] });
+    expect(pupSummonableAt(rested[0]!)).toBeNull();
+    expect(pupRestTimers(rested)).toEqual([]);
+    expect(timerLabel("WolfpupRest")).toEqual({ kind: "Wolfpup resting", name: "Wolfpup", ready: "Your Wolfpup can be summoned again" });
   });
 
   it("takes the pup's words and limits from the game files", () => {
@@ -66,14 +83,14 @@ describe("the Wolfpup", () => {
     };
     const texts = [
       "AdultPetSuit=WolfAdultPetPlayfulPowerSuit\nDefaultPetStats={\nName=/SF/Language/Quests/OrengallPupName3\nTemperment=TEMPERMENT_PLAYFUL\n}",
-      "DefaultPetStats={\nEnergy=100\n}\nMaxBond=5\nMaxMaturity=15\nMaxGuardSkill=5\nMaxSpeedSkill=5\nMaxStaminaSkill=5\nMaxSearchSkill=5\nMaxSupportSkill=5\nMaxMealsToBeOverfed=5\nSnackOverfed=5",
+      "DefaultPetStats={\nEnergy=100\n}\nMaxEnergy=100\nMaxBond=5\nMaxMaturity=15\nMaxGuardSkill=5\nMaxSpeedSkill=5\nMaxStaminaSkill=5\nMaxSearchSkill=5\nMaxSupportSkill=5\nMaxMealsToBeOverfed=5\nSnackOverfed=5",
     ];
     expect(buildPetText(dict, texts)).toEqual({
       names: { "/SF/Language/Quests/OrengallPupName3": "Cuan" },
       temperaments: { TEMPERMENT_CURIOUS: "Clever", TEMPERMENT_PLAYFUL: "Playful" },
       stats: { Guard: "Guts", Stamina: "Endurance" },
       labels: { training: "Training", trainingComplete: "Training Complete" },
-      limits: { training: 15, skill: 5, meals: 5, snacks: 5 },
+      limits: { training: 15, skill: 5, meals: 5, snacks: 5, energy: 100 },
     });
   });
 

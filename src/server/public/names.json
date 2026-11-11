@@ -5961,7 +5961,8 @@
       "training": 15,
       "skill": 5,
       "meals": 5,
-      "snacks": 5
+      "snacks": 5,
+      "energy": 100
     }
   }
 }
