@@ -499,6 +499,11 @@
       .lgslot.need { border-style: dashed; border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
       .lgslot.need .lgst { color: var(--accent-hi); }
       .lgslot.need .tframe { opacity: 0.75; }
+      .lgslot.unlearned { border-color: color-mix(in srgb, var(--courage) 60%, transparent); }
+      .lgslot.unlearned .lgst, .lgnl { color: var(--courage); }
+      .lgprog small.lgnl { color: var(--courage); }
+      .lgpick li.unlearned .ticn { opacity: 0.55; }
+      .lgpick li.none { padding: 8px 7px; color: var(--muted); font-size: 12.5px; }
       .lgslot.empty { border-style: dashed; background: none; }
       .lgslot.empty .tframe { opacity: 0.35; font: 400 20px/1 var(--display); color: var(--accent); }
       .lgslot.empty .lgsn { color: var(--faint); }
@@ -3080,17 +3085,18 @@
       const FORGE_TEXT = {
         readyToClaim: "Ready To Claim", inProgress: "In Progress", nothingToClaim: "Nothing to Claim", curingTime: "Curing Time",
         temperStruck: "Temper Struck", chooseTemper: "Choose a Temper",
+        temperLearned: "Temper Learned", temperNotLearned: "Dismantle more weapons for Tuvalkane to study...",
       };
       const forgeWhen = (ms) => (new Date(ms).toDateString() === new Date().toDateString() ? clockTime(ms) : `${shortDate(ms)}, ${clockTime(ms)}`);
       let LAST_WEAPON_COPIES = null;
       let TEMPER_PLANS = null;
       const PLAN_SLOTS = CRAFTWORK.IQ_LEGENDARY.max;
-      const PLAN_TEXT = { struck: "Struck", toStrike: "To strike", plan: "Plan", onWeapon: "On the weapon", notInPlan: "Not in your plan", unowned: "Unowned", rank: "Rank", craftwork: "Craftwork" };
+      const PLAN_TEXT = { struck: "Struck", toStrike: "To strike", notLearned: "Not learned", plan: "Plan", onWeapon: "On the weapon", notInPlan: "Not in your plan", unowned: "Unowned", rank: "Rank", craftwork: "Craftwork" };
       const PLAN_SORTS = [["craftwork", "Craftwork"], ["struck", "Tempers struck"], ["rank", "Rank"], ["type", "Weapon type"], ["name", "Name"]];
-      const PLAN_UI = { show: "all", sort: "craftwork", q: "" };
+      const PLAN_UI = { show: "all", sort: "craftwork", tempers: "all", q: "" };
       try { Object.assign(PLAN_UI, JSON.parse(localStorage.getItem("sfhelper.temperPlans") || "{}"), { q: "" }); } catch {}
       const savePlanUi = () => {
-        try { localStorage.setItem("sfhelper.temperPlans", JSON.stringify({ show: PLAN_UI.show, sort: PLAN_UI.sort })); } catch {}
+        try { localStorage.setItem("sfhelper.temperPlans", JSON.stringify({ show: PLAN_UI.show, sort: PLAN_UI.sort, tempers: PLAN_UI.tempers })); } catch {}
       };
       const planOf = (id) => {
         const p = (id && TEMPER_PLANS && TEMPER_PLANS[id]) || [];
@@ -3116,6 +3122,9 @@
         });
         return { slots, current };
       }
+      const temperStudied = (tag) => ((LAST_TEMPERS || []).find((t) => t.tag === tag) || { count: 0 }).count;
+      const temperLearned = (tag) => temperStudied(tag) >= TEMPER_GOAL;
+      const learningTip = (tag, L) => `${L.temperNotLearned} (${Math.min(temperStudied(tag), TEMPER_GOAL)} / ${TEMPER_GOAL})`;
       const fitsWeapon = (tag, name) => {
         const d = TEMPER_DB[tag];
         return !!d && (!d.weapons || !d.weapons.length || d.weapons.includes(name));
@@ -3138,6 +3147,7 @@
             rank: w.id ? levelOf(w.xp, WEAPON_RANK_C).rank : null,
             planned: plan.filter(Boolean).length,
             have: st.slots.filter((x) => x === "have").length,
+            unlearned: plan.filter((tag, i) => tag && st.slots[i] === "need" && !temperLearned(tag)).length,
           };
         });
       }
@@ -3153,15 +3163,19 @@
         const done = planDone(w);
         const cwTag = w.cw ? `<span class="cw cw${w.cw.tier}" title="${escHtml(`${w.cw.name} craftwork holds ${w.cw.max} Temper${w.cw.max === 1 ? "" : "s"}`)}">${w.cw.name}</span>` : "";
         const rank = w.rank !== null ? `<span class="lgrank">${PLAN_TEXT.rank} ${w.rank}</span>` : "";
+        const unlearnedNote = w.unlearned
+          ? `<small class="lgnl" title="${escHtml(L.temperNotLearned)}">${w.unlearned} ${escHtml(PLAN_TEXT.notLearned.toLowerCase())}</small>`
+          : "";
         const progress = w.planned
-          ? `<span class="lgprog${done ? " done" : ""}" title="${w.have} of the ${w.planned} planned Tempers are on the weapon">${w.have} / ${w.planned}<small>${escHtml(PLAN_TEXT.struck)}</small></span>`
+          ? `<span class="lgprog${done ? " done" : ""}" title="${w.have} of the ${w.planned} planned Tempers are on the weapon">${w.have} / ${w.planned}<small>${escHtml(PLAN_TEXT.struck)}</small>${unlearnedNote}</span>`
           : '<span class="lgprog none">No plan yet</span>';
         const slot = (tag, i) => {
           const s = w.st.slots[i];
-          const tip = tag ? `${temperName(tag)}: ${temperEffect(tag)}` : L.chooseTemper;
+          const unlearned = s === "need" && !temperLearned(tag);
+          const tip = tag ? `${temperName(tag)}: ${temperEffect(tag)}${unlearned ? `\n${PLAN_TEXT.notLearned}: ${learningTip(tag, L)}` : ""}` : L.chooseTemper;
           const frame = tag ? `<span class="tframe">${temperIcon(tag)}</span>` : '<span class="tframe">+</span>';
-          const state = s === "have" ? L.temperStruck : s === "need" ? PLAN_TEXT.toStrike : "";
-          return `<button class="lgslot ${s}" data-id="${w.id}" data-slot="${i}" title="${escHtml(tip)}" aria-label="Slot ${i + 1}: ${escHtml(tag ? temperName(tag) : L.chooseTemper)}">${frame}<span class="lgsn">${escHtml(tag ? temperName(tag) : L.chooseTemper)}</span>${state ? `<span class="lgst">${state}</span>` : ""}</button>`;
+          const state = s === "have" ? L.temperStruck : unlearned ? PLAN_TEXT.notLearned : s === "need" ? PLAN_TEXT.toStrike : "";
+          return `<button class="lgslot ${s}${unlearned ? " unlearned" : ""}" data-id="${w.id}" data-slot="${i}" title="${escHtml(tip)}" aria-label="Slot ${i + 1}: ${escHtml(tag ? temperName(tag) : L.chooseTemper)}">${frame}<span class="lgsn">${escHtml(tag ? temperName(tag) : L.chooseTemper)}</span>${state ? `<span class="lgst">${state}</span>` : ""}</button>`;
         };
         const chips = w.tempers
           .map((tag, i) => {
@@ -3204,8 +3218,13 @@
         if (!SHOWS[PLAN_UI.show]) PLAN_UI.show = "all";
         const chip = (val, label) =>
           `<button class="fchip${PLAN_UI.show === val ? " active" : ""}" data-v="${val}">${label}${val === "all" ? "" : `<span class="n">${found.filter(SHOWS[val]).length}</span>`}</button>`;
+        if (!["all", "learned"].includes(PLAN_UI.tempers)) PLAN_UI.tempers = "all";
+        const temperTags = Object.keys(TEMPER_DB);
+        const tChip = (val, label, n) =>
+          `<button class="fchip${PLAN_UI.tempers === val ? " active" : ""}" data-k="tempers" data-v="${val}" title="${val === "all" ? "Choose from every Temper that fits the weapon" : "Choose only from Tempers Tuvalkane has learned"}">${label}<span class="n">${n}</span></button>`;
         $("planFilters").innerHTML =
-          `<span class="fl">Show</span><div class="wfilter">${chip("all", "All")}${chip("owned", "Owned")}${chip("unowned", PLAN_TEXT.unowned)}${chip("planned", "Planned")}</div>`;
+          `<span class="fl">Show</span><div class="wfilter">${chip("all", "All")}${chip("owned", "Owned")}${chip("unowned", PLAN_TEXT.unowned)}${chip("planned", "Planned")}</div>` +
+          `<span class="fl">Tempers</span><div class="wfilter">${tChip("all", "All Tempers", temperTags.length)}${tChip("learned", "Learned only", temperTags.filter(temperLearned).length)}</div>`;
 
         if (!PLAN_SORTS.some(([v]) => v === PLAN_UI.sort)) PLAN_UI.sort = "craftwork";
         sortMenu("planSort", PLAN_SORTS, PLAN_UI.sort, (v) => {
@@ -3271,9 +3290,10 @@
         const current = planOf(w.id)[slot];
         const name = shortName(w.key);
         const on = new Set(w.tempers);
+        const learnedOnly = PLAN_UI.tempers === "learned";
         const options = Object.keys(TEMPER_DB)
-          .filter((tag) => fitsWeapon(tag, name))
-          .sort((a, b) => on.has(b) - on.has(a) || temperName(a).localeCompare(temperName(b)));
+          .filter((tag) => fitsWeapon(tag, name) && (!learnedOnly || temperLearned(tag)))
+          .sort((a, b) => on.has(b) - on.has(a) || temperLearned(b) - temperLearned(a) || temperName(a).localeCompare(temperName(b)));
         const L = { ...FORGE_TEXT, ...((DICT && DICT.crafting) || {}) };
         const menu = document.createElement("div");
         menu.className = "lgpick";
@@ -3281,10 +3301,14 @@
         menu.setAttribute("aria-label", L.chooseTemper);
         const item = (tag) => {
           const origin = temperOrigin(tag);
+          const learned = temperLearned(tag);
           const sub = [origin ? `${ORIGIN_LABEL} · ${origin}` : ANY_ORIGIN, on.has(tag) ? "on this weapon" : ""].filter(Boolean).join(" · ");
-          return `<li class="${tag === current ? "on" : ""}" data-hay="${escHtml([temperName(tag), temperEffect(tag), origin || ANY_ORIGIN].join(" ").toLowerCase())}"><button data-tag="${escHtml(tag)}" title="${escHtml(temperEffect(tag))}">${temperIcon(tag)}<b>${escHtml(temperName(tag))}</b><small>${escHtml(sub)}</small></button></li>`;
+          const nl = learned ? "" : ` · <span class="lgnl">${PLAN_TEXT.notLearned} ${Math.min(temperStudied(tag), TEMPER_GOAL)}/${TEMPER_GOAL}</span>`;
+          const tip = learned ? temperEffect(tag) : `${temperEffect(tag)}\n${PLAN_TEXT.notLearned}: ${learningTip(tag, L)}`;
+          return `<li class="${[tag === current ? "on" : "", learned ? "" : "unlearned"].filter(Boolean).join(" ")}" data-hay="${escHtml([temperName(tag), temperEffect(tag), origin || ANY_ORIGIN, learned ? "" : PLAN_TEXT.notLearned].join(" ").toLowerCase())}"><button data-tag="${escHtml(tag)}" title="${escHtml(tip)}">${temperIcon(tag)}<b>${escHtml(temperName(tag))}</b><small>${escHtml(sub)}${nl}</small></button></li>`;
         };
-        menu.innerHTML = `<input class="wsearch" placeholder="${escHtml(L.chooseTemper)}…" spellcheck="false" aria-label="Search Tempers" /><ul>${current ? '<li class="clear"><button data-tag="">Empty this slot</button></li>' : ""}${options.map(item).join("")}</ul>`;
+        const none = learnedOnly && !options.length ? `<li class="none">${escHtml(L.temperNotLearned)}</li>` : "";
+        menu.innerHTML = `<input class="wsearch" placeholder="${escHtml(L.chooseTemper)}…" spellcheck="false" aria-label="Search Tempers" /><ul>${current ? '<li class="clear"><button data-tag="">Empty this slot</button></li>' : ""}${options.map(item).join("")}${none}</ul>`;
         const card = button.closest(".lgcard");
         card.appendChild(menu);
         const top = button.offsetTop + button.offsetHeight + 6;
@@ -3357,7 +3381,7 @@
       $("planFilters").addEventListener("click", (e) => {
         const b = e.target.closest(".fchip");
         if (!b) return;
-        PLAN_UI.show = b.dataset.v;
+        PLAN_UI[b.dataset.k === "tempers" ? "tempers" : "show"] = b.dataset.v;
         savePlanUi();
         renderPlans();
       });
@@ -4248,6 +4272,7 @@
         if (sectionChanged("tempers", data.temperProgress)) {
           LAST_TEMPERS = data.temperProgress || [];
           renderTempers();
+          renderPlans();
         }
         if (sectionChanged("upgradeItems", data.upgradeItems)) {
           LAST_UPGRADE_ITEMS = data.upgradeItems || null;

@@ -51,6 +51,8 @@ const CRAFTING_LABELS: Record<string, string> = {
   curingTime: "Foundry_CuringTimeTitle",
   temperStruck: "AspectCrafted",
   chooseTemper: "Foundry_CraftSelectAspectTitle",
+  temperLearned: "AspectLearned",
+  temperNotLearned: "AspectNotLearned",
 };
 
 export function buildCraftingText(dict: Dict): Record<string, string> {
