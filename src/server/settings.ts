@@ -16,8 +16,11 @@ export interface Settings {
   totemNotify: boolean;
   totemWatch: string[];
   hideFounders: boolean;
+  temperPlans: Record<string, (string | null)[]>;
   theme: Theme | null;
 }
+
+export const TEMPER_PLAN_SLOTS = 8;
 
 export const THEME_COLORS = ["bg", "panel", "text", "accent", "accent2"] as const;
 
@@ -41,6 +44,7 @@ const DEFAULTS: Settings = {
   totemNotify: true,
   totemWatch: [],
   hideFounders: false,
+  temperPlans: {},
   theme: null,
 };
 
@@ -85,6 +89,19 @@ function timerTags(v: unknown): string[] | null {
   return [...new Set(v as string[])];
 }
 
+function temperPlans(v: unknown): Record<string, (string | null)[]> | null {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+  const entries = Object.entries(v as Record<string, unknown>);
+  if (entries.length > 500) return null;
+  const out: Record<string, (string | null)[]> = {};
+  for (const [id, slots] of entries) {
+    if (!/^[0-9a-f]{24}$/i.test(id) || !Array.isArray(slots) || slots.length > TEMPER_PLAN_SLOTS) return null;
+    if (!slots.every((t) => t === null || (typeof t === "string" && /^\w{1,80}$/.test(t)))) return null;
+    if (slots.some((t) => t !== null)) out[id] = slots as (string | null)[];
+  }
+  return out;
+}
+
 const settingsPath = () => appFile("settings.json");
 
 export async function getSettings(): Promise<Settings> {
@@ -104,10 +121,11 @@ export async function getSettings(): Promise<Settings> {
       totemNotify: typeof s.totemNotify === "boolean" ? s.totemNotify : DEFAULTS.totemNotify,
       totemWatch: itemNames(s.totemWatch) ?? [],
       hideFounders: typeof s.hideFounders === "boolean" ? s.hideFounders : DEFAULTS.hideFounders,
+      temperPlans: temperPlans(s.temperPlans) ?? {},
       theme: theme(s.theme),
     };
   } catch {
-    return { ...DEFAULTS, avakotWatch: [], timerWatch: [], recipeWatch: [], totemWatch: [] };
+    return { ...DEFAULTS, avakotWatch: [], timerWatch: [], recipeWatch: [], totemWatch: [], temperPlans: {} };
   }
 }
 
@@ -133,6 +151,8 @@ export function updateSettings(patch: Record<string, unknown>): Promise<Settings
     if (timerWatch) s.timerWatch = timerWatch;
     const recipeWatch = itemTypes(patch.recipeWatch);
     if (recipeWatch) s.recipeWatch = recipeWatch;
+    const plans = temperPlans(patch.temperPlans);
+    if (plans) s.temperPlans = plans;
     if (patch.theme === null) s.theme = null;
     else if (patch.theme !== undefined) s.theme = theme(patch.theme) ?? s.theme;
     await writeFileAtomic(settingsPath(), `${JSON.stringify(s, null, 2)}\n`);

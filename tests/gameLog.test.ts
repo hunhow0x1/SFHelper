@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { appendFile, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { gameRefusals, loggedAgari, loggedMastery, logTrades } from "../src/server/gameLog";
+import { gameRefusals, loggedAgari, loggedMastery, loggedTradeOpened, logTrades } from "../src/server/gameLog";
 
 const HEADER = "0.043 Sys [Diag]: Current time: Sat Oct 31 13:00:03 2026 [UTC: Sat Oct 31 17:00:03 2026]\n";
 const START = Date.UTC(2026, 9, 31, 17, 0, 3);
@@ -31,6 +31,8 @@ describe("reading the game log as it grows", () => {
       log,
       [
         HEADER.trimEnd(),
+        "95.250 Sys [Info]: Created /SF/Interface/Trade.swf",
+        "98.100 Input [Info]: Subscribing for /SF/Interface/Trade.swf with input filter /EE/Types/Input/MenuInputFilter",
         "100.000 Script [Info]: Dialog::Create: You are offering:",
         "Rhapsodic Chordstone x2",
         "and will receive from Envoy1 the following:",
@@ -44,5 +46,6 @@ describe("reading the game log as it grows", () => {
       { at: START + 101_500, partner: "Envoy1", offered: ["Rhapsodic Chordstone x2"], received: ["Faer Lampyrite x50"] },
     ]);
     expect(await gameRefusals(log)).toEqual({ count: 1, first: START + 102_000, last: START + 102_000, loginRefused: false });
+    expect(await loggedTradeOpened(log)).toBe(START + 98_100);
   });
 });

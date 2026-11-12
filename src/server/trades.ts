@@ -23,6 +23,7 @@ export interface Holdings {
   dracs: number | null;
   tradesRemaining: number | null;
   envoyRank: number | null;
+  nextRefill?: number | null;
 }
 
 export interface TradeItem {
@@ -63,6 +64,10 @@ interface State {
 }
 
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
+const dateOf = (v: unknown): number | null => {
+  const n = Number((v as { $date?: { $numberLong?: unknown } } | null)?.$date?.$numberLong);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
 
 export function parseHoldings(raw: unknown): Holdings {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
@@ -91,15 +96,21 @@ export function parseHoldings(raw: unknown): Holdings {
     dracs: num(r.RegularCredits),
     tradesRemaining: num(r.TradesRemaining),
     envoyRank: num(r.PlayerLevel),
+    nextRefill: dateOf(r.NextRefill),
   };
 }
 
 const utcDay = (iso: string): string => iso.slice(0, 10);
+const nextReset = (iso: string): number => {
+  const d = new Date(iso);
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1);
+};
 const allowance = (h: Holdings): number | null => (h.envoyRank !== null ? h.envoyRank + 1 : null);
 
 export function tradesBetween(prev: Holdings, prevAt: string, next: Holdings, nextAt: string): number {
   if (next.tradesRemaining === null || prev.tradesRemaining === null) return 0;
-  const base = utcDay(prevAt) === utcDay(nextAt) ? prev.tradesRemaining : allowance(next);
+  const samePeriod = (prev.nextRefill || nextReset(prevAt)) === (next.nextRefill || nextReset(nextAt));
+  const base = samePeriod ? prev.tradesRemaining : allowance(next);
   return base === null ? 0 : Math.max(0, base - next.tradesRemaining);
 }
 
@@ -169,7 +180,7 @@ export function dailyTrades(h: Holdings, peak: State["peak"], at: string): numbe
 }
 
 export function remainingToday(h: Holdings, at: string, now = new Date().toISOString()): number | null {
-  if (utcDay(at) !== utcDay(now)) return allowance(h);
+  if (h.nextRefill ? h.nextRefill <= Date.parse(now) : utcDay(at) !== utcDay(now)) return allowance(h);
   return h.tradesRemaining;
 }
 

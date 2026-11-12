@@ -140,6 +140,7 @@ const ICON_RE = /^(\d+\.\d+) .*ResourceLoader \S+ \(\/SF\/Interface\/Graphics\/S
 const START_RE = /Current time: .*\[UTC: (.+)\]/;
 const CONFIRM_RE = /You are offering:\n([\s\S]*?)\n*and will receive from (.+?) the following:\n?([\s\S]*?), leftItem=/;
 const INVITE_RE = /description=(.+?) wants to trade with you/;
+const TRADE_WINDOW_RE = /(?:Created|Subscribing for) \/SF\/Interface\/Trade\.swf/;
 const TIME_RE = /^(\d+\.\d+) /;
 const STILL_REFUSED_MS = 5 * 60_000;
 const REFUSED_RE = /^(\d+\.\d+) .*HTTP\/1\.[01] (?:403|429)\b/;
@@ -227,7 +228,7 @@ interface Scan {
     dungeon: string | null;
   };
   mastery: { other: number | null; items: number | null };
-  trades: { out: LoggedTrade[]; collecting: string[] | null; confirm: Omit<LoggedTrade, "at"> | null; invitedBy: string | null };
+  trades: { out: LoggedTrade[]; collecting: string[] | null; confirm: Omit<LoggedTrade, "at"> | null; invitedBy: string | null; openedAt: number | null };
   events: { acquired: Map<string, number[]>; owner: Map<string, number[]>; lastOwner: { t: number; leaf: string } | null };
 }
 
@@ -247,7 +248,7 @@ function newScan(path: string, head: string): Scan {
     refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [], loggingIn: false, loginBlocked: false, loginRefused: false, loginOkAt: null },
     agari: { spawned: {}, spot: null, since: 0, agent: null, agentAt: null, agentSince: 0, location: null, dungeon: null },
     mastery: { other: null, items: null },
-    trades: { out: [], collecting: null, confirm: null, invitedBy: null },
+    trades: { out: [], collecting: null, confirm: null, invitedBy: null, openedAt: null },
     events: { acquired: new Map(), owner: new Map(), lastOwner: null },
   };
 }
@@ -363,6 +364,11 @@ function feedTrades(x: Scan["trades"], line: string, start: number): void {
     const m = CONFIRM_RE.exec(x.collecting.join("\n"));
     x.collecting = null;
     if (m) x.confirm = { partner: playerName(m[2]!), offered: itemLines(m[1]!), received: itemLines(m[3]!) };
+    return;
+  }
+  if (line.includes("/SF/Interface/Trade.swf") && TRADE_WINDOW_RE.test(line)) {
+    const t = TIME_RE.exec(line);
+    if (t) x.openedAt = start + Math.round(Number(t[1]) * 1000);
     return;
   }
   if (!line.includes("Dialog::Create")) return;
@@ -649,6 +655,11 @@ export async function loggedMastery(path?: string): Promise<LoggedMastery | null
 export async function logTrades(path?: string): Promise<LoggedTrade[]> {
   const s = await currentScan(path);
   return s ? [...s.trades.out] : [];
+}
+
+export async function loggedTradeOpened(path?: string): Promise<number | null> {
+  const s = await currentScan(path);
+  return s?.trades.openedAt ?? null;
 }
 
 export function objectIdTime(id: string | null | undefined): number | null {

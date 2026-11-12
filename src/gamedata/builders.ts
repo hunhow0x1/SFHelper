@@ -49,6 +49,8 @@ const CRAFTING_LABELS: Record<string, string> = {
   inProgress: "Foundry_InProgressHeader",
   nothingToClaim: "NothingToClaim",
   curingTime: "Foundry_CuringTimeTitle",
+  temperStruck: "AspectCrafted",
+  chooseTemper: "Foundry_CraftSelectAspectTitle",
 };
 
 export function buildCraftingText(dict: Dict): Record<string, string> {
@@ -195,6 +197,10 @@ export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): Na
     }
   }
 
+  for (const t of texts) {
+    const leaf = /^\/SF\/Upgrades\/Skins\/(?:Helmets|Body|Legs)\/(\w+)$/.exec(field(t, "TypeName") ?? "")?.[1];
+    if (leaf && field(t, "ProductCategory") === "WeaponSkins") setAlias(leaf, localized(dict, field(t, "LocalizeTag")) ?? undefined);
+  }
   const armourStems = Object.keys(dict)
     .filter((k) => k.startsWith("/SF/Language/Armour/") && k.endsWith("Name"))
     .map((k) => k.slice("/SF/Language/Armour/".length, -"Name".length));
@@ -429,6 +435,30 @@ export function buildPactArtValues(dict: Dict, texts: string[], arts: Record<str
     if (stats) out[key] = stats;
   }
   return out;
+}
+
+export interface TradeTax {
+  taxes: Record<string, number>;
+  rarity: Record<string, string>;
+}
+
+const DEFAULT_RARITY = "COMMON";
+
+export function buildTradeTax(texts: string[]): TradeTax {
+  const tables = texts.map((t) => /^TradingRarityTaxes=\{\n([\s\S]*?)\n\}$/m.exec(t)?.[1]).filter((b): b is string => b !== undefined);
+  const hubs = texts.map((t) => field(t, "HubTradeTax")).filter((v): v is string => v !== undefined);
+  if (tables.length !== 1 || hubs.length !== 1) throw new Error(`expected one trade tax table and one hub tax, found ${tables.length} and ${hubs.length}`);
+  const rate = 1 + Number(hubs[0]) / 100;
+  const taxes = Object.fromEntries([...tables[0]!.matchAll(/^(\w+)=(\d+)$/gm)].map(([, k, v]) => [k!, Math.round(Number(v) * rate)]));
+  if (!(DEFAULT_RARITY in taxes)) throw new Error("trade tax table has no COMMON rate");
+  const rarity: Record<string, string> = {};
+  for (const t of texts) {
+    if (field(t, "Tradeable") !== "1") continue;
+    const type = [...t.matchAll(/^TypeName=(\S+)$/gm)].map((m) => m[1]!).find((x) => !x.startsWith("/SF/StoreItems/"));
+    const r = field(t, "Rarity") ?? DEFAULT_RARITY;
+    if (type && r !== DEFAULT_RARITY && r in taxes && !(type in rarity)) rarity[type] = r;
+  }
+  return { taxes, rarity: sortedKeys(rarity) };
 }
 
 export interface AvakotItem {

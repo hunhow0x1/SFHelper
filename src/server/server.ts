@@ -357,6 +357,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         weapons,
         pacts,
         mastery: inventory?.mastery ?? null,
+        weaponCopies: inventory ? inventory.weaponInstances.map(({ id, key, craftwork, tempers, xp }) => ({ id, key, craftwork, tempers, xp })) : null,
         envoyRank,
         timers: inventory ? withCollector(await withAgariNames(withStarred(inventory.timers, (await getSettings()).timerWatch)), await loggedCollector()) : [],
         discoveries: inventory ? await getDiscoveries(inventory.loreScans) : null,

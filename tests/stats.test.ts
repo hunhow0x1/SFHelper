@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aspectManifests, aspectUpgrades, boosterRecords, buildAvakot, buildEnemies, buildTempers, buildUpgrades, kintsugiDefs, placeArea } from "../src/gamedata/builders";
+import { aspectManifests, aspectUpgrades, boosterRecords, buildAvakot, buildEnemies, buildNames, buildTradeTax, buildTempers, buildUpgrades, kintsugiDefs, placeArea } from "../src/gamedata/builders";
 import { discoveries } from "../src/server/discoveries";
 import { enemyName } from "../src/server/enemies";
 
@@ -205,5 +205,38 @@ describe("Avakot's bundles", () => {
     const crate = pool.items.find((i) => i.storeItem === bundle);
     expect(crate?.gives).toEqual({ item: "/SF/Types/PickUps/Resources/Ingots/Catalysts/CatalystAResourceItem", count: 12 });
     expect(pool.items.find((i) => i.storeItem === lures[0])?.gives).toBeUndefined();
+  });
+});
+
+describe("Scutage from the game files", () => {
+  const texts = [
+    "TradingRarityTaxes={\nCOMMON=200\nUNCOMMON=400\nRARE=800\n}\nTradingPremiumCreditsTax=500",
+    "ScenarioScript={\n}\nHubTradeTax=10",
+    "ProductCategory=MiscItems\nTypeName=/SF/Types/PickUps/Resources/Organics/RiverPearlResource\nTradeable=1\nRarity=RARE",
+    "ProductCategory=Melee\nTypeName=/SF/Weapons/Melee/OneHand/BitasEdge/SecondaryBitasEdgeDualSickleMeleeWeapon\nTradeable=1\nRarity=UNCOMMON",
+    "ProductCategory=WeaponSkins\nTypeName=/SF/Upgrades/Skins/Helmets/WovenMaskHelmet\nTradeable=1",
+    "ProductCategory=Packages\nPackageComponents={\n{\nTypeName=/SF/StoreItems/Types/PickUps/Resources/Organics/RiverPearlResource\nPurchaseQuantity=6\n}\n}\nRarity=COMMON",
+  ];
+
+  it("adds the hub's tax to each rarity's rate and records the rare and uncommon items", () => {
+    expect(buildTradeTax(texts)).toEqual({
+      taxes: { COMMON: 220, UNCOMMON: 440, RARE: 880 },
+      rarity: {
+        "/SF/Types/PickUps/Resources/Organics/RiverPearlResource": "RARE",
+        "/SF/Weapons/Melee/OneHand/BitasEdge/SecondaryBitasEdgeDualSickleMeleeWeapon": "UNCOMMON",
+      },
+    });
+  });
+
+  it("refuses to guess when the tax table is missing", () => {
+    expect(() => buildTradeTax(texts.slice(1))).toThrow();
+  });
+});
+
+describe("Armour names from the store", () => {
+  it("names an armour piece whose type name doesn't match its text key", () => {
+    const tree = new Map<string, string | null>([["/SF/Upgrades/Skins/Helmets/WovenMaskHelmet", "/SF/Upgrades/Skins/Helmets/BaseHelmetVisionNoHair"]]);
+    const texts = ["ProductCategory=WeaponSkins\nLocalizeTag=/SF/Language/Armour/WovenMaskName\nTypeName=/SF/Upgrades/Skins/Helmets/WovenMaskHelmet"];
+    expect(buildNames({ "/SF/Language/Armour/WovenMaskName": "Veltruska Mask" }, tree, texts).items.WovenMaskHelmet).toBe("Veltruska Mask");
   });
 });

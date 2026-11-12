@@ -11,6 +11,7 @@ import {
   kintsugiDefs,
   buildArsenal,
   buildAvakot,
+  buildTradeTax,
   buildEnemies,
   buildDungeons,
   buildLocations,
@@ -62,6 +63,7 @@ export const GAME_DATA_FILES = [
   "tempers.json",
   "totemdata.json",
   "pactarttext.json",
+  "tradetax.json",
 ];
 
 const CURRENCY_ICONS: [string, string][] = [
@@ -334,6 +336,14 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     }
     await put("recipes.json", `${JSON.stringify({ recipes, otherCrafts }, null, 2)}\n`);
     return `${Object.keys(recipes).length} recipes, ${Object.keys(otherCrafts).length} other crafts`;
+  });
+
+  await step("tradetax.json", async () => {
+    const tax = buildTradeTax(unique);
+    const prev = await previous<{ rarity?: object }>("tradetax.json");
+    enough("tradeable items", Object.keys(tax.rarity).length, prev?.rarity ? Object.keys(prev.rarity).length : undefined);
+    await put("tradetax.json", `${JSON.stringify(tax, null, 1)}\n`);
+    return `${Object.keys(tax.rarity).length} item rarities for Scutage`;
   });
 
   await step("talismans.json", async () => {

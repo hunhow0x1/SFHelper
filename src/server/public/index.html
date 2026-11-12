@@ -317,14 +317,14 @@
       .wsearch { width: 100%; min-width: 0; margin-bottom: 18px; }
       .xpgroup { margin-bottom: 30px; }
       .xpgroup:last-child { margin-bottom: 0; }
-      #mastery { columns: 6 280px; column-gap: 20px; }
+      #mastery .mcols { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 20px; align-items: start; }
+      #mastery .mcol { display: grid; gap: 20px; min-width: 0; }
       #mastery .xpgroup {
-        break-inside: avoid; margin-bottom: 20px; padding: 14px 18px 18px;
+        margin-bottom: 0; padding: 14px 18px 18px;
         background: var(--well); border: 1px solid var(--line); border-radius: 3px;
       }
-      #mastery.single { column-gap: 44px; }
-      #mastery.single .xpgroup { break-inside: auto; padding: 0; background: none; border: 0; }
-      #mastery.single .xpgroup h3.wclass { column-span: all; }
+      #mastery.single .mcols { gap: 0 44px; }
+      #mastery.single .xpgroup { padding: 0; background: none; border: 0; }
       #mastery .xpgroup h3.wclass { font-size: 15px; margin-bottom: 12px; padding-bottom: 7px; }
       .mrows { display: grid; gap: 11px; }
       .mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 12px; align-items: baseline; break-inside: avoid; }
@@ -464,6 +464,61 @@
       .avbar { height: 3px; background: var(--bar-bg); border-radius: 2px; overflow: hidden; }
       .avbar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-lo), var(--accent-hi)); }
       .forgecard { grid-template-columns: 56px minmax(0, 1fr); }
+      .lggrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 16px; align-items: start; }
+      .lgcard { position: relative; padding: 16px 18px 14px; background: var(--well); border: 1px solid var(--line); border-radius: 3px; min-width: 0; }
+      .lggrid h3.lgh { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 10px; margin: 8px 0 0; padding-bottom: 7px; border-bottom: 1px solid var(--line); font: 600 17px/1.2 var(--display); letter-spacing: 0.08em; color: var(--accent-hi); }
+      .lggrid h3.lgh:first-child { margin-top: 0; }
+      .lggrid h3.lgh .n { font: 400 13px/1 var(--body); color: var(--faint); letter-spacing: 0; }
+      .lgrank { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+      .lgcard.miss { padding-bottom: 4px; }
+      .lgcard.miss .avicn { opacity: 0.4; filter: grayscale(1); }
+      .lgcard.miss .avname { color: var(--faint); }
+      .lgcard.miss .lghead { margin-bottom: 10px; }
+      .lgcard.done { --tick: color-mix(in srgb, var(--accent-2-hi) 55%, transparent); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); }
+      .lghead { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; margin-bottom: 12px; }
+      .lghead .avicn { width: 48px; height: 48px; grid-row: span 2; object-fit: contain; filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6)); }
+      .lghead .avmeta { grid-column: 2; }
+      .lgprog { grid-row: 1 / span 2; grid-column: 3; text-align: right; font: 600 18px/1.1 var(--display); color: var(--accent-hi); font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .lgprog small { display: block; font: 600 10px/1.4 var(--body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+      .lgprog.done { color: var(--accent-2-hi); text-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 40%, transparent); }
+      .lgprog.none { font: 500 13px/1.3 var(--body); color: var(--faint); }
+      .lglabel { margin: 4px 0 7px; color: var(--accent-2-hi); font: 600 11px/1.2 var(--display); letter-spacing: 0.14em; text-transform: uppercase; }
+      .lgslots { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+      button.lgslot {
+        all: unset; box-sizing: border-box; display: grid; justify-items: center; align-content: start; gap: 3px; min-width: 0; padding: 8px 4px 7px; cursor: pointer; text-align: center;
+        border: 1px solid var(--line-2); border-radius: 3px; background: color-mix(in srgb, var(--accent) 4%, transparent); transition: border-color 0.15s, background 0.15s;
+      }
+      button.lgslot:hover, button.lgslot.open { border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
+      button.lgslot:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+      .lgslot .tframe { margin: 0; width: 38px; height: 38px; }
+      .lgslot .tframe .ticn { width: 25px; height: 25px; }
+      .lgslot .lgsn { font-size: 12.5px; line-height: 1.2; color: var(--text); overflow-wrap: break-word; max-width: 100%; }
+      .lgslot .lgst { font: 600 9.5px/1.2 var(--body); letter-spacing: 0.12em; text-transform: uppercase; }
+      .lgslot.have { border-color: color-mix(in srgb, var(--accent-2) 55%, transparent); background: color-mix(in srgb, var(--accent-2) 7%, transparent); }
+      .lgslot.have .lgst { color: var(--accent-2-hi); }
+      .lgslot.need { border-style: dashed; border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+      .lgslot.need .lgst { color: var(--accent-hi); }
+      .lgslot.need .tframe { opacity: 0.75; }
+      .lgslot.empty { border-style: dashed; background: none; }
+      .lgslot.empty .tframe { opacity: 0.35; font: 400 20px/1 var(--display); color: var(--accent); }
+      .lgslot.empty .lgsn { color: var(--faint); }
+      .lgcurs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+      .lgcur { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 4px; font-size: 12.5px; border: 1px solid var(--line-2); border-radius: 3px; color: var(--text); }
+      .lgcur .ticn { width: 18px; height: 18px; }
+      .lgcur.inplan { border-color: color-mix(in srgb, var(--accent-2) 50%, transparent); }
+      .lgcur.extra { color: var(--faint); border-style: dashed; }
+      .lgcur.extra .ticn { opacity: 0.5; filter: grayscale(1); }
+      .lgacts { display: flex; flex-wrap: wrap; gap: 8px; }
+      .lgpick { position: absolute; z-index: 30; width: 330px; max-width: calc(100vw - 32px); display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: 380px; padding: 10px; background: linear-gradient(180deg, var(--panel-2), var(--bar-bg)); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 3px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7); }
+      .lgpick input.wsearch { margin: 0 0 8px; padding: 8px 10px; font-size: 13.5px; }
+      .lgpick ul { list-style: none; margin: 0; padding: 0; overflow-y: auto; }
+      .lgpick li button { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 0 9px; align-items: center; width: 100%; padding: 5px 7px; border-radius: 2px; cursor: pointer; }
+      .lgpick li button:hover, .lgpick li button:focus-visible { background: color-mix(in srgb, var(--accent) 12%, transparent); outline: none; }
+      .lgpick li button .ticn { width: 26px; height: 26px; grid-row: span 2; }
+      .lgpick li button b { font-weight: 500; color: var(--text); font-size: 13.5px; }
+      .lgpick li button small { color: var(--faint); font-size: 11.5px; }
+      .lgpick li.on button b { color: var(--accent-hi); }
+      .lgpick li.clear button { grid-template-columns: 1fr; color: var(--muted); font-size: 12.5px; border-bottom: 1px solid var(--line); margin-bottom: 4px; border-radius: 0; }
       .avcard.ready { --tick: color-mix(in srgb, var(--accent-2-hi) 55%, transparent); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); }
       .avcard.ready .avtime .instock { text-shadow: 0 0 10px color-mix(in srgb, var(--accent-2) 40%, transparent); }
       button.star { background: none; border: 0; box-shadow: none; padding: 5px; margin: -5px; line-height: 0; cursor: pointer; }
@@ -837,7 +892,7 @@
       .rcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
       .avprice.short { color: var(--courage); }
 
-      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat {
+      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat, .lgcard {
         --tick: color-mix(in srgb, var(--accent) 42%, transparent);
         background-image:
           linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
@@ -1147,6 +1202,13 @@
           </div>
           <div class="daily" id="forgeSummary"></div>
           <div id="forge"><span class="muted">Import your inventory to see what you're crafting.</span></div>
+        </section>
+        <section id="planSection" hidden>
+          <h2>Temper Plans</h2>
+          <div class="tbar"><div class="daily" id="planSummary"></div><div class="tsort">Sort by <div id="planSort"></div></div></div>
+          <input id="planSearch" class="wsearch" placeholder="Search weapons or Tempers, e.g. Gathannan, Legendary, Sullying Force…" spellcheck="false" />
+          <div class="tfilters" id="planFilters"></div>
+          <div id="plans"></div>
         </section>
       </div>
 
@@ -1643,17 +1705,67 @@
           return `<div class="${cls}"><span class="mname">${itemChip(i.name)}</span><span class="mval">${note}${val}</span><span class="mbar"><i style="width:${Math.round(l.pct * 100)}%"></i></span></div>`;
         };
         const shown = items.filter((i) => passOwn(i) && passMastery(i) && passType(i) && passSearch(i));
-        $("mastery").classList.toggle("single", MASTERY_UI.type === "pacts");
-        const html = groupNames
-          .map((g) => {
-            const list = shown.filter((i) => i.group === g).sort((a, b) => a.name.localeCompare(b.name));
-            return list.length
-              ? `<div class="xpgroup"><h3 class="wclass">${g} <span class="count">${list.length}</span></h3><div class="mrows">${list.map(rowFor).join("")}</div></div>`
-              : "";
-          })
-          .join("");
+        const single = MASTERY_UI.type === "pacts";
+        $("mastery").classList.toggle("single", single);
+        const groups = groupNames
+          .map((g) => [g, shown.filter((i) => i.group === g).sort((a, b) => a.name.localeCompare(b.name))])
+          .filter(([, list]) => list.length);
+        const n = MASTERY_COLS || masteryColumns(window.innerWidth - 120);
+        const head = (g, list) => `<h3 class="wclass">${g} <span class="count">${list.length}</span></h3>`;
+        const cols = (chunks) => `<div class="mcols" style="--n:${n}">${chunks.map((c) => `<div class="mcol">${c}</div>`).join("")}</div>`;
+        let html = "";
+        if (single && groups.length === 1) {
+          const [g, list] = groups[0];
+          html = `<div class="xpgroup">${head(g, list)}${cols(splitColumns(list.map(() => 1), n).map((ix) => `<div class="mrows">${ix.map((k) => rowFor(list[k])).join("")}</div>`))}</div>`;
+        } else if (groups.length) {
+          html = cols(splitColumns(groups.map(([, list]) => list.length + MASTERY_GROUP_EXTRA), n).map((ix) => ix
+            .map((k) => { const [g, list] = groups[k]; return `<div class="xpgroup">${head(g, list)}<div class="mrows">${list.map(rowFor).join("")}</div></div>`; })
+            .join("")));
+        }
         $("mastery").innerHTML = html || '<span class="muted">Nothing matches these filters.</span>';
+        MASTERY_DRAWN = true;
       }
+      let MASTERY_DRAWN = false;
+      const MASTERY_COL_MIN = 280;
+      const MASTERY_COL_GAP = 20;
+      const MASTERY_COL_MAX = 6;
+      const MASTERY_GROUP_EXTRA = 1.9;
+      let MASTERY_COLS = 0;
+      const masteryColumns = (width) => Math.max(1, Math.min(MASTERY_COL_MAX, Math.floor((width + MASTERY_COL_GAP) / (MASTERY_COL_MIN + MASTERY_COL_GAP))));
+      function splitColumns(weights, n) {
+        if (!weights.length) return [];
+        let lo = Math.max(...weights);
+        let hi = weights.reduce((a, b) => a + b, 0);
+        const columnsAt = (cap) => {
+          let used = 1, sum = 0;
+          for (const w of weights) {
+            if (sum + w > cap && sum > 0) { used++; sum = 0; }
+            sum += w;
+          }
+          return used;
+        };
+        while (hi - lo > 0.05) {
+          const mid = (lo + hi) / 2;
+          if (columnsAt(mid) <= n) hi = mid;
+          else lo = mid;
+        }
+        const out = [[]];
+        let sum = 0;
+        weights.forEach((w, i) => {
+          if (sum + w > hi && out[out.length - 1].length) { out.push([]); sum = 0; }
+          out[out.length - 1].push(i);
+          sum += w;
+        });
+        return out;
+      }
+      new ResizeObserver(([entry]) => {
+        const width = entry.contentRect.width;
+        if (!width) return;
+        const n = masteryColumns(width);
+        if (n === MASTERY_COLS) return;
+        MASTERY_COLS = n;
+        if (MASTERY_DRAWN) renderMastery();
+      }).observe($("mastery"));
       $("masteryFilters").addEventListener("click", (e) => {
         const b = e.target.closest(".fchip");
         if (!b) return;
@@ -1958,15 +2070,31 @@
       function tradeNames(names) {
         return tradeList([], names);
       }
-      function tradeSide(x, side) {
+      let TRADE_TAX = null;
+      function tradeParts(x, side) {
         const items = x[side] || [];
         const deals = x.deals || [];
         const known = deals.length >= Math.max(x.count || 1, 1) && deals.every((d) => d.offered.length || d.received.length);
-        if (!known) return tradeList(items);
+        if (!known) return { known, kept: items, missing: [], other: [] };
         const names = new Set(deals.flatMap((d) => (side === "received" ? d.received : d.offered)));
         const kept = items.filter((i) => names.has(tradeItemName(i.key)));
         const found = new Set(kept.map((i) => tradeItemName(i.key)));
-        return tradeList(kept, [...names].filter((n) => !found.has(n)));
+        return { known, kept, missing: [...names].filter((n) => !found.has(n)), other: items.filter((i) => !names.has(tradeItemName(i.key))) };
+      }
+      function tradeSide(x, side) {
+        const p = tradeParts(x, side);
+        return tradeList(p.kept, p.missing);
+      }
+      function tradeScutage(x) {
+        const p = tradeParts(x, "received");
+        if (!TRADE_TAX || !p.known || p.missing.length) return null;
+        return p.kept.reduce((n, i) => n + i.count * (TRADE_TAX.taxes[TRADE_TAX.rarity[i.key] || "COMMON"] || 0), 0);
+      }
+      function tradeHasLoot(x) {
+        const recv = tradeParts(x, "received");
+        const gave = tradeParts(x, "given");
+        const counted = [...recv.kept, ...gave.kept].some((i) => !i.ids);
+        return recv.known && counted && (recv.other.length > 0 || gave.other.length > 0);
       }
       function tradeWhen(t) {
         const deals = t.deals || [];
@@ -1987,12 +2115,12 @@
         if (!t) return;
         const history = t.history || [];
         const today = new Date().toISOString().slice(0, 10);
-        const scutage = history.reduce((n, x) => n + Math.max(0, -(x.dracs || 0)), 0);
+        const scutage = history.reduce((n, x) => n + (tradeScutage(x) ?? Math.max(0, -(x.dracs || 0))), 0);
         const tiles = [
           ["Trades left today", t.remaining != null ? `${t.remaining} / ${t.max ?? "—"}` : "—", "Resets at 00:00 UTC. You get Envoy Rank + 1 trades a day."],
           ["Trades recorded", fmt(history.reduce((n, x) => n + (x.count || 1), 0)), "Since SFHelper started tracking"],
           ["Today", fmt(history.filter((x) => x.at.slice(0, 10) === today).reduce((n, x) => n + (x.count || 1), 0)), "Trades recorded since 00:00 UTC"],
-          ["Dracs spent", fmt(scutage), "Dracs spent during recorded trades, mostly Scutage (paid on what you receive)"],
+          ["Scutage paid", fmt(scutage), "Scutage is paid on what you receive: 220 Dracs for each Common item, 440 for Uncommon, 880 for Rare"],
         ];
         const tileHtml = tiles
           .map(([l, v, tip]) => `<div class="stat" title="${tip}"><div class="n">${v}</div><div class="l">${l}</div></div>`)
@@ -2005,12 +2133,16 @@
               .map((x) => {
                 const deals = x.deals || [];
                 const dracsIcon = (n) => `<span class="avprice" title="Dracs"><img src="img/game/dracs.png" alt="">${fmt(n)}</span>`;
-                const dracs = x.dracs < 0 ? `${dracsIcon(-x.dracs)}spent on Scutage` : x.dracs > 0 ? `${dracsIcon(x.dracs)}gained` : "";
+                const tax = tradeScutage(x);
+                const dracs = tax !== null
+                  ? `${dracsIcon(tax)}spent on Scutage`
+                  : x.dracs < 0 ? `${dracsIcon(-x.dracs)}spent during the trade` : x.dracs > 0 ? `${dracsIcon(x.dracs)}gained during the trade` : "";
                 const merged = Math.max(x.count || 1, deals.length) > 1 ? "Made between the same two inventory refreshes, so they're shown together" : "";
+                const loot = !x.logOnly && tradeHasLoot(x) ? "Amounts may include loot the game saved in the same refresh" : "";
                 const note = x.logOnly ? "From the game log, before SFHelper saw your inventory: no counts or Dracs" : "";
                 const received = x.logOnly ? tradeNames(deals.flatMap((d) => d.received)) : tradeSide(x, "received");
                 const given = x.logOnly ? tradeNames(deals.flatMap((d) => d.offered)) : tradeSide(x, "given");
-                const subs = [dracs, merged, note].filter(Boolean);
+                const subs = [dracs, merged, loot, note].filter(Boolean);
                 return `<div class="tradecard">
                   <div class="pickhead"><span class="pickname">${tradeTitle(x)}</span>${tradeWhen(x)}</div>
                   <div class="tradecols">
@@ -2945,8 +3077,306 @@
 
       let OTHER_CRAFTS = {};
       const FORGE_KIND = { Elixirs: "Elixir", "Pup Treats": "Pup Treat", Palettes: "Palette", Chordstones: "Chordstone", Pacts: "Pact", Talismans: "Talisman" };
-      const FORGE_TEXT = { readyToClaim: "Ready To Claim", inProgress: "In Progress", nothingToClaim: "Nothing to Claim", curingTime: "Curing Time" };
+      const FORGE_TEXT = {
+        readyToClaim: "Ready To Claim", inProgress: "In Progress", nothingToClaim: "Nothing to Claim", curingTime: "Curing Time",
+        temperStruck: "Temper Struck", chooseTemper: "Choose a Temper",
+      };
       const forgeWhen = (ms) => (new Date(ms).toDateString() === new Date().toDateString() ? clockTime(ms) : `${shortDate(ms)}, ${clockTime(ms)}`);
+      let LAST_WEAPON_COPIES = null;
+      let TEMPER_PLANS = null;
+      const PLAN_SLOTS = CRAFTWORK.IQ_LEGENDARY.max;
+      const PLAN_TEXT = { struck: "Struck", toStrike: "To strike", plan: "Plan", onWeapon: "On the weapon", notInPlan: "Not in your plan", unowned: "Unowned", rank: "Rank", craftwork: "Craftwork" };
+      const PLAN_SORTS = [["craftwork", "Craftwork"], ["struck", "Tempers struck"], ["rank", "Rank"], ["type", "Weapon type"], ["name", "Name"]];
+      const PLAN_UI = { show: "all", sort: "craftwork", q: "" };
+      try { Object.assign(PLAN_UI, JSON.parse(localStorage.getItem("sfhelper.temperPlans") || "{}"), { q: "" }); } catch {}
+      const savePlanUi = () => {
+        try { localStorage.setItem("sfhelper.temperPlans", JSON.stringify({ show: PLAN_UI.show, sort: PLAN_UI.sort })); } catch {}
+      };
+      const planOf = (id) => {
+        const p = (id && TEMPER_PLANS && TEMPER_PLANS[id]) || [];
+        return Array.from({ length: PLAN_SLOTS }, (_, i) => p[i] || null);
+      };
+      function planState(plan, tempers) {
+        const left = new Map();
+        for (const t of tempers) left.set(t, (left.get(t) || 0) + 1);
+        const slots = plan.map((tag) => {
+          if (!tag) return "empty";
+          const n = left.get(tag) || 0;
+          if (!n) return "need";
+          left.set(tag, n - 1);
+          return "have";
+        });
+        const wanted = new Map();
+        for (const t of plan) if (t) wanted.set(t, (wanted.get(t) || 0) + 1);
+        const current = tempers.map((tag) => {
+          const n = wanted.get(tag) || 0;
+          if (!n) return "extra";
+          wanted.set(tag, n - 1);
+          return "inplan";
+        });
+        return { slots, current };
+      }
+      const fitsWeapon = (tag, name) => {
+        const d = TEMPER_DB[tag];
+        return !!d && (!d.weapons || !d.weapons.length || d.weapons.includes(name));
+      };
+      function planWeapons() {
+        const owned = (LAST_WEAPON_COPIES || []).map((w) => ({ ...w, name: shortName(w.key) })).filter((w) => WEAPON_ROSTER[w.name]);
+        const have = new Set(owned.map((w) => w.name));
+        const unowned = Object.keys(WEAPON_ROSTER)
+          .filter((n) => !have.has(n) && !(HIDE_FOUNDERS && FOUNDER_NAMES.has(n)))
+          .map((name) => ({ id: null, key: null, name, craftwork: null, tempers: [], xp: 0 }));
+        return [...owned, ...unowned].map((w) => {
+          const plan = planOf(w.id);
+          const st = planState(plan, w.tempers);
+          return {
+            ...w,
+            plan,
+            st,
+            cw: craftworkInfo(w.craftwork),
+            cls: (WEAPON_ROSTER[w.name] || {}).class || "",
+            rank: w.id ? levelOf(w.xp, WEAPON_RANK_C).rank : null,
+            planned: plan.filter(Boolean).length,
+            have: st.slots.filter((x) => x === "have").length,
+          };
+        });
+      }
+      const planDone = (w) => w.planned === PLAN_SLOTS && w.have === PLAN_SLOTS;
+      function planCard(w) {
+        const L = { ...FORGE_TEXT, ...((DICT && DICT.crafting) || {}) };
+        const icon = ITEM_ICONS[w.name];
+        const iconHtml = icon ? `<img class="avicn" src="${escHtml(icon)}" alt="" loading="lazy" onerror="this.remove()">` : '<span class="avicn"></span>';
+        const cls = w.cls ? `<span class="avgrp">${escHtml(w.cls)}</span>` : "";
+        if (!w.id) {
+          return `<div class="lgcard miss"><div class="lghead">${iconHtml}<div class="avname">${escHtml(w.name)}</div><span class="lgprog none">${PLAN_TEXT.unowned}</span><div class="avmeta">${cls}</div></div></div>`;
+        }
+        const done = planDone(w);
+        const cwTag = w.cw ? `<span class="cw cw${w.cw.tier}" title="${escHtml(`${w.cw.name} craftwork holds ${w.cw.max} Temper${w.cw.max === 1 ? "" : "s"}`)}">${w.cw.name}</span>` : "";
+        const rank = w.rank !== null ? `<span class="lgrank">${PLAN_TEXT.rank} ${w.rank}</span>` : "";
+        const progress = w.planned
+          ? `<span class="lgprog${done ? " done" : ""}" title="${w.have} of the ${w.planned} planned Tempers are on the weapon">${w.have} / ${w.planned}<small>${escHtml(PLAN_TEXT.struck)}</small></span>`
+          : '<span class="lgprog none">No plan yet</span>';
+        const slot = (tag, i) => {
+          const s = w.st.slots[i];
+          const tip = tag ? `${temperName(tag)}: ${temperEffect(tag)}` : L.chooseTemper;
+          const frame = tag ? `<span class="tframe">${temperIcon(tag)}</span>` : '<span class="tframe">+</span>';
+          const state = s === "have" ? L.temperStruck : s === "need" ? PLAN_TEXT.toStrike : "";
+          return `<button class="lgslot ${s}" data-id="${w.id}" data-slot="${i}" title="${escHtml(tip)}" aria-label="Slot ${i + 1}: ${escHtml(tag ? temperName(tag) : L.chooseTemper)}">${frame}<span class="lgsn">${escHtml(tag ? temperName(tag) : L.chooseTemper)}</span>${state ? `<span class="lgst">${state}</span>` : ""}</button>`;
+        };
+        const chips = w.tempers
+          .map((tag, i) => {
+            const extra = w.planned && w.st.current[i] === "extra";
+            const tip = `${temperName(tag)}: ${temperEffect(tag)}${extra ? ` · ${PLAN_TEXT.notInPlan}` : ""}`;
+            return `<span class="lgcur${w.planned ? ` ${w.st.current[i]}` : ""}" title="${escHtml(tip)}">${temperIcon(tag)}${escHtml(temperName(tag))}</span>`;
+          })
+          .join("");
+        const open = w.planned || PLAN_OPEN.has(w.id);
+        const acts = w.planned
+          ? `<button class="mini" data-act="clear" data-id="${w.id}">Clear plan</button>`
+          : (PLAN_OPEN.has(w.id) ? "" : `<button class="mini" data-act="open" data-id="${w.id}" title="Choose a Temper for each of the ${PLAN_SLOTS} slots a Legendary weapon holds">Plan Tempers</button>`) +
+            (w.tempers.length ? `<button class="mini" data-act="copy" data-id="${w.id}" title="Start the plan from the Tempers this weapon has now">Plan from current Tempers</button>` : "");
+        return `<div class="lgcard${done ? " done" : ""}">
+          <div class="lghead">${iconHtml}<div class="avname">${escHtml(w.name)}</div>${progress}<div class="avmeta">${cls}${cwTag}${rank}</div></div>
+          ${open ? `<div class="lglabel">${PLAN_TEXT.plan}</div><div class="lgslots">${w.plan.map(slot).join("")}</div>` : ""}
+          <div class="lglabel">${PLAN_TEXT.onWeapon}</div>
+          <div class="lgcurs">${chips || '<span class="muted">No Tempers yet</span>'}</div>
+          ${acts ? `<div class="lgacts">${acts}</div>` : ""}
+        </div>`;
+      }
+      function renderPlans() {
+        const copies = LAST_WEAPON_COPIES;
+        $("planSection").hidden = !copies;
+        if (!copies || !TEMPER_PLANS) return;
+        closeTemperPick();
+        const all = planWeapons();
+        const owned = all.filter((w) => w.id);
+        const legendary = owned.filter((w) => w.craftwork === "IQ_LEGENDARY").length;
+        const plannedN = owned.filter((w) => w.planned).length;
+        const complete = owned.filter(planDone).length;
+        const unowned = all.length - owned.length;
+        $("planSummary").innerHTML =
+          `<b>${owned.length}</b> weapon${owned.length === 1 ? "" : "s"} owned · <b>${legendary}</b> Legendary · <b>${plannedN}</b> planned · <b>${complete}</b> complete · <b>${unowned}</b> unowned`;
+
+        const words = searchWords(PLAN_UI.q);
+        const hay = (w) => [w.name, w.cls, w.cw ? w.cw.name : PLAN_TEXT.unowned, ...w.tempers.map(temperName), ...w.plan.filter(Boolean).map(temperName)].join(" ").toLowerCase();
+        const found = all.filter((w) => words.every((x) => hay(w).includes(x)));
+        const SHOWS = { all: () => true, owned: (w) => !!w.id, unowned: (w) => !w.id, planned: (w) => w.planned > 0 };
+        if (!SHOWS[PLAN_UI.show]) PLAN_UI.show = "all";
+        const chip = (val, label) =>
+          `<button class="fchip${PLAN_UI.show === val ? " active" : ""}" data-v="${val}">${label}${val === "all" ? "" : `<span class="n">${found.filter(SHOWS[val]).length}</span>`}</button>`;
+        $("planFilters").innerHTML =
+          `<span class="fl">Show</span><div class="wfilter">${chip("all", "All")}${chip("owned", "Owned")}${chip("unowned", PLAN_TEXT.unowned)}${chip("planned", "Planned")}</div>`;
+
+        if (!PLAN_SORTS.some(([v]) => v === PLAN_UI.sort)) PLAN_UI.sort = "craftwork";
+        sortMenu("planSort", PLAN_SORTS, PLAN_UI.sort, (v) => {
+          PLAN_UI.sort = v;
+          savePlanUi();
+          renderPlans();
+        });
+        const byName = (a, b) => a.name.localeCompare(b.name) || (b.rank ?? -1) - (a.rank ?? -1);
+        const tier = (w) => (w.cw ? w.cw.tier : -1);
+        const SORTERS = {
+          craftwork: (a, b) => tier(b) - tier(a) || byName(a, b),
+          struck: (a, b) => b.have - a.have || b.planned - a.planned || b.tempers.length - a.tempers.length || byName(a, b),
+          rank: (a, b) => (b.rank ?? -1) - (a.rank ?? -1) || tier(b) - tier(a) || byName(a, b),
+          type: (a, b) => a.cls.localeCompare(b.cls) || byName(a, b),
+          name: byName,
+        };
+        const shown = found.filter(SHOWS[PLAN_UI.show]).sort(SORTERS[PLAN_UI.sort]);
+        const groupOf = PLAN_UI.sort === "craftwork" ? (w) => (w.cw ? w.cw.name : PLAN_TEXT.unowned) : PLAN_UI.sort === "type" ? (w) => w.cls || "Other" : null;
+        let html = "";
+        let last = null;
+        for (const w of shown) {
+          if (groupOf && groupOf(w) !== last) {
+            last = groupOf(w);
+            html += `<h3 class="lgh">${escHtml(last)} <span class="n">${shown.filter((x) => groupOf(x) === last).length}</span></h3>`;
+          }
+          html += planCard(w);
+        }
+        $("plans").innerHTML = html ? `<div class="lggrid">${html}</div>` : '<span class="muted">Nothing matches.</span>';
+      }
+      async function saveTemperPlans(next) {
+        const before = TEMPER_PLANS;
+        TEMPER_PLANS = next;
+        renderPlans();
+        try {
+          const r = await fetch("/api/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ temperPlans: next }) });
+          if (!r.ok) throw new Error("save failed");
+          TEMPER_PLANS = (await r.json()).temperPlans || {};
+        } catch {
+          TEMPER_PLANS = before;
+        }
+        renderPlans();
+      }
+      function setPlanSlot(id, slot, tag) {
+        const plan = planOf(id);
+        plan[slot] = tag;
+        const next = { ...TEMPER_PLANS };
+        if (plan.some(Boolean)) next[id] = plan;
+        else delete next[id];
+        void saveTemperPlans(next);
+      }
+      const PLAN_OPEN = new Set();
+      let TEMPER_PICK = null;
+      function closeTemperPick() {
+        if (!TEMPER_PICK) return;
+        TEMPER_PICK.menu.remove();
+        TEMPER_PICK.button.classList.remove("open");
+        TEMPER_PICK = null;
+      }
+      function openTemperPick(button) {
+        const w = (LAST_WEAPON_COPIES || []).find((x) => x.id === button.dataset.id);
+        if (!w) return;
+        const slot = Number(button.dataset.slot);
+        const current = planOf(w.id)[slot];
+        const name = shortName(w.key);
+        const on = new Set(w.tempers);
+        const options = Object.keys(TEMPER_DB)
+          .filter((tag) => fitsWeapon(tag, name))
+          .sort((a, b) => on.has(b) - on.has(a) || temperName(a).localeCompare(temperName(b)));
+        const L = { ...FORGE_TEXT, ...((DICT && DICT.crafting) || {}) };
+        const menu = document.createElement("div");
+        menu.className = "lgpick";
+        menu.setAttribute("role", "dialog");
+        menu.setAttribute("aria-label", L.chooseTemper);
+        const item = (tag) => {
+          const origin = temperOrigin(tag);
+          const sub = [origin ? `${ORIGIN_LABEL} · ${origin}` : ANY_ORIGIN, on.has(tag) ? "on this weapon" : ""].filter(Boolean).join(" · ");
+          return `<li class="${tag === current ? "on" : ""}" data-hay="${escHtml([temperName(tag), temperEffect(tag), origin || ANY_ORIGIN].join(" ").toLowerCase())}"><button data-tag="${escHtml(tag)}" title="${escHtml(temperEffect(tag))}">${temperIcon(tag)}<b>${escHtml(temperName(tag))}</b><small>${escHtml(sub)}</small></button></li>`;
+        };
+        menu.innerHTML = `<input class="wsearch" placeholder="${escHtml(L.chooseTemper)}…" spellcheck="false" aria-label="Search Tempers" /><ul>${current ? '<li class="clear"><button data-tag="">Empty this slot</button></li>' : ""}${options.map(item).join("")}</ul>`;
+        const card = button.closest(".lgcard");
+        card.appendChild(menu);
+        const top = button.offsetTop + button.offsetHeight + 6;
+        const left = Math.max(0, Math.min(button.offsetLeft, card.clientWidth - menu.offsetWidth));
+        menu.style.top = `${top}px`;
+        menu.style.left = `${left}px`;
+        button.classList.add("open");
+        TEMPER_PICK = { menu, button, id: w.id, slot };
+        const input = menu.querySelector("input");
+        input.addEventListener("input", () => {
+          const q = searchWords(input.value);
+          for (const li of menu.querySelectorAll("li[data-hay]")) li.hidden = !q.every((x) => li.dataset.hay.includes(x));
+        });
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            const first = menu.querySelector("li[data-hay]:not([hidden]) button");
+            if (first) first.click();
+          } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            const first = menu.querySelector("li:not([hidden]) button");
+            if (first) first.focus();
+          }
+        });
+        menu.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            const b = TEMPER_PICK && TEMPER_PICK.button;
+            closeTemperPick();
+            if (b) b.focus();
+          } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && e.target.matches("li button")) {
+            e.preventDefault();
+            const list = [...menu.querySelectorAll("li:not([hidden]) button")];
+            const i = list.indexOf(e.target) + (e.key === "ArrowDown" ? 1 : -1);
+            if (i < 0) input.focus();
+            else if (list[i]) list[i].focus();
+          }
+        });
+        menu.addEventListener("click", (e) => {
+          const b = e.target.closest("button[data-tag]");
+          if (!b || !TEMPER_PICK) return;
+          const { id, slot: s } = TEMPER_PICK;
+          closeTemperPick();
+          setPlanSlot(id, s, b.dataset.tag || null);
+        });
+        input.focus();
+      }
+      $("plans").addEventListener("click", (e) => {
+        if (e.target.closest(".lgpick")) return;
+        const slot = e.target.closest("button.lgslot");
+        if (slot) {
+          const same = TEMPER_PICK && TEMPER_PICK.button === slot;
+          closeTemperPick();
+          if (!same) openTemperPick(slot);
+          return;
+        }
+        const act = e.target.closest("button[data-act]");
+        if (!act) return;
+        const w = (LAST_WEAPON_COPIES || []).find((x) => x.id === act.dataset.id);
+        if (!w) return;
+        if (act.dataset.act === "open") {
+          PLAN_OPEN.add(w.id);
+          renderPlans();
+          return;
+        }
+        const next = { ...TEMPER_PLANS };
+        PLAN_OPEN.delete(w.id);
+        if (act.dataset.act === "clear") delete next[w.id];
+        else next[w.id] = Array.from({ length: PLAN_SLOTS }, (_, i) => w.tempers[i] || null);
+        void saveTemperPlans(next);
+      });
+      $("planFilters").addEventListener("click", (e) => {
+        const b = e.target.closest(".fchip");
+        if (!b) return;
+        PLAN_UI.show = b.dataset.v;
+        savePlanUi();
+        renderPlans();
+      });
+      $("planSearch").addEventListener("input", (e) => {
+        PLAN_UI.q = e.target.value;
+        renderPlans();
+      });
+      document.addEventListener("click", (e) => {
+        if (TEMPER_PICK && !e.target.closest(".lgpick") && !e.target.closest("button.lgslot")) closeTemperPick();
+      });
+      (async () => {
+        try {
+          TEMPER_PLANS = (await (await fetch("/api/settings")).json()).temperPlans || {};
+        } catch {
+          TEMPER_PLANS = {};
+        }
+        renderPlans();
+      })();
+
       function renderForge() {
         const c = LAST_CRAFTING;
         if (!c) return;
@@ -3232,6 +3662,7 @@
         HIDE_FOUNDERS = $("hideFounders").checked;
         renderMastery();
         renderCombat();
+        renderPlans();
       });
 
       let LAST_BUILDS = [];
@@ -3826,6 +4257,10 @@
           LAST_PETS = data.pets || null;
           renderPups();
         }
+        if (sectionChanged("weaponCopies", data.weaponCopies)) {
+          LAST_WEAPON_COPIES = data.weaponCopies || null;
+          renderPlans();
+        }
         if (sectionChanged("crafting", data.crafting)) {
           LAST_CRAFTING = data.crafting || null;
           renderRecipes();
@@ -4095,7 +4530,7 @@
       }
       const DATA_FILES = [
         "names", "faction-ranks", "totems", "totemdata", "tempers", "pactarts", "itemicons",
-        "pactartvalues", "pactarttext", "talismans", "armour", "roster", "upgrades", "recipes", "avakot",
+        "pactartvalues", "pactarttext", "talismans", "armour", "roster", "upgrades", "recipes", "avakot", "tradetax",
       ];
       async function loadDict() {
         dictLoadedAt = Date.now();
@@ -4129,10 +4564,12 @@
           OTHER_CRAFTS = d.recipes.otherCrafts || {};
         }
         if (d.avakot) AV_POOL = new Map((d.avakot.items || []).map((it) => [it.storeItem, it]));
+        if (d.tradetax) TRADE_TAX = d.tradetax;
         renderUpgradeItems();
         renderRecipes();
         renderTempers();
         renderForge();
+        renderPlans();
         loadAvakot();
       }
 

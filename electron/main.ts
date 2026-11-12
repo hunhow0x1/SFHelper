@@ -18,7 +18,7 @@ import { apiPausedUntil, liftPauseAfterLogin, noteApiAccepted, noteApiRefused, p
 import { AVAKOT_VENDOR, getAvakot, nextAvakotCheck, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotCheck, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, refusalDetails, type GameRefusals } from "../src/server/gameLog";
+import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, loggedTradeOpened, refusalDetails, type GameRefusals } from "../src/server/gameLog";
 import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
 import { pruneRequests, readRequests } from "../src/server/requestLog";
 import { findSoulframe } from "../helper/processFinder";
@@ -96,6 +96,7 @@ const gameData = new GameDataWatcher({
 });
 
 let importing = false;
+let lastImportAt = 0;
 let session: ImportSession | undefined;
 const STARTED_AT = Date.now();
 const BACKOFF_HISTORY_MS = 24 * 3600_000;
@@ -184,6 +185,7 @@ async function importFromMemory(): Promise<void> {
   }
   gameWasRefused = false;
   importing = true;
+  lastImportAt = Date.now();
   if (lastImportCode !== 3) setImportStatus({ state: "scanning", message: "Looking for Soulframe…" });
   try {
     const result = await importInventory({
@@ -233,6 +235,20 @@ async function importFromMemory(): Promise<void> {
 
 const REIMPORT_INTERVAL_MS = 120_000;
 const AVAKOT_AFTER_IMPORT_MS = 60_000;
+const TRADE_REFRESH_GAP_MS = 30_000;
+const TRADE_OPEN_RECENT_MS = 60_000;
+
+let tradeOpenSeen = 0;
+async function refreshBeforeTrade(): Promise<void> {
+  const opened = await loggedTradeOpened();
+  if (opened === null || opened <= tradeOpenSeen) return;
+  tradeOpenSeen = opened;
+  const now = Date.now();
+  if (now - opened > TRADE_OPEN_RECENT_MS || importing || lastImportCode !== 0 || now - lastImportAt < TRADE_REFRESH_GAP_MS) return;
+  log("A trade window opened in Soulframe; refreshing the inventory so the trade is recorded on its own.");
+  clearTimeout(importTimer);
+  void importFromMemory().finally(scheduleImport);
+}
 
 let avakotTimer: ReturnType<typeof setTimeout> | undefined;
 async function planAvakot(): Promise<void> {
@@ -575,6 +591,7 @@ async function proceed(): Promise<void> {
     if (crafted.length) void notifyCrafts(crafted);
     void checkCollector().catch(() => {});
     void checkBlessed().catch(() => {});
+    void refreshBeforeTrade().catch(() => {});
   }, TIMER_CHECK_MS);
   void pruneRequests();
   void importFromMemory().finally(scheduleImport);

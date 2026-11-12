@@ -41,6 +41,17 @@ describe("trade detection", () => {
     expect(tradesBetween(h(15), "2026-10-24T23:59:00Z", h(18), "2026-10-25T00:01:00Z")).toBe(0);
   });
 
+  it("goes by the game's refill time, so a reset the server hasn't applied yet isn't read as trades", () => {
+    const h = (trades: number, refill: number) => parseHoldings({ ...inventory({ weapons: [], onyx: 0, dracs: 0, trades }), NextRefill: { $date: { $numberLong: String(refill) } } });
+    const midnight = Date.UTC(2026, 10, 12);
+    expect(tradesBetween(h(18, midnight), "2026-11-11T23:44:00Z", h(18, midnight), "2026-11-12T00:06:00Z")).toBe(0);
+    expect(tradesBetween(h(15, midnight), "2026-11-11T23:44:00Z", h(17, midnight + 86_400_000), "2026-11-12T00:06:00Z")).toBe(1);
+    const saved = parseHoldings(inventory({ weapons: [], onyx: 0, dracs: 0, trades: 18 }));
+    expect(tradesBetween(saved, "2026-11-11T23:44:00Z", h(18, midnight), "2026-11-12T00:06:00Z")).toBe(0);
+    expect(remainingToday(h(15, midnight), "2026-11-11T23:44:00Z", "2026-11-11T23:50:00Z")).toBe(15);
+    expect(remainingToday(h(15, midnight), "2026-11-11T23:44:00Z", "2026-11-12T00:06:00Z")).toBe(18);
+  });
+
   it("records what was received and given, and the Dracs spent", () => {
     const before = parseHoldings(inventory({ weapons: [1, 2], onyx: 500, dracs: 10_000, trades: 18 }));
     const after = parseHoldings(inventory({ weapons: [1, 2, 3], onyx: 400, dracs: 9_780, trades: 17 }));
