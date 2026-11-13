@@ -2375,11 +2375,13 @@
         const inStock = new Map(rotating.map((o) => [o.storeItem, o]));
 
         $("avSummary").innerHTML = !stock
-          ? "SFHelper checks Avakot's stock every 3 hours while Soulframe is running, and shows it here after the first check."
+          ? "SFHelper checks Avakot's stock just after it changes while Soulframe is running, and shows it here after the first check."
           : AV.nextCheck > now
             ? `Checked ${clockTime(stock.fetchedAt)} · next check around <b>${clockTime(AV.nextCheck)}</b>`
             : `Stock as of ${shortDate(stock.fetchedAt)}, ${clockTime(stock.fetchedAt)} · SFHelper checks again while Soulframe is running`;
-        $("avSummary").title = "His rotating offers change every hour and each one stays for 3 hours, so one check every 3 hours, just after a change, sees every offer.";
+        $("avSummary").title = stock && stock.nextChange > now
+          ? `His stock changes next at ${clockTime(stock.nextChange)} (the time comes with his stock), and SFHelper checks once just after that.`
+          : "SFHelper checks once just after his stock changes; the time comes with his stock.";
 
         const card = (o) => {
           const it = avItem(o.storeItem);
@@ -2418,7 +2420,7 @@
         for (const o of rotating) if (!AV_POOL.has(o.storeItem)) pool.push(avItem(o.storeItem));
         const starredCount = pool.filter((it) => AV.watch.includes(it.storeItem)).length;
         $("avWishSummary").innerHTML =
-          "Star what you're after. SFHelper checks his stock every 3 hours while Soulframe is running, and you get a desktop notification when a starred item is in." +
+          "Star what you're after. SFHelper checks his stock just after it changes while Soulframe is running, and you get a desktop notification when a starred item is in." +
           (starredCount ? ` · <b>${starredCount}</b> starred` : "");
         const status = (it) => {
           const o = inStock.get(it.storeItem);

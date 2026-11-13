@@ -108,6 +108,12 @@ export function parseVendorInfo(body: string, now = Date.now()): AvakotStock {
   return { fetchedAt: now, nextChange: changes.length ? Math.min(...changes) : now + 3 * 3600_000, offers };
 }
 
+// When to ask for Avakot's stock next: just after it changes (nextChange comes
+// from his stock: the earliest offer expiry or the manifest's own expiry), but
+// never sooner than about CHECK_EVERY_MS after the last regular check. Since
+// the Nov 12 update every rotating offer lasts until 00:00 UTC, so this works
+// out to one check a day. If the answer came back before his stock changed,
+// ask once more RETRY_MS later.
 export function planAvakotCheck(s: Pick<AvakotState, "stock" | "lastAttempt" | "lastRegular">): AvakotCheck {
   const stale = !!s.stock && s.stock.nextChange <= s.stock.fetchedAt;
   if (stale && s.lastAttempt > 0 && s.lastAttempt === s.lastRegular && s.stock!.fetchedAt >= s.lastAttempt) {

@@ -22,7 +22,7 @@ Runs on **Linux** (AppImage) and **Windows** (installer).
 | **Forge** | What you're crafting with Tuvalkane or Verminia, using the game's own words: each craft's curing time and how long is left (Ready To Claim, In Progress). Get a desktop notification when a craft is ready to claim. Temper Plans: every weapon you own, from Stock to Legendary, with its craftwork, rank and Tempers, plus the weapons you don't own yet (greyed out). Plan the 8 Temper slots a Legendary weapon holds (only Tempers that fit the weapon are offered) and see which planned Tempers are already struck, which still need striking, and which Tempers on the weapon aren't in the plan. Choose from every Temper or only the ones Tuvalkane has learned; planned Tempers you haven't learned yet are marked. Sort by craftwork, Tempers struck, rank, weapon type or name, and filter to owned, unowned or planned weapons. |
 | **Pickups** | Weapons you've picked up, with their in-game pictures and times taken from the game's log. Optional desktop notifications for Moonsteel finds. Pickup and trade history is kept on your computer; export it to move it to a new install. |
 | **Trades** | Your trade history: who you traded with, what you received and gave, with in-game icons (weapons with their craftwork and tempers), and the Scutage paid, worked out from the game's own tax table (220, 440 or 880 Dracs for each Common, Uncommon or Rare item you receive). Plus how many trades you have left today. |
-| **Avakot** | What Avakot's Gots has in stock, with prices, purchase limits, how many of each you already own and how long each item stays, plus his weekly and always-stocked wares. SFHelper checks his stock every 3 hours. Star anything he can sell to get a desktop notification when he stocks it. |
+| **Avakot** | What Avakot's Gots has in stock, with prices, purchase limits, how many of each you already own and how long each item stays, plus his weekly and always-stocked wares. SFHelper checks his stock once just after it changes (currently once a day, at 00:00 UTC). Star anything he can sell to get a desktop notification when he stocks it. |
 | **Stats** | Your kills, headshots, assists and executions, deaths, revives and more; your weapons, Pacts and enemies by in-game name, with kills, headshots, assists, executions, time equipped and how often each enemy killed you, sortable by any column; and your Wolfpup: its Temperament, Energy, Training, the level trained in each skill (Guts, Speed, Endurance, Curiosity, Heart), and its food. After it runs out of Energy, the card shows when it can be summoned again, and Cooldowns lists it so you can star it for a notification. |
 | **Settings** | Your account id; a switch to hide Founder's items (the weapons and Pacts from the Founder packs) from the Mastery and Stats tabs; and the colour theme: a few presets or your own colours, title bar included. |
 
@@ -59,10 +59,11 @@ Runs on **Linux** (AppImage) and **Windows** (installer).
     after each trade, so every trade is recorded on its own with exact amounts.
 - **Avakot's shop (desktop app):** with the same session, the app asks
   Soulframe's server for Avakot's stock, the same request the game makes for his
-  shop. It asks once every 3 hours while the game is running, a minute after an
-  inventory import so the two never go out together. His offers change every
-  hour and each stays for 3 hours, so none are missed. If the answer comes back
-  before his stock has changed, it asks once more 10 minutes later.
+  shop. It asks once just after his stock changes (the time comes with his
+  stock; since the Nov 12 update that is once a day, at 00:00 UTC), and only
+  while the game is running, a minute after an inventory read so the two never
+  go out together. If the answer comes back before his stock has changed, it
+  asks once more 10 minutes later.
 - **Game log:** `EE.log` supplies the time each weapon was picked up, and each
   trade's partner and time. The Mastery figure the game writes at login is used
   to check SFHelper's own count (weapon and Pact ranks, plus 5,000 for each place

@@ -4200,26 +4200,26 @@
       "kind": "Weapons",
       "result": "/SF/Weapons/Melee/OneHand/GarrenSword/GarrenSwordMeleeWeapon",
       "rarity": "UNCOMMON",
-      "fragments": 2,
+      "fragments": 1,
       "consumed": true,
       "gives": 1,
-      "dracs": 2500,
+      "dracs": 1000,
       "seconds": 36000,
       "ingredients": [
         {
           "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
           "name": "Scrap Brass",
-          "count": 20
+          "count": 10
         },
         {
           "type": "/SF/Types/PickUps/Resources/Organics/KnotwoodPlanksResource",
           "name": "Knotwood",
-          "count": 25
+          "count": 15
         },
         {
           "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
           "name": "River Pearl",
-          "count": 8
+          "count": 2
         }
       ],
       "desc": "Antler blades forged of alloyed steel and bone trace. Conceived in homage to the great Omen Stag, Garren Rood. \n\nAn anonymous tome from The Pensives' archives recounts the weapon's first sighting as such:\n\"Twas the Stag's grace upon the Silvern we saw then. Cruel points aglow, fallow curves, so fraught. Hear these bellows of longing for my pelted loves? My losses, their indignities. Each charge shall wet the soil with the wine of their rebirth.\"",

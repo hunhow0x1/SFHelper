@@ -101,6 +101,11 @@ describe("Avakot's stock history and notifications", () => {
     await recordAvakot({ fetchedAt: onTime, nextChange: Date.parse("2026-10-27T01:00:00Z"), offers: [] }, []);
     expect(await nextAvakotCheck()).toEqual({ at: Date.parse("2026-10-27T03:00:30Z"), retry: false });
     expect((await getAvakot(onTime)).nextCheck).toBe(Date.parse("2026-10-27T03:00:30Z"));
+
+    const daily = Date.parse("2026-11-13T06:19:59Z");
+    await noteAvakotAttempt({ at: daily, retry: false }, daily);
+    await recordAvakot({ fetchedAt: daily, nextChange: Date.parse("2026-11-14T00:00:00Z"), offers: [] }, []);
+    expect(await nextAvakotCheck()).toEqual({ at: Date.parse("2026-11-14T00:00:30Z"), retry: false });
   });
 
   it("asks once more ten minutes later if DE hadn't rotated the stock yet, and no more than that", async () => {
