@@ -1,3 +1,8 @@
+// One inventory import: find the game process; if the same game is still running,
+// reuse the last session nonce; otherwise scan the game's memory (read-only) for
+// the account id and the session nonce, then download the inventory with them.
+// Only the download talks to DE's servers.
+
 import { join } from "node:path";
 import { readFile } from "node:fs/promises";
 import { requireConsent } from "./consent";

@@ -1,3 +1,8 @@
+// Reads Soulframe's EE.log as it grows (only new bytes; a new session starts over)
+// for things the game reports nowhere else: when weapons were picked up, trades
+// and partners, inventory saves, Agari spawns, the Collector, Blessed Meetings,
+// party size, and requests the game itself had refused.
+
 import { open, readdir, readFile, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -228,6 +233,7 @@ interface Scan {
     dungeon: string | null;
   };
   mastery: { other: number | null; items: number | null };
+  inventory: { savedAt: number | null };
   trades: { out: LoggedTrade[]; collecting: string[] | null; confirm: Omit<LoggedTrade, "at"> | null; invitedBy: string | null; openedAt: number | null };
   events: { acquired: Map<string, number[]>; owner: Map<string, number[]>; lastOwner: { t: number; leaf: string } | null };
 }
@@ -248,6 +254,7 @@ function newScan(path: string, head: string): Scan {
     refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [], loggingIn: false, loginBlocked: false, loginRefused: false, loginOkAt: null },
     agari: { spawned: {}, spot: null, since: 0, agent: null, agentAt: null, agentSince: 0, location: null, dungeon: null },
     mastery: { other: null, items: null },
+    inventory: { savedAt: null },
     trades: { out: [], collecting: null, confirm: null, invitedBy: null, openedAt: null },
     events: { acquired: new Map(), owner: new Map(), lastOwner: null },
   };
@@ -290,6 +297,18 @@ function feedAgari(a: Scan["agari"], line: string): void {
       a.since = 0;
     }
   }
+}
+
+// The game keeps pickups on the client and only writes them to DE's servers at
+// "checkpoints" (Nightfold, Votives, area changes, a timer). It also reloads its
+// own inventory from the servers after server-side changes. Either line means
+// the server copy of the inventory may have changed since SFHelper last read it.
+const INVENTORY_SAVE_RE = /CommitInventoryCheckpointToDB\(|SyncInventoryFromDB/;
+
+function feedInventorySaves(x: Scan["inventory"], line: string, start: number): void {
+  if (!line.includes("Inventory") || !INVENTORY_SAVE_RE.test(line)) return;
+  const t = TIME_RE.exec(line);
+  if (t) x.savedAt = start + Math.round(Number(t[1]) * 1000);
 }
 
 function feedMastery(x: Scan["mastery"], line: string): void {
@@ -494,6 +513,7 @@ function feed(s: Scan, line: string): void {
   feedRefusals(s.refusals, line, s.start);
   feedLogin(s.refusals, line, s.start);
   feedTrades(s.trades, line, s.start);
+  feedInventorySaves(s.inventory, line, s.start);
   feedEvents(s.events, line, s.start);
   feedCollector(s, line, s.start);
   feedBlessed(s.blessed, line, s.start);
@@ -655,6 +675,12 @@ export async function loggedMastery(path?: string): Promise<LoggedMastery | null
 export async function logTrades(path?: string): Promise<LoggedTrade[]> {
   const s = await currentScan(path);
   return s ? [...s.trades.out] : [];
+}
+
+// When the game last saved (or reloaded) the inventory on DE's servers, as epoch ms.
+export async function loggedInventorySave(path?: string): Promise<number | null> {
+  const s = await currentScan(path);
+  return s?.inventory.savedAt ?? null;
 }
 
 export async function loggedTradeOpened(path?: string): Promise<number | null> {

@@ -1,7 +1,17 @@
+// Turns the installed game's own files into the JSON the dashboard reads.
+// Three inputs: the language dictionary (text key -> string), the type tree
+// (type path -> parent) and the package texts (one property-text record per type,
+// in the order of the type table, but without the type's path). Most of the work
+// is matching a record to its type: by TypeName in store items, by LocalizeTag +
+// Icon pairs, or by the order records appear in a folder. Each match is checked,
+// and a builder returns nothing rather than guess when the check fails.
+
 import { matchArmourStem } from "./armour";
 import type { Dict, TypeTree } from "./formats";
 import { isGear } from "../server/upgradeItems";
 
+// Keeps entries the current game no longer has, so history recorded under
+// old types (retired enemies, removed items) still gets a name.
 export function withRetired(fresh: Record<string, string>, previous: Record<string, string> | undefined): Record<string, string> {
   if (!previous) return fresh;
   const out = { ...fresh };
@@ -20,6 +30,8 @@ export interface NameData {
   founders: string[];
 }
 
+// Weapons and Pacts sold only in the Founder packs (store packages marked
+// "founders"); the Hide Founder's items switch uses this list.
 export function buildFounderItems(texts: string[]): string[] {
   const out = new Set<string>();
   for (const t of texts) {
@@ -153,6 +165,9 @@ function ancestorName(dict: Dict, texts: string[], stem: string): string | undef
   return key ? dict[key] : undefined;
 }
 
+// Item display names, keyed by type leaf (runes by full type path). Text keys
+// mostly follow "<Leaf>Name"; weapons, Pacts and armour need aliases because
+// their type names drift from their text keys.
 export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): NameData {
   const factions: Record<string, string> = {};
   const factionTokens: Record<string, string> = {};
@@ -199,6 +214,8 @@ export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): Na
     }
   }
 
+  // Armour store records link the piece's type to its text key directly, which
+  // beats guessing from word stems (WovenMaskHelmet is named by WovenMaskName).
   for (const t of texts) {
     const leaf = /^\/SF\/Upgrades\/Skins\/(?:Helmets|Body|Legs)\/(\w+)$/.exec(field(t, "TypeName") ?? "")?.[1];
     if (leaf && field(t, "ProductCategory") === "WeaponSkins") setAlias(leaf, localized(dict, field(t, "LocalizeTag")) ?? undefined);
@@ -240,6 +257,10 @@ export interface EnemyData {
   parents: Record<string, string>;
 }
 
+// Enemies whose own record shows a different name than the codex text named
+// after the type. Found by lining their records up with their types by hand;
+// the game shows the record's LocTag. MeleeHeavyNight's record has no name at
+// all, so it takes "Sinecure Knight" like the other knights (the wiki agrees).
 const ENEMY_RECORD_NAMES: Record<string, string> = {
   MiniGhostKnightAvatar: "WanderingGhostKnightAvatarName",
   WanderingGhostSoldierAvatar: "WanderingGhostKnightAvatarName",
@@ -247,6 +268,9 @@ const ENEMY_RECORD_NAMES: Record<string, string> = {
   MeleeHeavyNightAvatar: "SinecureKnightAvatarName",
 };
 
+// Enemy types from earlier builds that profiles still report kills for. They
+// are gone from the game files, so they take the name of the enemy that
+// replaced them (the wiki lists those types in the same dungeons).
 const RETIRED_ENEMIES: Record<string, string> = {
   UCGruntAvatar: "MeleeGruntAvatar",
   UCDualGruntAvatar: "MeleeGruntDualAvatar",
@@ -261,6 +285,9 @@ const RETIRED_ENEMIES: Record<string, string> = {
   DaggerHunterDisguisedAvatar: "MeleeHunterDaggerDisguisedAvatar",
 };
 
+// Names for enemy avatar types: the codex "<Leaf>Name" text first, then the
+// quoted name in a kill title, then a character name. Types without one inherit
+// their parent's name at lookup time (server/enemies.ts).
 export function buildEnemies(dict: Dict, tree: TypeTree): EnemyData {
   const parentOf = new Map<string, string>();
   for (const [path, parent] of tree) if (parent) parentOf.set(path, parent);
@@ -332,6 +359,9 @@ export interface LocationDef {
   dungeon?: string;
 }
 
+// Which region each History place is in. The game files don't say, so this was
+// taken once from the community map (soulmap.avakot.org). Region names come from
+// the game's RegionName01..07 texts.
 const PLACE_REGIONS: Record<number, string[]> = {
   1: ["AuldPrioriLocation", "ChampionHubLocation", "CurlailTowerLocation", "FeyHubLocation", "FortCurlailCamp", "GladeEntranceCamp", "HamletCamp", "HewsVillageLocation", "LuminnsVillageLocation", "MinesCamp", "OomullLocation", "SilentRoseHubLocation", "SproutCaveLocation", "TowerCamp", "VillageCamp", "WishingWellLocation"],
   2: ["BirdiesBogLocation", "BrackenBraeLocation", "FonnishFortLocation", "HeedowayTowerLocation", "KearnholdVillageLocation", "RoodsLocation", "SawneyWayLocation", "SidaesStakeLocation", "StroaicLocation", "TurretJotarLocation"],
@@ -446,6 +476,10 @@ export interface TradeTax {
 
 const DEFAULT_RARITY = "COMMON";
 
+// Scutage per item received: the game's TradingRarityTaxes (COMMON 200,
+// UNCOMMON 400, RARE 800) plus the hub's HubTradeTax (10%) gives 220/440/880
+// Dracs. Items without a Rarity count as COMMON. This matched recorded trades
+// to the Dracs (1 Uncommon weapon = 440; 95 Rare Lampyrite = 83,600).
 export function buildTradeTax(texts: string[]): TradeTax {
   const tables = texts.map((t) => /^TradingRarityTaxes=\{\n([\s\S]*?)\n\}$/m.exec(t)?.[1]).filter((b): b is string => b !== undefined);
   const hubs = texts.map((t) => field(t, "HubTradeTax")).filter((v): v is string => v !== undefined);
@@ -498,6 +532,9 @@ const pair = (s: string | undefined): [number, number] | null => {
   return m ? [Number(m[1]), Number(m[2])] : null;
 };
 
+// Avakot's whole pool from his vendor manifest: price ranges, how long each
+// offer stays, and the weekly / always-stocked flags. Bundles also record what
+// they give (PackageComponents), so the tab can show how much of it you hold.
 export function buildAvakot(dict: Dict, texts: string[], names: Record<string, string>): AvakotPool {
   const manifests = texts.filter((t) => t.includes("ItemManifest={") && t.includes("NumItemsAvailable=") && t.includes("/Consumables/Tackle/"));
   if (manifests.length !== 1) throw new Error(`expected one Avakot vendor manifest, found ${manifests.length}`);
@@ -724,8 +761,12 @@ export interface JoineryEntry {
 }
 
 const KINTSUGI = "/SF/Types/Items/Kintsugi/";
+// WEAPON_ATTUNEMENT_<Virtue> ADD_BASE 5 / 10 / 15 is 1 / 2 / 3 pips in game.
 const ATTUNEMENT_PER_PIP = 5;
 
+// Joinery item texts and their definition texts appear in the same order, so
+// they are paired by position and checked by LocalizeTag + Icon. A lookup by
+// name alone fails because two Joineries share one name tag.
 export function kintsugiDefs(texts: string[]): Map<string, string> {
   const items = texts.filter((t) => field(t, "TypeName")?.startsWith(KINTSUGI) && field(t, "ProductCategory") === "Upgrades");
   const defs = texts.filter((t) => !field(t, "TypeName") && field(t, "LocalizeTag")?.startsWith("/SF/Language/Materials/Kintsugi") && /^UpgradeType=/m.test(t));
@@ -780,6 +821,8 @@ const plain = (v: number): string => String(Number(v.toFixed(3)));
 const signed = (text: string, v: number): string => (v < 0 ? `-${text.replace(/^-/, "")}` : `+${text}`);
 const percent = (v: number): string => `${plain(v * 100)}%`;
 
+// Booster records (Virtue Elixirs, Life Elixir) line up one-to-one with their
+// types in folder order; the names are checked before trusting the order.
 export function boosterRecords(texts: string[], tree: TypeTree): Map<string, string> {
   const types = [...tree].filter(([p, parent]) => parent === "/SF/Types/Game/SFBoosterUpgrade" && p.startsWith("/SF/Types/Game/")).map(([p]) => p);
   const bodies = texts.filter((t) => /^LocalizeTag=\/SF\/Language\/Boosters\/\w+BoosterName$/m.test(t) && /^DurationOverride=/m.test(t));
@@ -798,6 +841,8 @@ function lastsFor(seconds: number): string {
   return `Lasts ${plain(seconds / 60)} min`;
 }
 
+// Only numbers the files state plainly (Virtue +10 for an hour, heal 30% of
+// Maximum Life). Anything ambiguous is left out rather than guessed.
 function gearStats(dict: Dict, def: string | undefined, boosters: Map<string, string>): string[] {
   if (!def) return [];
   const p = scriptParams(def);
@@ -938,6 +983,8 @@ const defKey = (t: string): string | null => {
   return tag ? `${tag}|${field(t, "Icon") ?? ""}` : null;
 };
 
+// A type's own record (it has no TypeName line), keyed by LocalizeTag + Icon so
+// it can be joined to the store item that does name the type.
 function definitions(texts: string[]): Map<string, string> {
   const defs = new Map<string, string>();
   for (const t of texts) {
@@ -1384,6 +1431,9 @@ const MANIFESTS = "/SF/Types/Items/Aspects/";
 const ASPECT_UPGRADES = "/SF/Types/Items/Aspects/Upgrades/";
 const ORIGINS = ["Cassid", "Dendrit", "Fey", "Mendicant", "Ode"];
 
+// Each weapon type's Temper manifest: the Tempers that can roll on it, their
+// Origin and their stat upgrades. Manifest records are paired with manifest
+// types by order and checked against the name in their LocalizeTag.
 export function aspectManifests(texts: string[], tree: TypeTree): Map<string, ManifestEntry[]> {
   const paths = [...tree.keys()].filter((p) => p.startsWith(MANIFESTS) && p.endsWith("AspectManifest") && !p.endsWith("/BaseAspectManifest"));
   const bodies = texts.filter((t) => /^UpgradeEntries=\{/m.test(t) && /^ItemCompatibility=/m.test(t) && /Origin\w+$|AspectManifest"?$/.test(field(t, "LocalizeTag") ?? ""));
@@ -1408,6 +1458,9 @@ export function aspectManifests(texts: string[], tree: TypeTree): Map<string, Ma
   return out;
 }
 
+// Some Tempers keep their numbers in a separate upgrade record. Those records
+// are matched to their types by folder order, using the offset most records
+// agree on.
 export function aspectUpgrades(texts: string[], tree: TypeTree): Map<string, string> {
   const leaves = [...tree.keys()].filter((p) => p.startsWith(ASPECT_UPGRADES) && !p.slice(ASPECT_UPGRADES.length).includes("/")).map(leafOf);
   const label = (t: string) => /^LocalizeTag="\[HC\] ?(\w+)"$/m.exec(t)?.[1];
@@ -1453,6 +1506,8 @@ const STATUS_EFFECTS: Record<string, [string, string]> = {
   DT_ELECTRICITY: ["/SF/Language/Menu/DT_ELECTRICITY", "Voltaic"],
 };
 
+// Turns an upgrade (type, operation, value) into a short stat line using the
+// game's own label for the stat where it has one.
 function temperStatText(dict: Dict) {
   const loc = (tag: string, fallback: string): string => {
     const v = dict[tag];
@@ -1519,6 +1574,9 @@ function temperStatText(dict: Dict) {
   return { lines, sub };
 }
 
+// One entry per Temper: in-game name and description, Origin, the weapons it
+// can roll on, and its stat lines. Where values differ by weapon type the
+// variants are grouped by the weapons they apply to.
 export function buildTempers(
   dict: Dict,
   texts: string[],

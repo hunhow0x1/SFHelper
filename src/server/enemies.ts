@@ -1,3 +1,7 @@
+// Names enemy types from enemies.json: the type's own name, else its parents',
+// else the same words in another order (MockeryStoneWomanArmored vs.
+// MockeryStoneArmoredWoman), else the name without variant words (Elite, Night).
+
 import { getDataRefreshedAt } from "./importStatus";
 import { readDataJson } from "./paths";
 

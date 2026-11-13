@@ -1,3 +1,9 @@
+// The desktop app: starts the local dashboard server, runs inventory imports,
+// and turns cooldowns, crafts, Avakot's stock and the Collector into desktop
+// notifications. Every request to DE's servers goes through importFromMemory,
+// checkAvakot, or the dashboard's profile fetch, and all of them back off when
+// Soulframe refuses requests.
+
 import { app, BrowserWindow, ipcMain, Notification, screen, shell } from "electron";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,7 +24,7 @@ import { apiPausedUntil, liftPauseAfterLogin, noteApiAccepted, noteApiRefused, p
 import { AVAKOT_VENDOR, getAvakot, nextAvakotCheck, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotCheck, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, loggedTradeOpened, refusalDetails, type GameRefusals } from "../src/server/gameLog";
+import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, loggedInventorySave, loggedTradeOpened, logTrades, refusalDetails, type GameRefusals } from "../src/server/gameLog";
 import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
 import { pruneRequests, readRequests } from "../src/server/requestLog";
 import { findSoulframe } from "../helper/processFinder";
@@ -143,13 +149,27 @@ async function reportEarlierRefusals(): Promise<void> {
   if (r && r.count > 0 && !(await gameBeingRefused())) await reportRefusalStart(r);
 }
 
+// Inventory refreshes follow the game rather than a clock. SFHelper reads the
+// inventory once after you log in, then only:
+//   - after the game saves it to DE's servers (at most every SAVE_REFRESH_GAP_MS),
+//   - just before a trade if the game saved since the last read, and just after
+//     each trade, so every trade is recorded on its own with exact amounts,
+//   - as a safety net when nothing else happened for FALLBACK_REFRESH_MS.
+// Waiting for the game to start or for a login only looks at local processes and
+// memory; nothing is sent to DE until there is a live session.
 const WAIT_FOR_GAME_MS = 15_000;
 const WAIT_FOR_LOGIN_MS = 30_000;
+const RETRY_MS = 120_000;
+const FALLBACK_REFRESH_MS = 30 * 60_000;
 let lastImportCode: number | null = null;
 let importTimer: ReturnType<typeof setTimeout> | undefined;
 function scheduleImport(): void {
   clearTimeout(importTimer);
-  const wait = lastImportCode === 3 ? WAIT_FOR_GAME_MS : lastImportCode === 6 ? WAIT_FOR_LOGIN_MS : REIMPORT_INTERVAL_MS;
+  const wait =
+    lastImportCode === 3 ? WAIT_FOR_GAME_MS
+    : lastImportCode === 6 ? WAIT_FOR_LOGIN_MS
+    : lastImportCode === 0 ? FALLBACK_REFRESH_MS
+    : RETRY_MS;
   importTimer = setTimeout(() => void importFromMemory().finally(scheduleImport), wait);
 }
 
@@ -233,21 +253,56 @@ async function importFromMemory(): Promise<void> {
   }
 }
 
-const REIMPORT_INTERVAL_MS = 120_000;
 const AVAKOT_AFTER_IMPORT_MS = 60_000;
-const TRADE_REFRESH_GAP_MS = 30_000;
+// Give the game a moment to finish writing a save before reading it back.
+const SAVE_SETTLE_MS = 15_000;
+// The game saves in bursts (Nightfold, Votives, area changes); one read covers them.
+const SAVE_REFRESH_GAP_MS = 10 * 60_000;
+const TRADE_SETTLE_MS = 5_000;
 const TRADE_OPEN_RECENT_MS = 60_000;
+// Log times come from the game's clock; treat a save this close to a read as missed.
+const LOG_SKEW_MS = 3_000;
+const GAME_CHECK_MS = 60_000;
 
-let tradeOpenSeen = 0;
-async function refreshBeforeTrade(): Promise<void> {
-  const opened = await loggedTradeOpened();
-  if (opened === null || opened <= tradeOpenSeen) return;
-  tradeOpenSeen = opened;
-  const now = Date.now();
-  if (now - opened > TRADE_OPEN_RECENT_MS || importing || lastImportCode !== 0 || now - lastImportAt < TRADE_REFRESH_GAP_MS) return;
-  log("A trade window opened in Soulframe; refreshing the inventory so the trade is recorded on its own.");
+function refreshNow(reason: string): void {
+  if (importing) return;
+  log(reason);
   clearTimeout(importTimer);
   void importFromMemory().finally(scheduleImport);
+}
+
+let tradeOpenSeen = 0;
+let lastGameCheck = 0;
+async function followGame(): Promise<void> {
+  if (importing || lastImportCode !== 0) return;
+  const now = Date.now();
+  if (now - lastGameCheck >= GAME_CHECK_MS) {
+    lastGameCheck = now;
+    // The game closed: go back to waiting for it (a local process check, no request).
+    if (!(await gameRunning())) {
+      clearTimeout(importTimer);
+      void importFromMemory().finally(scheduleImport);
+      return;
+    }
+  }
+  const [saved, opened, trades] = await Promise.all([loggedInventorySave(), loggedTradeOpened(), logTrades()]);
+  const since = lastImportAt - LOG_SKEW_MS;
+  const unread = saved !== null && saved > since;
+  const lastTrade = trades.length ? trades[trades.length - 1]!.at : 0;
+  if (lastTrade > since && now - lastTrade >= TRADE_SETTLE_MS) {
+    refreshNow("A trade finished in Soulframe; refreshing the inventory so it's recorded on its own.");
+    return;
+  }
+  if (opened !== null && opened > tradeOpenSeen) {
+    tradeOpenSeen = opened;
+    if (unread && now - opened < TRADE_OPEN_RECENT_MS) {
+      refreshNow("A trade window opened after the game saved; refreshing first so that loot isn't counted as part of the trade.");
+      return;
+    }
+  }
+  if (unread && now - saved >= SAVE_SETTLE_MS && now - lastImportAt >= SAVE_REFRESH_GAP_MS) {
+    refreshNow("The game saved your inventory; refreshing.");
+  }
 }
 
 let avakotTimer: ReturnType<typeof setTimeout> | undefined;
@@ -591,7 +646,7 @@ async function proceed(): Promise<void> {
     if (crafted.length) void notifyCrafts(crafted);
     void checkCollector().catch(() => {});
     void checkBlessed().catch(() => {});
-    void refreshBeforeTrade().catch(() => {});
+    void followGame().catch(() => {});
   }, TIMER_CHECK_MS);
   void pruneRequests();
   void importFromMemory().finally(scheduleImport);

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dailyCaps, fullDailyCap } from "../src/server/standing";
+import { parseStanding } from "../src/server/inventory";
 
 const PATCH_DAY = Date.UTC(2026, 10, 5, 21);
 const NEXT_DAY = Date.UTC(2026, 10, 6, 0, 0, 1);
@@ -21,5 +22,22 @@ describe("the daily standing cap", () => {
   it("trusts a larger cap reported by the servers", () => {
     expect(dailyCaps(17, { affiliation: 49_000, affiliationOde: null }, null, NEXT_DAY)).toMatchObject({ cap: 49_000, remaining: 49_000 });
     expect(dailyCaps(null, none, null)).toBeNull();
+  });
+});
+
+describe("standing from the inventory", () => {
+  it("reads each Enclave's standing and rank", () => {
+    const raw = {
+      Affiliations: [
+        { Initiated: true, Standing: 110000, Title: 5, Tag: "ChampionSyndicate" },
+        { Standing: 13750, Title: 2, Tag: "OdeSyndicate" },
+        { Tag: "Broken" },
+      ],
+    };
+    expect(parseStanding(raw)).toEqual([
+      { tag: "ChampionSyndicate", xp: 110000, rank: 5 },
+      { tag: "OdeSyndicate", xp: 13750, rank: 2 },
+    ]);
+    expect(parseStanding({})).toEqual([]);
   });
 });

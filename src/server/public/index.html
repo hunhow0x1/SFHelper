@@ -381,7 +381,7 @@
       .xpgroup h3.wclass .count { font: 400 13px/1 var(--body); color: var(--faint); letter-spacing: 0; }
       .wtempers { grid-column: 1 / -1; margin-top: 8px; }
 
-      #trades { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 22px; align-content: start; }
+      #trades { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 22px; align-content: start; align-items: start; }
       @media (max-width: 640px) { #trades { grid-template-columns: 1fr; } }
       .pickrow { padding: 14px 0; border-bottom: 1px solid var(--line); }
       .pickrow:last-child { border-bottom: 0; }
@@ -1731,6 +1731,9 @@
         MASTERY_DRAWN = true;
       }
       let MASTERY_DRAWN = false;
+      // Mastery's columns are laid out here rather than with CSS `columns`: the
+      // browser's multi-column layout took ~0.8 s per render with boxes that must not
+      // break across columns. Same maths as `columns: 6 280px`, balanced top to bottom.
       const MASTERY_COL_MIN = 280;
       const MASTERY_COL_GAP = 20;
       const MASTERY_COL_MAX = 6;
@@ -2090,12 +2093,16 @@
         const p = tradeParts(x, side);
         return tradeList(p.kept, p.missing);
       }
+      // Scutage from the game's tax table (tradetax.json) for the items the game log
+      // says were received. Null when that isn't known exactly; the card then falls
+      // back to the change in Dracs.
       function tradeScutage(x) {
         const p = tradeParts(x, "received");
         if (!TRADE_TAX || !p.known || p.missing.length) return null;
         return p.kept.reduce((n, i) => n + i.count * (TRADE_TAX.taxes[TRADE_TAX.rarity[i.key] || "COMMON"] || 0), 0);
       }
       function tradeHasLoot(x) {
+        if (x.split) return x.loot;
         const recv = tradeParts(x, "received");
         const gave = tradeParts(x, "given");
         const counted = [...recv.kept, ...gave.kept].some((i) => !i.ids);
@@ -2114,6 +2121,39 @@
         const n = Math.max(t.count || 1, (t.deals || []).length);
         const what = n > 1 ? `${n} trades` : "Trade";
         return partners.length ? `${what} with <span class="partner">${partners.map(escHtml).join(" and ")}</span>` : what;
+      }
+      // Trades made between the same two inventory refreshes arrive as one record.
+      // Show one card per trade, using the game log's per-trade item names:
+      // weapons and armour go to the trade that names them (by creation time when
+      // two trades name the same item), counted items listed in one trade only keep
+      // their exact amount, and counted items in several trades are shown by name
+      // with their combined amount in a note, since the split was never recorded.
+      const oidTime = (id) => (/^[0-9a-f]{24}$/i.test(id || "") ? parseInt(id.slice(0, 8), 16) * 1000 : null);
+      function splitTrade(x) {
+        const deals = [...(x.deals || [])].sort((a, b) => a.when.localeCompare(b.when));
+        if (x.logOnly || deals.length < 2 || !tradeParts(x, "received").known) return [x];
+        const loot = tradeHasLoot(x);
+        const parts = deals.map((d) => ({ ...x, split: true, loot, count: 1, at: d.when, deals: [d], received: [], given: [], dracs: 0, shared: [] }));
+        for (const side of ["received", "given"]) {
+          const listed = (d) => (side === "received" ? d.received : d.offered);
+          for (const item of x[side] || []) {
+            const name = tradeItemName(item.key);
+            const owners = deals.map((d, i) => (listed(d).includes(name) ? i : -1)).filter((i) => i >= 0);
+            if (!owners.length) continue;
+            if (owners.length === 1) {
+              parts[owners[0]][side].push(item);
+            } else if (item.ids && item.ids.length === 1) {
+              const made = oidTime(item.ids[0]);
+              const pick = side === "received" && made !== null
+                ? owners.find((i) => Date.parse(deals[i].when) + 5000 >= made && !parts[i][side].some((o) => tradeItemName(o.key) === name)) ?? owners[owners.length - 1]
+                : owners.find((i) => !parts[i][side].some((o) => tradeItemName(o.key) === name)) ?? owners[0];
+              parts[pick][side].push(item);
+            } else {
+              for (const i of owners) parts[i].shared.push({ side, name, count: item.count, with: owners.filter((j) => j !== i).map((j) => deals[j].when) });
+            }
+          }
+        }
+        return parts.reverse();
       }
       function renderTrades() {
         const t = LAST_TRADES;
@@ -2135,6 +2175,7 @@
         $("overviewTrades").hidden = false;
         $("trades").innerHTML = history.length
           ? history
+              .flatMap(splitTrade)
               .map((x) => {
                 const deals = x.deals || [];
                 const dracsIcon = (n) => `<span class="avprice" title="Dracs"><img src="img/game/dracs.png" alt="">${fmt(n)}</span>`;
@@ -2142,12 +2183,14 @@
                 const dracs = tax !== null
                   ? `${dracsIcon(tax)}spent on Scutage`
                   : x.dracs < 0 ? `${dracsIcon(-x.dracs)}spent during the trade` : x.dracs > 0 ? `${dracsIcon(x.dracs)}gained during the trade` : "";
-                const merged = Math.max(x.count || 1, deals.length) > 1 ? "Made between the same two inventory refreshes, so they're shown together" : "";
+                const merged = !x.split && Math.max(x.count || 1, deals.length) > 1 ? "Made between the same two inventory refreshes, so the game log couldn't tell them apart" : "";
+                const shared = (x.shared || []).map((sh) =>
+                  `${escHtml(sh.name)} ×${fmt(sh.count)} ${sh.side === "received" ? "received" : "given"} across this trade and the other ${sh.with.length === 1 ? "trade" : "trades"} at ${sh.with.map((w) => clockTime(Date.parse(w))).join(", ")} (the split wasn't recorded)`);
                 const loot = !x.logOnly && tradeHasLoot(x) ? "Amounts may include loot the game saved in the same refresh" : "";
                 const note = x.logOnly ? "From the game log, before SFHelper saw your inventory: no counts or Dracs" : "";
                 const received = x.logOnly ? tradeNames(deals.flatMap((d) => d.received)) : tradeSide(x, "received");
                 const given = x.logOnly ? tradeNames(deals.flatMap((d) => d.offered)) : tradeSide(x, "given");
-                const subs = [dracs, merged, loot, note].filter(Boolean);
+                const subs = [dracs, merged, ...shared, loot, note].filter(Boolean);
                 return `<div class="tradecard">
                   <div class="pickhead"><span class="pickname">${tradeTitle(x)}</span>${tradeWhen(x)}</div>
                   <div class="tradecols">
@@ -2308,6 +2351,7 @@
       }
       const avIcon = (it, cls = "avicn") => (it.icon ? `<img class="${cls}" src="${escHtml(it.icon)}" alt="">` : `<span class="${cls}"></span>`);
       let AV_OWNED = null;
+      // Bundles (Lampyrite purses and crates) show how much you hold of what they give.
       function avOwned(it) {
         if (!AV_OWNED) return "";
         const key = it.gives ? it.gives.item : it.storeItem.replace("/SF/StoreItems/", "/SF/");
@@ -3102,6 +3146,8 @@
         const p = (id && TEMPER_PLANS && TEMPER_PLANS[id]) || [];
         return Array.from({ length: PLAN_SLOTS }, (_, i) => p[i] || null);
       };
+      // Matches a plan against the Tempers on the weapon as multisets: a weapon can
+      // hold the same Temper twice, and each copy fills one planned slot.
       function planState(plan, tempers) {
         const left = new Map();
         for (const t of tempers) left.set(t, (left.get(t) || 0) + 1);
@@ -3122,6 +3168,7 @@
         });
         return { slots, current };
       }
+      // Tuvalkane learns a Temper after studying TEMPER_GOAL weapons that carried it.
       const temperStudied = (tag) => ((LAST_TEMPERS || []).find((t) => t.tag === tag) || { count: 0 }).count;
       const temperLearned = (tag) => temperStudied(tag) >= TEMPER_GOAL;
       const learningTip = (tag, L) => `${L.temperNotLearned} (${Math.min(temperStudied(tag), TEMPER_GOAL)} / ${TEMPER_GOAL})`;
@@ -4427,7 +4474,7 @@
           render(data);
           setStatus(
             data.profileError
-              || (data.profileWaiting ? "Waiting for Soulframe · showing the last saved profile" : "Live · updates every 2 min"),
+              || (data.profileWaiting ? "Waiting for Soulframe · showing the last saved profile" : "Live · inventory refreshes when the game saves, stats every 20 min"),
             !!data.profileError,
           );
         } catch (e) {

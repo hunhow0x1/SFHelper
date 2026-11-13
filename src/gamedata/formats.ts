@@ -1,3 +1,5 @@
+// Readers for the game's packed data files, read-only.
+
 import { breathe, uleb, ZstdDict } from "./codecs";
 
 const DICT_MAGIC = Buffer.from([0x37, 0xa4, 0x30, 0xec]);
@@ -6,6 +8,9 @@ const YIELD_EVERY = 500;
 export type Dict = Record<string, string>;
 export type TypeTree = Map<string, string | null>;
 
+// Languages.bin: for each text folder, a chunk of strings and a label table
+// (name, offset, size, flags). Flag 0x200 marks entries compressed with zstd
+// using a dictionary stored right after the file's header.
 export async function readLanguages(buf: Buffer): Promise<Dict> {
   let i = 16 + 4 + 4 + 4;
   const numSuffixes = buf.readUInt32LE(i);
@@ -56,6 +61,10 @@ export async function readLanguages(buf: Buffer): Promise<Dict> {
   return sorted;
 }
 
+// Packages.bin: zstd frames, one property-text record per type, in the same
+// order as the type table after them. Not every type has a record, and the
+// record doesn't name its type. The frame sizes are a ULEB list, found by
+// checking which candidate list adds up to the compressed length.
 export async function readPackageTexts(buf: Buffer): Promise<string[]> {
   const dictAt = buf.indexOf(DICT_MAGIC);
   if (dictAt < 4) throw new Error("Packages.bin: no zstd dictionary found");
@@ -98,6 +107,8 @@ export async function readPackageTexts(buf: Buffer): Promise<string[]> {
   return texts;
 }
 
+// The type table: directory strings, each followed by (leaf, 3 flag bytes,
+// parent) records. Scanning for directory strings finds every block.
 export async function readTypeTree(buf: Buffer): Promise<TypeTree> {
   const parentOf: TypeTree = new Map();
   const text = buf.toString("latin1");

@@ -40,20 +40,23 @@ Runs on **Linux** (AppImage) and **Windows** (installer).
 
 ## How it gets your data
 
-- **Public profile:** standing, level and combat stats come from Soulframe's
-  public profile endpoint. No login is involved. SFHelper asks for it at most
-  every 2 minutes while Soulframe is running, and shows the last copy otherwise.
+- **Public profile:** combat stats come from Soulframe's public profile
+  endpoint. No login is involved. SFHelper asks for it at most every 20 minutes
+  while Soulframe is running, and shows the last copy otherwise. Standing and
+  level come from the inventory, so they stay current in between.
 - **Inventory, read from the running game (desktop app, opt-in):** Soulframe
   doesn't offer the full inventory any other way, so the desktop app reads a
   session token from the game's memory and uses it to download your inventory.
   - Access is **read-only**: memory is opened without write rights, and there is
     no write path anywhere in the code.
   - Nothing runs until you agree on the first-launch consent screen.
-  - While the game is running, the inventory is refreshed every 2 minutes. The
-    memory is only scanned when your session changes.
-  - When a trade window opens in the game, the inventory is refreshed once
-    right away (unless it was refreshed in the last 30 seconds), so loot the
-    game saved earlier isn't counted as part of the trade.
+  - The inventory is read once when you log in, then again only after the game
+    itself saves it to Soulframe's servers (its log says when), at most every 10
+    minutes. If the game saves nothing for 30 minutes, SFHelper reads it once
+    anyway. The memory is only scanned when your session changes.
+  - Around trades: once just before a trade if the game saved since the last
+    read (so earlier loot isn't counted as part of the trade), and once just
+    after each trade, so every trade is recorded on its own with exact amounts.
 - **Avakot's shop (desktop app):** with the same session, the app asks
   Soulframe's server for Avakot's stock, the same request the game makes for his
   shop. It asks once every 3 hours while the game is running, a minute after an

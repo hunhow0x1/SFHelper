@@ -1,3 +1,7 @@
+// The desktop app's settings file. Every field is validated on read and on
+// update; a malformed field falls back to its default instead of failing the
+// whole file.
+
 import { readFile } from "node:fs/promises";
 import { appFile } from "./paths";
 import { writeFileAtomic } from "./files";

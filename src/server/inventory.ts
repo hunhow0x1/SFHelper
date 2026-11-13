@@ -24,6 +24,27 @@ export interface OwnedItem {
   count: number;
 }
 
+// Enclave standing as the inventory reports it. It matches the public profile's
+// affiliations but is read at every inventory refresh, so the standing bars and
+// "earned today" stay current while the profile is only fetched now and then.
+export interface Standing {
+  tag: string;
+  xp: number;
+  rank: number;
+}
+
+export function parseStanding(raw: unknown): Standing[] {
+  const list = (raw as { Affiliations?: unknown } | null)?.Affiliations;
+  if (!Array.isArray(list)) return [];
+  const out: Standing[] = [];
+  for (const a of list) {
+    const e = a as { Tag?: unknown; Standing?: unknown; Title?: unknown };
+    if (typeof e.Tag !== "string" || typeof e.Standing !== "number") continue;
+    out.push({ tag: e.Tag, xp: e.Standing, rank: typeof e.Title === "number" ? e.Title : 0 });
+  }
+  return out;
+}
+
 export interface InventoryView {
   currencies: Record<string, number>;
   items: OwnedItem[];
@@ -37,6 +58,8 @@ export interface InventoryView {
   crafting: CraftingState;
   pets: OwnedPet[];
   daily: { affiliation: number | null; affiliationOde: number | null };
+  standing: Standing[];
+  playerLevel: number | null;
   weaponInstances: WeaponInstance[];
   acquisition: AcquisitionContext;
   holdings: Holdings;
@@ -80,6 +103,8 @@ export async function getInventory(): Promise<InventoryView | null> {
           affiliation: typeof raw.DailyAffiliation === "number" ? raw.DailyAffiliation : null,
           affiliationOde: typeof raw.DailyAffiliationOde === "number" ? raw.DailyAffiliationOde : null,
         },
+        standing: parseStanding(raw),
+        playerLevel: typeof raw.PlayerLevel === "number" ? raw.PlayerLevel : null,
         weaponInstances: parseWeaponInstances(raw),
         acquisition: parseAcquisitionContext(raw),
         holdings: parseHoldings(raw),

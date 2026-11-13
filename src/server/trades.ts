@@ -1,3 +1,7 @@
+// Trades are found by comparing two inventory reads. The daily trade counter says
+// how many happened in between; items that appeared or disappeared say what
+// changed. The game log adds partners and item names, but not amounts.
+
 import { readFile } from "node:fs/promises";
 import { appFile } from "./paths";
 import { logTrades, type LoggedTrade } from "./gameLog";
@@ -107,6 +111,9 @@ const nextReset = (iso: string): number => {
 };
 const allowance = (h: Holdings): number | null => (h.envoyRank !== null ? h.envoyRank + 1 : null);
 
+// TradesRemaining refills at NextRefill (00:00 UTC). Compare refill periods,
+// not calendar days: right after midnight the server can still report
+// yesterday's count until the refill is applied.
 export function tradesBetween(prev: Holdings, prevAt: string, next: Holdings, nextAt: string): number {
   if (next.tradesRemaining === null || prev.tradesRemaining === null) return 0;
   const samePeriod = (prev.nextRefill || nextReset(prevAt)) === (next.nextRefill || nextReset(nextAt));
@@ -137,6 +144,8 @@ export function diffHoldings(prev: Holdings, next: Holdings): { received: TradeI
   return { received: [...received.values()], given: [...given.values()] };
 }
 
+// Refuses to compare two different accounts' inventories (most item ids must
+// survive between reads).
 function sameOwner(prev: Holdings, next: Holdings): boolean {
   const ids = Object.keys(prev.instances);
   if (ids.length < 10) return true;
@@ -157,6 +166,8 @@ export function detectTrade(prev: Holdings, prevAt: string, next: Holdings, next
   };
 }
 
+// Attaches each logged trade to the inventory window it happened in. Trades from
+// before SFHelper first read the inventory become log-only records.
 export function attachDeals(history: Trade[], logged: LoggedTrade[], latestAt: string): Trade[] {
   const seen = new Set(history.flatMap((t) => (t.deals ?? []).map((d) => d.when)));
   const out = [...history];

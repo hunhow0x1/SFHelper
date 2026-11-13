@@ -1,3 +1,6 @@
+// Reads files out of the game's cache: a .toc index of named entries and a
+// .cache file of Oodle-compressed blocks.
+
 import { createHash } from "node:crypto";
 import { open, readFile, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";

@@ -1,3 +1,9 @@
+// A small Luau VM for the game's own scripts (B.Font cache), used to evaluate
+// the functions that fill the numbers into in-game descriptions (runes and
+// others). The bytecode uses DE's own opcode numbering (OPS). Global names are
+// stored as a hash that can't be reversed, so unknown globals act as
+// pass-through functions.
+
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { readEntry, tocIndex, type TocEntry } from "./cache";

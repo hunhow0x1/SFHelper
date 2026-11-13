@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { appendFile, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { gameRefusals, loggedAgari, loggedMastery, loggedTradeOpened, logTrades } from "../src/server/gameLog";
+import { gameRefusals, loggedAgari, loggedInventorySave, loggedMastery, loggedTradeOpened, logTrades } from "../src/server/gameLog";
 
 const HEADER = "0.043 Sys [Diag]: Current time: Sat Oct 31 13:00:03 2026 [UTC: Sat Oct 31 17:00:03 2026]\n";
 const START = Date.UTC(2026, 9, 31, 17, 0, 3);
@@ -47,5 +47,13 @@ describe("reading the game log as it grows", () => {
     ]);
     expect(await gameRefusals(log)).toEqual({ count: 1, first: START + 102_000, last: START + 102_000, loginRefused: false });
     expect(await loggedTradeOpened(log)).toBe(START + 98_100);
+  });
+
+  it("notes when the game last saved the inventory to the servers", async () => {
+    const log = join(await mkdtemp(join(tmpdir(), "sfh-log-")), "EE.log");
+    await writeFile(log, `${HEADER}449.662 Sys [Info]: CommitInventoryCheckpointToDB(0, 0, 0, )\n449.662 Sys [Info]: Checkpoint source: /SF/Scripts/NightFold.lua::NightfoldActivate(0)\n`);
+    expect(await loggedInventorySave(log)).toBe(START + 449_662);
+    await appendFile(log, "449.798 Sys [Info]: SyncInventoryFromDB\n");
+    expect(await loggedInventorySave(log)).toBe(START + 449_798);
   });
 });

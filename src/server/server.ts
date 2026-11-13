@@ -5,7 +5,8 @@ import { dirname, join, normalize, sep } from "node:path";
 import { snapshotFromProfile, type ProfileSnapshot } from "../account/providers/profilePayload";
 import { discoverAccountId, rememberAccountId } from "./accountId";
 import { getNames } from "./names";
-import { getInventory, type InventoryView } from "./inventory";
+import { getInventory, type InventoryView, type Standing } from "./inventory";
+import type { ProgressionEntry } from "../account/snapshot";
 import { pickupHistory, recordPickups } from "./pickups";
 import { recordTrades, tradedIds, tradeHistory } from "./trades";
 import { exportHistory, historyFileName, importHistory } from "./history";
@@ -32,7 +33,9 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, "public");
 const PROFILE_ENDPOINT = "https://api.soulframe.com/cdn/getProfileViewingData.php?playerId=";
 const ACCOUNT_ID_RE = /^[0-9a-f]{24}$/i;
-const MIN_FETCH_INTERVAL_MS = 120_000;
+// The public profile now only adds combat stats (standing, level and everything
+// else come from the inventory), so it is fetched at most every 20 minutes.
+const MIN_FETCH_INTERVAL_MS = 20 * 60_000;
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_IMPORT_BYTES = 16 * 1024 * 1024;
 const HOST = "127.0.0.1";
@@ -99,6 +102,23 @@ function getProfile(accountId: string): Promise<ProfileResult> {
   return run;
 }
 
+// Prefer the inventory's standing (read at every refresh) over the profile's
+// (read every 20 minutes). Factions only the profile knows are kept as they are.
+function withInventoryStanding(progression: ProgressionEntry[], standing: Standing[]): ProgressionEntry[] {
+  if (!standing.length) return progression;
+  const fresh = new Map(standing.map((s) => [`affiliation:${s.tag}`, s]));
+  const out = progression.map((p) => {
+    const s = p.kind === "affiliation" ? fresh.get(p.key) : undefined;
+    if (!s) return p;
+    fresh.delete(p.key);
+    return { ...p, xp: s.xp, rank: s.rank };
+  });
+  for (const [key, s] of fresh) {
+    out.push({ key, displayName: s.tag.replace(/Syndicate$/, ""), kind: "affiliation", xp: s.xp, rank: s.rank, source: { providerId: "inventory", fidelity: "full", observedAt: new Date().toISOString() } });
+  }
+  return out;
+}
+
 async function loadProfile(accountId: string): Promise<ProfileResult> {
   const cached = cache.get(accountId) ?? (await loadSavedProfile(accountId));
   if (cached && Date.now() - cached.at < MIN_FETCH_INTERVAL_MS) return { snapshot: cached.snapshot, error: cached.error, waiting: false };
@@ -119,6 +139,8 @@ async function loadProfile(accountId: string): Promise<ProfileResult> {
   }
 }
 
+// The public profile endpoint (no login). Only asked while Soulframe is running,
+// at most every MIN_FETCH_INTERVAL_MS; otherwise the last saved copy is shown.
 async function fetchProfile(accountId: string): Promise<ProfileSnapshot> {
   const paused = apiPausedUntil();
   if (paused) throw new Error(pausedMessage(paused));
@@ -303,8 +325,10 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
     try {
       const { snapshot: snap, error: profileError, waiting: profileWaiting } = await getProfile(accountId);
       const enemyName = await getEnemyNamer();
-      const { PlayerLevel, ...profileCurrencies } = snap.currencies;
+      const { PlayerLevel: profileLevel, ...profileCurrencies } = snap.currencies;
       const inventory = await getInventory();
+      const PlayerLevel = inventory?.playerLevel ?? profileLevel;
+      const progression = withInventoryStanding(snap.progression, inventory?.standing ?? []);
       const ownedCounts = new Map(inventory?.items.map((i) => [i.key, i.count]) ?? []);
       const weapons =
         inventory?.weapons ??
@@ -318,7 +342,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
           .map((it) => ({ key: it.key, xp: it.rank ?? 0 }));
       const { trades, pickups } = await recordHistory(inventory);
       const standingNow: Record<string, number> = {};
-      for (const p of snap.progression) {
+      for (const p of progression) {
         if (p.kind === "affiliation" && typeof p.xp === "number") standingNow[p.key.replace(/^affiliation:/, "")] = p.xp;
       }
       const standingToday = Object.keys(standingNow).length ? await recordStanding(standingNow) : null;
@@ -346,7 +370,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         items: snap.items.map((it) =>
           ownedCounts.has(it.key) ? { ...it, count: ownedCounts.get(it.key) } : it,
         ),
-        progression: snap.progression,
+        progression,
         stats: { ...snap.stats, enemies: snap.stats.enemies.map((e) => ({ ...e, name: typeof e.type === "string" ? enemyName(e.type) : null })) },
         daily: snap.daily,
         standingToday,

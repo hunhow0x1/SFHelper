@@ -1,3 +1,9 @@
+// Rebuilds the game data from the installed game. Each JSON file is a step: build
+// it, keep the previous file if the new one comes out suspiciously small
+// (enough()), and write it only when it changed. The bundled files in
+// src/server/public are the fallback; the app writes its own copies to its data
+// folder.
+
 import { access, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { writeFileAtomic } from "../server/files";
@@ -80,6 +86,8 @@ const CURRENCY_ICONS: [string, string][] = [
   ["/SF/Interface/Graphics/CategoryIcons/Attunement/Grace.png", "img/game/attunement-grace.png"],
   ["/SF/Interface/Graphics/CategoryIcons/Attunement/Spirit.png", "img/game/attunement-spirit.png"],
 ];
+// A rebuilt list must keep at least this share of the previous one, so a
+// changed file format can't silently empty a tab.
 const MIN_KEPT = 0.8;
 const DEFAULT_CAPS = [5000, 5000, 20000, 20000, 30000, 30000];
 

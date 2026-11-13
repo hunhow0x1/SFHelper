@@ -2,8 +2,8 @@
 
 Reads the running Soulframe process's memory to find the session nonce, then
 downloads your full inventory to `inventory.json`. The desktop app runs it
-automatically every 2 minutes while the game is running, once you've agreed on
-its consent screen. It can also be run on its own from the command line.
+when you log in and after the game saves your inventory (at most every 10
+minutes), once you've agreed on its consent screen. It can also be run on its own from the command line.
 
 This directory is deliberately outside `src/`: only the Electron main process
 uses it, and the dashboard server never touches the game process.
