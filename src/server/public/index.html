@@ -718,9 +718,6 @@
       .tcard .tfx b { color: var(--accent-hi); }
       .tcard .ton { grid-column: 2; font-size: 12.5px; color: var(--faint); }
       .tcard .ton b { color: var(--muted); font-weight: 500; }
-      .tcard .thead .tstar { margin-left: auto; }
-      .tcard .thead .tpips + .tstar { margin-left: 10px; }
-      .tcard.starred { border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent-hi) 9%, transparent); }
       .tcard.miss .ticon { opacity: 0.35; filter: grayscale(1); }
       .tcard.miss .tname, .tcard.miss .tfx { color: var(--faint); }
       .tcard.miss .tfx b { color: var(--muted); }
@@ -1163,14 +1160,7 @@
           <div id="gear"></div>
         </section>
         <section data-view="totems">
-          <div class="picktop">
-            <h2>Totems</h2>
-            <label class="notifytoggle" id="totemNotifyWrap" hidden title="Desktop notification with sound when you get a Totem you starred">
-              <input type="checkbox" id="totemNotify" />
-              <span class="sw"></span>
-              Notify me about starred Totems
-            </label>
-          </div>
+          <h2>Totems</h2>
           <div class="tbar"><div class="daily" id="totemSummary"></div><div class="tsort">Sort by <div id="totemSort"></div></div></div>
           <input id="totemSearch" class="wsearch" placeholder="Search names or effects, e.g. rune damage, pull smite, armour…" spellcheck="false" />
           <div class="tfilters" id="totemFilters"></div>
@@ -3506,9 +3496,9 @@
       })();
 
       let LAST_TOTEMS = null;
-      const TOTEM_UI = { q: "", owned: "all", virtue: "all", grip: "all", animal: "all", trigger: "all", sort: "name" };
-      let TOTEM_WATCH = [];
-      try { Object.assign(TOTEM_UI, JSON.parse(localStorage.getItem("sfhelper.totems") || "{}"), { q: "" }); } catch {}
+      const TOTEM_UI = { q: "", virtue: "all", grip: "all", animal: "all", trigger: "all", sort: "name" };
+      // Older versions also saved an Owned filter here; it's dropped on load.
+      try { Object.assign(TOTEM_UI, JSON.parse(localStorage.getItem("sfhelper.totems") || "{}"), { q: "" }); delete TOTEM_UI.owned; } catch {}
       const saveTotemUi = () => { try { localStorage.setItem("sfhelper.totems", JSON.stringify({ ...TOTEM_UI, q: "" })); } catch {} };
       const TOTEM_ALIAS = { HealCast: "Rivers Revive" };
       const TOTEM_SORTS = [["name", "Name"], ["rank", "Rank"], ["virtue", "Virtue"], ["grip", "Grip"], ["animal", "Totem type"], ["trigger", "Trigger"]];
@@ -3582,15 +3572,7 @@
             .join("");
           return `<span class="fl">${label}</span><div class="wfilter"><button class="fchip${TOTEM_UI[key] === "all" ? " active" : ""}" data-k="${key}" data-v="all">All</button>${chips}</div>`;
         };
-        const ownChip = (val, label, n) =>
-          `<button class="fchip${TOTEM_UI.owned === val ? " active" : ""}" data-k="owned" data-v="${val}">${label}<span class="n">${n}</span></button>`;
-        const starredN = all.filter((v) => TOTEM_WATCH.includes(v.name)).reduce((n, v) => n + Math.max(1, v.count), 0);
         $("totemFilters").innerHTML =
-          `<span class="fl">Owned</span><div class="wfilter"><button class="fchip${TOTEM_UI.owned === "all" ? " active" : ""}" data-k="owned" data-v="all">All</button>` +
-            ownChip("owned", "Owned", all.reduce((n, v) => n + v.count, 0)) +
-            ownChip("unowned", "Unowned", all.filter((v) => !v.owned).length) +
-            (starredN || TOTEM_UI.owned === "starred" ? ownChip("starred", "Starred", starredN) : "") +
-          `</div>` +
           row("Virtue", "virtue", VIRTUES, virtueIcon) +
           row("Grip", "grip", GRIPS, gripIcon) +
           row("Type", "animal", ANIMALS, animalIcon) +
@@ -3617,12 +3599,9 @@
         const effect = totemEffectAt(v, shownRank);
         const rankNote = shownRank !== v.rank || !v.owned ? `<span class="trankat">Rank ${shownRank}</span>` : "";
         const on = [...v.on].map(shortName);
-        const starred = TOTEM_WATCH.includes(v.name);
-        const tip = starred ? `Starred: you'll be notified when you get ${v.name}` : `Star to be notified when you get ${v.name}`;
-        const star = `<button class="star tstar${starred ? " on" : ""}" data-totem="${escHtml(v.name)}" aria-pressed="${starred}" title="${escHtml(tip)}" aria-label="${escHtml(v.name)}">${STAR_SVG}</button>`;
-        return `<div class="tcard${v.aligned ? " aligned" : ""}${v.owned ? "" : " miss"}${starred ? " starred" : ""}" style="--vc:${vc}">
+        return `<div class="tcard${v.aligned ? " aligned" : ""}${v.owned ? "" : " miss"}" style="--vc:${vc}">
           ${v.animal ? `<img class="ticon" src="${animalIcon(v.animal)}" alt="${v.animal}" title="${v.animal} Totem">` : '<span class="ticon"></span>'}
-          <div class="thead"><span class="tname" title="${v.description || ""}">${v.name}</span>${v.count > 1 ? `<span class="tcount">×${v.count}</span>` : ""}<span class="tpips">${pips}</span>${star}</div>
+          <div class="thead"><span class="tname" title="${v.description || ""}">${v.name}</span>${v.count > 1 ? `<span class="tcount">×${v.count}</span>` : ""}<span class="tpips">${pips}</span></div>
           <div class="tmeta">
             ${v.virtue ? `<span style="color:${vc}"><img src="${virtueIcon(v.virtue)}" alt="">${v.virtue}</span>` : ""}
             ${v.owned ? `<span title="${v.aligned ? `Only fits ${v.grip} weapons, with a stronger effect` : "Fits any weapon"}"><img src="${gripIcon(v.grip)}" alt="" onerror="this.remove()">${v.grip}</span>` : '<span class="tunowned">Unowned</span>'}
@@ -3639,9 +3618,7 @@
         const all = totemViews();
         renderTotemFilters(all);
         const words = TOTEM_UI.q.toLowerCase().replace(/[+%]/g, " ").split(/\s+/).filter(Boolean);
-        if (!["all", "owned", "unowned", "starred"].includes(TOTEM_UI.owned)) TOTEM_UI.owned = "all";
         const shown = all.filter((v) =>
-          (TOTEM_UI.owned === "all" || (TOTEM_UI.owned === "starred" ? TOTEM_WATCH.includes(v.name) : (TOTEM_UI.owned === "owned") === v.owned)) &&
           (TOTEM_UI.virtue === "all" || v.virtue === TOTEM_UI.virtue) &&
           (TOTEM_UI.grip === "all" || v.grip === TOTEM_UI.grip) &&
           (TOTEM_UI.animal === "all" || v.animal === TOTEM_UI.animal) &&
@@ -3695,41 +3672,21 @@
         TOTEM_UI.q = e.target.value;
         renderTotems();
       });
-      $("totems").addEventListener("click", async (e) => {
+      $("totems").addEventListener("click", (e) => {
         const pip = e.target.closest("button.tpip");
-        if (pip) {
-          TOTEM_VIEW_RANK.set(pip.dataset.key, Number(pip.dataset.rank));
-          renderTotems();
-          return;
-        }
-        const btn = e.target.closest("button.tstar");
-        if (!btn) return;
-        const name = btn.dataset.totem;
-        const before = TOTEM_WATCH;
-        TOTEM_WATCH = before.includes(name) ? before.filter((x) => x !== name) : [...before, name];
-        renderTotems();
-        try {
-          const r = await fetch("/api/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ totemWatch: TOTEM_WATCH }) });
-          TOTEM_WATCH = (await r.json()).totemWatch || TOTEM_WATCH;
-        } catch {
-          TOTEM_WATCH = before;
-        }
+        if (!pip) return;
+        TOTEM_VIEW_RANK.set(pip.dataset.key, Number(pip.dataset.rank));
         renderTotems();
       });
       (async () => {
         let s = null;
         try { s = await (await fetch("/api/settings")).json(); } catch {}
         if (!s) return;
-        TOTEM_WATCH = Array.isArray(s.totemWatch) ? s.totemWatch : [];
         HIDE_FOUNDERS = s.hideFounders === true;
         $("hideFounders").checked = HIDE_FOUNDERS;
-        $("totemNotify").checked = s.totemNotify !== false;
-        renderTotems();
         renderMastery();
         renderCombat();
-        if (!navigator.userAgent.includes("Electron")) return;
-        $("totemNotifyWrap").hidden = false;
-        bindSettingToggle($("totemNotify"), "totemNotify");
+        renderPlans();
       })();
       bindSettingToggle($("hideFounders"), "hideFounders", () => {
         HIDE_FOUNDERS = $("hideFounders").checked;

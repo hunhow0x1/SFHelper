@@ -3,7 +3,6 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildFounderItems, factionIconPaths } from "../src/gamedata/builders";
-import { newStarredTotems, totemNamer, type OwnedTotem } from "../src/server/totems";
 import { getSettings, updateSettings } from "../src/server/settings";
 import { getNames } from "../src/server/names";
 
@@ -47,31 +46,6 @@ describe("faction icons from the game files", () => {
   });
 });
 
-describe("starred Totems", () => {
-  const totem = (id: string, type: string, extra: Partial<OwnedTotem> = {}): OwnedTotem => ({ id, type, rank: 1, virtue: "Grace", grip: "Universal", equippedOn: [], ...extra });
-  const nameOf = totemNamer({ "Binky Kick": { types: ["/SF/Upgrades/Totems/AoeCollect"] }, "Rivers Revive": { types: ["/SF/Upgrades/Totems/HealCast"] } }, { ArmourBuffCast: "Armour Coat" });
-
-  it("names Totems the way the Totems tab does", () => {
-    expect(nameOf("/SF/Upgrades/Totems/HealCast")).toBe("Rivers Revive");
-    expect(nameOf("/SF/Upgrades/Totems/ArmourBuffCast")).toBe("Armour Coat");
-    expect(nameOf("/SF/Upgrades/Totems/NewThing")).toBe("New Thing");
-  });
-
-  it("notices a newly obtained starred Totem, once, and ignores the rest", () => {
-    const before = [totem("a", "/SF/Upgrades/Totems/AoeCollect"), totem("b", "/SF/Upgrades/Totems/ArmourBuffCast")];
-    const after = [...before, totem("c", "/SF/Upgrades/Totems/AoeCollect", { virtue: "Spirit" }), totem("d", "/SF/Upgrades/Totems/ArmourBuffCast"), totem("e", "/SF/Upgrades/Totems/HealCast")];
-    expect(newStarredTotems(before, after, ["Binky Kick", "Rivers Revive"], nameOf).map((t) => t.id)).toEqual(["c", "e"]);
-    expect(newStarredTotems(after, after, ["Binky Kick"], nameOf)).toEqual([]);
-    expect(newStarredTotems(null, after, ["Binky Kick"], nameOf)).toEqual([]);
-  });
-
-  it("doesn't count a Totem that only changed when two were fused into one", () => {
-    const before = [totem("a", "/SF/Upgrades/Totems/AoeCollect"), totem("b", "/SF/Upgrades/Totems/AoeCollect")];
-    const after = [totem("f", "/SF/Upgrades/Totems/AoeCollect", { rank: 2 })];
-    expect(newStarredTotems(before, after, ["Binky Kick"], nameOf)).toEqual([]);
-  });
-});
-
 describe("settings for the new views", () => {
   let home: string | undefined;
   beforeEach(async () => {
@@ -83,12 +57,18 @@ describe("settings for the new views", () => {
     else process.env.SFHELPER_HOME = home;
   });
 
-  it("shows Founder's items until hidden, and keeps starred Totem names", async () => {
-    expect(await getSettings()).toMatchObject({ hideFounders: false, totemNotify: true, totemWatch: [] });
-    await updateSettings({ hideFounders: true, totemWatch: ["Binky Kick", "Rose's Bodkin", "Binky Kick"] });
-    expect(await getSettings()).toMatchObject({ hideFounders: true, totemWatch: ["Binky Kick", "Rose's Bodkin"] });
-    await updateSettings({ totemWatch: ["<script>"] });
-    expect((await getSettings()).totemWatch).toEqual(["Binky Kick", "Rose's Bodkin"]);
+  it("shows Founder's items until hidden", async () => {
+    expect(await getSettings()).toMatchObject({ hideFounders: false });
+    await updateSettings({ hideFounders: true });
+    expect(await getSettings()).toMatchObject({ hideFounders: true });
+  });
+
+  it("drops the Totem stars older versions saved", async () => {
+    await writeFile(join(process.env.SFHELPER_HOME!, "settings.json"), JSON.stringify({ hideFounders: true, totemNotify: true, totemWatch: ["Binky Kick"] }));
+    const s = await getSettings();
+    expect(s.hideFounders).toBe(true);
+    expect(s).not.toHaveProperty("totemWatch");
+    expect(s).not.toHaveProperty("totemNotify");
   });
 });
 
