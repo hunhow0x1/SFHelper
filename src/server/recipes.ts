@@ -7,6 +7,9 @@ export interface CraftingState {
   dracs: number;
   bond: Record<string, number>;
   pending: PendingCraft[];
+  // The Pacts you own. The Foundry won't forge a Pact you already have
+  // ("Already Owned"), so those recipes can't be crafted.
+  pacts: string[];
 }
 
 export interface PendingCraft {
@@ -41,6 +44,7 @@ export function parseCrafting(raw: Record<string, unknown>): CraftingState {
     dracs: typeof raw.RegularCredits === "number" ? raw.RegularCredits : 0,
     bond,
     pending: parsePendingCrafts(raw.PendingRecipes),
+    pacts: [...new Set(entries(raw.Suits).map((e) => e.ItemType).filter((t): t is string => typeof t === "string"))],
   };
 }
 
@@ -83,9 +87,17 @@ export function craftTimers(pending: PendingCraft[], defs: Record<string, CraftD
 const RECIPE_NPC: Record<string, string> = { Brewing: "Verminia", Blacksmith: "Tuvalkane" };
 const isGear = (r: RecipeDef): boolean => r.kind === "Weapons" || r.kind === "Armour";
 
+// Why a Pact recipe can't be forged even with everything gathered: you already
+// own that Pact, or it's curing at the Foundry right now.
+export function pactBlock(type: string, r: RecipeDef, c: CraftingState): "owned" | "curing" | null {
+  if (r.kind !== "Pacts") return null;
+  if ((c.pacts ?? []).includes(r.result)) return "owned";
+  return c.pending.some((p) => p.recipe === type) ? "curing" : null;
+}
+
 export function recipeTimes(type: string, r: RecipeDef, c: CraftingState): number {
   const fragments = c.recipes[type] ?? 0;
-  if (fragments <= 0) return 0;
+  if (fragments <= 0 || pactBlock(type, r, c)) return 0;
   const bond = c.bond[RECIPE_NPC[r.station] ?? ""];
   if (!isGear(r) && r.bond != null && bond != null && bond < r.bond) return 0;
   const have = (i: RecipeDef["ingredients"][number]) => (c.stock[i.type] ?? 0) + (i.alt ?? []).reduce((n, a) => n + (c.stock[a] ?? 0), 0);
@@ -104,5 +116,5 @@ export function newlyReady(before: Set<string> | null, now: Set<string>, watch: 
 }
 
 export function recipeVerb(r: RecipeDef): string {
-  return r.station === "Brewing" ? "brew" : isGear(r) ? "build" : "cast";
+  return r.station === "Brewing" ? "brew" : isGear(r) ? "build" : r.kind === "Pacts" ? "forge" : "cast";
 }

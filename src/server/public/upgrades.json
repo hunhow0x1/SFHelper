@@ -259,13 +259,13 @@
       "drops": {
         "votives": [
           "Airde Limbwoods Dungeon Votive",
-          "Airde Limbwoods Siphon Votive",
-          "Fortress O'Dell Dungeon Votive",
-          "Fuirlands Dungeon Votive",
-          "Greater Curlail Dungeon Votive",
+          "Airde Limbwoods Mission Votive",
+          "Airde Limbwoods Sub Boss Votive",
+          "Airde Limbwoods Syphon Votive",
           "Kearnhold Lowlands Dungeon Votive",
-          "Pigwen Skerry Dungeon Votive",
-          "The Roods Dungeon Votive"
+          "Kearnhold Lowlands Mission Votive",
+          "Kearnhold Lowlands Sub Boss Votive",
+          "Pigwen Skerry Alca's Children Votive"
         ],
         "chests": [
           "Dendrit Chest (Undercity)"
@@ -1111,14 +1111,15 @@
       "drops": {
         "votives": [
           "Airde Limbwoods Fey Relic",
-          "Airde Limbwoods Mission Votive",
-          "Fortress O'Dell Mission Votive",
+          "Fuirlands Dungeon Votive",
           "Fuirlands Mission Votive",
+          "Fuirlands Sub Boss Votive",
+          "Greater Curlail Dungeon Votive",
           "Greater Curlail Fey Relic",
           "Greater Curlail Mission Votive",
-          "Greater Curlail Siphon Votive",
-          "Kearnhold Lowlands Mission Votive",
-          "The Roods Mission Votive"
+          "Greater Curlail Sub Boss Votive",
+          "Greater Curlail Syphon Votive",
+          "Pigwen Skerry Silent Rose Votive"
         ],
         "chests": [
           "Dendrit Chest (Carntyne Colliery)"
@@ -1584,13 +1585,13 @@
       "icon": "img/game/runes-alca-alcaspirit010.png",
       "drops": {
         "votives": [
-          "Airde Limbwoods Sub Boss Votive",
+          "Fortress O'Dell Dungeon Votive",
+          "Fortress O'Dell Mission Votive",
           "Fortress O'Dell Sub Boss Votive",
-          "Fuirlands Sub Boss Votive",
-          "Greater Curlail Sub Boss Votive",
-          "Kearnhold Lowlands Sub Boss Votive",
           "Pigwen Skerry Sub Boss Votive",
+          "The Roods Dungeon Votive",
           "The Roods Fey Relic",
+          "The Roods Mission Votive",
           "The Roods Sub Boss Votive"
         ]
       }

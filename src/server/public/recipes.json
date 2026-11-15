@@ -3217,7 +3217,7 @@
       ],
       "desc": "A vial of cloud. Cast it skyward to summon a storm.",
       "icon": "img/game/storeitems-consumables-suntorain.png",
-      "bond": null
+      "bond": 1
     },
     "/SF/Types/Recipes/Elixers/FeyElixirRecipe": {
       "name": "Dancing Galdre",
@@ -3606,6 +3606,326 @@
       ],
       "desc": "A refinement forged of Lilting Chordstone, smelted hot by Amber Lampyrite's flame. This Chordstone sings a harmonious melody with every strike of Tuvalkane's hammer. A key component in refining one's Weapon to Sovereign Craftwork.",
       "icon": "img/game/storeitems-materials-ingotsilver03.png",
+      "bond": 3
+    },
+    "/SF/Types/Recipes/Pacts/BromiusPactBlueprint": {
+      "name": "Bromius",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Bromius/BromiusSoul",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 55
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 15
+        }
+      ],
+      "desc": "When giants fall, when fail our brutes,\n‘Tis strength to turn to severed roots.\nAnd bear to look within for truce.\n\nBear the burly pact of the Arbearer Bromius. Be ward of the Wevetwood, regent of the Neath'uns' roots. Mighty, you must be. Of heft and heart alike.",
+      "icon": "img/game/storeitems-pacts-bromius.png",
+      "bond": 3
+    },
+    "/SF/Types/Recipes/Pacts/ChampionPactBlueprint": {
+      "name": "Tethren",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Default/ChampionSoul",
+      "rarity": "RARE",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 70
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/WhispPlanksResource",
+          "name": "Whisprig",
+          "count": 50
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 50
+        }
+      ],
+      "desc": "Chief of the Solist Warriors, was she, wreathed in flame and fury. Claim the pact of the Fey champion, Tethren. Raise your sword to sun, howl the Felling song. Have Courage, Envoy. For a warrior's heart is weapon and relief. And a human heart can crack.",
+      "icon": "img/game/storeitems-pacts-tethren.png",
+      "bond": 3
+    },
+    "/SF/Types/Recipes/Pacts/FencerPactBlueprint": {
+      "name": "Duelo",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Fencer/FencerSoul",
+      "rarity": "UNCOMMON",
+      "fragments": 3,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 55
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 15
+        }
+      ],
+      "desc": "A swordstress strums 'pon splintered grave.\nBy Mestra's Helm, her curse relayed.\nA soul, a self, learned by the blade.\n\nDon the pact of Mestra Carmo. Break Duelo's pledge, and lead mutiny 'cross Silvern Sea. By dint of blade may you carve out a life of your own.",
+      "icon": "img/game/storeitems-pacts-duelo.png",
+      "bond": null
+    },
+    "/SF/Types/Recipes/Pacts/FennJotarPactBlueprint": {
+      "name": "Mora's Hand",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Fenn/FennSoul",
+      "rarity": "RARE",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 55
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/QuenchingAcidResource",
+          "name": "Quenching Acid",
+          "count": 50
+        }
+      ],
+      "desc": "Her ever-flame will she impart,\nTo braving souls with burning hearts.\nNot life nor death will do you part. \n\nTake Mora's Hand, Envoy. Make a pact with the red sun. An honour once held only by the mighty Kings and Queens of Midrath is yours. Do not sully her flame.",
+      "icon": "img/game/storeitems-pacts-fennjotar.png",
+      "bond": 3
+    },
+    "/SF/Types/Recipes/Pacts/GarrenPactBlueprint": {
+      "name": "Garren Rood",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Stag/StagSoul",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapIronResource",
+          "name": "Scrap Iron",
+          "count": 70
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 50
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/GossamerQuartzResource",
+          "name": "Gossamer Quartz",
+          "count": 50
+        }
+      ],
+      "desc": "Royal tines thus graced in blue,\nSkyward bent to Mora true.\nTake ye the pact of Garren Rood, the great spirit stag of the Andurin Glades.\n\nBare blessing and burden of the Dendrit herds through bounty of seedtime and hollow of frostfall, both.",
+      "icon": "img/game/storeitems-pacts-garren.png",
+      "bond": null
+    },
+    "/SF/Types/Recipes/Pacts/LocksuitPactBlueprint": {
+      "name": "Ode Shrike",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/OdeHunter/OdeHunterSoul",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/SilistytResource",
+          "name": "Silistyt",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/PetrifiedIchorResource",
+          "name": "Petrified Ichor",
+          "count": 20
+        }
+      ],
+      "desc": "'Neath lock and key, the snaring spike.\nThe ruthless hunt, the dagger's strike.\nBorn of the skies, 'come Ode'n Shrike.\n\nLearn the wiles of the Ode'n poacher. Bind your arm by the bolts of Synod's menagerie. Cast your prey in shackles, for an enemy ensnared is worth more than a foe felled.",
+      "icon": "img/game/storeitems-pacts-odehunter.png",
+      "bond": null
+    },
+    "/SF/Types/Recipes/Pacts/OrengalPactBlueprint": {
+      "name": "Orengall",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Wolf/WolfSoul",
+      "rarity": "UNCOMMON",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 40
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/WornLeatherResource",
+          "name": "Patch Leather",
+          "count": 50
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 15
+        }
+      ],
+      "desc": "Sleek as silvern, sharp as bone.\nHear ye howls and know ye're home.\nFor by her pact, no wolf be lone. \n\nBe one with the pack of the Omen Shewolf Orengall. Prowl the Furthing packlands by light of lridis, a silent assassin of fang and claw. May your bite be fierce and your love be fiercer.",
+      "icon": "img/game/storeitems-pacts-orengal.png",
+      "bond": 3
+    },
+    "/SF/Types/Recipes/Pacts/SaboteurPactBlueprint": {
+      "name": "Sirin",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Default/SaboteurSoul",
+      "rarity": "RARE",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapSteelResource",
+          "name": "Scrap Steel",
+          "count": 55
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/RiverPearlResource",
+          "name": "River Pearl",
+          "count": 6
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/SproutFolkFondResource",
+          "name": "Sproutfolk Frond",
+          "count": 50
+        }
+      ],
+      "desc": "Borne of a moonlight pond, was he, with an arrow ready-nocked. Take the pact of the Fey assassin, Sirin. Learn the trickster's glamour, wear the ranger's shroud. Have Grace, Envoy. For a well-aimed bolt may end a world. It has done so once before.",
+      "icon": "img/game/storeitems-pacts-sirin.png",
+      "bond": 3
+    },
+    "/SF/Types/Recipes/Pacts/TempestPactBlueprint": {
+      "name": "Ode Tempest",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Ode/OdeSoul",
+      "rarity": "RARE",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 55
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Inorganics/OdeGraphiteResource",
+          "name": "Ode Graphite",
+          "count": 30
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/SapphelineResource",
+          "name": "Sappheline",
+          "count": 15
+        }
+      ],
+      "desc": "Lightning cracks where thunder bodes.\nVoltaics strike against their own.\nRebind your arm to Tempest Ode.\n\nHarness the power of Ode'n technology. Though freed you are, your Tempest training may prove useful still. May they rue the day they stole your frame.",
+      "icon": "img/game/storeitems-pacts-ode.png",
+      "bond": 3
+    },
+    "/SF/Types/Recipes/Pacts/WardPactBlueprint": {
+      "name": "Oscelda",
+      "station": "Blacksmith",
+      "kind": "Pacts",
+      "result": "/SF/Souls/Default/WardSoul",
+      "rarity": "RARE",
+      "fragments": 1,
+      "consumed": true,
+      "gives": 1,
+      "dracs": 0,
+      "seconds": 97200,
+      "ingredients": [
+        {
+          "type": "/SF/Types/PickUps/Resources/ScrapMetals/ScrapBrassResource",
+          "name": "Scrap Brass",
+          "count": 55
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Organics/MoraniteResource",
+          "name": "Moranite",
+          "count": 15
+        },
+        {
+          "type": "/SF/Types/PickUps/Resources/Textiles/DendritWeaveResource",
+          "name": "Dendrit Weave",
+          "count": 50
+        }
+      ],
+      "desc": "Roused by rain, was she, a new witch abloom in the garden of Eldveil. Share the pact of the Fey healer, Oscelda. Fend the thriving, tend the ailing, and mend the damned. Have Spirit, Envoy. For all of us living share the same breath. Forget it is so, and choke.",
+      "icon": "img/game/storeitems-pacts-oscelda.png",
       "bond": 3
     },
     "/SF/Types/Recipes/Quests/OrlickProgression/IronIngotBlueprint": {
@@ -5786,76 +6106,6 @@
       "result": "/SF/Upgrades/Skins/Sparrow/MaleCardinalSparrowBody",
       "seconds": 36000,
       "icon": "img/game/storeitems-guides-cardinalmale.png"
-    },
-    "/SF/Types/Recipes/Pacts/BromiusPactBlueprint": {
-      "name": "Bromius",
-      "kind": "Pacts",
-      "result": "/SF/Souls/Bromius/BromiusSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-bromius.png"
-    },
-    "/SF/Types/Recipes/Pacts/ChampionPactBlueprint": {
-      "name": "Tethren",
-      "kind": "Pacts",
-      "result": "/SF/Souls/Default/ChampionSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-tethren.png"
-    },
-    "/SF/Types/Recipes/Pacts/FencerPactBlueprint": {
-      "name": "Duelo",
-      "kind": "Pacts",
-      "result": "/SF/Souls/Fencer/FencerSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-duelo.png"
-    },
-    "/SF/Types/Recipes/Pacts/FennJotarPactBlueprint": {
-      "name": "Mora's Hand",
-      "kind": "Pacts",
-      "result": "/SF/Souls/Fenn/FennSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-fennjotar.png"
-    },
-    "/SF/Types/Recipes/Pacts/GarrenPactBlueprint": {
-      "name": "Garren Rood",
-      "kind": "Pacts",
-      "result": "/SF/Souls/Stag/StagSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-garren.png"
-    },
-    "/SF/Types/Recipes/Pacts/LocksuitPactBlueprint": {
-      "name": "Ode Shrike",
-      "kind": "Pacts",
-      "result": "/SF/Souls/OdeHunter/OdeHunterSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-odehunter.png"
-    },
-    "/SF/Types/Recipes/Pacts/OrengalPactBlueprint": {
-      "name": "Orengall",
-      "kind": "Pacts",
-      "result": "/SF/Souls/Wolf/WolfSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-orengal.png"
-    },
-    "/SF/Types/Recipes/Pacts/SaboteurPactBlueprint": {
-      "name": "Sirin",
-      "kind": "Pacts",
-      "result": "/SF/Souls/Default/SaboteurSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-sirin.png"
-    },
-    "/SF/Types/Recipes/Pacts/TempestPactBlueprint": {
-      "name": "Ode Tempest",
-      "kind": "Pacts",
-      "result": "/SF/Souls/Ode/OdeSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-ode.png"
-    },
-    "/SF/Types/Recipes/Pacts/WardPactBlueprint": {
-      "name": "Oscelda",
-      "kind": "Pacts",
-      "result": "/SF/Souls/Default/WardSoul",
-      "seconds": 97200,
-      "icon": "img/game/storeitems-pacts-oscelda.png"
     },
     "/SF/Types/Recipes/Quests/OrlickProgression/BrassIngotBlueprint": {
       "name": "Brass Ingot",

@@ -1276,6 +1276,8 @@ export function recipeKind(type: string, name: string): [RecipeDef["station"], s
   if ((top === "Ingots" || top === "Quests") && /Chordstone/.test(name)) return ["Blacksmith", "Chordstones"];
   if (top === "Weapons") return ["Blacksmith", "Weapons"];
   if (top === "Armor") return ["Blacksmith", "Armour"];
+  // Tuvalkane forges Pacts from Pact Fragments ("Seek Tuvalkane to forge life anew").
+  if (top === "Pacts") return ["Blacksmith", "Pacts"];
   return null;
 }
 
@@ -1324,6 +1326,9 @@ export function buildRecipes(dict: Dict, texts: string[], names: Record<string, 
     const name = (tag && usable(dict[tag]) ? dict[tag]!.trim() : null) ?? itemName(result.replace("/SF/StoreItems/", "/SF/"));
     const kind = recipeKind(type, name);
     if (!kind) continue;
+    // The Pacts folder also holds a base template and an unnamed placeholder that
+    // makes the default Pact; only Pacts with their own name are real recipes.
+    if (kind[1] === "Pacts" && !(tag && usable(dict[tag]))) continue;
     const ingredients: RecipeIngredient[] = [];
     for (const [, ing, alts, count] of t.matchAll(/\{\nItemType=(\S+)\nAlternativeItemTypes=\{([^}]*)\}\nItemCount=(\d+)/g)) {
       const alt = alts!.split(/[\n,]+/).map((a) => a.trim()).filter((a) => a.startsWith("/"));

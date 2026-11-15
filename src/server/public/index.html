@@ -1175,7 +1175,7 @@
           <div class="daily" id="recipeSummary"></div>
           <input id="recipeSearch" class="wsearch" placeholder="Search recipes or ingredients, e.g. Life Elixir, Brineflour, Courage…" spellcheck="false" />
           <div class="tfilters" id="recipeFilters"></div>
-          <div id="recipes"><span class="muted">Import your inventory to see what you can brew and cast.</span></div>
+          <div id="recipes"><span class="muted">Import your inventory to see what you can brew, cast, build and forge.</span></div>
         </section>
       </div>
 
@@ -2919,13 +2919,17 @@
         delete RECIPE_UI.virtue;
       } catch {}
       if (!Array.isArray(RECIPE_UI.virtues)) RECIPE_UI.virtues = [];
-      const RECIPE_KINDS = { Elixirs: "Elixir", "Pup Treats": "Pup Treat", Palettes: "Palette" };
+      const RECIPE_KINDS = { Elixirs: "Elixir", "Pup Treats": "Pup Treat", Palettes: "Palette", Pacts: "Pact" };
       const RECIPE_NPC = { Brewing: "Verminia", Blacksmith: "Tuvalkane" };
-      const RECIPE_GROUPS = [["Brewing", "Verminia"], ["Chordstones", "Tuvalkane"], ["Weapons", null], ["Armour", null]];
+      const RECIPE_GROUPS = [["Brewing", "Verminia"], ["Chordstones", "Tuvalkane"], ["Weapons", null], ["Armour", null], ["Pacts", "Tuvalkane"]];
       const RECIPE_SLOTS = ["Primary", "Sidearm", "Helm", "Cuirass", "Leggings"];
       const recipeGroup = (r) => (r.station === "Brewing" ? "Brewing" : r.kind);
       const isGear = (r) => r.kind === "Weapons" || r.kind === "Armour";
-      const recipeVerb = (r, n) => (r.station === "Brewing" ? (n === 1 ? "brew" : "brews") : isGear(r) ? (n === 1 ? "build" : "builds") : n === 1 ? "cast" : "casts");
+      const recipeVerb = (r, n) =>
+        r.station === "Brewing" ? (n === 1 ? "brew" : "brews") : isGear(r) ? (n === 1 ? "build" : "builds") : r.kind === "Pacts" ? (n === 1 ? "forge" : "forges") : n === 1 ? "cast" : "casts";
+      // A Pact the Foundry won't forge: you already own it, or one is curing now.
+      const pactBlock = (type, r, c) =>
+        r.kind !== "Pacts" ? null : (c.pacts || []).includes(r.result) ? "owned" : (c.pending || []).some((p) => p.recipe === type) ? "curing" : null;
       function craftTime(sec) {
         if (!sec) return "Instant";
         const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
@@ -2943,16 +2947,19 @@
         const missing = r.ingredients.filter((i) => have(i) < i.count).map((i) => i.name);
         if (r.dracs > c.dracs) missing.push("Dracs");
         if (fragments < r.fragments) missing.push("Fragments");
-        return { have, fragments, times, locked, missing, ready: !locked && times > 0 };
+        const block = pactBlock(type, r, c);
+        return { have, fragments, times, locked, block, missing, ready: !locked && !block && times > 0 };
       }
       function recipeCard(o, c) {
         const { type, r, s } = o;
         const npc = RECIPE_NPC[r.station];
-        const state = s.locked
-          ? `<span class="rstate lock">Bond ${r.bond}</span>`
+        const state = s.block === "owned" ? '<span class="rstate lock">Owned</span>'
+          : s.block === "curing" ? '<span class="rstate lock">Curing</span>'
+          : s.locked ? `<span class="rstate lock">Bond ${r.bond}</span>`
           : s.ready ? '<span class="rstate ok">Ready</span>' : '<span class="rstate short">Missing</span>';
-        const meta = s.locked
-          ? `Needs Bond Rank ${r.bond} with ${npc}`
+        const meta = s.block === "owned" ? "Already Owned"
+          : s.block === "curing" ? "Curing In Progress"
+          : s.locked ? `Needs Bond Rank ${r.bond} with ${npc}`
           : s.ready ? `Enough for ${fmt(s.times)} ${recipeVerb(r, s.times)}` : `Short of ${s.missing.map(escHtml).join(", ")}`;
         const virtues = (r.scaling || []).map((v) => `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(" ");
         const kind = RECIPE_KINDS[r.kind] ? `<span class="avgrp">${RECIPE_KINDS[r.kind]}</span>`
@@ -2983,7 +2990,7 @@
         if (!c) {
           $("recipeSummary").innerHTML = "";
           $("recipeFilters").innerHTML = "";
-          $("recipes").innerHTML = '<span class="muted">Import your inventory to see what you can brew, cast and build.</span>';
+          $("recipes").innerHTML = '<span class="muted">Import your inventory to see what you can brew, cast, build and forge.</span>';
           return;
         }
         const all = Object.entries(RECIPES)
@@ -3059,7 +3066,7 @@
         return `<div class="tp-head">${upIcon(r.icon, "ticn")}<div class="tp-name">${escHtml(r.name)}${r.gives > 1 ? ` ×${r.gives}` : ""}</div></div>` +
           (isGear(r)
             ? `<div class="tp-rank">${escHtml(r.kind === "Weapons" ? `${r.slot || ""} weapon` : r.slot || "Armour")}</div>`
-            : `<div class="tp-rank">${r.station === "Brewing" ? "Brewed" : "Cast"} by ${npc}</div>`) +
+            : `<div class="tp-rank">${r.station === "Brewing" ? "Brewed" : r.kind === "Pacts" ? "Forged" : "Cast"} by ${npc}</div>`) +
           (r.desc ? `<div class="tp-quote">${escHtml(r.desc).replace(/\n/g, "<br>")}</div>` : "") +
           (r.scaling && r.scaling.length ? `<div class="tp-eff">Scales with ${r.scaling.map((v) => `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(", ")}</div>` : "") +
           (r.requires ? `<div class="tp-eff">Requires ${Object.entries(r.requires).map(([v, n]) => `<b>${n}</b> <span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(" · ")}</div>` : "") +

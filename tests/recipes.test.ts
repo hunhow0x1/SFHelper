@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildRecipes, parseCraftingTable, recipeKind, type RecipeDef } from "../src/gamedata/builders";
 import { wikiEntry } from "../src/gamedata/update";
-import { newlyReady, parseCrafting, readyRecipes, recipeTimes, type CraftingState } from "../src/server/recipes";
+import { newlyReady, pactBlock, parseCrafting, readyRecipes, recipeTimes, recipeVerb, type CraftingState } from "../src/server/recipes";
 import { getSettings, updateSettings } from "../src/server/settings";
 
 const recipe = (type: string, tag: string, extra: string, ingredients: [string, number, string?][]) =>
@@ -20,7 +20,7 @@ const recipe = (type: string, tag: string, extra: string, ingredients: [string, 
   ].join("\n");
 
 describe("recipes from the game files", () => {
-  it("keeps Verminia's brews, Chordstones, weapons and armour", () => {
+  it("keeps Verminia's brews, Chordstones, weapons, armour and Pacts", () => {
     expect(recipeKind("/SF/Types/Recipes/Elixers/ChampionElixirRecipe", "Curaidh's Breath")).toEqual(["Brewing", "Elixirs"]);
     expect(recipeKind("/SF/Types/Recipes/ColorPalettes/X", "Epona")).toEqual(["Brewing", "Palettes"]);
     expect(recipeKind("/SF/Types/Recipes/Consumeables/PetFood/X", "Canid Kibble")).toEqual(["Brewing", "Pup Treats"]);
@@ -29,6 +29,7 @@ describe("recipes from the game files", () => {
     expect(recipeKind("/SF/Types/Recipes/Quests/OrlickProgression/BrassIngotBlueprint", "Brass Ingot")).toBeNull();
     expect(recipeKind("/SF/Types/Recipes/Weapons/X", "Vasp-IV")).toEqual(["Blacksmith", "Weapons"]);
     expect(recipeKind("/SF/Types/Recipes/Armor/BromiusHelmBlueprint", "Bromius' Helm")).toEqual(["Blacksmith", "Armour"]);
+    expect(recipeKind("/SF/Types/Recipes/Pacts/BromiusPactBlueprint", "Bromius")).toEqual(["Blacksmith", "Pacts"]);
     expect(recipeKind("/SF/Types/Recipes/Weapons/XReforgeBlueprint", "Vasp-IV")).toBeNull();
     expect(recipeKind("/SF/Types/Recipes/WeaponQuality/ChaosRerollBlueprint", "Chaos Chordstone")).toBeNull();
   });
@@ -69,6 +70,22 @@ describe("recipes from the game files", () => {
     ]);
   });
 
+  it("keeps Pacts that have their own name, and skips the unnamed placeholder", () => {
+    const pact = (leaf: string, head: string, result: string) =>
+      `${head}TypeName=/SF/Types/Recipes/Pacts/${leaf}\nRarity=UNCOMMON\nResultItem=${result}\nIngredients={\n{\nItemType=/SF/Types/PickUps/Resources/IronResource\nAlternativeItemTypes={}\nItemCount=55\nExactQualityRequired=IQ_NONE\n}\n}\nBuildTime=97200`;
+    const texts = [
+      pact("BromiusPactBlueprint", "LocalizeTag=/L/Bromius\nLocalizeDescTag=/L/BromiusDesc\n", "/SF/StoreItems/Souls/Bromius/BromiusSoul"),
+      pact("FencerPactBlueprint", "LocalizeTag=/L/Duelo\nNumRequired=3\n", "/SF/StoreItems/Souls/Fencer/FencerSoul"),
+      pact("FeyPactBlueprint", "Icon=/SF/Fey.png\n", "/SF/StoreItems/Souls/Default/BaseSoul"),
+    ];
+    const out = buildRecipes({ "/L/Bromius": "Bromius", "/L/BromiusDesc": "The Arbearer.", "/L/Duelo": "Duelo" }, texts, { BaseSoul: "Pact" });
+    expect(Object.keys(out)).toEqual(["/SF/Types/Recipes/Pacts/BromiusPactBlueprint", "/SF/Types/Recipes/Pacts/FencerPactBlueprint"]);
+    expect(out["/SF/Types/Recipes/Pacts/BromiusPactBlueprint"]).toMatchObject({
+      name: "Bromius", station: "Blacksmith", kind: "Pacts", result: "/SF/Souls/Bromius/BromiusSoul", fragments: 1, consumed: true, dracs: 0, seconds: 97200, desc: "The Arbearer.",
+    });
+    expect(out["/SF/Types/Recipes/Pacts/FencerPactBlueprint"]?.fragments).toBe(3);
+  });
+
   it("matches the wiki's Bond requirements by name", () => {
     const table = parseCraftingTable(
       ['["Hushed Chordstone"]= {', '\tBondReq= "1",', "\tIngredients= {}", "},", '["Hushed Chordstone (Cratesweight)"]= {', '\tBondReq= "4",', "\tIngredients= {}", "},",
@@ -89,6 +106,7 @@ describe("what the inventory says about crafting", () => {
       Recipes: [{ ItemType: "/R/Elixir", ItemCount: 1 }, { ItemType: "/R/Gone", ItemCount: 0 }],
       MiscItems: [{ ItemType: "/I/Sap", ItemCount: 4 }, { ItemType: "/I/Iron", ItemCount: 10 }],
       Consumables: [{ ItemType: "/I/Iron", ItemCount: 2 }],
+      Suits: [{ ItemType: "/SF/Souls/Bromius/BromiusSoul" }, { ItemType: "/SF/Souls/Bromius/BromiusSoul" }, { ItemType: "/SF/Souls/Fencer/FencerSoul" }],
       Ancestors: [
         { ItemType: "/SF/Types/Game/Ancestors/Verminia/VerminiaAncestor", Rank: 1 },
         { ItemType: "/SF/Types/Game/Ancestors/Tuvalkane/TuvalkaneAncestor", Rank: 3 },
@@ -101,6 +119,7 @@ describe("what the inventory says about crafting", () => {
       dracs: 2500,
       bond: { Verminia: 2, Tuvalkane: 4 },
       pending: [],
+      pacts: ["/SF/Souls/Bromius/BromiusSoul", "/SF/Souls/Fencer/FencerSoul"],
     });
   });
 });
@@ -110,7 +129,7 @@ describe("starred recipes", () => {
     name: "Curaidh's Breath", station: "Brewing", kind: "Elixirs", result: "/R/Out", rarity: null, fragments: 1, consumed: false,
     gives: 1, dracs: 100, seconds: 0, ingredients: [{ type: "/I/Sap", name: "Sap", count: 2 }], desc: null, icon: null, bond: null, ...extra,
   });
-  const state = (extra: Partial<CraftingState>): CraftingState => ({ recipes: { "/R/A": 1 }, stock: { "/I/Sap": 5 }, dracs: 1000, bond: {}, pending: [], ...extra });
+  const state = (extra: Partial<CraftingState>): CraftingState => ({ recipes: { "/R/A": 1 }, stock: { "/I/Sap": 5 }, dracs: 1000, bond: {}, pending: [], pacts: [], ...extra });
 
   it("works out how many times a recipe can be crafted, as the Recipes tab does", () => {
     expect(recipeTimes("/R/A", def({}), state({}))).toBe(2);
@@ -120,6 +139,19 @@ describe("starred recipes", () => {
     expect(recipeTimes("/R/A", def({ bond: 3 }), state({ bond: { Verminia: 2 } }))).toBe(0);
     expect(recipeTimes("/R/A", def({ bond: 3, station: "Blacksmith", kind: "Weapons" }), state({ bond: { Tuvalkane: 1 } }))).toBe(2);
     expect(recipeTimes("/R/B", def({}), state({}))).toBe(0);
+  });
+
+  it("doesn't count a Pact you already own or have curing as craftable", () => {
+    const pact = def({ station: "Blacksmith", kind: "Pacts", result: "/SF/Souls/Fencer/FencerSoul", consumed: true, fragments: 3, dracs: 0 });
+    const ready = state({ recipes: { "/R/A": 3 } });
+    expect(recipeTimes("/R/A", pact, ready)).toBe(1);
+    expect(pactBlock("/R/A", pact, ready)).toBeNull();
+    expect(pactBlock("/R/A", pact, { ...ready, pacts: ["/SF/Souls/Fencer/FencerSoul"] })).toBe("owned");
+    expect(recipeTimes("/R/A", pact, { ...ready, pacts: ["/SF/Souls/Fencer/FencerSoul"] })).toBe(0);
+    expect(pactBlock("/R/A", pact, { ...ready, pending: [{ id: "x", recipe: "/R/A", completes: 1 }] })).toBe("curing");
+    expect(recipeTimes("/R/A", pact, { ...ready, pending: [{ id: "x", recipe: "/R/A", completes: 1 }] })).toBe(0);
+    expect(pactBlock("/R/A", def({}), { ...ready, pacts: ["/R/Out"] })).toBeNull();
+    expect(recipeVerb(pact)).toBe("forge");
   });
 
   it("names only starred recipes that just became craftable", () => {
