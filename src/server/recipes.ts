@@ -7,9 +7,10 @@ export interface CraftingState {
   dracs: number;
   bond: Record<string, number>;
   pending: PendingCraft[];
-  // The Pacts you own. The Foundry won't forge a Pact you already have
-  // ("Already Owned"), so those recipes can't be crafted.
-  pacts: string[];
+  // Copies held of things that don't stack: Pacts, weapons, armour and palettes
+  // (stacked items like Elixirs and Chordstones are in stock). Recipes show it as
+  // "Owned", and the Foundry won't forge a Pact you already have ("Already Owned").
+  owned: Record<string, number>;
 }
 
 export interface PendingCraft {
@@ -22,6 +23,20 @@ type Entry = { ItemType?: unknown; ItemCount?: unknown; Rank?: unknown };
 
 const entries = (v: unknown): Entry[] => (Array.isArray(v) ? v.filter((e): e is Entry => !!e && typeof e === "object") : []);
 const ANCESTOR_RE = /\/Ancestors\/(\w+)\/\w+Ancestor$/;
+
+const COPY_LISTS = ["Suits", "Melee", "LongGuns", "Pistols", "WeaponSkins", "FlavourItems"] as const;
+
+function copies(raw: Record<string, unknown>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const key of COPY_LISTS) {
+    for (const e of entries(raw[key])) {
+      if (typeof e.ItemType !== "string") continue;
+      const n = typeof e.ItemCount === "number" ? e.ItemCount : 1;
+      if (n > 0) out[e.ItemType] = (out[e.ItemType] ?? 0) + n;
+    }
+  }
+  return out;
+}
 
 function counts(list: unknown, into: Record<string, number> = {}): Record<string, number> {
   for (const e of entries(list)) {
@@ -44,7 +59,7 @@ export function parseCrafting(raw: Record<string, unknown>): CraftingState {
     dracs: typeof raw.RegularCredits === "number" ? raw.RegularCredits : 0,
     bond,
     pending: parsePendingCrafts(raw.PendingRecipes),
-    pacts: [...new Set(entries(raw.Suits).map((e) => e.ItemType).filter((t): t is string => typeof t === "string"))],
+    owned: copies(raw),
   };
 }
 
@@ -91,7 +106,7 @@ const isGear = (r: RecipeDef): boolean => r.kind === "Weapons" || r.kind === "Ar
 // own that Pact, or it's curing at the Foundry right now.
 export function pactBlock(type: string, r: RecipeDef, c: CraftingState): "owned" | "curing" | null {
   if (r.kind !== "Pacts") return null;
-  if ((c.pacts ?? []).includes(r.result)) return "owned";
+  if ((c.owned?.[r.result] ?? 0) > 0) return "owned";
   return c.pending.some((p) => p.recipe === type) ? "curing" : null;
 }
 

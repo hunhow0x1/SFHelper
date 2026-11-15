@@ -2929,7 +2929,7 @@
         r.station === "Brewing" ? (n === 1 ? "brew" : "brews") : isGear(r) ? (n === 1 ? "build" : "builds") : r.kind === "Pacts" ? (n === 1 ? "forge" : "forges") : n === 1 ? "cast" : "casts";
       // A Pact the Foundry won't forge: you already own it, or one is curing now.
       const pactBlock = (type, r, c) =>
-        r.kind !== "Pacts" ? null : (c.pacts || []).includes(r.result) ? "owned" : (c.pending || []).some((p) => p.recipe === type) ? "curing" : null;
+        r.kind !== "Pacts" ? null : ((c.owned || {})[r.result] || 0) > 0 ? "owned" : (c.pending || []).some((p) => p.recipe === type) ? "curing" : null;
       function craftTime(sec) {
         if (!sec) return "Instant";
         const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
@@ -2948,7 +2948,10 @@
         if (r.dracs > c.dracs) missing.push("Dracs");
         if (fragments < r.fragments) missing.push("Fragments");
         const block = pactBlock(type, r, c);
-        return { have, fragments, times, locked, block, missing, ready: !locked && !block && times > 0 };
+        // How many of the finished item you hold: stacked items (Elixirs, Chordstones)
+        // are in stock, copies of Pacts, weapons, armour and palettes in owned.
+        const owned = (c.stock[r.result] || 0) + ((c.owned || {})[r.result] || 0);
+        return { have, fragments, times, locked, block, owned, missing, ready: !locked && !block && times > 0 };
       }
       function recipeCard(o, c) {
         const { type, r, s } = o;
@@ -2981,7 +2984,7 @@
         return `<div class="rcard${s.ready ? " ready" : ""}${starred ? " starred" : ""}"><div class="rtop">` +
           `<div class="rhead poprow" data-kind="recipe" data-type="${escHtml(type)}">${upIcon(r.icon)}` +
           `<div class="avname">${escHtml(r.name)}${r.gives > 1 ? `<span class="rgive">×${r.gives}</span>` : ""}</div>${state}` +
-          `<div class="avmeta">${kind}<span>${meta}</span></div></div>` +
+          `<div class="avmeta">${kind}<span>${meta}</span>${s.block === "owned" ? "" : `<span class="avown">Owned <b>${fmt(s.owned)}</b></span>`}</div></div>` +
           `<button class="star${starred ? " on" : ""}" data-recipe="${escHtml(type)}" aria-pressed="${starred}" title="${tip}" aria-label="${escHtml(r.name)}">${STAR_SVG}</button></div>` +
           `<ul class="rings">${ings}</ul><div class="tradesub">${foot}</div></div>`;
       }

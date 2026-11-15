@@ -100,13 +100,17 @@ describe("recipes from the game files", () => {
 });
 
 describe("what the inventory says about crafting", () => {
-  it("counts recipes, stock and Dracs, and shows Bond ranks as the game does", () => {
+  it("counts recipes, stock, copies held and Dracs, and shows Bond ranks as the game does", () => {
     const state = parseCrafting({
       RegularCredits: 2500,
       Recipes: [{ ItemType: "/R/Elixir", ItemCount: 1 }, { ItemType: "/R/Gone", ItemCount: 0 }],
       MiscItems: [{ ItemType: "/I/Sap", ItemCount: 4 }, { ItemType: "/I/Iron", ItemCount: 10 }],
       Consumables: [{ ItemType: "/I/Iron", ItemCount: 2 }],
-      Suits: [{ ItemType: "/SF/Souls/Bromius/BromiusSoul" }, { ItemType: "/SF/Souls/Bromius/BromiusSoul" }, { ItemType: "/SF/Souls/Fencer/FencerSoul" }],
+      Suits: [{ ItemType: "/SF/Souls/Fencer/FencerSoul" }],
+      Melee: [{ ItemType: "/SF/Weapons/Sword" }, { ItemType: "/SF/Weapons/Sword" }],
+      LongGuns: [{ ItemType: "/SF/Weapons/Bow" }],
+      WeaponSkins: [{ ItemType: "/SF/Upgrades/Skins/Helmets/Helm" }],
+      FlavourItems: [{ ItemType: "/SF/Types/Items/ColorPalettes/Epona" }],
       Ancestors: [
         { ItemType: "/SF/Types/Game/Ancestors/Verminia/VerminiaAncestor", Rank: 1 },
         { ItemType: "/SF/Types/Game/Ancestors/Tuvalkane/TuvalkaneAncestor", Rank: 3 },
@@ -119,7 +123,13 @@ describe("what the inventory says about crafting", () => {
       dracs: 2500,
       bond: { Verminia: 2, Tuvalkane: 4 },
       pending: [],
-      pacts: ["/SF/Souls/Bromius/BromiusSoul", "/SF/Souls/Fencer/FencerSoul"],
+      owned: {
+        "/SF/Souls/Fencer/FencerSoul": 1,
+        "/SF/Weapons/Sword": 2,
+        "/SF/Weapons/Bow": 1,
+        "/SF/Upgrades/Skins/Helmets/Helm": 1,
+        "/SF/Types/Items/ColorPalettes/Epona": 1,
+      },
     });
   });
 });
@@ -129,7 +139,7 @@ describe("starred recipes", () => {
     name: "Curaidh's Breath", station: "Brewing", kind: "Elixirs", result: "/R/Out", rarity: null, fragments: 1, consumed: false,
     gives: 1, dracs: 100, seconds: 0, ingredients: [{ type: "/I/Sap", name: "Sap", count: 2 }], desc: null, icon: null, bond: null, ...extra,
   });
-  const state = (extra: Partial<CraftingState>): CraftingState => ({ recipes: { "/R/A": 1 }, stock: { "/I/Sap": 5 }, dracs: 1000, bond: {}, pending: [], pacts: [], ...extra });
+  const state = (extra: Partial<CraftingState>): CraftingState => ({ recipes: { "/R/A": 1 }, stock: { "/I/Sap": 5 }, dracs: 1000, bond: {}, pending: [], owned: {}, ...extra });
 
   it("works out how many times a recipe can be crafted, as the Recipes tab does", () => {
     expect(recipeTimes("/R/A", def({}), state({}))).toBe(2);
@@ -146,11 +156,11 @@ describe("starred recipes", () => {
     const ready = state({ recipes: { "/R/A": 3 } });
     expect(recipeTimes("/R/A", pact, ready)).toBe(1);
     expect(pactBlock("/R/A", pact, ready)).toBeNull();
-    expect(pactBlock("/R/A", pact, { ...ready, pacts: ["/SF/Souls/Fencer/FencerSoul"] })).toBe("owned");
-    expect(recipeTimes("/R/A", pact, { ...ready, pacts: ["/SF/Souls/Fencer/FencerSoul"] })).toBe(0);
+    expect(pactBlock("/R/A", pact, { ...ready, owned: { "/SF/Souls/Fencer/FencerSoul": 1 } })).toBe("owned");
+    expect(recipeTimes("/R/A", pact, { ...ready, owned: { "/SF/Souls/Fencer/FencerSoul": 1 } })).toBe(0);
     expect(pactBlock("/R/A", pact, { ...ready, pending: [{ id: "x", recipe: "/R/A", completes: 1 }] })).toBe("curing");
     expect(recipeTimes("/R/A", pact, { ...ready, pending: [{ id: "x", recipe: "/R/A", completes: 1 }] })).toBe(0);
-    expect(pactBlock("/R/A", def({}), { ...ready, pacts: ["/R/Out"] })).toBeNull();
+    expect(pactBlock("/R/A", def({}), { ...ready, owned: { "/R/Out": 1 } })).toBeNull();
     expect(recipeVerb(pact)).toBe("forge");
   });
 
