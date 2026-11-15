@@ -602,8 +602,6 @@
       .tcard .tpips .tpip:hover i { border-color: var(--accent-hi); }
       .tcard .tpips .tpip.cur i { transform: rotate(45deg) scale(1.3); border-color: var(--accent-hi); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-hi) 28%, transparent), 0 0 9px color-mix(in srgb, var(--accent-hi) 75%, transparent); }
       .tcard .tpips .tpip.cur:not(.on) i { background: color-mix(in srgb, var(--accent-hi) 30%, transparent); }
-      .tcard.miss .tpips .tpip i { border-color: var(--line-2); }
-      .tcard.miss .tpips .tpip.cur i { border-color: var(--muted); background: color-mix(in srgb, var(--muted) 35%, transparent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--muted) 22%, transparent), 0 0 8px color-mix(in srgb, var(--muted) 55%, transparent); }
       .tcard .tfx .trankat { color: var(--faint); font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; margin-right: 8px; }
       .rtag { display: inline-block; margin-left: 8px; padding: 1px 6px; border: 1px solid rgba(201, 120, 92, 0.55); color: #e0a189; font: 500 10.5px/1.4 var(--body); letter-spacing: 0.12em; text-transform: uppercase; vertical-align: 2px; }
       .temperpop .tp-on { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
@@ -718,10 +716,6 @@
       .tcard .tfx b { color: var(--accent-hi); }
       .tcard .ton { grid-column: 2; font-size: 12.5px; color: var(--faint); }
       .tcard .ton b { color: var(--muted); font-weight: 500; }
-      .tcard.miss .ticon { opacity: 0.35; filter: grayscale(1); }
-      .tcard.miss .tname, .tcard.miss .tfx { color: var(--faint); }
-      .tcard.miss .tfx b { color: var(--muted); }
-      .tcard .tmeta .tunowned { color: var(--faint); font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; }
       @media (max-width: 640px) {
         .tfilters { grid-template-columns: 1fr; gap: 6px; }
         .tfilters .fl { margin-top: 6px; }
@@ -3541,20 +3535,9 @@
             animal: d ? d.animal : null,
             trigger: d ? TRIGGER_LABEL[d.enhances] || d.enhances : null,
             description: d ? d.description : "",
-            owned: true,
           });
         }
-        const views = [...groups.values()];
-        const ownedNames = new Set(views.map((v) => v.name));
-        for (const [name, d] of Object.entries(TOTEM_DATA)) {
-          if (ownedNames.has(name)) continue;
-          views.push({
-            id: null, type: (d.types || [])[0] || null, name, rank: 1, virtue: null, grip: null, equippedOn: [],
-            count: 0, on: new Set(), aligned: false, effect: totemEffectHtml(d, 1, false),
-            animal: d.animal || null, trigger: TRIGGER_LABEL[d.enhances] || d.enhances || null, description: d.description || "", owned: false,
-          });
-        }
-        return views;
+        return [...groups.values()];
       }
       function totemMatches(v, words) {
         if (!words.length) return true;
@@ -3579,9 +3562,9 @@
           row("Trigger", "trigger", TRIGGERS, null);
       }
       const TOTEM_VIEW_RANK = new Map();
-      const totemViewKey = (v) => [v.name, v.virtue, v.grip, v.rank, v.owned].join("|");
+      const totemViewKey = (v) => [v.name, v.virtue, v.grip, v.rank].join("|");
       function totemEffectAt(v, rank) {
-        if (rank === v.rank && v.owned) return v.effect;
+        if (rank === v.rank) return v.effect;
         const d = TOTEM_DATA[v.name];
         return d ? totemEffectHtml(d, rank, v.aligned) : effectAtRank(TOTEMS[v.name], rank).replace(/ \(Rank \d\)$/, "");
       }
@@ -3591,20 +3574,20 @@
         const shownRank = TOTEM_VIEW_RANK.get(key) || v.rank;
         const pips = [1, 2, 3, 4]
           .map((r) => {
-            const cls = ["tpip", v.owned && r <= v.rank ? "on" : "", r === shownRank ? "cur" : ""].filter(Boolean).join(" ");
+            const cls = ["tpip", r <= v.rank ? "on" : "", r === shownRank ? "cur" : ""].filter(Boolean).join(" ");
             const tip = r === shownRank ? `Showing rank ${r}` : `Show rank ${r}`;
-            return `<button class="${cls}" data-key="${escHtml(key)}" data-rank="${r}" title="${tip}${v.owned && r === v.rank ? " (yours)" : ""}" aria-label="${tip}" aria-pressed="${r === shownRank}"><i class="${v.owned && r <= v.rank ? "on" : ""}"></i></button>`;
+            return `<button class="${cls}" data-key="${escHtml(key)}" data-rank="${r}" title="${tip}${r === v.rank ? " (yours)" : ""}" aria-label="${tip}" aria-pressed="${r === shownRank}"><i class="${r <= v.rank ? "on" : ""}"></i></button>`;
           })
           .join("");
         const effect = totemEffectAt(v, shownRank);
-        const rankNote = shownRank !== v.rank || !v.owned ? `<span class="trankat">Rank ${shownRank}</span>` : "";
+        const rankNote = shownRank !== v.rank ? `<span class="trankat">Rank ${shownRank}</span>` : "";
         const on = [...v.on].map(shortName);
-        return `<div class="tcard${v.aligned ? " aligned" : ""}${v.owned ? "" : " miss"}" style="--vc:${vc}">
+        return `<div class="tcard${v.aligned ? " aligned" : ""}" style="--vc:${vc}">
           ${v.animal ? `<img class="ticon" src="${animalIcon(v.animal)}" alt="${v.animal}" title="${v.animal} Totem">` : '<span class="ticon"></span>'}
           <div class="thead"><span class="tname" title="${v.description || ""}">${v.name}</span>${v.count > 1 ? `<span class="tcount">×${v.count}</span>` : ""}<span class="tpips">${pips}</span></div>
           <div class="tmeta">
             ${v.virtue ? `<span style="color:${vc}"><img src="${virtueIcon(v.virtue)}" alt="">${v.virtue}</span>` : ""}
-            ${v.owned ? `<span title="${v.aligned ? `Only fits ${v.grip} weapons, with a stronger effect` : "Fits any weapon"}"><img src="${gripIcon(v.grip)}" alt="" onerror="this.remove()">${v.grip}</span>` : '<span class="tunowned">Unowned</span>'}
+            <span title="${v.aligned ? `Only fits ${v.grip} weapons, with a stronger effect` : "Fits any weapon"}"><img src="${gripIcon(v.grip)}" alt="" onerror="this.remove()">${v.grip}</span>
             ${v.trigger ? `<span class="trig">${v.trigger}</span>` : ""}
           </div>
           <div class="tfx">${effect ? rankNote + effect : '<span class="muted">Effect unknown</span>'}</div>
@@ -3626,12 +3609,8 @@
           totemMatches(v, words));
         const total = all.reduce((n, v) => n + v.count, 0);
         const nShown = shown.reduce((n, v) => n + v.count, 0);
-        const missing = all.filter((v) => !v.owned).length;
-        const missingShown = shown.filter((v) => !v.owned).length;
-        const ownedText = !total || (!nShown && missingShown) ? "" : nShown === total ? `<b>${total}</b> totems` : `Showing <b>${nShown}</b> of <b>${total}</b> totems`;
-        const missingText = missingShown ? `<b>${missingShown}</b> of the ${Object.keys(TOTEM_DATA).length} kinds unowned` : "";
-        $("totemSummary").innerHTML = [ownedText, missingText].filter(Boolean).join(" &nbsp;·&nbsp; ");
-        if (!total && !missing) { $("totems").innerHTML = '<span class="muted">No totems in your inventory yet.</span>'; return; }
+        $("totemSummary").innerHTML = !total ? "" : nShown === total ? `<b>${total}</b> totems` : `Showing <b>${nShown}</b> of <b>${total}</b> totems`;
+        if (!total) { $("totems").innerHTML = '<span class="muted">No totems in your inventory yet.</span>'; return; }
         if (!shown.length) { $("totems").innerHTML = '<span class="muted">No totems match.</span>'; return; }
 
         const byName = (a, b) => a.name.localeCompare(b.name) || b.rank - a.rank || String(a.virtue).localeCompare(String(b.virtue));
@@ -3645,18 +3624,18 @@
         const ICON = { virtue: virtueIcon, grip: gripIcon, animal: animalIcon };
         const groups = new Map();
         for (const v of shown) {
-          const k = v[sort] || (v.owned ? "Unknown" : "Unowned");
+          const k = v[sort] || "Unknown";
           if (!groups.has(k)) groups.set(k, []);
           groups.get(k).push(v);
         }
         const order = ORDER[sort];
-        const keys = [...groups.keys()].sort((a, b) => (a === "Unowned") - (b === "Unowned") || (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99) || a.localeCompare(b));
+        const keys = [...groups.keys()].sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99) || a.localeCompare(b));
         $("totems").innerHTML = keys
           .map((k) => {
             const list = groups.get(k).sort(byName);
             const n = list.reduce((m, v) => m + v.count, 0);
-            const icon = ICON[sort] && k !== "Unknown" && k !== "Unowned" ? `<img src="${ICON[sort](k)}" alt="">` : "";
-            const label = sort === "animal" && k !== "Unknown" && k !== "Unowned" ? `${k} Totems` : k;
+            const icon = ICON[sort] && k !== "Unknown" ? `<img src="${ICON[sort](k)}" alt="">` : "";
+            const label = sort === "animal" && k !== "Unknown" ? `${k} Totems` : k;
             return `<div class="tgroup"><h3>${icon}${label}<span class="n">${n}</span></h3><div class="tgrid">${list.map(totemCardHtml).join("")}</div></div>`;
           })
           .join("");
