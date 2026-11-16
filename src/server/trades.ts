@@ -267,9 +267,28 @@ export function importTrades(entries: Trade[]): Promise<number> {
   });
 }
 
+// Fill in the roll of a weapon or Totem received in an older trade, from the
+// current read, so trades saved before those details were kept get them too.
+function fillDetails(history: Trade[], h: Holdings): boolean {
+  let changed = false;
+  for (const t of history) {
+    for (const i of t.received) {
+      const id = i.ids?.length === 1 ? i.ids[0]! : undefined;
+      if (!id) continue;
+      const weapon = !i.weapon ? h.weapons?.[id] : undefined;
+      if (weapon) i.weapon = weapon;
+      const totem = !i.totem ? h.totems?.[id] : undefined;
+      if (totem) i.totem = totem;
+      if (weapon || totem) changed = true;
+    }
+  }
+  return changed;
+}
+
 export function recordTrades(h: Holdings, at: string, readLog: () => Promise<LoggedTrade[]> = logTrades): Promise<TradesView> {
   return queued(async (): Promise<TradesView> => {
     const s = await load();
+    let changed = false;
     if (!s.last || s.last.at !== at) {
       const trade = s.last && Date.parse(at) > Date.parse(s.last.at) ? detectTrade(s.last.holdings, s.last.at, h, at) : null;
       let history = trade ? [trade, ...s.history] : s.history;
@@ -277,21 +296,18 @@ export function recordTrades(h: Holdings, at: string, readLog: () => Promise<Log
         history = attachDeals(history, await readLog(), at);
       } catch {
       }
-      for (const t of history) {
-        for (const i of t.received) {
-          const id = i.ids?.length === 1 ? i.ids[0]! : undefined;
-          const weapon = !i.weapon && id ? h.weapons?.[id] : undefined;
-          if (weapon) i.weapon = weapon;
-          const totem = !i.totem && id ? h.totems?.[id] : undefined;
-          if (totem) i.totem = totem;
-        }
-      }
       s.history = history.slice(0, MAX_HISTORY);
       s.last = { at, holdings: h };
       const day = utcDay(at);
       if (h.tradesRemaining !== null && (s.peak?.day !== day || h.tradesRemaining > s.peak.remaining)) s.peak = { day, remaining: h.tradesRemaining };
-      await save(s);
+      changed = true;
+    } else if (!s.last.holdings.totems && h.totems) {
+      // The same read, saved by a version that didn't keep Totem details.
+      s.last.holdings = h;
+      changed = true;
     }
+    if (fillDetails(s.history, h)) changed = true;
+    if (changed) await save(s);
     return { history: s.history, remaining: remainingToday(h, at), max: dailyTrades(h, s.peak, at) };
   });
 }

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { attachDeals, dailyTrades, detectTrade, parseHoldings, recordTrades, remainingToday, tradedIds, tradesBetween, type Trade } from "../src/server/trades";
@@ -175,6 +175,31 @@ describe("trade history", () => {
     const view = await recordTrades(now, new Date().toISOString(), async () => []);
     expect(view.history[0]!.deals![0]!.received).toEqual(["Hare Harms"]);
     expect(view.history[0]!.received[0]!.totem).toEqual({ virtue: "Courage", grip: "Polearm", rank: 4 });
+  });
+
+  it("fills in a traded Totem's roll when reopened on the read saved before Totem details were kept", async () => {
+    const id = oid(13).$oid;
+    const at = "2026-11-16T10:00:01.809Z";
+    const now = parseHoldings({
+      ...inventory({ weapons: [], onyx: 0, dracs: 0, trades: 19 }),
+      Upgrades: [{ ItemType: "/SF/Upgrades/Totems/AttackSpeedCollect", ItemId: oid(13), UpgradeFingerprint: JSON.stringify({ pol: "AP_GRACE", compat: "/SF/Upgrades/Techniques/PolearmSkillTree", lvl: 3 }) }],
+    });
+    const { totems: _, ...oldHoldings } = now;
+    const saved = {
+      history: [{
+        at: "2026-11-16T05:18:47.663Z", after: "2026-11-16T05:17:57.949Z", count: 1, dracs: -440,
+        received: [{ key: "/SF/Upgrades/Totems/AttackSpeedCollect", count: 1, ids: [id] }],
+        given: [{ key: ONYX, count: 14 }],
+      }],
+      last: { at, holdings: oldHoldings },
+    };
+    const file = join(process.env.SFHELPER_HOME!, "trades.json");
+    await writeFile(file, JSON.stringify(saved));
+    const view = await recordTrades(now, at, async () => []);
+    expect(view.history[0]!.received[0]!.totem).toEqual({ virtue: "Grace", grip: "Polearm", rank: 4 });
+    const stored = JSON.parse(await readFile(file, "utf8"));
+    expect(stored.history[0].received[0].totem).toEqual({ virtue: "Grace", grip: "Polearm", rank: 4 });
+    expect(stored.last.holdings.totems[id]).toEqual({ virtue: "Grace", grip: "Polearm", rank: 4 });
   });
 
   it("records and announces a pickup once when the page and an import diff at the same time", async () => {
