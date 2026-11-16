@@ -18,6 +18,7 @@ export interface TotemRef {
   rank: number | null;
   slot: number | null;
   virtue: "Courage" | "Spirit" | "Grace" | null;
+  grip: string;
 }
 
 export interface SlotGear {
@@ -68,17 +69,37 @@ export interface GearInfo {
 
 const EMPTY_SLOT: SlotGear = { type: null, runes: [], runeLevels: [], totems: [], joinery: null, craftwork: null, tempers: [] };
 
+// A Totem's grip, from the skill tree its roll fits ("Universal" fits any weapon).
+const GRIP: Record<string, string> = {
+  SFSkillTree: "Universal",
+  ArcherySkillTree: "Bow",
+  SecondaryThrowingKnivesSkillTree: "Flyblade",
+  GreatswordSkillTree: "Heavy",
+  SwordSkillTree: "Long Blade",
+  CastingSkillTree: "Magick",
+  PolearmSkillTree: "Polearm",
+  ShieldSkillTree: "Shield",
+  DaggerSkillTree: "Short Blade",
+};
+
+export function gripOf(compat: unknown): string {
+  if (typeof compat !== "string" || !compat) return "Universal";
+  const leaf = compat.split("/").pop()!;
+  return GRIP[leaf] ?? leaf.replace(/SkillTree$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
 const POL_VIRTUE: Record<string, TotemRef["virtue"]> = { AP_COURAGE: "Courage", AP_SPIRIT: "Spirit", AP_GRACE: "Grace" };
-function parseFingerprint(fp: unknown): { lvl: number | null; virtue: TotemRef["virtue"] } {
-  if (typeof fp !== "string") return { lvl: null, virtue: null };
+function parseFingerprint(fp: unknown): { lvl: number | null; virtue: TotemRef["virtue"]; grip: string } {
+  if (typeof fp !== "string") return { lvl: null, virtue: null, grip: "Universal" };
   try {
-    const f = JSON.parse(fp) as { lvl?: unknown; pol?: unknown };
+    const f = JSON.parse(fp) as { lvl?: unknown; pol?: unknown; compat?: unknown };
     return {
       lvl: typeof f.lvl === "number" ? f.lvl : null,
       virtue: (typeof f.pol === "string" && POL_VIRTUE[f.pol]) || null,
+      grip: gripOf(f.compat),
     };
   } catch {
-    return { lvl: null, virtue: null };
+    return { lvl: null, virtue: null, grip: "Universal" };
   }
 }
 
@@ -221,8 +242,8 @@ export function gearIndex(raw: Record<string, unknown>): Map<string, GearInfo> {
   return idx;
 }
 
-function upgradeIndex(raw: Record<string, unknown>): Map<string, { type: string; lvl: number | null; virtue: TotemRef["virtue"] }> {
-  const idx = new Map<string, { type: string; lvl: number | null; virtue: TotemRef["virtue"] }>();
+function upgradeIndex(raw: Record<string, unknown>): Map<string, { type: string; lvl: number | null; virtue: TotemRef["virtue"]; grip: string }> {
+  const idx = new Map<string, { type: string; lvl: number | null; virtue: TotemRef["virtue"]; grip: string }>();
   const list = raw.Upgrades;
   if (!Array.isArray(list)) return idx;
   for (const entry of list) {
@@ -280,6 +301,7 @@ export function parseBuilds(raw: unknown): Build[] {
           rank: info.lvl != null ? info.lvl + 1 : null,
           slot: i >= 1 && i <= 4 ? i : null,
           virtue: info.virtue,
+          grip: info.grip,
         });
       }
     });

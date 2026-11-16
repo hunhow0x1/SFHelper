@@ -604,7 +604,6 @@
       .tcard .tpips .tpip.cur i { transform: rotate(45deg) scale(1.3); border-color: var(--accent-hi); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-hi) 28%, transparent), 0 0 9px color-mix(in srgb, var(--accent-hi) 75%, transparent); }
       .tcard .tpips .tpip.cur:not(.on) i { background: color-mix(in srgb, var(--accent-hi) 30%, transparent); }
       .tcard .tfx .trankat { color: var(--faint); font: 600 10.5px/1 var(--body); letter-spacing: 0.14em; text-transform: uppercase; margin-right: 8px; }
-      .rtag { display: inline-block; margin-left: 8px; padding: 1px 6px; border: 1px solid rgba(201, 120, 92, 0.55); color: #e0a189; font: 500 10.5px/1.4 var(--body); letter-spacing: 0.12em; text-transform: uppercase; vertical-align: 2px; }
       .temperpop .tp-on { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; color: var(--muted); }
       .temperpop .tp-on .tp-rank { margin-bottom: 4px; }
       .temperpop .tp-hint { color: var(--faint); font-size: 13px; }
@@ -779,12 +778,19 @@
       .lo-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 20px 56px; align-items: start; margin-bottom: 20px; }
       .lo-top > :only-child { grid-column: 1 / -1; }
       .lo-top .vblock { margin-bottom: 0; }
+      .lo-top-pact { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px 40px; }
+      .lo-top-pact > .gear.pact { margin: 0; }
+      .lo-stats > * + * { margin-top: 28px; }
+      .lo-top-pact .pactarts:first-child, .lo-top-pact .gear-head + .pactarts { margin-top: 0; }
       @media (max-width: 1100px) { .lo-top { grid-template-columns: 1fr; } }
       .vtable.atable { max-width: 680px; }
       .atable th:first-child, .atable td:first-child { text-align: left; }
       .atable .aslot { display: block; color: var(--faint); font: 600 10.5px/1.3 var(--body); letter-spacing: 0.12em; text-transform: uppercase; }
       .atable .aname { color: var(--text); font-weight: 500; }
       .atable .aset { display: block; color: var(--faint); font-size: 12.5px; }
+      .aatt { display: inline-flex; gap: 1px; margin-right: 6px; vertical-align: -3px; }
+      .aatt img { width: 15px; height: 15px; }
+      .areq { white-space: nowrap; }
       .areq.met { color: var(--muted); }
       .areq.unmet { opacity: 0.6; }
       .areq .ok { color: var(--accent-2); }
@@ -815,6 +821,8 @@
       .totemrow.slotted .tname, .totemrow.slotted .teff { grid-column: 2; }
       .totemrow.empty .tname { color: var(--faint); font-style: italic; font-weight: 400; }
       .totemrow .tvirt { margin-left: 8px; font-size: 12.5px; font-weight: 500; }
+      .totemrow .tgrip { margin-left: 8px; font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
+      .totemrow .tgrip img { width: 15px; height: 15px; }
       .joinery { display: flex; align-items: center; gap: 10px; font-size: 15px; }
       .joinery .jicon { height: 28px; width: 28px; }
       .joinery .jname { font-weight: 600; }
@@ -1124,7 +1132,7 @@
           <button class="fchip" role="tab" data-view="runes"><img src="img/game/category-runes.png" alt="" onerror="this.remove()">Runes</button>
           <button class="fchip" role="tab" data-view="joineries"><img src="img/game/category-joineries.png" alt="" onerror="this.remove()">Joineries</button>
           <button class="fchip" role="tab" data-view="gear"><img src="img/game/storeitems-consumables-courageelixir.png" alt="" onerror="this.remove()">Gear</button>
-          <button class="fchip" role="tab" data-view="totems"><img src="img/totems/squirrel.png" alt="" onerror="this.remove()">Totems</button>
+          <button class="fchip" role="tab" data-view="totems"><img src="img/game/animal-squirrel.png" alt="" onerror="this.remove()">Totems</button>
         </div>
         <section data-view="tempers">
           <h2>Tempers · Tuvalkane</h2>
@@ -1479,7 +1487,7 @@
         return `<span class="tstats">${all[0].stats.map(statHtml).join(" · ")}${all.length > 1 ? ` <small>(most weapons)</small>` : ""}</span>`;
       }
       const temperIcon = (tag) =>
-        `<img class="ticn" src="${(TEMPER_DB[tag] && TEMPER_DB[tag].icon) || `img/tempers/${temperName(tag).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}.png`}" alt="" loading="lazy" onerror="this.remove()">`;
+        TEMPER_DB[tag] && TEMPER_DB[tag].icon ? `<img class="ticn" src="${TEMPER_DB[tag].icon}" alt="" loading="lazy" onerror="this.remove()">` : "";
       const framedTemper = (tag) => `<span class="tframe">${temperIcon(tag)}</span>`;
       function temperWeaponsHtml(tag, full) {
         const ws = (TEMPER_DB[tag] && TEMPER_DB[tag].weapons) || [];
@@ -1493,7 +1501,7 @@
           (bySlot.get(slot) || bySlot.set(slot, []).get(slot)).push(w);
         }
         const weapon = (w) => {
-          const cls = ((WEAPON_ROSTER[w] || {}).class || "").replace(/s$/, "");
+          const cls = (WEAPON_ROSTER[w] || {}).class || "";
           const icon = ITEM_ICONS[w] ? `<img src="${ITEM_ICONS[w]}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : "<span></span>";
           return `<li>${icon}<span>${escHtml(w)}${cls ? `<small>${escHtml(cls)}</small>` : ""}</span></li>`;
         };
@@ -2033,29 +2041,108 @@
         const tal = key.includes("/Skins/Totem/") ? TALISMANS[key.split("/").pop()] : null;
         return tal ? tal.name : shortName(key);
       }
-      const CLASS_GRIP = {
-        "Long Blades": "Long Blade", "Short Blades": "Short Blade", "Magick Weapons": "Magick", Bows: "Bow", Polearms: "Polearm",
-        Cleavers: "Heavy", Greatswords: "Heavy", "Heavy Maces": "Heavy", Shields: "Shield", Flyblades: "Flyblade",
-      };
-      function tradeIcon(name) {
+      function tradeIconSrc(name) {
         const joinery = /^(Verite|Quicksilver|Feybalt|Gildaur)\b/.exec(name);
-        const grip = CLASS_GRIP[(WEAPON_ROSTER[name] || {}).class];
+        const cls = (WEAPON_ROSTER[name] || {}).class;
+        const grip = cls && cls !== "Other" ? cls : null;
         const animal = (TOTEM_DATA[name] || {}).animal;
-        const src = ITEM_ICONS[name] || (joinery ? `img/joineries/${joinery[1].toLowerCase()}.png` : grip ? gripIcon(grip) : animal ? animalIcon(animal) : null);
+        return ITEM_ICONS[name] || (joinery ? `img/game/joinery-${joinery[1].toLowerCase()}.png` : grip ? gripIcon(grip) : animal ? animalIcon(animal) : null);
+      }
+      function tradeIcon(name) {
+        const src = tradeIconSrc(name);
         return src ? `<img class="ticon" src="${src}" alt="" onerror="this.style.visibility='hidden'">` : '<span class="ticon"></span>';
       }
+      // Each traded item opens the same kind of popup as elsewhere in the app; Totems
+      // and weapons show the copy that changed hands (its roll, craftwork and tempers).
+      const TRADE_POP = new Map();
+      const tradePopAttrs = (i) => {
+        const id = String(TRADE_POP.size + 1);
+        TRADE_POP.set(id, i);
+        return ` poprow" data-kind="trade" data-type="${id}`;
+      };
       function tradeItem(i) {
         const name = tradeItemName(i.key);
         const count = i.count > 1 ? `<span class="tcount">×${fmt(i.count)}</span>` : "<span></span>";
         if (i.totem) {
           const v = i.totem.virtue;
           const detail = [v ? `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>` : "", escHtml(i.totem.grip), `Rank ${i.totem.rank}`].filter(Boolean).join(" · ");
-          return `<li class="tweapon">${tradeIcon(name)}<div><div>${escHtml(name)}</div><div class="tdetail">${detail}</div></div></li>`;
+          return `<li class="tweapon${tradePopAttrs(i)}">${tradeIcon(name)}<div><div>${escHtml(name)}</div><div class="tdetail">${detail}</div></div></li>`;
         }
-        if (!i.weapon) return `<li>${tradeIcon(name)}<span>${escHtml(name)}</span>${count}</li>`;
+        if (!i.weapon) return `<li class="${tradePopAttrs(i)}">${tradeIcon(name)}<span>${escHtml(name)}</span>${count}</li>`;
         const cw = craftworkInfo(i.weapon.craftwork);
         const chips = temperChips(i.weapon.tempers);
-        return `<li class="tweapon">${tradeIcon(name)}<div><div>${escHtml(name)} ${cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : ""}${i.weapon.moonsteel ? '<span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : ""}</div>${chips ? `<div class="wtempers">${chips}</div>` : ""}</div></li>`;
+        return `<li class="tweapon${tradePopAttrs(i)}">${tradeIcon(name)}<div><div>${escHtml(name)} ${cw ? `<span class="cw cw${cw.tier}">${cw.name}</span>` : ""}${i.weapon.moonsteel ? '<span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : ""}</div>${chips ? `<div class="wtempers">${chips}</div>` : ""}</div></li>`;
+      }
+      function tradePopHtml(i) {
+        if (!i) return "";
+        const key = i.key;
+        const name = tradeItemName(key);
+        const leaf = key.split("/").pop();
+        if (key.includes("/Upgrades/Runes/")) return upgradePopHtml("rune", key);
+        if (key.includes("/Types/Items/Kintsugi/")) return upgradePopHtml("joinery", key);
+        if (UPGRADES.gear && UPGRADES.gear[key]) return upgradePopHtml("gear", key);
+        if (RECIPES[key]) return upgradePopHtml("recipe", key);
+        const head = (sub) => `<div class="tp-head">${upIcon(tradeIconSrc(name), "ticn")}<div class="tp-name">${escHtml(name)}</div></div>${sub ? `<div class="tp-rank">${sub}</div>` : ""}`;
+        const vspan = (v) => `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`;
+        if (key.includes("/Upgrades/Totems/")) {
+          const d = TOTEM_DATA[name] || null;
+          const t = i.totem;
+          const aligned = !!t && t.grip !== "Universal";
+          const trigger = d ? TRIGGER_LABEL[d.enhances] || d.enhances : null;
+          const sub = t ? [t.virtue ? vspan(t.virtue) : "", escHtml(t.grip), `Rank ${t.rank}`, trigger ? escHtml(trigger) : ""].filter(Boolean).join(" · ") : "Totem";
+          const effect = d && t ? totemEffectHtml(d, t.rank, aligned) : "";
+          return head(sub) +
+            (d && d.description ? `<div class="tp-quote">${escHtml(d.description)}</div>` : "") +
+            (effect ? `<div class="tp-eff">${effect}</div>` : "") +
+            (aligned ? `<div class="tp-eff muted">Only fits ${escHtml(t.grip)} weapons, with a stronger effect.</div>` : "");
+        }
+        if (i.weapon || key.startsWith("/SF/Weapons/")) {
+          const w = WEAPON_ROSTER[name] || {};
+          const cw = i.weapon ? craftworkInfo(i.weapon.craftwork) : null;
+          const sub = [w.slot, w.class && w.class !== "Other" ? w.class : ""].filter(Boolean).map(escHtml).join(" · ");
+          const counts = new Map();
+          for (const tag of (i.weapon && i.weapon.tempers) || []) counts.set(tag, (counts.get(tag) || 0) + 1);
+          const tempers = [...counts].map(([tag, n]) => {
+            const eff = temperEffect(tag);
+            return `<div class="tp-eff"><b>${escHtml(temperName(tag))}</b>${n > 1 ? ` ×${n}` : ""}${eff ? ` · ${eff}` : ""}</div>`;
+          }).join("");
+          return head(sub) +
+            (cw ? `<div class="tp-eff"><span class="cw cw${cw.tier}">${cw.name}</span> craftwork · +${cw.bonus} damage · up to ${cw.max} Tempers</div>` : "") +
+            (i.weapon && i.weapon.moonsteel ? '<div class="tp-eff">✦ Rare Moonsteel appearance</div>' : "") +
+            (tempers ? `<div class="tp-on"><div class="tp-rank">Tempers</div>${tempers}</div>` : "");
+        }
+        if (key.includes("/Skins/Totem/") && TALISMANS[leaf]) {
+          const tal = TALISMANS[leaf];
+          return head("Talisman") + `<div class="tp-eff">${VIRTUE_ORDER.filter((v) => tal[v]).map((v) => `+${tal[v]} ${vspan(v)}`).join(" · ")}</div>`;
+        }
+        if (/\/Skins\/(Helmets|Body|Legs)\//.test(key) && ARMOUR[name]) {
+          const a = ARMOUR[name];
+          const req = Object.entries(a.requires || {});
+          return head([a.slot, a.set, a.rarity].filter(Boolean).map(escHtml).join(" · ")) +
+            `<div class="tp-eff">${ARMOUR_STATS.map(([k, l]) => `${l} <b>${a[k]}</b>`).join(" · ")}</div>` +
+            (req.length ? `<div class="tp-eff">Requires ${req.map(([v, n]) => `<b>${n}</b> ${vspan(v)}`).join(" · ")}</div>` : "");
+        }
+        if (key.startsWith("/SF/Souls/")) return head("Pact");
+        if (key.includes("/Aspects/Tempers/") && TEMPER_DB[leaf]) {
+          const origin = temperOrigin(leaf);
+          const eff = temperEffect(leaf);
+          return `<div class="tp-head">${temperIcon(leaf)}<div class="tp-name">${escHtml(temperName(leaf))}</div></div>` +
+            (origin ? `<div class="tp-rank">${escHtml(ORIGIN_LABEL)} · ${escHtml(origin)}</div>` : "") +
+            (eff ? `<div class="tp-eff">${eff}</div>` : "") + temperStatsHtml(leaf);
+        }
+        // Resources and other stacks: the game's description where a recipe makes them,
+        // what you hold now, and what they're used to make.
+        const uses = [...new Set(Object.values(RECIPES)
+          .filter((r) => r.ingredients.some((x) => x.type === key || (x.alt || []).includes(key)))
+          .map((r) => r.name))].sort((a, b) => a.localeCompare(b));
+        const held = LAST_CRAFTING ? LAST_CRAFTING.stock[key] || 0 : null;
+        const list = uses.length > 8 ? `${uses.slice(0, 8).map(escHtml).join(", ")} and ${uses.length - 8} more` : uses.map(escHtml).join(", ");
+        const made = Object.values(RECIPES).find((r) => r.result === key);
+        const maker = made ? RECIPE_NPC[made.station] : null;
+        return head(held != null ? `You have ${fmt(held)}` : "") +
+          (made && made.desc ? `<div class="tp-quote">${escHtml(made.desc).replace(/\n/g, "<br>")}</div>` : "") +
+          (maker ? `<div class="tp-eff">${made.station === "Brewing" ? "Brewed" : "Cast"} by ${escHtml(maker)}</div>` : "") +
+          (uses.length ? `<div class="tp-eff">Used to make ${list}</div>` : "");
       }
       const tradeNameRow = (n) => `<li>${tradeIcon(n)}<span>${escHtml(n)}</span><span></span></li>`;
       function tradeList(items, extra = []) {
@@ -2149,6 +2236,7 @@
       function renderTrades() {
         const t = LAST_TRADES;
         if (!t) return;
+        TRADE_POP.clear();
         const history = t.history || [];
         const today = new Date().toISOString().slice(0, 10);
         const scutage = history.reduce((n, x) => n + (tradeScutage(x) ?? Math.max(0, -(x.dracs || 0))), 0);
@@ -2550,7 +2638,7 @@
       const deityHtml = (label) =>
         escHtml(label).replace(/\b(Mora|Iridis|Saphene)\b/, (d) => `<span style="color:${VIRTUE_COLOR[DEITY_VIRTUE[d]]}">${d}</span>`);
       const upIcon = (src, cls = "avicn") => (src ? `<img class="${cls}" src="${escHtml(src)}" alt="" loading="lazy">` : `<span class="${cls}"></span>`);
-      const runeInfo = (type) => UPGRADES.runes[type] || { name: shortName(type), art: null, stats: [], icon: null };
+      const runeInfo = (type) => UPGRADES.runes[type] || { name: shortName(type), art: null, icon: null };
       const runeMax = (d) => Math.max(0, ...Object.values((d && d.vals) || {}).map((v) => v.length - 1));
       const runeTop = (o) => (o.ranks.length ? o.ranks[0] : null);
       const runeRank = (o) => (runeTop(o) ?? 0) + 1;
@@ -2571,7 +2659,7 @@
           .map((g) => `<div class="avgroup"><h3>${g.icon ? upIcon(g.icon, "") : ""}${escHtml(g.name)} <span class="count">${g.count ?? g.rows.length}</span></h3>${g.rows.join("")}</div>`)
           .join("")}</div>`;
 
-      const UPGRADE_UI = { runes: "all", gear: "all", runeArt: "all", runeDrop: "all", joinVirtue: "all", joinTier: "all", gearType: "all", gearHabitat: "all", gearNature: "all", runeSort: "weapon", joinSort: "metal", gearSort: "type" };
+      const UPGRADE_UI = { runes: "all", gear: "all", runeArt: "all", joinVirtue: "all", joinTier: "all", gearType: "all", gearHabitat: "all", gearNature: "all", runeSort: "weapon", joinSort: "metal", gearSort: "type" };
       const upFlat = (rows) => `<div class="upgroups upflat">${rows.join("")}</div>`;
       const RUNE_SORTS = [["weapon", "Weapon"], ["slot", "Totem slot"], ["name", "Name"], ["rank", "Rank"], ["copies", "Copies"]];
       const JOIN_SORTS = [["metal", "Metal"], ["virtue", "Virtue"], ["blessing", "Blessing"], ["name", "Name"], ["count", "Count"]];
@@ -2701,24 +2789,18 @@
         $("runeSummary").innerHTML = runes.length
           ? `Owned <b>${ownedRunes.length}/${runes.length}</b> &nbsp;·&nbsp; At max rank <b>${maxed}</b> &nbsp;·&nbsp; Copies <b>${copies}</b>`
           : "";
-        const cogah = (o) => (o.d.tags || []).includes("Cogah");
-        const drops = { cogah, other: (o) => !cogah(o) };
-        if (!drops[UPGRADE_UI.runeDrop]) UPGRADE_UI.runeDrop = "all";
         const runeArts = [...new Set(runes.map((o) => o.d.art).filter(Boolean))].sort((a, b) => a.localeCompare(b));
         if (!runeArts.includes(UPGRADE_UI.runeArt)) UPGRADE_UI.runeArt = "all";
         const artOk = (o) => UPGRADE_UI.runeArt === "all" || o.d.art === UPGRADE_UI.runeArt;
-        const dropOk = (o) => UPGRADE_UI.runeDrop === "all" || drops[UPGRADE_UI.runeDrop](o);
         const ownOk = (o) => passOwned("runes", o);
         const runeChip = (k, v, label, n, img = "") =>
           `<button class="fchip${UPGRADE_UI[k] === v ? " active" : ""}" data-k="${k}" data-v="${escHtml(v)}">${img}${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`;
-        const byArt = runes.filter((o) => ownOk(o) && dropOk(o));
-        const byDrop = runes.filter((o) => ownOk(o) && artOk(o));
+        const byArt = runes.filter((o) => ownOk(o));
         $("runeFilters").innerHTML = !runes.length ? ""
-          : ownFilter("runes", runes.filter((o) => artOk(o) && dropOk(o))) +
+          : ownFilter("runes", runes.filter((o) => artOk(o))) +
             `<span class="fl">Weapon</span><div class="wfilter">${runeChip("runeArt", "all", "All")}${runeArts
               .map((a) => runeChip("runeArt", a, escHtml(a), byArt.filter((o) => o.d.art === a).length, `<img src="${gripIcon(a)}" alt="" onerror="this.remove()">`))
-              .join("")}</div>` +
-            `<span class="fl">Drops</span><div class="wfilter">${runeChip("runeDrop", "all", "All")}${runeChip("runeDrop", "cogah", "Cogah", byDrop.filter(drops.cogah).length)}${runeChip("runeDrop", "other", "Non-Cogah", byDrop.filter(drops.other).length)}</div>`;
+              .join("")}</div>`;
         const runeRow = (o, ctx = {}) => {
           const max = runeMax(o.d) ? runeRanks(o.d) : 0;
           const r = runeRank(o);
@@ -2727,11 +2809,11 @@
             : `Rank ${r}`;
           const n = runeCopies(o);
           const sub = [ctx.art && o.d.art ? escHtml(o.d.art) : "", ctx.slot === false ? "" : slotHtml(o.d.slot), o.owned && n > 1 ? `${n} copies` : ""].filter(Boolean).join(" · ");
-          return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${(o.d.tags || []).includes("Cogah") ? '<span class="rtag" title="Only drops in the Cogah">Cogah</span>' : ""}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}</div></div>`;
+          return `<div class="avrow poprow${o.owned ? "" : " miss"}" data-kind="rune" data-type="${escHtml(o.type)}">${upIcon(o.d.icon)}<div class="avn">${escHtml(o.d.name)}${sub ? `<small>${sub}</small>` : ""}</div><div class="avr">${pips}</div></div>`;
         };
         const runeWords = searchWords(UPGRADE_Q.runes);
-        const runeHay = (o) => [o.d.name, o.d.desc, runeText(o.d), o.d.art, o.d.slot, ...(o.d.tags || [])];
-        const shownRunes = runes.filter((o) => ownOk(o) && artOk(o) && dropOk(o) && matchesWords(runeWords, runeHay(o)));
+        const runeHay = (o) => [o.d.name, o.d.desc, runeText(o.d), o.d.art, o.d.slot];
+        const shownRunes = runes.filter((o) => ownOk(o) && artOk(o) && matchesWords(runeWords, runeHay(o)));
         const arts = [...new Set(shownRunes.map((o) => o.d.art || "Other"))].sort((a, b) => (a === "Other") - (b === "Other") || a.localeCompare(b));
         const runeByName = (a, b) => a.d.name.localeCompare(b.d.name);
         const runeFlat = { name: runeByName, rank: (a, b) => b.owned - a.owned || runeRank(b) - runeRank(a) || runeByName(a, b), copies: (a, b) => runeCopies(b) - runeCopies(a) || runeByName(a, b) };
@@ -2785,7 +2867,7 @@
           const label = (o) => (family ? o.d.name.slice(family.length + 1).trim() : o.d.name);
           return {
             name: family || "Other",
-            icon: `img/joineries/${family ? family.toLowerCase() : "joinery"}.png`,
+            icon: `img/game/joinery${family ? `-${family.toLowerCase()}` : ""}.png`,
             count: qty(list),
             rows: list
               .sort((a, b) => TIER_ORDER(label(a)) - TIER_ORDER(label(b)) || label(a).localeCompare(label(b)))
@@ -2868,20 +2950,9 @@
           : shownGear.length ? gearHtml : '<span class="muted">Nothing matches these filters.</span>';
       }
 
-      function runeDropsHtml(drops) {
-        if (!drops) return "";
-        const bosses = drops.bosses || [];
-        const boss = (b) => `<li><img src="${b.icon || "img/game/agari.png"}" alt="" loading="lazy" onerror="this.src='img/game/agari.png'"><span>${escHtml(b.name)}</span></li>`;
-        const group = (title, list) => (list.length ? `<h4>${title}</h4><ul class="tp-bosses">${list.map(boss).join("")}</ul>` : "");
-        const places = [["Sieges", drops.sieges], ["Votives", drops.votives], ["Chests", drops.chests]]
-          .filter(([, list]) => list && list.length)
-          .map(([title, list]) => `<div class="tp-src"><b>${title}</b> ${list.map(escHtml).join(", ")}</div>`);
-        const body = group("Agari", bosses.filter((b) => !b.cogah)) + group("In the Cogah", bosses.filter((b) => b.cogah)) + places.join("");
-        return body ? `<div class="tp-on tp-drops"><div class="tp-rank">Drops from</div>${body}</div>` : "";
-      }
-
       function upgradePopHtml(kind, type) {
         if (kind === "recipe") return recipePopHtml(type);
+        if (kind === "trade") return tradePopHtml(TRADE_POP.get(type));
         const u = LAST_UPGRADE_ITEMS || { runes: [], joineries: [], gear: [] };
         if (kind === "rune") {
           const d = runeInfo(type);
@@ -2891,13 +2962,12 @@
           const rank = !held ? "Unowned" : runeMax(d) ? `Rank ${r} of ${runeRanks(d)}` : `Rank ${r}`;
           const text = runeText(d, held ? r - 1 : null);
           const stats = text ? `<div class="tp-eff">${text}</div>` : "";
-          const art = (d.art ? `${escHtml(d.art)} rune · ` : "") + ((d.tags || []).includes("Cogah") ? "Cogah · " : "");
+          const art = d.art ? `${escHtml(d.art)} rune · ` : "";
           return `<div class="tp-head">${d.icon ? upIcon(d.icon, "ticn") : ""}<div class="tp-name">${escHtml(d.name)}</div></div>` +
             `<div class="tp-rank">${art}${rank}</div>${d.desc ? `<div class="tp-quote">${escHtml(d.desc)}</div>` : ""}` +
             stats +
             (d.slot ? `<div class="tp-eff">Adds a ${slotHtml(d.slot)}.</div>` : "") +
-            (held && runeCopies(o) > 1 ? `<div class="tp-dbl">${runeCopies(o)} copies</div>` : "") +
-            runeDropsHtml(d.drops);
+            (held && runeCopies(o) > 1 ? `<div class="tp-dbl">${runeCopies(o)} copies</div>` : "");
         }
         const d = (kind === "joinery" ? UPGRADES.joineries : UPGRADES.gear)[type] || { name: shortName(type) };
         const icon = d.icon || ITEM_ICONS[d.name];
@@ -2949,8 +3019,6 @@
         if (r.dracs > 0) limits.push(Math.floor(c.dracs / r.dracs));
         limits.push(r.consumed ? Math.floor(fragments / r.fragments) : fragments >= r.fragments ? Infinity : 0);
         const times = Math.max(0, Math.min(...limits));
-        const bond = c.bond[RECIPE_NPC[r.station]];
-        const locked = !isGear(r) && r.bond != null && bond != null && bond < r.bond;
         const missing = r.ingredients.filter((i) => have(i) < i.count).map((i) => i.name);
         if (r.dracs > c.dracs) missing.push("Dracs");
         if (fragments < r.fragments) missing.push("Fragments");
@@ -2958,18 +3026,15 @@
         // How many of the finished item you hold: stacked items (Elixirs, Chordstones)
         // are in stock, copies of Pacts, weapons, armour and palettes in owned.
         const owned = (c.stock[r.result] || 0) + ((c.owned || {})[r.result] || 0);
-        return { have, fragments, times, locked, block, owned, missing, ready: !locked && !block && times > 0 };
+        return { have, fragments, times, block, owned, missing, ready: !block && times > 0 };
       }
       function recipeCard(o, c) {
         const { type, r, s } = o;
-        const npc = RECIPE_NPC[r.station];
         const state = s.block === "owned" ? '<span class="rstate lock">Owned</span>'
           : s.block === "curing" ? '<span class="rstate lock">Curing</span>'
-          : s.locked ? `<span class="rstate lock">Bond ${r.bond}</span>`
           : s.ready ? '<span class="rstate ok">Ready</span>' : '<span class="rstate short">Missing</span>';
         const meta = s.block === "owned" ? "Already Owned"
           : s.block === "curing" ? "Curing In Progress"
-          : s.locked ? `Needs Bond Rank ${r.bond} with ${npc}`
           : s.ready ? `Enough for ${fmt(s.times)} ${recipeVerb(r, s.times)}` : `Short of ${s.missing.map(escHtml).join(", ")}`;
         const virtues = (r.scaling || []).map((v) => `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(" ");
         const kind = RECIPE_KINDS[r.kind] ? `<span class="avgrp">${RECIPE_KINDS[r.kind]}</span>`
@@ -3072,15 +3137,13 @@
         const r = RECIPES[type];
         if (!r) return "";
         const npc = RECIPE_NPC[r.station];
-        const bond = LAST_CRAFTING ? LAST_CRAFTING.bond[npc] : null;
         return `<div class="tp-head">${upIcon(r.icon, "ticn")}<div class="tp-name">${escHtml(r.name)}${r.gives > 1 ? ` ×${r.gives}` : ""}</div></div>` +
           (isGear(r)
             ? `<div class="tp-rank">${escHtml(r.kind === "Weapons" ? `${r.slot || ""} weapon` : r.slot || "Armour")}</div>`
             : `<div class="tp-rank">${r.station === "Brewing" ? "Brewed" : r.kind === "Pacts" ? "Forged" : "Cast"} by ${npc}</div>`) +
           (r.desc ? `<div class="tp-quote">${escHtml(r.desc).replace(/\n/g, "<br>")}</div>` : "") +
           (r.scaling && r.scaling.length ? `<div class="tp-eff">Scales with ${r.scaling.map((v) => `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(", ")}</div>` : "") +
-          (r.requires ? `<div class="tp-eff">Requires ${Object.entries(r.requires).map(([v, n]) => `<b>${n}</b> <span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(" · ")}</div>` : "") +
-          (r.bond && !isGear(r) ? `<div class="tp-eff">Needs Bond Rank <b>${r.bond}</b> with ${npc}${bond != null ? ` · you're Rank ${bond}` : ""}</div>` : "");
+          (r.requires ? `<div class="tp-eff">Requires ${Object.entries(r.requires).map(([v, n]) => `<b>${n}</b> <span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>`).join(" · ")}</div>` : "");
       }
       $("recipeSearch").addEventListener("input", (e) => {
         RECIPE_Q = e.target.value;
@@ -3518,9 +3581,9 @@
       const ANIMALS = ["Beaver", "Duck", "Fawn", "Rabbit", "Rat", "Squirrel"];
       const TRIGGER_LABEL = { "Runes (Passive)": "Passive", "Rune Activation": "Rune Cast", "Pull Smite": "Pull Smite", "Smite Proc": "Smite" };
       const TRIGGERS = ["Passive", "Rune Cast", "Pull Smite", "Smite"];
-      const virtueIcon = (v) => `img/virtues/${v.toLowerCase()}.png`;
-      const gripIcon = (g) => `img/grips/${g.toLowerCase().replace(/ /g, "-")}.png`;
-      const animalIcon = (a) => `img/totems/${a.toLowerCase()}.png`;
+      const virtueIcon = (v) => `img/game/virtue-${v.toLowerCase()}.png`;
+      const gripIcon = (g) => `img/game/grip-${g.toLowerCase().replace(/ /g, "-")}.png`;
+      const animalIcon = (a) => `img/game/animal-${a.toLowerCase()}.png`;
 
       function totemName(type) {
         const leaf = String(type).split("/").pop();
@@ -3705,8 +3768,8 @@
           runeLevels: Array.isArray(x.runeLevels) ? x.runeLevels.map((n) => (typeof n === "number" ? n : null)) : [],
           totems: (Array.isArray(x.totems) ? x.totems : []).map((t) =>
             typeof t === "string"
-              ? { type: t, rank: null, slot: null, virtue: null }
-              : { type: t.type, rank: t.rank ?? null, slot: t.slot ?? null, virtue: t.virtue ?? null },
+              ? { type: t, rank: null, slot: null, virtue: null, grip: null }
+              : { type: t.type, rank: t.rank ?? null, slot: t.slot ?? null, virtue: t.virtue ?? null, grip: typeof t.grip === "string" ? t.grip : null },
           ),
           joinery: x.joinery && typeof x.joinery === "object"
             ? { name: x.joinery.name ?? null, virtue: x.joinery.virtue ?? null, code: x.joinery.code ?? "", tier: x.joinery.tier ?? null, pips: x.joinery.pips ?? null }
@@ -3755,9 +3818,13 @@
         const body = (t) => {
           const name = totemName(t.type);
           const d = TOTEM_DATA[name];
-          const eff = d ? totemEffectHtml(d, t.rank, !!t.grip && t.grip !== "Universal") : "";
+          const aligned = !!t.grip && t.grip !== "Universal";
+          const eff = d ? totemEffectHtml(d, t.rank, aligned) : "";
           const virt = t.virtue ? `<span class="tvirt" style="color:${VIRTUE_COLOR[t.virtue]}">${t.virtue}</span>` : "";
-          return `<span class="tname">${name}${virt}</span>${eff ? `<span class="teff">${eff}</span>` : ""}`;
+          const grip = t.grip
+            ? `<span class="tgrip" title="${aligned ? `Only fits ${escHtml(t.grip)} weapons, with a stronger effect` : "Fits any weapon"}"><img src="${gripIcon(t.grip)}" alt="" onerror="this.remove()">${escHtml(t.grip)}</span>`
+            : "";
+          return `<span class="tname">${name}${virt}${grip}</span>${eff ? `<span class="teff">${eff}</span>` : ""}`;
         };
         if (!arr.some((t) => t.slot)) return arr.map((t) => `<div class="totemrow">${body(t)}</div>`).join("");
         const slots = hasRune || arr.some((t) => t.slot === 4) ? 4 : 3;
@@ -3776,7 +3843,7 @@
       };
       const VIRTUE_COLOR = { Courage: "#d98a6a", Spirit: "#6fae8f", Grace: "#6f9edb" };
       const JOINERY_ICON = { Verite: "verite", Quicksilver: "quicksilver", Feybalt: "feybalt", Gildaur: "gildaur" };
-      const joineryIconSrc = (j) => "img/joineries/" + (JOINERY_ICON[j && j.name] || "joinery") + ".png";
+      const joineryIconSrc = (j) => (JOINERY_ICON[j && j.name] ? `img/game/joinery-${JOINERY_ICON[j.name]}.png` : "img/game/joinery.png");
       const joineryName = (j) => j.name || (j.code || "reforge").replace(/([a-z])([A-Z])/g, "$1 $2");
       const virtueTag = (v) => (v ? ` · <span style="color:${VIRTUE_COLOR[v] || "var(--text)"}">${v}</span>` : "");
       const VIRTUE_DEITY = { Courage: "Mora", Spirit: "Iridis", Grace: "Saphene" };
@@ -3858,18 +3925,29 @@
         if (!pieces.some((p) => p.type) && !tal) return "";
         const have = (virtueSources(b) || {}).total;
         const req = (d) => {
-          if (!d || !d.requires) return "—";
-          const { virtue, value } = d.requires;
-          const label = `<span style="color:${VIRTUE_COLOR[virtue]}">${value} ${virtue}</span>`;
-          if (!have) return label;
-          const met = have[virtue] >= value;
-          return `<span class="areq ${met ? "met" : "unmet"}" title="This loadout has ${have[virtue]} ${virtue}">${label} <span class="${met ? "ok" : "no"}">${met ? "✓" : "✗"}</span></span>`;
+          const list = Object.entries((d && d.requires) || {});
+          if (!list.length) return "—";
+          return list
+            .map(([virtue, value]) => {
+              const label = `<span style="color:${VIRTUE_COLOR[virtue]}">${value} ${virtue}</span>`;
+              if (!have) return label;
+              const met = have[virtue] >= value;
+              return `<span class="areq ${met ? "met" : "unmet"}" title="This loadout has ${have[virtue]} ${virtue}">${label} <span class="${met ? "ok" : "no"}">${met ? "✓" : "✗"}</span></span>`;
+            })
+            .join("<br>");
+        };
+        // The game marks how strongly each stat grows with each Virtue, one icon per step.
+        const marks = (d, k) => {
+          const grades = Object.entries(((d && d.attunements) || {})[k] || {});
+          if (!grades.length) return "";
+          const title = `Grows with ${grades.map(([v, n]) => (n > 1 ? `${v} ×${n}` : v)).join(" and ")}`;
+          return `<span class="aatt" title="${title}">${grades.map(([v, n]) => `<img src="${virtueIcon(v)}" alt="">`.repeat(n)).join("")}</span>`;
         };
         const rows = pieces
           .map((p) => {
             const name = p.type ? p.name : "—";
             const set = p.data ? `<span class="aset">${[p.data.set, p.data.rarity].filter(Boolean).join(" · ")}</span>` : "";
-            const stats = ARMOUR_STATS.map(([k]) => `<td class="num">${p.data ? p.data[k] : "—"}</td>`).join("");
+            const stats = ARMOUR_STATS.map(([k]) => `<td class="num">${p.data ? `${marks(p.data, k)}${p.data[k]}` : "—"}</td>`).join("");
             return `<tr><td><span class="aslot">${p.slot}</span><span class="aname">${name}</span>${set}</td>${stats}<td class="num">${req(p.data)}</td></tr>`;
           })
           .join("");
@@ -4023,8 +4101,13 @@
         const pact = slotDetail("Pact", b.soul);
         const weapons = slotDetail("Primary Weapon", b.melee) + slotDetail("Sidearm", b.ranged);
         const top = virtueBlock(b) + armourBlock(b);
+        // With a Pact, its Arts tree sits beside the Virtues and Armour (stacked) instead of
+        // below them, so the top of a loadout fills the width.
+        const head = pact
+          ? `<div class="lo-top lo-top-pact">${top ? `<div class="lo-stats">${top}</div>` : ""}${pact}</div>`
+          : top ? `<div class="lo-top">${top}</div>` : "";
         const detail = pact || weapons
-          ? `${top ? `<div class="lo-top">${top}</div>` : ""}${pact}${weapons ? `<div class="lo-grid">${weapons}</div>` : ""}`
+          ? `${head}${weapons ? `<div class="lo-grid">${weapons}</div>` : ""}`
           : '<span class="muted">No gear in this loadout.</span>';
         return `<article class="lo" id="lo-${key}">
           <div class="lo-head" data-toggle="${key}">

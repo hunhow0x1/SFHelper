@@ -4,21 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { estimateEnvoyRank, itemMastery, masteryMax, rankFor, rankStart } from "../src/server/envoyRank";
 import { loggedMastery } from "../src/server/gameLog";
-import { parseMaxMastery } from "../scripts/build_data";
 
 const W = (n: number) => `/SF/Weapons/Melee/W${n}`;
 const P = (n: number) => `/SF/Souls/P${n}/P${n}Soul`;
 const XP30 = 450_000;
 
 describe("Envoy Rank", () => {
-  it("reads the patch maximum from the wiki's wording", () => {
-    expect(parseMaxMastery("'''Maximum Mastery''' as of {{VerShort|P16}} is ~'''19.1''' for [[Paragon Founders]].")).toEqual({
-      maxMastery: 19.1,
-      patch: "P16",
-    });
-    expect(parseMaxMastery("no figure here")).toBeNull();
-  });
-
   it("counts 100 Mastery per weapon rank and 200 per pact rank, capped at 30", () => {
     expect(itemMastery({ [W(1)]: 2_000_000, [W(2)]: 125 * 10 * 10, [P(1)]: XP30, "/SF/Other/X": 9e9 })).toEqual({
       weaponRanks: 40,

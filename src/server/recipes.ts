@@ -113,8 +113,6 @@ export function pactBlock(type: string, r: RecipeDef, c: CraftingState): "owned"
 export function recipeTimes(type: string, r: RecipeDef, c: CraftingState): number {
   const fragments = c.recipes[type] ?? 0;
   if (fragments <= 0 || pactBlock(type, r, c)) return 0;
-  const bond = c.bond[RECIPE_NPC[r.station] ?? ""];
-  if (!isGear(r) && r.bond != null && bond != null && bond < r.bond) return 0;
   const have = (i: RecipeDef["ingredients"][number]) => (c.stock[i.type] ?? 0) + (i.alt ?? []).reduce((n, a) => n + (c.stock[a] ?? 0), 0);
   const limits = r.ingredients.map((i) => Math.floor(have(i) / i.count));
   if (r.dracs > 0) limits.push(Math.floor(c.dracs / r.dracs));

@@ -342,7 +342,7 @@
       ],
       "weight": 0.4,
       "limit": 1,
-      "icon": "img/joineries/gildaur.png"
+      "icon": "img/game/joinery-gildaur.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRG",
@@ -360,7 +360,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/gildaur.png"
+      "icon": "img/game/joinery-gildaur.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseSRS",
@@ -378,7 +378,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/gildaur.png"
+      "icon": "img/game/joinery-gildaur.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRC",
@@ -396,7 +396,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/verite.png"
+      "icon": "img/game/joinery-verite.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRG",
@@ -414,7 +414,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/verite.png"
+      "icon": "img/game/joinery-verite.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeMeleeSRS",
@@ -432,7 +432,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/verite.png"
+      "icon": "img/game/joinery-verite.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRC",
@@ -450,7 +450,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/game/joinery-quicksilver.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRG",
@@ -468,7 +468,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/game/joinery-quicksilver.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiUpgradeRangedSRS",
@@ -486,7 +486,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/quicksilver.png"
+      "icon": "img/game/joinery-quicksilver.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRC",
@@ -504,7 +504,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/game/joinery-feybalt.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Items/Kintsugi/Weapons/KintsugiWeaponUpgradeCasterSRS",
@@ -522,7 +522,7 @@
       ],
       "weight": 0.35,
       "limit": 1,
-      "icon": "img/joineries/feybalt.png"
+      "icon": "img/game/joinery-feybalt.png"
     },
     {
       "storeItem": "/SF/StoreItems/Types/Recipes/Pacts/LocksuitPactBlueprint",

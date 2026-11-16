@@ -13,8 +13,7 @@ export interface Roster {
 interface GameWeapon {
   name: string;
   slot: string;
-  style: string | null;
-  damage: string | null;
+  grip?: string | null;
 }
 
 interface Arsenal {
@@ -25,42 +24,13 @@ interface Arsenal {
 const OTHER = "Other";
 const byName = <T>(entries: [string, T][]): Record<string, T> => Object.fromEntries(entries.sort(([a], [b]) => a.localeCompare(b)));
 
-function classGuesser(game: GameWeapon[], wiki: Record<string, RosterWeapon>): (w: GameWeapon) => string {
-  const keys = (w: GameWeapon) => [`${w.slot}|${w.style}|${w.damage}`, `${w.slot}|${w.style}`, `${w.style}`];
-  const votes = new Map<string, Map<string, number>>();
-  for (const w of game) {
-    const known = wiki[w.name]?.class;
-    if (!known || known === OTHER) continue;
-    for (const k of keys(w)) {
-      const tally = votes.get(k) ?? votes.set(k, new Map()).get(k)!;
-      tally.set(known, (tally.get(known) ?? 0) + 1);
-    }
-  }
-  return (w) => {
-    for (const k of keys(w)) {
-      const tally = votes.get(k);
-      if (tally) return [...tally].sort(([a, x], [b, y]) => y - x || a.localeCompare(b))[0]![0];
-    }
-    return OTHER;
-  };
-}
-
-export function buildRoster(wikiWeapons: Record<string, RosterWeapon> | null, arsenal: Arsenal | null): Roster {
-  const wiki = wikiWeapons ?? {};
-  const game = Object.values(arsenal?.weapons ?? {});
-  const gamePacts = Object.values(arsenal?.pacts ?? {});
-  const guess = classGuesser(game, wiki);
-  const weapons = game.length
-    ? byName(game.map((w): [string, RosterWeapon] => {
-        const known = wiki[w.name]?.class;
-        return [w.name, { class: known && known !== OTHER ? known : guess(w), slot: w.slot }];
-      }))
-    : wiki;
-  const pacts = byName(gamePacts.map((n): [string, Record<string, never>] => [n, {}]));
+// Weapons are classed by their grip, as the game names it (Long Blade, Heavy…).
+export function buildRoster(arsenal: Arsenal | null): Roster {
+  const weapons = byName(Object.values(arsenal?.weapons ?? {}).map((w): [string, RosterWeapon] => [w.name, { class: w.grip || OTHER, slot: w.slot }]));
+  const pacts = byName(Object.values(arsenal?.pacts ?? {}).map((n): [string, Record<string, never>] => [n, {}]));
   return { weapons, pacts };
 }
 
 export async function getRoster(): Promise<Roster> {
-  const [weapons, arsenal] = await Promise.all([readDataJson<Record<string, RosterWeapon>>("weapons.json"), readDataJson<Arsenal>("arsenal.json")]);
-  return buildRoster(weapons, arsenal);
+  return buildRoster(await readDataJson<Arsenal>("arsenal.json"));
 }

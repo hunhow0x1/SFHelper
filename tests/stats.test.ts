@@ -94,7 +94,7 @@ describe("Gear numbers from the game files", () => {
 
   it("matches each booster to its own record and reads the elixirs' numbers", async () => {
     expect(boosterRecords(texts, tree).get("/SF/Types/Game/CouragePotionBooster")).toContain("Value=10");
-    const { gear } = await buildUpgrades(names, texts, null, null, async () => null, async () => null, boosterRecords(texts, tree));
+    const { gear } = await buildUpgrades(names, texts, null, async () => null, async () => null, boosterRecords(texts, tree));
     expect(gear["/SF/Types/Items/Consumables/Syndicates/ChampionVirtueElixir"]!.stats).toEqual(["Courage +10", "Lasts 1 hour"]);
     expect(gear["/SF/Types/Items/Consumables/HealingPotion"]!.stats).toEqual(["Heals 30% of Maximum Life"]);
     expect(gear["/SF/Types/Items/Consumables/WevetSeed"]).not.toHaveProperty("stats");
@@ -128,7 +128,7 @@ describe("Joinery pips from the game files", () => {
   };
 
   it("pairs each Joinery with its own record, even when two share a name, and counts 5 attunement per pip", async () => {
-    const { joineries } = await buildUpgrades(names, texts, null, null, async () => null, async () => null, new Map(), kintsugiDefs(texts));
+    const { joineries } = await buildUpgrades(names, texts, null, async () => null, async () => null, new Map(), kintsugiDefs(texts));
     const at = (leaf: string) => joineries[`/SF/Types/Items/Kintsugi/Weapons/${leaf}`]!.pips;
     expect(at("KintsugiWeaponUpgradeCasterSRG")).toEqual({ virtue: "Grace", count: 3 });
     expect(at("KintsugiWeaponUpgradeCasterFeySRS")).toEqual({ virtue: "Spirit", count: 3 });

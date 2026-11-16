@@ -31,8 +31,6 @@ import { readDataJson } from "../src/server/paths";
 import { setAppVersion } from "../src/server/userAgent";
 import { findCacheDir } from "../src/gamedata/cache";
 import { GameDataWatcher } from "../src/gamedata/watch";
-import { Wiki } from "../src/gamedata/wiki";
-import { buildWeapons } from "../scripts/build_data";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ICON_PATH = join(HERE, "public", "img", "icon-256.png");
@@ -66,18 +64,6 @@ function log(msg: string): void {
   logReady = logReady.then(() => appendFile(LOG_PATH, `${new Date().toISOString()} ${msg}\n`)).catch(() => {});
 }
 
-async function refreshData(): Promise<void> {
-  try {
-    await mkdir(DATA_DIR, { recursive: true });
-    log("Refreshing weapon classes from the wiki…");
-    const w = await buildWeapons(join(DATA_DIR, "weapons.json"));
-    noteDataRefreshed();
-    log(`Wiki data updated: ${w.ok} weapon classes.`);
-  } catch (err) {
-    log(`Effect data refresh failed (using bundled data): ${(err as Error).message}`);
-  }
-}
-
 const GAME_DATA_FIRST_MS = 30_000;
 const GAME_DATA_CHECK_MS = 10 * 60_000;
 const gameData = new GameDataWatcher({
@@ -89,7 +75,6 @@ const gameData = new GameDataWatcher({
     const logged = await loggedGame();
     return { dir: await findCacheDir(logged?.log ?? null, logged?.cacheDir ?? null), build: logged?.build ?? null };
   },
-  wiki: () => new Wiki(),
   log,
   onChanged: () => {
     resetNameCaches();
@@ -608,7 +593,6 @@ async function proceed(): Promise<void> {
   createMainWindow(server.url, (await getSettings()).theme);
   onSettingsChange((s) => applyTheme(s.theme));
 
-  void refreshData();
   startUpdater(log);
   void armSavedTimers();
   setInterval(() => {

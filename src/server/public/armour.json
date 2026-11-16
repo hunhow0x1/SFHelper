@@ -7,8 +7,18 @@
     "magick": 1,
     "stability": 4,
     "requires": {
-      "virtue": "Courage",
-      "value": 19
+      "Courage": 19
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3
+      },
+      "magick": {
+        "Courage": 1
+      },
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Arbearer's Mask": {
@@ -19,8 +29,18 @@
     "magick": 1,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 19
+      "Courage": 19
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3
+      },
+      "magick": {
+        "Courage": 1
+      },
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Arbearer's Pauncher": {
@@ -31,8 +51,18 @@
     "magick": 2,
     "stability": 4,
     "requires": {
-      "virtue": "Courage",
-      "value": 19
+      "Courage": 19
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3
+      },
+      "magick": {
+        "Courage": 1
+      },
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Armet of Orengall": {
@@ -43,8 +73,20 @@
     "magick": 2,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 17
+      "Grace": 17
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 1,
+        "Grace": 3
+      },
+      "magick": {
+        "Courage": 1,
+        "Grace": 1
+      },
+      "stability": {
+        "Grace": 3
+      }
     }
   },
   "Bascinet of The Mendicant King": {
@@ -55,8 +97,21 @@
     "magick": 1,
     "stability": 3,
     "requires": {
-      "virtue": "Courage",
-      "value": 17
+      "Courage": 17
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3,
+        "Spirit": 1
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 1
+      }
     }
   },
   "Brazen Lung": {
@@ -66,7 +121,12 @@
     "physical": 2,
     "magick": 4,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {},
+      "magick": {},
+      "stability": {}
+    }
   },
   "Buskins of The Sleeve": {
     "slot": "Leggings",
@@ -76,8 +136,18 @@
     "magick": 2,
     "stability": 2,
     "requires": {
-      "virtue": "Spirit",
-      "value": 15
+      "Spirit": 15
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 3
+      },
+      "magick": {
+        "Spirit": 1
+      },
+      "stability": {
+        "Spirit": 2
+      }
     }
   },
   "Ceptet's Carapace": {
@@ -88,8 +158,21 @@
     "magick": 3,
     "stability": 3,
     "requires": {
-      "virtue": "Courage",
-      "value": 18
+      "Courage": 18
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Spirit": 2
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 1
+      }
     }
   },
   "Ceptet's Gaiters": {
@@ -100,8 +183,21 @@
     "magick": 3,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 18
+      "Courage": 18
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Spirit": 2
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 1
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 2
+      }
     }
   },
   "Ceptet's Headstone": {
@@ -112,8 +208,21 @@
     "magick": 3,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 18
+      "Courage": 18
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Spirit": 2
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 1
+      }
     }
   },
   "Circade's Greaves": {
@@ -124,8 +233,16 @@
     "magick": 0,
     "stability": 3,
     "requires": {
-      "virtue": "Courage",
-      "value": 11
+      "Courage": 11
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Circade's Gutguard": {
@@ -136,8 +253,16 @@
     "magick": 0,
     "stability": 4,
     "requires": {
-      "virtue": "Courage",
-      "value": 11
+      "Courage": 11
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Circade's Helm of Deceit": {
@@ -148,8 +273,16 @@
     "magick": 0,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 11
+      "Courage": 11
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Coronal of The Sleeve": {
@@ -160,8 +293,18 @@
     "magick": 1,
     "stability": 1,
     "requires": {
-      "virtue": "Spirit",
-      "value": 15
+      "Spirit": 15
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 1
+      },
+      "magick": {
+        "Spirit": 2
+      },
+      "stability": {
+        "Spirit": 1
+      }
     }
   },
   "Crone Cucurbita Mask": {
@@ -172,8 +315,20 @@
     "magick": 3,
     "stability": 1,
     "requires": {
-      "virtue": "Spirit",
-      "value": 9
+      "Spirit": 9
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Spirit": 2
+      },
+      "magick": {
+        "Courage": 2,
+        "Spirit": 2
+      },
+      "stability": {
+        "Grace": 1
+      }
     }
   },
   "Duelo Ribbon": {
@@ -183,7 +338,12 @@
     "physical": 0,
     "magick": 0,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {},
+      "magick": {},
+      "stability": {}
+    }
   },
   "Fire King's Kilt": {
     "slot": "Leggings",
@@ -193,8 +353,20 @@
     "magick": 2,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 12
+      "Courage": 12
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Grace": 2
+      },
+      "magick": {
+        "Courage": 1
+      },
+      "stability": {
+        "Courage": 1,
+        "Grace": 2
+      }
     }
   },
   "Fire King's Plackart": {
@@ -205,8 +377,20 @@
     "magick": 2,
     "stability": 3,
     "requires": {
-      "virtue": "Courage",
-      "value": 12
+      "Courage": 12
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Grace": 2
+      },
+      "magick": {
+        "Courage": 1
+      },
+      "stability": {
+        "Courage": 1,
+        "Grace": 2
+      }
     }
   },
   "Forgetfire Braes": {
@@ -217,8 +401,16 @@
     "magick": 0,
     "stability": 3,
     "requires": {
-      "virtue": "Courage",
-      "value": 9
+      "Courage": 9
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Forgetfire Leathers": {
@@ -229,8 +421,16 @@
     "magick": 0,
     "stability": 3,
     "requires": {
-      "virtue": "Courage",
-      "value": 9
+      "Courage": 9
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Forgetfire Visard": {
@@ -241,8 +441,16 @@
     "magick": 0,
     "stability": 3,
     "requires": {
-      "virtue": "Courage",
-      "value": 9
+      "Courage": 9
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Forsaken Rags": {
@@ -252,7 +460,12 @@
     "physical": 0,
     "magick": 0,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {},
+      "magick": {},
+      "stability": {}
+    }
   },
   "Garren's Cloven Hosen": {
     "slot": "Leggings",
@@ -262,8 +475,21 @@
     "magick": 2,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 12
+      "Grace": 12
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 1,
+        "Grace": 2
+      },
+      "magick": {
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 2
+      }
     }
   },
   "Garren's Crown of Grace": {
@@ -274,8 +500,21 @@
     "magick": 2,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 12
+      "Grace": 12
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 1,
+        "Grace": 2
+      },
+      "magick": {
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 2
+      }
     }
   },
   "Gilet of The Sleeve": {
@@ -286,8 +525,18 @@
     "magick": 4,
     "stability": 2,
     "requires": {
-      "virtue": "Spirit",
-      "value": 15
+      "Spirit": 15
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 3
+      },
+      "magick": {
+        "Spirit": 2
+      },
+      "stability": {
+        "Spirit": 1
+      }
     }
   },
   "Great Helm of The Fire King": {
@@ -298,8 +547,20 @@
     "magick": 2,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 12
+      "Courage": 12
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Grace": 2
+      },
+      "magick": {
+        "Courage": 1
+      },
+      "stability": {
+        "Courage": 1,
+        "Grace": 2
+      }
     }
   },
   "Helmless": {
@@ -309,7 +570,12 @@
     "physical": 0,
     "magick": 0,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {},
+      "magick": {},
+      "stability": {}
+    }
   },
   "Inquisitor's Belfry": {
     "slot": "Helm",
@@ -319,8 +585,18 @@
     "magick": 2,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 21
+      "Courage": 21
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 1
+      },
+      "magick": {
+        "Courage": 3
+      },
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Inquisitor's Birze": {
@@ -331,8 +607,18 @@
     "magick": 4,
     "stability": 4,
     "requires": {
-      "virtue": "Courage",
-      "value": 21
+      "Courage": 21
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3
+      },
+      "magick": {
+        "Courage": 2
+      },
+      "stability": {
+        "Courage": 1
+      }
     }
   },
   "Inquisitor's Pulpit": {
@@ -343,8 +629,18 @@
     "magick": 2,
     "stability": 4,
     "requires": {
-      "virtue": "Courage",
-      "value": 21
+      "Courage": 21
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2
+      },
+      "magick": {
+        "Courage": 1
+      },
+      "stability": {
+        "Courage": 3
+      }
     }
   },
   "Laid Bare": {
@@ -354,7 +650,12 @@
     "physical": 0,
     "magick": 0,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {},
+      "magick": {},
+      "stability": {}
+    }
   },
   "Lil' Zook Mask": {
     "slot": "Helm",
@@ -364,8 +665,20 @@
     "magick": 1,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 9
+      "Courage": 9
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Spirit": 2
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Mendicant King's Sabatons": {
@@ -376,8 +689,21 @@
     "magick": 2,
     "stability": 4,
     "requires": {
-      "virtue": "Courage",
-      "value": 17
+      "Courage": 17
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3,
+        "Spirit": 1
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 1
+      }
     }
   },
   "Mendicant King's Suit of Rancor": {
@@ -388,8 +714,21 @@
     "magick": 3,
     "stability": 4,
     "requires": {
-      "virtue": "Courage",
-      "value": 17
+      "Courage": 17
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 3,
+        "Spirit": 1
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 1
+      }
     }
   },
   "Mestra's Breeches": {
@@ -400,8 +739,18 @@
     "magick": 2,
     "stability": 2,
     "requires": {
-      "virtue": "Grace",
-      "value": 12
+      "Grace": 12
+    },
+    "attunements": {
+      "physical": {
+        "Grace": 3
+      },
+      "magick": {
+        "Grace": 2
+      },
+      "stability": {
+        "Grace": 3
+      }
     }
   },
   "Mestra's Furbelow": {
@@ -412,8 +761,18 @@
     "magick": 3,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 12
+      "Grace": 12
+    },
+    "attunements": {
+      "physical": {
+        "Grace": 3
+      },
+      "magick": {
+        "Grace": 2
+      },
+      "stability": {
+        "Grace": 3
+      }
     }
   },
   "Mestra's Helm": {
@@ -424,8 +783,18 @@
     "magick": 2,
     "stability": 2,
     "requires": {
-      "virtue": "Grace",
-      "value": 12
+      "Grace": 12
+    },
+    "attunements": {
+      "physical": {
+        "Grace": 3
+      },
+      "magick": {
+        "Grace": 2
+      },
+      "stability": {
+        "Grace": 2
+      }
     }
   },
   "Mockery Binds": {
@@ -436,8 +805,21 @@
     "magick": 4,
     "stability": 4,
     "requires": {
-      "virtue": "Grace",
-      "value": 17
+      "Grace": 17
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "magick": {
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 2
+      }
     }
   },
   "Mockery Douthrot": {
@@ -448,8 +830,21 @@
     "magick": 4,
     "stability": 2,
     "requires": {
-      "virtue": "Grace",
-      "value": 17
+      "Grace": 17
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "magick": {
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 2
+      }
     }
   },
   "Mockery Ilk": {
@@ -460,8 +855,21 @@
     "magick": 3,
     "stability": 2,
     "requires": {
-      "virtue": "Grace",
-      "value": 17
+      "Grace": 17
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "magick": {
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 2
+      }
     }
   },
   "Orengall's Cuirass": {
@@ -472,8 +880,20 @@
     "magick": 3,
     "stability": 4,
     "requires": {
-      "virtue": "Grace",
-      "value": 17
+      "Grace": 17
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 1,
+        "Grace": 3
+      },
+      "magick": {
+        "Courage": 1,
+        "Grace": 1
+      },
+      "stability": {
+        "Grace": 3
+      }
     }
   },
   "Orengall's Greaves": {
@@ -484,8 +904,20 @@
     "magick": 3,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 17
+      "Grace": 17
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 1,
+        "Grace": 3
+      },
+      "magick": {
+        "Courage": 1,
+        "Grace": 1
+      },
+      "stability": {
+        "Grace": 3
+      }
     }
   },
   "Oscelda's Blues": {
@@ -495,7 +927,16 @@
     "physical": 3,
     "magick": 5,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Spirit": 1
+      },
+      "magick": {
+        "Spirit": 1
+      },
+      "stability": {}
+    }
   },
   "Oscelda's Diadem": {
     "slot": "Helm",
@@ -504,7 +945,14 @@
     "physical": 1,
     "magick": 3,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {},
+      "magick": {
+        "Spirit": 1
+      },
+      "stability": {}
+    }
   },
   "Oscelda's Featherbinds": {
     "slot": "Leggings",
@@ -513,7 +961,16 @@
     "physical": 2,
     "magick": 4,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Spirit": 1
+      },
+      "magick": {
+        "Spirit": 1
+      },
+      "stability": {}
+    }
   },
   "Pensive's Bonnet": {
     "slot": "Helm",
@@ -523,8 +980,24 @@
     "magick": 2,
     "stability": 1,
     "requires": {
-      "virtue": "Spirit",
-      "value": 6
+      "Spirit": 6
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 1,
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 2,
+        "Grace": 1
+      }
     }
   },
   "Pensive's Cloak": {
@@ -535,8 +1008,24 @@
     "magick": 4,
     "stability": 3,
     "requires": {
-      "virtue": "Spirit",
-      "value": 6
+      "Spirit": 6
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 1,
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 2,
+        "Grace": 1
+      }
     }
   },
   "Pensive's Pantaloons": {
@@ -547,8 +1036,24 @@
     "magick": 3,
     "stability": 2,
     "requires": {
-      "virtue": "Spirit",
-      "value": 6
+      "Spirit": 6
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 1,
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 2,
+        "Grace": 1
+      }
     }
   },
   "Poppa Pepo Mask": {
@@ -559,8 +1064,21 @@
     "magick": 2,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 9
+      "Grace": 9
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 1,
+        "Grace": 2
+      },
+      "magick": {
+        "Spirit": 2,
+        "Grace": 2
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 2
+      }
     }
   },
   "Regalia of Garren Rood": {
@@ -571,8 +1089,21 @@
     "magick": 3,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 12
+      "Grace": 12
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 1,
+        "Grace": 2
+      },
+      "magick": {
+        "Spirit": 2,
+        "Grace": 1
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 2
+      }
     }
   },
   "Regent's Drapery": {
@@ -583,8 +1114,20 @@
     "magick": 2,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 12
+      "Courage": 12
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Spirit": 2
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Regent's Shell": {
@@ -595,8 +1138,20 @@
     "magick": 3,
     "stability": 2,
     "requires": {
-      "virtue": "Courage",
-      "value": 12
+      "Courage": 12
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Spirit": 2
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Regent's Veil": {
@@ -607,8 +1162,20 @@
     "magick": 1,
     "stability": 1,
     "requires": {
-      "virtue": "Courage",
-      "value": 12
+      "Courage": 12
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Spirit": 2
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Shrike's Claes": {
@@ -618,7 +1185,24 @@
     "physical": 4,
     "magick": 3,
     "stability": 3,
-    "requires": null
+    "requires": {
+      "Spirit": 8,
+      "Grace": 12
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 1,
+        "Grace": 2
+      },
+      "magick": {
+        "Spirit": 1,
+        "Grace": 2
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 1
+      }
+    }
   },
   "Shrike's Clavisons": {
     "slot": "Leggings",
@@ -627,7 +1211,24 @@
     "physical": 3,
     "magick": 2,
     "stability": 3,
-    "requires": null
+    "requires": {
+      "Spirit": 8,
+      "Grace": 12
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 1,
+        "Grace": 2
+      },
+      "magick": {
+        "Spirit": 1,
+        "Grace": 1
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 2
+      }
+    }
   },
   "Shrike's Lockmaw": {
     "slot": "Helm",
@@ -636,7 +1237,24 @@
     "physical": 2,
     "magick": 2,
     "stability": 2,
-    "requires": null
+    "requires": {
+      "Spirit": 8,
+      "Grace": 12
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 1,
+        "Grace": 2
+      },
+      "magick": {
+        "Spirit": 1,
+        "Grace": 1
+      },
+      "stability": {
+        "Spirit": 1,
+        "Grace": 1
+      }
+    }
   },
   "Sirin's Plainhide": {
     "slot": "Cuirass",
@@ -645,7 +1263,16 @@
     "physical": 4,
     "magick": 0,
     "stability": 4,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Grace": 1
+      },
+      "magick": {},
+      "stability": {
+        "Grace": 1
+      }
+    }
   },
   "Sirin's Shroud": {
     "slot": "Helm",
@@ -654,7 +1281,14 @@
     "physical": 2,
     "magick": 0,
     "stability": 3,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {},
+      "magick": {},
+      "stability": {
+        "Grace": 1
+      }
+    }
   },
   "Sirin's Stalks": {
     "slot": "Leggings",
@@ -663,7 +1297,16 @@
     "physical": 3,
     "magick": 0,
     "stability": 2,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Grace": 1
+      },
+      "magick": {},
+      "stability": {
+        "Grace": 1
+      }
+    }
   },
   "Steelsinger's Circlet": {
     "slot": "Helm",
@@ -673,8 +1316,18 @@
     "magick": 2,
     "stability": 1,
     "requires": {
-      "virtue": "Spirit",
-      "value": 11
+      "Spirit": 11
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 2
+      },
+      "stability": {
+        "Spirit": 2
+      }
     }
   },
   "Steelsinger's Shreds": {
@@ -685,8 +1338,18 @@
     "magick": 3,
     "stability": 2,
     "requires": {
-      "virtue": "Spirit",
-      "value": 11
+      "Spirit": 11
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 2
+      },
+      "stability": {
+        "Spirit": 2
+      }
     }
   },
   "Steelsinger's Stithywicks": {
@@ -697,8 +1360,18 @@
     "magick": 5,
     "stability": 3,
     "requires": {
-      "virtue": "Spirit",
-      "value": 11
+      "Spirit": 11
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 2
+      },
+      "stability": {
+        "Spirit": 2
+      }
     }
   },
   "Tempest Braes": {
@@ -709,8 +1382,16 @@
     "magick": 0,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 7
+      "Grace": 7
+    },
+    "attunements": {
+      "physical": {
+        "Grace": 2
+      },
+      "magick": {},
+      "stability": {
+        "Grace": 2
+      }
     }
   },
   "Tempest Leathers": {
@@ -721,8 +1402,16 @@
     "magick": 0,
     "stability": 4,
     "requires": {
-      "virtue": "Grace",
-      "value": 7
+      "Grace": 7
+    },
+    "attunements": {
+      "physical": {
+        "Grace": 2
+      },
+      "magick": {},
+      "stability": {
+        "Grace": 2
+      }
     }
   },
   "Tempest Visard": {
@@ -733,8 +1422,16 @@
     "magick": 0,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 7
+      "Grace": 7
+    },
+    "attunements": {
+      "physical": {
+        "Grace": 2
+      },
+      "magick": {},
+      "stability": {
+        "Grace": 2
+      }
     }
   },
   "Tethren's Cap": {
@@ -744,7 +1441,14 @@
     "physical": 3,
     "magick": 0,
     "stability": 2,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Courage": 1
+      },
+      "magick": {},
+      "stability": {}
+    }
   },
   "Tethren's Roots": {
     "slot": "Leggings",
@@ -753,7 +1457,16 @@
     "physical": 4,
     "magick": 0,
     "stability": 1,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Courage": 1
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 1
+      }
+    }
   },
   "Tethren's Tunic": {
     "slot": "Cuirass",
@@ -762,7 +1475,16 @@
     "physical": 5,
     "magick": 0,
     "stability": 3,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Courage": 1
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 1
+      }
+    }
   },
   "Thawtide Grimguise": {
     "slot": "Helm",
@@ -772,8 +1494,18 @@
     "magick": 2,
     "stability": 1,
     "requires": {
-      "virtue": "Courage",
-      "value": 13
+      "Courage": 13
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2
+      },
+      "magick": {
+        "Courage": 2
+      },
+      "stability": {
+        "Courage": 2
+      }
     }
   },
   "Thawtide Meltcap": {
@@ -784,8 +1516,18 @@
     "magick": 0,
     "stability": 2,
     "requires": {
-      "virtue": "Grace",
-      "value": 14
+      "Grace": 14
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Grace": 2
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 2,
+        "Grace": 2
+      }
     }
   },
   "Thawtide Shingles": {
@@ -796,8 +1538,18 @@
     "magick": 0,
     "stability": 3,
     "requires": {
-      "virtue": "Grace",
-      "value": 14
+      "Grace": 14
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Grace": 2
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 2,
+        "Grace": 2
+      }
     }
   },
   "Thawtide Thermals": {
@@ -808,8 +1560,18 @@
     "magick": 0,
     "stability": 4,
     "requires": {
-      "virtue": "Grace",
-      "value": 14
+      "Grace": 14
+    },
+    "attunements": {
+      "physical": {
+        "Courage": 2,
+        "Grace": 2
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 2,
+        "Grace": 2
+      }
     }
   },
   "Vadagar Platemail": {
@@ -819,7 +1581,20 @@
     "physical": 5,
     "magick": 3,
     "stability": 4,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Courage": 1,
+        "Grace": 3
+      },
+      "magick": {
+        "Courage": 1,
+        "Grace": 1
+      },
+      "stability": {
+        "Grace": 3
+      }
+    }
   },
   "Vadagar Schynbalds": {
     "slot": "Leggings",
@@ -828,7 +1603,21 @@
     "physical": 4,
     "magick": 2,
     "stability": 4,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Courage": 3,
+        "Spirit": 1
+      },
+      "magick": {
+        "Courage": 1,
+        "Spirit": 2
+      },
+      "stability": {
+        "Courage": 1,
+        "Spirit": 1
+      }
+    }
   },
   "Veltruska Mask": {
     "slot": "Helm",
@@ -838,8 +1627,18 @@
     "magick": 2,
     "stability": 3,
     "requires": {
-      "virtue": "Spirit",
-      "value": 9
+      "Spirit": 9
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 3
+      },
+      "stability": {
+        "Spirit": 1
+      }
     }
   },
   "Wazzard's Bycoket": {
@@ -850,8 +1649,18 @@
     "magick": 3,
     "stability": 2,
     "requires": {
-      "virtue": "Spirit",
-      "value": 19
+      "Spirit": 19
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 3
+      },
+      "stability": {
+        "Spirit": 1
+      }
     }
   },
   "Wazzard's Robes": {
@@ -862,8 +1671,18 @@
     "magick": 5,
     "stability": 4,
     "requires": {
-      "virtue": "Spirit",
-      "value": 19
+      "Spirit": 19
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 3
+      },
+      "stability": {
+        "Spirit": 1
+      }
     }
   },
   "Wazzard's Trunks": {
@@ -874,8 +1693,18 @@
     "magick": 4,
     "stability": 4,
     "requires": {
-      "virtue": "Spirit",
-      "value": 19
+      "Spirit": 19
+    },
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 2
+      },
+      "stability": {
+        "Spirit": 2
+      }
     }
   },
   "Wyld Oscelda Beltolls": {
@@ -885,7 +1714,16 @@
     "physical": 2,
     "magick": 4,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 1
+      },
+      "stability": {}
+    }
   },
   "Wyld Oscelda Pendelveil": {
     "slot": "Cuirass",
@@ -894,7 +1732,16 @@
     "physical": 3,
     "magick": 5,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 1
+      },
+      "stability": {}
+    }
   },
   "Wyld Oscelda's Exhalt": {
     "slot": "Helm",
@@ -903,7 +1750,16 @@
     "physical": 1,
     "magick": 3,
     "stability": 0,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Spirit": 2
+      },
+      "magick": {
+        "Spirit": 1
+      },
+      "stability": {}
+    }
   },
   "Wyld Sirin Finery": {
     "slot": "Cuirass",
@@ -912,7 +1768,16 @@
     "physical": 4,
     "magick": 0,
     "stability": 4,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Grace": 2
+      },
+      "magick": {},
+      "stability": {
+        "Grace": 1
+      }
+    }
   },
   "Wyld Sirin Wevetbelt": {
     "slot": "Leggings",
@@ -921,7 +1786,16 @@
     "physical": 3,
     "magick": 0,
     "stability": 2,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Grace": 2
+      },
+      "magick": {},
+      "stability": {
+        "Grace": 1
+      }
+    }
   },
   "Wyld Sirin's Feignmask": {
     "slot": "Helm",
@@ -930,7 +1804,16 @@
     "physical": 2,
     "magick": 0,
     "stability": 3,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Grace": 2
+      },
+      "magick": {},
+      "stability": {
+        "Grace": 1
+      }
+    }
   },
   "Wyld Tethren Flamefoot": {
     "slot": "Leggings",
@@ -939,7 +1822,16 @@
     "physical": 4,
     "magick": 0,
     "stability": 1,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Courage": 2
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 1
+      }
+    }
   },
   "Wyld Tethren Solist Shield": {
     "slot": "Cuirass",
@@ -948,7 +1840,16 @@
     "physical": 5,
     "magick": 0,
     "stability": 3,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Courage": 2
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 1
+      }
+    }
   },
   "Wyld Tethren's Hornhelm": {
     "slot": "Helm",
@@ -957,6 +1858,15 @@
     "physical": 3,
     "magick": 0,
     "stability": 2,
-    "requires": null
+    "requires": {},
+    "attunements": {
+      "physical": {
+        "Courage": 2
+      },
+      "magick": {},
+      "stability": {
+        "Courage": 1
+      }
+    }
   }
 }

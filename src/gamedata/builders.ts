@@ -596,159 +596,14 @@ export function buildAvakot(dict: Dict, texts: string[], names: Record<string, s
   return { vendor: AVAKOT_VENDOR, slots: slots ? slots[1] : null, items };
 }
 
-export interface WikiRune {
-  name: string;
-  id: string | null;
-  icon: string | null;
-  art: string | null;
-  does: string | null;
-  slot: string | null;
-  stats: { effect: string; values: string[] }[];
-}
-
-export function parseWikiRunes(lua: string): WikiRune[] {
-  const out: WikiRune[] = [];
-  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s*\},?\s*\n/g)) {
-    const body = m[2]!;
-    const str = (k: string) => new RegExp(`\\b${k}\\s*=\\s*"((?:[^"\\\\]|\\\\.)*)"`).exec(body)?.[1]?.replace(/\\"/g, '"') ?? null;
-    const stats = [...body.matchAll(/\{\s*Effect\s*=\s*"((?:[^"\\]|\\.)*)"\s*,\s*Ranks\s*=\s*"([^"]*)"\s*\}/g)].map((s) => ({
-      effect: s[1]!.replace(/\\"/g, '"'),
-      values: s[2]!.split("/").map((v) => v.trim()),
-    }));
-    out.push({ name: m[1]!, id: str("InternalID"), icon: str("ImgIcon"), art: str("WeaponArt"), does: str("Functionality"), slot: str("AddedSlot"), stats });
-  }
-  return out;
-}
-
-export function parseWikiIcons(lua: string, into: Map<string, string>): void {
-  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s*\},/g)) {
-    const file = /\b(?:Img)?(?:Icon|Image)\s*=\s*"([^"]+\.png)"/.exec(m[2]!)?.[1];
-    if (file && !into.has(m[1]!)) into.set(m[1]!, file);
-  }
-}
-
 export interface RuneEntry {
   name: string;
   desc: string | null;
   text: string | null;
   vals: Record<string, string[]> | null;
   art: string | null;
-  does: string | null;
   slot: string | null;
-  stats: WikiRune["stats"];
   icon: string | null;
-  tags?: string[];
-  drops?: RuneDrops;
-}
-
-export interface RuneDropBoss {
-  name: string;
-  icon?: string;
-  cogah?: boolean;
-}
-
-export interface RuneDrops {
-  bosses?: RuneDropBoss[];
-  sieges?: string[];
-  votives?: string[];
-  chests?: string[];
-}
-
-export interface WikiDropTable {
-  key: string;
-  tags: string;
-  sources: string[];
-  drops: string[];
-}
-
-export function parseDropTables(lua: string): WikiDropTable[] {
-  const out: WikiDropTable[] = [];
-  const starts = [...lua.matchAll(/\n\s*\["([^"]+)"\]\s*=\s*\{/g)];
-  for (const [i, m] of starts.entries()) {
-    const body = lua.slice(m.index! + m[0].length, starts[i + 1]?.index ?? lua.length);
-    const at = body.search(/\bDrops\s*=/);
-    if (at < 0) continue;
-    const names = (text: string) => [...text.matchAll(/\bName\s*=\s*"([^"]+)"/g)].map((x) => x[1]!.trim());
-    out.push({ key: m[1]!, tags: /\bTags\s*=\s*"([^"]*)"/.exec(body)?.[1] ?? "", sources: names(body.slice(0, at)), drops: names(body.slice(at)) });
-  }
-  return out;
-}
-
-const CODEX_ICONS = "/SF/Interface/Graphics/StoreItems/Codex/";
-const looseName = (s: string): string => s.toLowerCase().replace(/[^a-z]/g, "");
-
-export function bossPortraits(texts: string[], enemies: EnemyData): Map<string, { name: string; icon: string | null }> {
-  const icons = new Map<string, string>();
-  for (const t of texts) {
-    const tag = /^LocTag=\/SF\/Language\/Codex\/(\w+Avatar)Name$/m.exec(t)?.[1];
-    const icon = field(t, "Icon");
-    if (tag && icon?.startsWith(CODEX_ICONS) && !icons.has(tag.toLowerCase())) icons.set(tag.toLowerCase(), icon);
-  }
-  const leafOf = new Map(Object.keys(enemies.parents).map((leaf) => [leaf.toLowerCase(), leaf]));
-  const iconFor = (key: string): string | null => {
-    let leaf = leafOf.get(key);
-    for (let hops = 0; hops < 12; hops += 1) {
-      const own = icons.get(leaf ? leaf.toLowerCase() : key);
-      if (own) return own;
-      leaf = leaf ? enemies.parents[leaf] : undefined;
-      if (!leaf) return null;
-    }
-    return null;
-  };
-  const out = new Map<string, { name: string; icon: string | null }>();
-  for (const [key, name] of Object.entries(enemies.names)) {
-    const k = looseName(name);
-    const icon = iconFor(key);
-    if (!out.has(k) || (icon && !out.get(k)!.icon)) out.set(k, { name, icon });
-  }
-  return out;
-}
-
-export function runeDrops(tables: WikiDropTable[], runeNames: Record<string, string>, bosses: Map<string, { name: string; icon: string | null }>): Record<string, RuneDrops> {
-  const byName = new Map(Object.entries(runeNames).map(([type, name]) => [name, type]));
-  const found = new Map<string, { bosses: Map<string, RuneDropBoss>; sieges: Set<string>; votives: Set<string>; chests: Set<string> }>();
-  const place = (name: string) => name.replace(/#/g, " ").replace(/\s+Reward Manifest$/i, "").replace(/\s+/g, " ").trim();
-  for (const t of tables) {
-    const kind = t.tags === "Foes" ? "bosses" : /SiegeMissionReward/i.test(t.key) ? "sieges" : /Votive|FeyRelic/i.test(t.key) ? "votives" : t.tags === "Containers" ? "chests" : null;
-    if (!kind) continue;
-    for (const drop of t.drops) {
-      const type = byName.get(drop);
-      if (!type) continue;
-      const r = found.get(type) ?? found.set(type, { bosses: new Map(), sieges: new Set(), votives: new Set(), chests: new Set() }).get(type)!;
-      for (const source of t.sources) {
-        if (kind !== "bosses") {
-          r[kind].add(place(source));
-          continue;
-        }
-        const cogah = /\(Cogah\)$/i.test(source) || /Rednight/i.test(t.key);
-        const base = source.replace(/\s*\(Cogah\)$/i, "").trim();
-        const game = bosses.get(looseName(base)) ?? bosses.get(looseName(base.replace(/^The\s+/i, "")));
-        const name = game?.name ?? base;
-        const key = `${cogah ? 1 : 0}${looseName(name)}`;
-        if (!r.bosses.has(key)) r.bosses.set(key, { name, ...(game?.icon ? { icon: game.icon } : {}), ...(cogah ? { cogah: true } : {}) });
-      }
-    }
-  }
-  const out: Record<string, RuneDrops> = {};
-  const sorted = (set: Set<string>) => [...set].sort((a, b) => a.localeCompare(b));
-  for (const [type, r] of found) {
-    const bossList = [...r.bosses.values()].sort((a, b) => Number(!!a.cogah) - Number(!!b.cogah) || a.name.localeCompare(b.name));
-    const d: RuneDrops = {};
-    if (bossList.length) d.bosses = bossList;
-    for (const k of ["sieges", "votives", "chests"] as const) if (r[k].size) d[k] = sorted(r[k]);
-    out[type] = d;
-  }
-  return out;
-}
-
-export function parseRuneTags(lua: string): Map<string, string[]> {
-  const out = new Map<string, string[]>();
-  for (const block of lua.split(/\n\s*\["/)) {
-    const id = /\bInternalID\s*=\s*"([^"]+)"/.exec(block)?.[1];
-    const tags = /\bTags\s*=\s*"([^"]*)"/.exec(block)?.[1];
-    if (id) out.set(id, (tags ?? "").split(/\s*[,;]\s*/).filter(Boolean));
-  }
-  return out;
 }
 
 export interface JoineryEntry {
@@ -891,6 +746,7 @@ export interface ArsenalWeapon {
   slot: "Primary" | "Sidearm";
   style: string | null;
   damage: string | null;
+  grip: string | null;
 }
 
 export interface ArsenalData {
@@ -906,9 +762,34 @@ export function gamePatch(dict: Dict): string | null {
 
 const WEAPON_SLOTS: Record<string, ArsenalWeapon["slot"]> = { Melee: "Primary", LongGuns: "Sidearm", Pistols: "Sidearm" };
 
-export function buildArsenal(dict: Dict, texts: string[]): ArsenalData {
+// Bows and polearms inherit their skill tree from these base types, whose records
+// name no item, so they can't be found the way a weapon's own record is.
+const BASE_SKILL_TREES: Record<string, string> = {
+  "/SF/Types/Game/SFRangedMeleeWeapon": "/SF/Upgrades/Techniques/ArcherySkillTree",
+  "/SF/Weapons/Melee/TwoHandPolearmMeleeWeapon": "/SF/Upgrades/Techniques/PolearmSkillTree",
+};
+
+export function buildArsenal(dict: Dict, texts: string[], tree: TypeTree = new Map()): ArsenalData {
   const weapons: Record<string, ArsenalWeapon> = {};
   const pacts: Record<string, string> = {};
+  // A type can have several records under one name and icon; any of them may hold its skill tree.
+  const ownTree = new Map<string, string>();
+  for (const t of texts) {
+    const k = field(t, "TypeName") ? null : defKey(t);
+    const st = k ? field(t, "SkillTree") : undefined;
+    if (k && st && !ownTree.has(k)) ownTree.set(k, st);
+  }
+  const inherited = (type: string): string | undefined => {
+    for (let p = tree.get(type) ?? null, hops = 0; p && hops < 12; p = tree.get(p) ?? null, hops++) if (BASE_SKILL_TREES[p]) return BASE_SKILL_TREES[p];
+    return undefined;
+  };
+  // A weapon's grip is its skill tree, named by that tree's store item ("Long Blade").
+  const gripNames = new Map<string, string>();
+  for (const t of texts) {
+    const type = field(t, "TypeName");
+    const name = localized(dict, field(t, "LocalizeTag"));
+    if (type && name && /^\/SF\/Upgrades\/Techniques\/\w+SkillTree$/.test(type)) gripNames.set(type, name);
+  }
   for (const t of texts) {
     const type = field(t, "TypeName");
     const cat = field(t, "ProductCategory");
@@ -917,7 +798,9 @@ export function buildArsenal(dict: Dict, texts: string[]): ArsenalData {
     const slot = WEAPON_SLOTS[cat];
     if (slot && type.startsWith("/SF/Weapons/")) {
       const tags = /^SearchTags=\{\n([\s\S]*?)\n\}/m.exec(t)?.[1] ?? "";
-      weapons[type] = { name, slot, style: field(t, "MeleeStyle") ?? null, damage: /\/DT_([A-Z]+)/.exec(tags)?.[1] ?? null };
+      const key = defKey(t);
+      const skills = (key ? ownTree.get(key) : undefined) ?? inherited(type);
+      weapons[type] = { name, slot, style: field(t, "MeleeStyle") ?? null, damage: /\/DT_([A-Z]+)/.exec(tags)?.[1] ?? null, grip: (skills && gripNames.get(skills)) ?? null };
     } else if (cat === "Suits" && type.startsWith("/SF/Souls/")) {
       pacts[type] = name;
     }
@@ -927,55 +810,16 @@ export function buildArsenal(dict: Dict, texts: string[]): ArsenalData {
 }
 
 const RUNE_SLOTS: Record<string, string> = { AP_ATTACK: "Courage", AP_DEFENSE: "Spirit", AP_TACTIC: "Grace" };
-const STAT_RULES: [RegExp, RegExp][] = [
-  [/^DURATION$/, /duration/i],
-  [/^HEAL$/, /heal/i],
-  [/^HEALTH$/, /health/i],
-  [/^STAGGER$/, /stagger/i],
-  [/^AREADAMAGE$/, /explosion/i],
-  [/^DAMAGEMULT$/, /damage taken/i],
-  [/^DAMAGE$/, /damage/i],
-];
-
-export function mergeRuneValues(template: string | null, game: Record<string, string[]> | null, wiki: Record<string, string[]> | null): Record<string, string[]> | null {
-  if (!template || (!game && !wiki)) return null;
+// A rune description's |PLACEHOLDERS|, filled from the game's own numbers.
+export function runeTemplateValues(template: string | null, game: Record<string, string[]> | null): Record<string, string[]> | null {
+  if (!template || !game) return null;
   const out: Record<string, string[]> = {};
   for (const name of new Set([...template.matchAll(/\|(\w+)\|/g)].map((m) => m[1]!))) {
-    const v = game?.[name] ?? wiki?.[name];
+    const v = game[name];
     if (!v) return null;
     out[name] = v;
   }
   return Object.keys(out).length ? out : null;
-}
-
-export function runeValues(template: string | null, stats: WikiRune["stats"]): Record<string, string[]> | null {
-  if (!template) return null;
-  const names = [...new Set([...template.matchAll(/\|(\w+)\|/g)].map((m) => m[1]!))];
-  if (!names.length || names.length !== stats.length) return null;
-  const left = stats.map((_, i) => i);
-  const picked = new Map<string, number>();
-  const take = (name: string, i: number) => {
-    picked.set(name, i);
-    left.splice(left.indexOf(i), 1);
-  };
-  for (const [placeholder, label] of STAT_RULES) {
-    for (const name of names) {
-      if (picked.has(name) || !placeholder.test(name)) continue;
-      const i = left.find((j) => label.test(stats[j]!.effect));
-      if (i !== undefined) take(name, i);
-    }
-  }
-  for (const name of names) if (!picked.has(name) && left.length) take(name, left[0]!);
-  if (picked.size !== names.length) return null;
-  const out: Record<string, string[]> = {};
-  for (const name of names) {
-    const after = template.slice(template.indexOf(`|${name}|`) + name.length + 2);
-    const unit = after.startsWith("%") ? "%" : /^ seconds?\b/.test(after) ? "s" : "";
-    const values = stats[picked.get(name)!]!.values.map((v) => (unit && v.endsWith(unit) ? v.slice(0, -unit.length) : v));
-    if (!values.every((v) => /^[\d.]+$/.test(v))) return null;
-    out[name] = values;
-  }
-  return out;
 }
 
 const defKey = (t: string): string | null => {
@@ -1026,7 +870,6 @@ export function itemIconPaths(dict: Dict, texts: string[]): Map<string, string> 
 export async function buildUpgrades(
   dict: Dict,
   texts: string[],
-  wikiRunes: Map<string, WikiRune> | null,
   previous: UpgradeData | null,
   icon: (path: string | null) => Promise<string | null>,
   gameValues: GameValues = async () => null,
@@ -1050,21 +893,17 @@ export async function buildUpgrades(
   const runes: Record<string, RuneEntry> = {};
   for (const [type, { t, cat, name }] of items) {
     if (cat !== "Upgrades" || !type.startsWith("/SF/Upgrades/Runes/Weapon/")) continue;
-    const w = wikiRunes?.get(type);
-    const prev = wikiRunes ? undefined : previous?.runes[type];
+    const prev = previous?.runes[type];
     const key = defKey(t);
     const def = key ? defs.get(key) : undefined;
     const text = def ? loc(field(def, "EnhancementTag")) : null;
-    const stats = w?.stats ?? prev?.stats ?? [];
     runes[type] = {
       name,
       desc: loc(field(t, "LocalizeDescTag")),
       text,
-      vals: mergeRuneValues(text, def ? await gameValues(type, def) : null, runeValues(text, stats)),
-      art: searchTags(t)[0] ?? w?.art ?? prev?.art ?? null,
-      does: w?.does ?? prev?.does ?? null,
-      slot: RUNE_SLOTS[/^BonusArtifactSlots=\{\n(\w+)/m.exec(def ?? "")?.[1] ?? ""] ?? w?.slot ?? prev?.slot ?? null,
-      stats,
+      vals: runeTemplateValues(text, def ? await gameValues(type, def) : null),
+      art: searchTags(t)[0] ?? null,
+      slot: RUNE_SLOTS[/^BonusArtifactSlots=\{\n(\w+)/m.exec(def ?? "")?.[1] ?? ""] ?? null,
       icon: (await icon(field(t, "Icon") ?? null)) ?? prev?.icon ?? null,
     };
   }
@@ -1079,7 +918,7 @@ export async function buildUpgrades(
       family,
       desc: loc(field(t, "LocalizeDescTag")),
       rarity: field(t, "Rarity") ?? null,
-      icon: `img/joineries/${family ? family.toLowerCase() : "joinery"}.png`,
+      icon: `img/game/joinery${family ? `-${family.toLowerCase()}` : ""}.png`,
       ...(pips ? { pips } : {}),
     };
   }
@@ -1153,7 +992,9 @@ export interface ArmourEntry {
   physical: number;
   magick: number;
   stability: number;
-  requires: { virtue: string; value: number } | null;
+  requires: Record<string, number>;
+  // How strongly each stat grows with each Virtue (the game's 1-3 marks per Virtue).
+  attunements: Record<"physical" | "magick" | "stability", Record<string, number>>;
 }
 
 const ARMOUR_SLOTS: Record<string, ArmourEntry["slot"]> = { Helmets: "Helm", Body: "Cuirass", Legs: "Leggings" };
@@ -1176,7 +1017,8 @@ export function buildArmour(dict: Dict, texts: string[], previous: Record<string
     if (!stats) continue;
     seen.add(name);
     const stat = (k: string) => Number(new RegExp(`^${k}=([\\d.]+)$`, "m").exec(stats)?.[1] ?? 0);
-    const req = /^Requirements=\{\n(AT_\w+)=(\d+)\n\}/m.exec(def);
+    const attuned = blockLines(def, "Attunements").join("\n");
+    const grades = (stat: string): Record<string, number> => virtueTotals(attuned, stat);
     const rarity = (field(def, "Rarity") ?? "COMMON").toLowerCase();
     pieces.push({
       type,
@@ -1188,13 +1030,22 @@ export function buildArmour(dict: Dict, texts: string[], previous: Record<string
         physical: stat("Physical"),
         magick: stat("Magick"),
         stability: stat("Stability"),
-        requires: req && AT_VIRTUES[req[1]!] ? { virtue: AT_VIRTUES[req[1]!]!, value: Number(req[2]) } : null,
+        requires: virtueTotals(def, "Requirements"),
+        attunements: { physical: grades("Physical"), magick: grades("Magick"), stability: grades("Stability") },
       },
     });
   }
   const byStem = new Map<string, string[]>();
   for (const p of pieces) byStem.set(armourStem(p.type), [...(byStem.get(armourStem(p.type)) ?? []), p.name]);
-  const out: Record<string, ArmourEntry> = { ...(previous ?? {}) };
+  // Pieces kept from the previous file (empty slots like "Helmless") may be in the
+  // older shape, with one requirement or none and no Attunements.
+  const none = { physical: {}, magick: {}, stability: {} };
+  const older = (e: ArmourEntry): ArmourEntry => {
+    const req = e.requires as unknown as { virtue?: string; value?: number } | Record<string, number> | null;
+    const requires = !req ? {} : typeof req.virtue === "string" ? { [req.virtue]: Number(req.value) } : (req as Record<string, number>);
+    return { ...e, requires, attunements: e.attunements ?? none };
+  };
+  const out: Record<string, ArmourEntry> = Object.fromEntries(Object.entries(previous ?? {}).map(([k, e]) => [k, older(e)]));
   for (const p of pieces) {
     const group = byStem.get(armourStem(p.type)) ?? [];
     const common = group.length > 1 ? setWords(group[0]!).filter((w) => !["of", "The", "Mask"].includes(w) && group.every((n) => setWords(n).includes(w))) : [];
@@ -1203,11 +1054,22 @@ export function buildArmour(dict: Dict, texts: string[], previous: Record<string
   return sortedKeys(out);
 }
 
-export function parseFactionCaps(text: string): number[] | null {
-  const caps: number[] = [];
-  const re = /^\|\s*(\d)\s*\|\|.*?FactionStanding\.png[^\]]*\]\]\s*'*([\d,]+)/gm;
-  for (let m; (m = re.exec(text)) !== null; ) caps[Number(m[1])] = Number(m[2]!.replaceAll(",", ""));
-  return caps.length && caps.every((c) => typeof c === "number") ? caps : null;
+// Each faction's titles list the standing a rank starts and ends at (minXP,
+// maxXP). The standing needed for each rank, from rank 0 up, is the gap between
+// thresholds: 5,000 to reach title 1, then 5,000, 20,000, 20,000, 30,000, 30,000.
+export function buildFactionRanks(texts: string[]): Record<string, number[]> {
+  const out: Record<string, number[]> = {};
+  for (const t of texts) {
+    const tag = /^SyndicateName=\/SF\/Language\/Syndicates\/(\w+)Name$/m.exec(t)?.[1];
+    if (!tag || !/^Titles=\{/m.test(t)) continue;
+    const titles = [...t.matchAll(/^level=(\d+)\n[\s\S]*?^minXP=(\d+)\nmaxXP=(\d+)$/gm)]
+      .map((m) => ({ level: Number(m[1]), min: Number(m[2]), max: Number(m[3]) }))
+      .filter((x) => x.level > 0)
+      .sort((a, b) => a.level - b.level);
+    if (!titles.length || titles.some((x, i) => x.level !== i + 1)) continue;
+    out[`${tag}Syndicate`] = [titles[0]!.min, ...titles.map((x) => x.max - x.min)];
+  }
+  return sortedKeys(out);
 }
 
 export interface RecipeIngredient {
@@ -1231,7 +1093,6 @@ export interface RecipeDef {
   ingredients: RecipeIngredient[];
   desc: string | null;
   icon: string | null;
-  bond: number | null;
   slot?: string;
   scaling?: string[];
   requires?: Record<string, number>;
@@ -1351,7 +1212,6 @@ export function buildRecipes(dict: Dict, texts: string[], names: Record<string, 
       ingredients,
       desc: (text(field(t, "LocalizeDescTag")) ?? text(descOf.get(made)))?.replaceAll("|AMOUNT|", String(gives)) ?? null,
       icon: null,
-      bond: null,
       ...gear(kind[1], made),
     };
   }
@@ -1394,21 +1254,7 @@ export function buildOtherCrafts(dict: Dict, texts: string[], names: Record<stri
   return sortedKeys(out);
 }
 
-export function parseCraftingTable(lua: string): Map<string, number | null> {
-  const out = new Map<string, number | null>();
-  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s*Ingredients\s*=/g)) {
-    const bond = /\bBondReq\s*=\s*"(\d+)"/.exec(m[2]!)?.[1];
-    out.set(m[1]!.trim(), bond ? Number(bond) : null);
-  }
-  return out;
-}
 
-export function parseWikiImages(lua: string, into: Map<string, string>): void {
-  for (const m of lua.matchAll(/\["([^"]+)"\]\s*=\s*\{([\s\S]*?)\n\s*\},/g)) {
-    const file = /\b(?:Img)?(?:Icon|Image|Preview)\s*=\s*"([^"]+\.png)"/.exec(m[2]!)?.[1];
-    if (file && !into.has(m[1]!.trim())) into.set(m[1]!.trim(), file);
-  }
-}
 
 export interface TemperVariant {
   stats: string[];

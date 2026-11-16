@@ -1,4 +1,4 @@
-import { gearIndex } from "./loadouts";
+import { gearIndex, gripOf } from "./loadouts";
 
 export interface OwnedTotem {
   id: string;
@@ -14,24 +14,6 @@ const VIRTUE: Record<string, OwnedTotem["virtue"]> = {
   AP_SPIRIT: "Spirit",
   AP_GRACE: "Grace",
 };
-
-const GRIP: Record<string, string> = {
-  SFSkillTree: "Universal",
-  ArcherySkillTree: "Bow",
-  SecondaryThrowingKnivesSkillTree: "Flyblade",
-  GreatswordSkillTree: "Heavy",
-  SwordSkillTree: "Long Blade",
-  CastingSkillTree: "Magick",
-  PolearmSkillTree: "Polearm",
-  ShieldSkillTree: "Shield",
-  DaggerSkillTree: "Short Blade",
-};
-
-function gripOf(compat: unknown): string {
-  if (typeof compat !== "string" || !compat) return "Universal";
-  const leaf = compat.split("/").pop()!;
-  return GRIP[leaf] ?? leaf.replace(/SkillTree$/, "").replace(/([a-z])([A-Z])/g, "$1 $2");
-}
 
 export function parseTotems(raw: unknown): OwnedTotem[] {
   if (!raw || typeof raw !== "object") return [];

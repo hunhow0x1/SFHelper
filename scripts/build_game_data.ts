@@ -1,7 +1,6 @@
 import { parseArgs } from "node:util";
 import { findCacheDir } from "../src/gamedata/cache";
 import { updateGameData } from "../src/gamedata/update";
-import { Wiki } from "../src/gamedata/wiki";
 import { loggedGame } from "../src/server/gameLog";
 
 const PUBLIC_DIR = "src/server/public";
@@ -10,7 +9,6 @@ const { values } = parseArgs({
   options: {
     cache: { type: "string" },
     out: { type: "string", default: PUBLIC_DIR },
-    "no-wiki": { type: "boolean", default: false },
   },
 });
 
@@ -25,7 +23,6 @@ const result = await updateGameData({
   cacheDir,
   outDir: values.out,
   bundledDir: PUBLIC_DIR,
-  wiki: values["no-wiki"] ? null : new Wiki(),
   log: (m) => console.error(m),
 });
 console.log(result.summary);

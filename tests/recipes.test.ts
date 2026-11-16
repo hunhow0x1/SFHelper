@@ -2,8 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { buildRecipes, parseCraftingTable, recipeKind, type RecipeDef } from "../src/gamedata/builders";
-import { wikiEntry } from "../src/gamedata/update";
+import { buildRecipes, recipeKind, type RecipeDef } from "../src/gamedata/builders";
 import { newlyReady, pactBlock, parseCrafting, readyRecipes, recipeTimes, recipeVerb, type CraftingState } from "../src/server/recipes";
 import { getSettings, updateSettings } from "../src/server/settings";
 
@@ -85,18 +84,6 @@ describe("recipes from the game files", () => {
     });
     expect(out["/SF/Types/Recipes/Pacts/FencerPactBlueprint"]?.fragments).toBe(3);
   });
-
-  it("matches the wiki's Bond requirements by name", () => {
-    const table = parseCraftingTable(
-      ['["Hushed Chordstone"]= {', '\tBondReq= "1",', "\tIngredients= {}", "},", '["Hushed Chordstone (Cratesweight)"]= {', '\tBondReq= "4",', "\tIngredients= {}", "},",
-        '["The Cogah (Consumable)"]= {', '\tBondReq= "2",', "\tIngredients= {}", "},", '["Epona\'s Forests"]= {', '\tBondReq= "",', "\tIngredients= {}", "},"].join("\n"),
-    );
-    expect(wikiEntry(table, { name: "Hushed Chordstone", gives: 1 })).toBe(1);
-    expect(wikiEntry(table, { name: "Hushed Chordstone", gives: 5 })).toBe(4);
-    expect(wikiEntry(table, { name: "The Cogah", gives: 1 })).toBe(2);
-    expect(wikiEntry(table, { name: "Epona", gives: 1 })).toBeNull();
-    expect(wikiEntry(table, { name: "Mistmaker", gives: 1 })).toBeUndefined();
-  });
 });
 
 describe("what the inventory says about crafting", () => {
@@ -137,7 +124,7 @@ describe("what the inventory says about crafting", () => {
 describe("starred recipes", () => {
   const def = (extra: Partial<RecipeDef>): RecipeDef => ({
     name: "Curaidh's Breath", station: "Brewing", kind: "Elixirs", result: "/R/Out", rarity: null, fragments: 1, consumed: false,
-    gives: 1, dracs: 100, seconds: 0, ingredients: [{ type: "/I/Sap", name: "Sap", count: 2 }], desc: null, icon: null, bond: null, ...extra,
+    gives: 1, dracs: 100, seconds: 0, ingredients: [{ type: "/I/Sap", name: "Sap", count: 2 }], desc: null, icon: null, ...extra,
   });
   const state = (extra: Partial<CraftingState>): CraftingState => ({ recipes: { "/R/A": 1 }, stock: { "/I/Sap": 5 }, dracs: 1000, bond: {}, pending: [], owned: {}, ...extra });
 
@@ -146,8 +133,6 @@ describe("starred recipes", () => {
     expect(recipeTimes("/R/A", def({ ingredients: [{ type: "/I/Sap", name: "Sap", count: 2, alt: ["/I/OldSap"] }] }), state({ stock: { "/I/Sap": 1, "/I/OldSap": 3 } }))).toBe(2);
     expect(recipeTimes("/R/A", def({}), state({ dracs: 150 }))).toBe(1);
     expect(recipeTimes("/R/A", def({ consumed: true, fragments: 3 }), state({ recipes: { "/R/A": 2 } }))).toBe(0);
-    expect(recipeTimes("/R/A", def({ bond: 3 }), state({ bond: { Verminia: 2 } }))).toBe(0);
-    expect(recipeTimes("/R/A", def({ bond: 3, station: "Blacksmith", kind: "Weapons" }), state({ bond: { Tuvalkane: 1 } }))).toBe(2);
     expect(recipeTimes("/R/B", def({}), state({}))).toBe(0);
   });
 

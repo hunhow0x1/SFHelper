@@ -19,6 +19,7 @@ import {
   buildAvakot,
   buildTradeTax,
   buildEnemies,
+  buildFactionRanks,
   buildDungeons,
   buildLocations,
   buildNames,
@@ -31,13 +32,7 @@ import {
   buildTempers,
   buildTotemData,
   buildUpgrades,
-  bossPortraits,
   itemIconPaths,
-  parseCraftingTable,
-  parseFactionCaps,
-  parseDropTables,
-  parseRuneTags,
-  runeDrops,
   typeIcons,
   withRetired,
   type ArmourEntry,
@@ -51,7 +46,6 @@ import {
 } from "./builders";
 import { GameScripts, locValues, parseLocScript } from "./luau";
 import { GameIcons } from "./textures";
-import type { Wiki } from "./wiki";
 
 export const GAME_DATA_FILES = [
   "names.json",
@@ -85,6 +79,21 @@ const CURRENCY_ICONS: [string, string][] = [
   ["/SF/Interface/Graphics/CategoryIcons/Attunement/Courage.png", "img/game/attunement-courage.png"],
   ["/SF/Interface/Graphics/CategoryIcons/Attunement/Grace.png", "img/game/attunement-grace.png"],
   ["/SF/Interface/Graphics/CategoryIcons/Attunement/Spirit.png", "img/game/attunement-spirit.png"],
+  ["/SF/Interface/Graphics/HUD/CourageSunIcon.png", "img/game/virtue-courage.png"],
+  ["/SF/Interface/Graphics/HUD/GraceSunIcon.png", "img/game/virtue-grace.png"],
+  ["/SF/Interface/Graphics/HUD/SpiritMoonIcon.png", "img/game/virtue-spirit.png"],
+  ...(
+    [["Bow", "bow"], ["Flyblade", "flyblade"], ["Heavy", "heavy"], ["Longblade", "long-blade"], ["Magick", "magick"],
+      ["Polearm", "polearm"], ["Shield", "shield"], ["Shortblade", "short-blade"], ["Universal", "universal"]] as const
+  ).map(([leaf, slug]): [string, string] => [`/SF/Interface/Graphics/GripTypes/GripType${leaf}.png`, `img/game/grip-${slug}.png`]),
+  ...(["Beaver", "Duck", "Fawn", "Rat", "Squirrel"] as const).map((a): [string, string] => [`/SF/Interface/Graphics/Animotes/Animals/${a}.png`, `img/game/animal-${a.toLowerCase()}.png`]),
+  ["/SF/Interface/Graphics/Animotes/Animals/RabbitSpirit.png", "img/game/animal-rabbit.png"],
+  // Each Joinery family's lantern, as its items show it.
+  ["/SF/Interface/Graphics/StoreItems/Materials/Kintsugi5.png", "img/game/joinery-verite.png"],
+  ["/SF/Interface/Graphics/StoreItems/Materials/Kintsugi2.png", "img/game/joinery-quicksilver.png"],
+  ["/SF/Interface/Graphics/StoreItems/Materials/Kintsugi3.png", "img/game/joinery-feybalt.png"],
+  ["/SF/Interface/Graphics/StoreItems/Materials/Kintsugi4.png", "img/game/joinery-gildaur.png"],
+  ["/SF/Interface/Graphics/StoreItems/Materials/Kintsugi.png", "img/game/joinery.png"],
 ];
 // A rebuilt list must keep at least this share of the previous one, so a
 // changed file format can't silently empty a tab.
@@ -96,7 +105,6 @@ export interface UpdateOptions {
   files?: GameFiles;
   outDir: string;
   bundledDir: string;
-  wiki?: Wiki | null;
   log?: (msg: string) => void;
 }
 
@@ -114,14 +122,6 @@ export const iconFile = (path: string): string => `img/game/${slug(path.replace(
 const exists = (p: string): Promise<boolean> => access(p).then(() => true, () => false);
 const readText = (p: string): Promise<string | null> => readFile(p, "utf8").catch(() => null);
 
-export function wikiEntry<T>(table: Map<string, T>, r: Pick<RecipeDef, "name" | "gives">): T | undefined {
-  if (r.gives > 1) return table.get(`${r.name} (Cratesweight)`);
-  const direct = table.get(r.name) ?? table.get(`${r.name} (Consumable)`);
-  if (direct !== undefined) return direct;
-  const named = [...table.keys()].filter((k) => k.startsWith(`${r.name}'s `));
-  return named.length === 1 ? table.get(named[0]!) : undefined;
-}
-
 function enough(label: string, fresh: number, previous: number | undefined): void {
   if (previous && fresh < previous * MIN_KEPT) throw new Error(`${label}: only ${fresh} found (had ${previous}), keeping the old list`);
 }
@@ -129,7 +129,6 @@ function enough(label: string, fresh: number, previous: number | undefined): voi
 export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   const files = o.files ?? (await readGameFiles(o.cacheDir ?? ""));
   const sameDir = o.outDir === o.bundledDir;
-  const wiki = o.wiki ?? null;
   const changed: string[] = [];
   const failed: string[] = [];
   const counts: string[] = [];
@@ -221,7 +220,7 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   });
 
   await step("arsenal.json", async () => {
-    const arsenal = buildArsenal(dict, unique);
+    const arsenal = buildArsenal(dict, unique, tree);
     const size = (a: Partial<ArsenalData> | null) => Object.keys(a?.weapons ?? {}).length + Object.keys(a?.pacts ?? {}).length;
     enough("weapons and Pacts", size(arsenal), size(await previous<Partial<ArsenalData>>("arsenal.json")));
     await put("arsenal.json", `${JSON.stringify(arsenal, null, 2)}\n`);
@@ -252,27 +251,7 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
 
   await step("upgrades.json", async () => {
     const prev = await previous<UpgradeData>("upgrades.json");
-    const upgrades = await buildUpgrades(dict, unique, null, prev, (path) => icon(path), scriptValues, boosterRecords(texts, tree), kintsugiDefs(texts));
-    const lua = wiki ? await wiki.wikitext("Module:Data/Runes").catch(() => null) : null;
-    const tags = lua ? parseRuneTags(lua) : null;
-    if (wiki && !tags?.size) incomplete = true;
-    const dropLua = wiki ? await wiki.wikitext("Module:Data/DropTables").catch(() => null) : null;
-    const tables = dropLua ? parseDropTables(dropLua) : [];
-    if (wiki && !tables.length) incomplete = true;
-    const runeNames = Object.fromEntries(Object.entries(upgrades.runes).map(([type, r]) => [type, r.name]));
-    const drops = tables.length ? runeDrops(tables, runeNames, bossPortraits(unique, buildEnemies(dict, tree))) : null;
-    for (const [type, r] of Object.entries(upgrades.runes)) {
-      const t = tags?.size ? tags.get(type) : prev?.runes[type]?.tags;
-      if (t?.length) r.tags = t;
-      const d = drops ? drops[type] : prev?.runes[type]?.drops;
-      if (!d) continue;
-      for (const b of d.bosses ?? []) {
-        const drawn = b.icon && !b.icon.startsWith("img/") ? await icon(b.icon) : b.icon;
-        if (drawn) b.icon = drawn;
-        else delete b.icon;
-      }
-      r.drops = d;
-    }
+    const upgrades = await buildUpgrades(dict, unique, prev, (path) => icon(path), scriptValues, boosterRecords(texts, tree), kintsugiDefs(texts));
     enough("upgrades", Object.keys(upgrades.runes).length + Object.keys(upgrades.gear).length, prev ? Object.keys(prev.runes).length + Object.keys(prev.gear).length : undefined);
     await put("upgrades.json", `${JSON.stringify(upgrades, null, 2)}\n`);
     return `${Object.keys(upgrades.runes).length} runes, ${Object.keys(upgrades.joineries).length} joineries, ${Object.keys(upgrades.gear).length} gear`;
@@ -315,7 +294,8 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     const prevIcon = new Map((prev?.items ?? []).map((i) => [i.storeItem, i.icon]));
     for (const it of pool.items) {
       if (it.group === "Joineries") {
-        it.icon = `img/joineries/${it.name.split(":")[0]!.trim().toLowerCase()}.png`;
+        const family = it.name.split(":")[0]!.trim().toLowerCase();
+        it.icon = ["verite", "quicksilver", "feybalt", "gildaur"].includes(family) ? `img/game/joinery-${family}.png` : "img/game/joinery.png";
         continue;
       }
       const path = iconOfType.get(it.storeItem.replace("/SF/StoreItems/", "/SF/")) ?? iconOfName.get(/ of (.+)$/.exec(it.name)?.[1] ?? "") ?? null;
@@ -330,12 +310,8 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
     const prevFile = await previous<{ recipes?: Record<string, RecipeDef>; otherCrafts?: Record<string, CraftDef> }>("recipes.json");
     const prev = prevFile?.recipes;
     enough("recipes", Object.keys(recipes).length, prev ? Object.keys(prev).length : undefined);
-    const lua = wiki ? await wiki.wikitext("Module:Data/CraftingTable") : null;
-    const crafts = lua ? parseCraftingTable(lua) : null;
-    if (wiki && !crafts?.size) incomplete = true;
     for (const [type, r] of Object.entries(recipes)) {
       const old = prev?.[type];
-      r.bond = crafts?.size ? (wikiEntry(crafts, r) ?? null) : (old?.bond ?? null);
       r.icon = (await icon(iconOfType.get(r.result) ?? iconOfType.get(type) ?? null)) ?? old?.icon ?? null;
     }
     const otherCrafts = buildOtherCrafts(dict, unique, names.items, recipes);
@@ -370,18 +346,12 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   });
 
   await step("faction-ranks.json", async () => {
-    if (!wiki) return null;
+    const ranks = buildFactionRanks(unique);
     const prev = (await previous<Record<string, number[]>>("faction-ranks.json")) ?? {};
-    const out: Record<string, number[]> = {};
-    for (const [tag, page] of Object.entries(names.factions)) {
-      const text = await wiki.wikitext(page);
-      if (text === null) incomplete = true;
-      const caps = (text ? parseFactionCaps(text) : null) ?? prev[tag];
-      if (caps) out[tag] = caps;
-    }
-    out.default = out.SilentRoseSyndicate ?? DEFAULT_CAPS;
-    await put("faction-ranks.json", JSON.stringify(out, null, 2));
-    return `${Object.keys(out).length - 1} faction rank tables`;
+    enough("faction rank tables", Object.keys(ranks).length, Object.keys(prev).filter((k) => k !== "default").length);
+    const out = { ...ranks, default: ranks.SilentRoseSyndicate ?? DEFAULT_CAPS };
+    await put("faction-ranks.json", `${JSON.stringify(out, null, 2)}\n`);
+    return `${Object.keys(ranks).length} faction rank tables`;
   });
 
   const summary =
@@ -393,8 +363,9 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   return { hash: files.hash, changed, failed, incomplete, drawn, summary };
 }
 
-// Files older versions wrote to the data folder; pactarts.json is now only the bundled copy.
-const RETIRED = ["runes.json", "pacts.json", "totems.json", "pactarts.json", "img/items", "img/runes", "img/avakot"];
+// Files older versions wrote to the data folder. pactarts.json is now only the bundled
+// copy, and weapons.json and masteryrank.json came from the wiki.
+const RETIRED = ["runes.json", "pacts.json", "totems.json", "pactarts.json", "weapons.json", "masteryrank.json", "img/items", "img/runes", "img/avakot"];
 
 export async function clearGameData(outDir: string): Promise<void> {
   for (const name of [...GAME_DATA_FILES, ...RETIRED]) await rm(join(outDir, name), { force: true, recursive: true });

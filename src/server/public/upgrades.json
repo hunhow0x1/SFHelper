@@ -19,34 +19,8 @@
         ]
       },
       "art": "Bow",
-      "does": "",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "Duration",
-          "values": [
-            "4s",
-            "5s",
-            "6s",
-            "7s"
-          ]
-        },
-        {
-          "effect": "Damage Taken",
-          "values": [
-            "125%",
-            "150%",
-            "175%",
-            "200%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcaspirit011.png",
-      "drops": {
-        "chests": [
-          "Dendrit Chest (Carntyne Colliery)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcaspirit011.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/BowKnockdownProjectileRune": {
       "name": "Dissever",
@@ -73,43 +47,8 @@
         ]
       },
       "art": "Bow",
-      "does": "",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "125%",
-            "150%",
-            "175%",
-            "200%"
-          ]
-        },
-        {
-          "effect": "Stagger Bonus",
-          "values": [
-            "200%",
-            "250%",
-            "300%",
-            "350%"
-          ]
-        },
-        {
-          "effect": "Explosion Damage",
-          "values": [
-            "40%",
-            "60%",
-            "80%",
-            "100%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage019.png",
-      "drops": {
-        "chests": [
-          "Rare Amber Deposit"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage019.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/FlameRune/FlameRune": {
       "name": "Blazingbolt",
@@ -124,9 +63,7 @@
         ]
       },
       "art": "Bow",
-      "does": null,
       "slot": "Courage",
-      "stats": [],
       "icon": "img/game/runes-alca-alcacourage012.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/RainRune": {
@@ -142,32 +79,8 @@
         ]
       },
       "art": "Bow",
-      "does": "Summon a volley of arrows from the sky where The Torrent strikes.",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Damage",
-          "values": [
-            "50%",
-            "60%",
-            "70%",
-            "80%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcaspirit008.png",
-      "tags": [
-        "Cogah"
-      ],
-      "drops": {
-        "bosses": [
-          {
-            "name": "Gruulseeker Ruthos",
-            "icon": "img/game/storeitems-codex-ode-rangedhunterelite.png",
-            "cogah": true
-          }
-        ]
-      }
+      "icon": "img/game/runes-alca-alcaspirit008.png"
     },
     "/SF/Upgrades/Runes/Weapon/Bow/StarterRune": {
       "name": "Alca's Breath",
@@ -182,37 +95,8 @@
         ]
       },
       "art": "Bow",
-      "does": "Performs a Charged Shot imbued with an additional instance of Arcanic damage.",
       "slot": "Grace",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "90%",
-            "110%",
-            "130%",
-            "150%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage005.png",
-      "drops": {
-        "bosses": [
-          {
-            "name": "Gruulseeker Ruthos",
-            "icon": "img/game/storeitems-codex-ode-rangedhunterelite.png"
-          }
-        ],
-        "sieges": [
-          "Fort Curlail Siege",
-          "Turret Jotar Siege"
-        ],
-        "chests": [
-          "Ode Chest",
-          "Ode Drone Rare Chest",
-          "Ode Strongbox"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage005.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeEmpoweredThrowRune": {
       "name": "Flamepitch",
@@ -233,44 +117,8 @@
         ]
       },
       "art": "Short Blade",
-      "does": "",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "Stagger Bonus",
-          "values": [
-            "200%",
-            "250%",
-            "300%",
-            "350%"
-          ]
-        },
-        {
-          "effect": "Explosion Damage",
-          "values": [
-            "40%",
-            "60%",
-            "80%",
-            "100%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage018.png",
-      "drops": {
-        "votives": [
-          "Airde Limbwoods Dungeon Votive",
-          "Airde Limbwoods Mission Votive",
-          "Airde Limbwoods Sub Boss Votive",
-          "Airde Limbwoods Syphon Votive",
-          "Kearnhold Lowlands Dungeon Votive",
-          "Kearnhold Lowlands Mission Votive",
-          "Kearnhold Lowlands Sub Boss Votive",
-          "Pigwen Skerry Alca's Children Votive"
-        ],
-        "chests": [
-          "Dendrit Chest (Undercity)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage018.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeInvisRune": {
       "name": "The Flitsmoke",
@@ -291,37 +139,8 @@
         ]
       },
       "art": "Short Blade",
-      "does": "Grants invisibility on activation. Stealth kills while active extend the duration.",
       "slot": "Grace",
-      "stats": [
-        {
-          "effect": "$1 Duration",
-          "values": [
-            "3s",
-            "4s",
-            "5s",
-            "6s"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcagrace001.png",
-      "tags": [
-        "Cogah"
-      ],
-      "drops": {
-        "bosses": [
-          {
-            "name": "Etheldred The Weaver",
-            "icon": "img/game/storeitems-codex-subbosses-spidersubboss.png",
-            "cogah": true
-          },
-          {
-            "name": "Seachnall The Widower",
-            "icon": "img/game/storeitems-codex-subbosses-spidersubboss.png",
-            "cogah": true
-          }
-        ]
-      }
+      "icon": "img/game/runes-alca-alcagrace001.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/ShortBladeLeechStrikeRune": {
       "name": "Parapelt",
@@ -342,34 +161,8 @@
         ]
       },
       "art": "Short Blade",
-      "does": "",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "75%",
-            "100%",
-            "125%",
-            "150%"
-          ]
-        },
-        {
-          "effect": "Healing",
-          "values": [
-            "15%",
-            "20%",
-            "25%",
-            "30%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcaspirit013.png",
-      "drops": {
-        "chests": [
-          "Ode Chest (Rovgot)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcaspirit013.png"
     },
     "/SF/Upgrades/Runes/Weapon/Dagger/StarterRune": {
       "name": "Emberaught",
@@ -384,39 +177,8 @@
         ]
       },
       "art": "Short Blade",
-      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Flame Damage Bonus",
-          "values": [
-            "100%",
-            "150%",
-            "200%",
-            "250%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage011.png",
-      "drops": {
-        "bosses": [
-          {
-            "name": "Etheldred The Weaver",
-            "icon": "img/game/storeitems-codex-subbosses-spidersubboss.png"
-          },
-          {
-            "name": "Rovgot Wyrm",
-            "icon": "img/game/storeitems-codex-hostilecreatures-corrupteddecapede.png"
-          },
-          {
-            "name": "Seachnall The Widower",
-            "icon": "img/game/storeitems-codex-subbosses-spidersubboss.png"
-          }
-        ],
-        "sieges": [
-          "Fort Kearnhold Siege"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage011.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlameRune/FlameRune": {
       "name": "Emberlash",
@@ -431,9 +193,7 @@
         ]
       },
       "art": "Flyblade",
-      "does": null,
       "slot": "Courage",
-      "stats": [],
       "icon": "img/game/runes-alca-alcacourage012.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeBestoneProjectileRune": {
@@ -455,34 +215,8 @@
         ]
       },
       "art": "Flyblade",
-      "does": "",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "Duration",
-          "values": [
-            "4s",
-            "5s",
-            "6s",
-            "7s"
-          ]
-        },
-        {
-          "effect": "Damage Taken",
-          "values": [
-            "125%",
-            "150%",
-            "175%",
-            "200%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcaspirit016.png",
-      "drops": {
-        "chests": [
-          "Dendrit Chest (Carntyne Colliery)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcaspirit016.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeKnockdownProjectileRune": {
       "name": "Reaproot",
@@ -509,43 +243,8 @@
         ]
       },
       "art": "Flyblade",
-      "does": "",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "125%",
-            "150%",
-            "175%",
-            "200%"
-          ]
-        },
-        {
-          "effect": "Stagger Bonus",
-          "values": [
-            "200%",
-            "250%",
-            "300%",
-            "350%"
-          ]
-        },
-        {
-          "effect": "Explosion Damage",
-          "values": [
-            "40%",
-            "60%",
-            "80%",
-            "100%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage021.png",
-      "drops": {
-        "chests": [
-          "Rare Amber Deposit"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage021.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/FlybladeSeekingRune": {
       "name": "Picktrix",
@@ -566,32 +265,8 @@
         ]
       },
       "art": "Flyblade",
-      "does": "Releases a flock of four seeking sprites that strike nearby foes.",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "$1 Projectile Damage",
-          "values": [
-            "60%",
-            "80%",
-            "100%",
-            "120%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage017.png",
-      "tags": [
-        "Cogah"
-      ],
-      "drops": {
-        "bosses": [
-          {
-            "name": "Discharged Nimrod",
-            "icon": "img/game/storeitems-codex-subbosses-nimrodsubboss.png",
-            "cogah": true
-          }
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage017.png"
     },
     "/SF/Upgrades/Runes/Weapon/Flyblade/StarterRune": {
       "name": "Hurlwind",
@@ -606,45 +281,8 @@
         ]
       },
       "art": "Flyblade",
-      "does": "Launches a single, powerful blast of Arcanic energy towards the target.",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "40%",
-            "60%",
-            "80%",
-            "100%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage013.png",
-      "drops": {
-        "bosses": [
-          {
-            "name": "Discharged Nimrod",
-            "icon": "img/game/storeitems-codex-subbosses-nimrodsubboss.png"
-          }
-        ],
-        "sieges": [
-          "Fort Curlail Siege"
-        ],
-        "chests": [
-          "Amber Deposit",
-          "Basic Chest (Carntyne Colliery)",
-          "Basic Chest (Midrath)",
-          "Basic Chest (Undercity)",
-          "Crypt Sarcophagus",
-          "Dendrit Chest (Crypt)",
-          "Dendrit Chest (Midrath)",
-          "Dendrit Chest (Undercity)",
-          "Ode Chest (Rovgot)",
-          "Ode Strongbox (Rovgot)",
-          "Pigwen Skerry Chest",
-          "Rare Amber Deposit"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage013.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordArcaneBullwarkRune": {
       "name": "Wardwark",
@@ -659,26 +297,8 @@
         ]
       },
       "art": "Heavy",
-      "does": "",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "Health",
-          "values": [
-            "20%",
-            "25%",
-            "30%",
-            "35%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcaspirit017.png",
-      "drops": {
-        "votives": [
-          "Kearnhold Lowlands Fey Relic",
-          "Pigwen Skerry Fey Relic"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcaspirit017.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordLeapAttackRune": {
       "name": "Crimsonfell",
@@ -699,34 +319,8 @@
         ]
       },
       "art": "Heavy",
-      "does": "",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "125%",
-            "150%",
-            "175%",
-            "200%"
-          ]
-        },
-        {
-          "effect": "Explosion Damage",
-          "values": [
-            "100%",
-            "125%",
-            "150%",
-            "175%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage023.png",
-      "drops": {
-        "chests": [
-          "Dendrit Chest (Glades)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage023.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/GreatSwordRangeRune": {
       "name": "Treefell",
@@ -753,55 +347,8 @@
         ]
       },
       "art": "Heavy",
-      "does": "Enhances the range, charge rate, and armour piercing of charged Heavy Attacks.",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "Charge Speed",
-          "values": [
-            "40%",
-            "60%",
-            "80%",
-            "100%"
-          ]
-        },
-        {
-          "effect": "Duration",
-          "values": [
-            "5s",
-            "6s",
-            "7s",
-            "8s"
-          ]
-        },
-        {
-          "effect": "$1 Armour Penetration",
-          "values": [
-            "10",
-            "30",
-            "50",
-            "70"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage016.png",
-      "tags": [
-        "Cogah"
-      ],
-      "drops": {
-        "bosses": [
-          {
-            "name": "Mendicant King",
-            "icon": "img/game/storeitems-codex-subbosses-mendicantking.png",
-            "cogah": true
-          },
-          {
-            "name": "Sinecure-errant Vella",
-            "icon": "img/game/storeitems-codex-subbosses-meleegreatswordsubboss.png",
-            "cogah": true
-          }
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage016.png"
     },
     "/SF/Upgrades/Runes/Weapon/GreatSword/StarterRune": {
       "name": "Cindermore",
@@ -816,39 +363,8 @@
         ]
       },
       "art": "Heavy",
-      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Flame Damage Bonus",
-          "values": [
-            "100%",
-            "150%",
-            "200%",
-            "250%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage010.png",
-      "drops": {
-        "bosses": [
-          {
-            "name": "Mendicant King",
-            "icon": "img/game/storeitems-codex-subbosses-mendicantking.png"
-          },
-          {
-            "name": "Sinecure-errant Vella",
-            "icon": "img/game/storeitems-codex-subbosses-meleegreatswordsubboss.png"
-          }
-        ],
-        "sieges": [
-          "Mirifuir Siege"
-        ],
-        "chests": [
-          "Basic Chest (Glades)",
-          "Dendrit Chest (Glades)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage010.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeEmpoweredThrowRune": {
       "name": "Smeltsquall",
@@ -869,34 +385,8 @@
         ]
       },
       "art": "Long Blade",
-      "does": "",
       "slot": "Grace",
-      "stats": [
-        {
-          "effect": "Stagger Bonus",
-          "values": [
-            "200%",
-            "250%",
-            "300%",
-            "350%"
-          ]
-        },
-        {
-          "effect": "Explosion Damage",
-          "values": [
-            "40%",
-            "60%",
-            "80%",
-            "100%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage024.png",
-      "drops": {
-        "chests": [
-          "Dendrit Chest (Undercity)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage024.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeLeechStrikeRune": {
       "name": "Fortflank",
@@ -917,34 +407,8 @@
         ]
       },
       "art": "Long Blade",
-      "does": "",
       "slot": "Grace",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "75%",
-            "100%",
-            "125%",
-            "150%"
-          ]
-        },
-        {
-          "effect": "Healing",
-          "values": [
-            "15%",
-            "20%",
-            "25%",
-            "30%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcaspirit014.png",
-      "drops": {
-        "chests": [
-          "Ode Chest (Rovgot)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcaspirit014.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/LongbladeProjectileRune": {
       "name": "The Mistgale",
@@ -965,54 +429,8 @@
         ]
       },
       "art": "Long Blade",
-      "does": "Sends forth a wave of energy, passing through and dealing damage to all foes in its path.",
       "slot": "Grace",
-      "stats": [
-        {
-          "effect": "$1 Projectile Damage Bonus",
-          "values": [
-            "125%",
-            "150%",
-            "175%",
-            "200%"
-          ]
-        },
-        {
-          "effect": "$1 Stagger Bonus",
-          "values": [
-            "150%",
-            "200%",
-            "250%",
-            "300%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage008.png",
-      "tags": [
-        "Cogah"
-      ],
-      "drops": {
-        "bosses": [
-          {
-            "name": "Flayed Reaper",
-            "cogah": true
-          },
-          {
-            "name": "Knell Knight",
-            "icon": "img/game/storeitems-codex-mendicant-mendicantcaster.png",
-            "cogah": true
-          },
-          {
-            "name": "Mendicant Knight Duo",
-            "cogah": true
-          },
-          {
-            "name": "Mendicant Reinbreaker",
-            "icon": "img/game/storeitems-codex-mendicant-mendicantriderandhorse.png",
-            "cogah": true
-          }
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage008.png"
     },
     "/SF/Upgrades/Runes/Weapon/LongBlade/StarterRune": {
       "name": "Everflame",
@@ -1027,44 +445,8 @@
         ]
       },
       "art": "Long Blade",
-      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Flame Damage Bonus",
-          "values": [
-            "100%",
-            "150%",
-            "200%",
-            "250%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage006.png",
-      "drops": {
-        "bosses": [
-          {
-            "name": "Flayed Reaper"
-          },
-          {
-            "name": "Knell Knight",
-            "icon": "img/game/storeitems-codex-mendicant-mendicantcaster.png"
-          },
-          {
-            "name": "Mendicant Knight Duo"
-          }
-        ],
-        "chests": [
-          "Basic Chest (Undercity)",
-          "Crypt Sarcophagus",
-          "Dendrit Chest (Crypt)",
-          "Dendrit Chest (Midrath)",
-          "Dendrit Chest (Undercity)",
-          "Ode Chest (Rovgot)",
-          "Ode Strongbox (Rovgot)",
-          "Pigwen Skerry Chest"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage006.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/CasterHealingProjectileRune": {
       "name": "Lunarcure",
@@ -1085,46 +467,8 @@
         ]
       },
       "art": "Magick",
-      "does": "",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "50%",
-            "75%",
-            "100%",
-            "125%"
-          ]
-        },
-        {
-          "effect": "Healing",
-          "values": [
-            "20%",
-            "25%",
-            "30%",
-            "35%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcaspirit012.png",
-      "drops": {
-        "votives": [
-          "Airde Limbwoods Fey Relic",
-          "Fuirlands Dungeon Votive",
-          "Fuirlands Mission Votive",
-          "Fuirlands Sub Boss Votive",
-          "Greater Curlail Dungeon Votive",
-          "Greater Curlail Fey Relic",
-          "Greater Curlail Mission Votive",
-          "Greater Curlail Sub Boss Votive",
-          "Greater Curlail Syphon Votive",
-          "Pigwen Skerry Silent Rose Votive"
-        ],
-        "chests": [
-          "Dendrit Chest (Carntyne Colliery)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcaspirit012.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/CasterKnockdownProjectileRune": {
       "name": "Vexipare",
@@ -1151,43 +495,8 @@
         ]
       },
       "art": "Magick",
-      "does": "",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "125%",
-            "150%",
-            "175%",
-            "200%"
-          ]
-        },
-        {
-          "effect": "Stagger Bonus",
-          "values": [
-            "200%",
-            "250%",
-            "300%",
-            "350%"
-          ]
-        },
-        {
-          "effect": "Explosion Damage",
-          "values": [
-            "40%",
-            "60%",
-            "80%",
-            "100%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage022.png",
-      "drops": {
-        "chests": [
-          "Rare Amber Deposit"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage022.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/ExplosiveBuildUpRune": {
       "name": "The Hollowing",
@@ -1208,41 +517,8 @@
         ]
       },
       "art": "Magick",
-      "does": "Marks foes on hit. Once marked enemies are struck a sufficient number of times, they trigger a radial explosion dealing damage to nearby foes.",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Explosion Damage",
-          "values": [
-            "200%",
-            "235%",
-            "265%",
-            "300%"
-          ]
-        },
-        {
-          "effect": "$1 Subsequent Attacks",
-          "values": [
-            "6",
-            "5",
-            "4",
-            "3"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage004.png",
-      "tags": [
-        "Cogah"
-      ],
-      "drops": {
-        "bosses": [
-          {
-            "name": "Wraith of Wastes",
-            "icon": "img/game/storeitems-codex-subbosses-mendicantwazzardsubboss.png",
-            "cogah": true
-          }
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage004.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/FlameRune/FlameRune": {
       "name": "Wickwell",
@@ -1257,9 +533,7 @@
         ]
       },
       "art": "Magick",
-      "does": null,
       "slot": "Courage",
-      "stats": [],
       "icon": "img/game/runes-alca-alcacourage012.png"
     },
     "/SF/Upgrades/Runes/Weapon/Magiks/StarterRune": {
@@ -1275,43 +549,8 @@
         ]
       },
       "art": "Magick",
-      "does": "Performs a Charged Cast imbued with additional Arcanic damage.",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "125%",
-            "150%",
-            "175%",
-            "200%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage002.png",
-      "drops": {
-        "bosses": [
-          {
-            "name": "Wraith of Wastes",
-            "icon": "img/game/storeitems-codex-subbosses-mendicantwazzardsubboss.png"
-          }
-        ],
-        "sieges": [
-          "Mirifuir Siege"
-        ],
-        "chests": [
-          "Amber Deposit",
-          "Basic Chest (Carntyne Colliery)",
-          "Basic Chest (Midrath)",
-          "Crypt Sarcophagus",
-          "Dendrit Chest (Crypt)",
-          "Dendrit Chest (Midrath)",
-          "Ode Chest (Rovgot)",
-          "Ode Strongbox (Rovgot)",
-          "Pigwen Skerry Chest",
-          "Rare Amber Deposit"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage002.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmArcaneBulwarkRune": {
       "name": "Cragprick",
@@ -1326,25 +565,8 @@
         ]
       },
       "art": "Polearm",
-      "does": "",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "Health",
-          "values": [
-            "20%",
-            "25%",
-            "30%",
-            "35%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcaspirit015.png",
-      "drops": {
-        "votives": [
-          "Fuirlands Fey Relic"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcaspirit015.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmLeapAttackRune": {
       "name": "Astralflare",
@@ -1365,34 +587,8 @@
         ]
       },
       "art": "Polearm",
-      "does": "",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Arcanic Damage Bonus",
-          "values": [
-            "125%",
-            "150%",
-            "175%",
-            "200%"
-          ]
-        },
-        {
-          "effect": "Explosion Damage",
-          "values": [
-            "100%",
-            "125%",
-            "150%",
-            "175%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage020.png",
-      "drops": {
-        "chests": [
-          "Dendrit Chest (Glades)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage020.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/PolearmMultiThrowRune": {
       "name": "Splitbolt",
@@ -1407,37 +603,8 @@
         ]
       },
       "art": "Polearm",
-      "does": "Calls down a barrage of spears, which strike in an area of effect around the target.",
       "slot": "Grace",
-      "stats": [
-        {
-          "effect": "$1 Projectile Damage",
-          "values": [
-            "40%",
-            "60%",
-            "80%",
-            "100%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage015.png",
-      "tags": [
-        "Cogah"
-      ],
-      "drops": {
-        "bosses": [
-          {
-            "name": "Gourdo",
-            "icon": "img/game/storeitems-codex-subbosses-corruptedsproutfolksubboss.png",
-            "cogah": true
-          },
-          {
-            "name": "Kabocha",
-            "icon": "img/game/storeitems-codex-subbosses-corruptedsproutfolksubboss.png",
-            "cogah": true
-          }
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage015.png"
     },
     "/SF/Upgrades/Runes/Weapon/Polearm/StarterRune": {
       "name": "Torcheternal",
@@ -1452,43 +619,8 @@
         ]
       },
       "art": "Polearm",
-      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Flame Damage Bonus",
-          "values": [
-            "100%",
-            "150%",
-            "200%",
-            "250%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage014.png",
-      "drops": {
-        "bosses": [
-          {
-            "name": "Gourdo",
-            "icon": "img/game/storeitems-codex-subbosses-corruptedsproutfolksubboss.png"
-          },
-          {
-            "name": "Kabocha",
-            "icon": "img/game/storeitems-codex-subbosses-corruptedsproutfolksubboss.png"
-          },
-          {
-            "name": "Mendicant Reinbreaker",
-            "icon": "img/game/storeitems-codex-mendicant-mendicantriderandhorse.png"
-          }
-        ],
-        "sieges": [
-          "Fort Kearnhold Siege"
-        ],
-        "chests": [
-          "Basic Chest (Glades)",
-          "Dendrit Chest (Glades)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage014.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/SBLaserRune": {
       "name": "The Durglint",
@@ -1509,52 +641,8 @@
         ]
       },
       "art": "Shield",
-      "does": "For 8 seconds, blocking fires a beam of energy which deals 125 damage and increases damage dealt on the next melee attack.",
       "slot": "Spirit",
-      "stats": [
-        {
-          "effect": "$1 Beam Damage",
-          "values": [
-            "75",
-            "100",
-            "125",
-            "125"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcagrace008.png",
-      "tags": [
-        "Cogah"
-      ],
-      "drops": {
-        "bosses": [
-          {
-            "name": "Ceptet",
-            "icon": "img/game/storeitems-codex-hostilecreatures-mockeryarmoredman.png",
-            "cogah": true
-          },
-          {
-            "name": "Fore-Feller Hewyl",
-            "icon": "img/game/storeitems-codex-subbosses-meleeaxesubbossofficerproc.png",
-            "cogah": true
-          },
-          {
-            "name": "Gruulseeker Sontaro",
-            "icon": "img/game/storeitems-codex-ode-meleemaceofficer.png",
-            "cogah": true
-          },
-          {
-            "name": "Sinecure-Errant Gawth",
-            "icon": "img/game/storeitems-codex-ode-meleemaceofficer.png",
-            "cogah": true
-          },
-          {
-            "name": "Thrice-Bound Impidh",
-            "icon": "img/game/storeitems-codex-subbosses-mockeryarmoredmansubboss.png",
-            "cogah": true
-          }
-        ]
-      }
+      "icon": "img/game/runes-alca-alcagrace008.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/ShieldArcaneBulwarkRune": {
       "name": "Soothesayer",
@@ -1569,32 +657,8 @@
         ]
       },
       "art": "Shield",
-      "does": "",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "Health",
-          "values": [
-            "20%",
-            "25%",
-            "30%",
-            "35%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcaspirit010.png",
-      "drops": {
-        "votives": [
-          "Fortress O'Dell Dungeon Votive",
-          "Fortress O'Dell Mission Votive",
-          "Fortress O'Dell Sub Boss Votive",
-          "Pigwen Skerry Sub Boss Votive",
-          "The Roods Dungeon Votive",
-          "The Roods Fey Relic",
-          "The Roods Mission Votive",
-          "The Roods Sub Boss Votive"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcaspirit010.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/ShieldEmpoweredThrowRune": {
       "name": "Scarletsling",
@@ -1615,37 +679,8 @@
         ]
       },
       "art": "Shield",
-      "does": "",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "Stagger Bonus",
-          "values": [
-            "200%",
-            "250%",
-            "300%",
-            "350%"
-          ]
-        },
-        {
-          "effect": "Explosion Damage",
-          "values": [
-            "40%",
-            "60%",
-            "80%",
-            "100%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage025.png",
-      "drops": {
-        "votives": [
-          "Fortress O'Dell Fey Relic"
-        ],
-        "chests": [
-          "Dendrit Chest (Undercity)"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage025.png"
     },
     "/SF/Upgrades/Runes/Weapon/Shield/StarterRune": {
       "name": "Forburn",
@@ -1660,55 +695,8 @@
         ]
       },
       "art": "Shield",
-      "does": "Performs a Heavy Strike imbued with an additional instance of Flame damage. Capable of igniting Foes, and may create explosions on hit.",
       "slot": "Courage",
-      "stats": [
-        {
-          "effect": "$1 Flame Damage Bonus",
-          "values": [
-            "100%",
-            "150%",
-            "200%",
-            "250%"
-          ]
-        }
-      ],
-      "icon": "img/game/runes-alca-alcacourage012.png",
-      "drops": {
-        "bosses": [
-          {
-            "name": "Ceptet",
-            "icon": "img/game/storeitems-codex-hostilecreatures-mockeryarmoredman.png"
-          },
-          {
-            "name": "Fore-Feller Hewyl",
-            "icon": "img/game/storeitems-codex-subbosses-meleeaxesubbossofficerproc.png"
-          },
-          {
-            "name": "Gruulseeker Sontaro",
-            "icon": "img/game/storeitems-codex-ode-meleemaceofficer.png"
-          },
-          {
-            "name": "Mestra Carmo"
-          },
-          {
-            "name": "Sinecure-Errant Gawth",
-            "icon": "img/game/storeitems-codex-ode-meleemaceofficer.png"
-          },
-          {
-            "name": "Thrice-Bound Impidh",
-            "icon": "img/game/storeitems-codex-subbosses-mockeryarmoredmansubboss.png"
-          }
-        ],
-        "sieges": [
-          "Turret Jotar Siege"
-        ],
-        "chests": [
-          "Ode Chest",
-          "Ode Drone Rare Chest",
-          "Ode Strongbox"
-        ]
-      }
+      "icon": "img/game/runes-alca-alcacourage012.png"
     }
   },
   "joineries": {
@@ -1717,42 +705,42 @@
       "family": null,
       "desc": "A dull gold tinged with smoke. A fine metal, traditionally used in the art of Steelsinging. Once mined plentifully in the Mines of Borro, Grey Gold is a reliable joinery for broken weapons.",
       "rarity": null,
-      "icon": "img/joineries/joinery.png"
+      "icon": "img/game/joinery.png"
     },
     "/SF/Types/Items/Kintsugi/KintsugiUpgradeArmourA": {
       "name": "Tribalt",
       "family": null,
       "desc": "A blue-tinged metal, traditionally used in the art of Steelsinging. It is an unusually flexible joinery, making it a perfect binder for broken armour.",
       "rarity": null,
-      "icon": "img/joineries/joinery.png"
+      "icon": "img/game/joinery.png"
     },
     "/SF/Types/Items/Kintsugi/KintsugiUpgradeB": {
       "name": "Sun Gold",
       "family": null,
       "desc": "A vibrant golden ore, traditionally used in the art of Steelsinging. So named for its bright reddish glint, Sun Gold grants broken weapons the luck of the stars when used as a joinery. +1 damage.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/joinery.png"
+      "icon": "img/game/joinery.png"
     },
     "/SF/Types/Items/Kintsugi/KintsugiUpgradeC": {
       "name": "Palladium",
       "family": null,
       "desc": "A silver-white metal of great value, traditionally used in the art of Steelsinging. Forming a seamless fusion twixt shattered parts, Palladium fortifies broken weapons when used as a joinery. +2 damage.",
       "rarity": "RARE",
-      "icon": "img/joineries/joinery.png"
+      "icon": "img/game/joinery.png"
     },
     "/SF/Types/Items/Kintsugi/KintsugiUpgradeD": {
       "name": "Eldore",
       "family": null,
       "desc": "An iridescent metal, traditionally used in the art of Steelsinging. Thought to be the currency of the Fey. When used as a joinery, Eldore fastens severed weapons with the strength of bound realms. +3 damage.",
       "rarity": "RARE",
-      "icon": "img/joineries/joinery.png"
+      "icon": "img/game/joinery.png"
     },
     "/SF/Types/Items/Kintsugi/Weapons/KintsugiUpgradeDefenseC": {
       "name": "Gildaur: Blessed by Mora",
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/gildaur.png",
+      "icon": "img/game/joinery-gildaur.png",
       "pips": {
         "virtue": "Courage",
         "count": 1
@@ -1763,7 +751,7 @@
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/gildaur.png",
+      "icon": "img/game/joinery-gildaur.png",
       "pips": {
         "virtue": "Grace",
         "count": 1
@@ -1774,7 +762,7 @@
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/gildaur.png",
+      "icon": "img/game/joinery-gildaur.png",
       "pips": {
         "virtue": "Courage",
         "count": 3
@@ -1785,7 +773,7 @@
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/gildaur.png",
+      "icon": "img/game/joinery-gildaur.png",
       "pips": {
         "virtue": "Grace",
         "count": 3
@@ -1796,7 +784,7 @@
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/gildaur.png",
+      "icon": "img/game/joinery-gildaur.png",
       "pips": {
         "virtue": "Spirit",
         "count": 3
@@ -1807,7 +795,7 @@
       "family": "Gildaur",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/gildaur.png",
+      "icon": "img/game/joinery-gildaur.png",
       "pips": {
         "virtue": "Spirit",
         "count": 1
@@ -1818,7 +806,7 @@
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/verite.png",
+      "icon": "img/game/joinery-verite.png",
       "pips": {
         "virtue": "Courage",
         "count": 1
@@ -1829,7 +817,7 @@
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/verite.png",
+      "icon": "img/game/joinery-verite.png",
       "pips": {
         "virtue": "Grace",
         "count": 1
@@ -1840,7 +828,7 @@
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/verite.png",
+      "icon": "img/game/joinery-verite.png",
       "pips": {
         "virtue": "Courage",
         "count": 2
@@ -1851,7 +839,7 @@
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/verite.png",
+      "icon": "img/game/joinery-verite.png",
       "pips": {
         "virtue": "Grace",
         "count": 2
@@ -1862,7 +850,7 @@
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/verite.png",
+      "icon": "img/game/joinery-verite.png",
       "pips": {
         "virtue": "Spirit",
         "count": 2
@@ -1873,7 +861,7 @@
       "family": "Verite",
       "desc": "A dull ore with a reddish tint. A fine metal, traditionally used in the art of Steelsinging. Verite was a favourite medium for talisman makers of the Quiet Years, as it was thought to bring stability in turbulent times. Today, it remains a reliable joinery for mending melee weapons.",
       "rarity": null,
-      "icon": "img/joineries/verite.png",
+      "icon": "img/game/joinery-verite.png",
       "pips": {
         "virtue": "Spirit",
         "count": 1
@@ -1884,7 +872,7 @@
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": null,
-      "icon": "img/joineries/quicksilver.png",
+      "icon": "img/game/joinery-quicksilver.png",
       "pips": {
         "virtue": "Courage",
         "count": 1
@@ -1895,7 +883,7 @@
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": null,
-      "icon": "img/joineries/quicksilver.png",
+      "icon": "img/game/joinery-quicksilver.png",
       "pips": {
         "virtue": "Grace",
         "count": 1
@@ -1906,7 +894,7 @@
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/quicksilver.png",
+      "icon": "img/game/joinery-quicksilver.png",
       "pips": {
         "virtue": "Courage",
         "count": 3
@@ -1917,7 +905,7 @@
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/quicksilver.png",
+      "icon": "img/game/joinery-quicksilver.png",
       "pips": {
         "virtue": "Courage",
         "count": 2
@@ -1928,7 +916,7 @@
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/quicksilver.png",
+      "icon": "img/game/joinery-quicksilver.png",
       "pips": {
         "virtue": "Grace",
         "count": 3
@@ -1939,7 +927,7 @@
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/quicksilver.png",
+      "icon": "img/game/joinery-quicksilver.png",
       "pips": {
         "virtue": "Grace",
         "count": 2
@@ -1950,7 +938,7 @@
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/quicksilver.png",
+      "icon": "img/game/joinery-quicksilver.png",
       "pips": {
         "virtue": "Spirit",
         "count": 3
@@ -1961,7 +949,7 @@
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/quicksilver.png",
+      "icon": "img/game/joinery-quicksilver.png",
       "pips": {
         "virtue": "Spirit",
         "count": 2
@@ -1972,7 +960,7 @@
       "family": "Quicksilver",
       "desc": "An incredibly smooth ball of silvern metal, traditionally used in the art of Steelsinging. Once thought to be stray bubbles, floated ‘way from the Silvern Sea. Though this theory is disregarded by most Pensive's today, it would explain this ore's unnatural lightness. The ideal joinery for mending ranged weapons.",
       "rarity": null,
-      "icon": "img/joineries/quicksilver.png",
+      "icon": "img/game/joinery-quicksilver.png",
       "pips": {
         "virtue": "Spirit",
         "count": 1
@@ -1983,7 +971,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": null,
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Courage",
         "count": 1
@@ -1994,7 +982,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Spirit",
         "count": 3
@@ -2005,7 +993,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": null,
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Grace",
         "count": 1
@@ -2016,7 +1004,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Courage",
         "count": 3
@@ -2027,7 +1015,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Courage",
         "count": 2
@@ -2038,7 +1026,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Grace",
         "count": 3
@@ -2049,7 +1037,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Grace",
         "count": 2
@@ -2060,7 +1048,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "RARE",
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Spirit",
         "count": 3
@@ -2071,7 +1059,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": "UNCOMMON",
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Spirit",
         "count": 2
@@ -2082,7 +1070,7 @@
       "family": "Feybalt",
       "desc": "A metal with a blueish iridescence, traditionally used in the art of Steelsinging. Though its melting point is remarkably low, Feybalt is a powerful conductor for magicks- fey and otherwise. Sure to be the perfect joinery for mending magick weapons.",
       "rarity": null,
-      "icon": "img/joineries/feybalt.png",
+      "icon": "img/game/joinery-feybalt.png",
       "pips": {
         "virtue": "Spirit",
         "count": 1

@@ -2,7 +2,6 @@ import { readFile, rm } from "node:fs/promises";
 import { writeFileAtomic } from "../server/files";
 import { cacheStamp, readGameFiles, type GameFiles } from "./cache";
 import { clearGameData, updateGameData, type UpdateOptions, type UpdateResult } from "./update";
-import type { Wiki } from "./wiki";
 
 export const SETTLE_MS = 2 * 60_000;
 export const RETRY_MS = 24 * 3600_000;
@@ -23,7 +22,6 @@ export interface WatcherOptions {
   bundledDir: string;
   appVersion: string;
   locate: () => Promise<{ dir: string | null; build: string | null }>;
-  wiki?: () => Wiki | null;
   log: (msg: string) => void;
   onChanged: () => void;
   readFiles?: (dir: string) => Promise<GameFiles>;
@@ -95,7 +93,6 @@ export class GameDataWatcher {
       cacheDir: dir,
       outDir: o.outDir,
       bundledDir: o.bundledDir,
-      wiki: o.wiki?.() ?? null,
       log: o.log,
     });
     const next: GameDataState = { app: o.appVersion, hash: files.hash, stamp: stamp.id, at: now(), complete: !result.incomplete };

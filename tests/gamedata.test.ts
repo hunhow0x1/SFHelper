@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { zstdCompressSync } from "node:zlib";
 import { findCacheDir, findRootEntry, hostPath, readEntry, tocIndex } from "../src/gamedata/cache";
 import { readLanguages } from "../src/gamedata/formats";
-import { buildArmour, buildArsenal, buildEnemies, aspectManifests, buildNames, buildPactArtTexts, buildPactArtValues, buildTalismans, buildTempers, buildTotemData, buildUpgrades, itemIconPaths, mergeRuneValues, parseFactionCaps, parseRuneTags, runeValues, withRetired, parseDropTables, bossPortraits, runeDrops, gamePatch } from "../src/gamedata/builders";
+import { buildArmour, buildArsenal, buildEnemies, aspectManifests, buildNames, buildPactArtTexts, buildPactArtValues, buildTalismans, buildTempers, buildTotemData, buildUpgrades, buildFactionRanks, runeTemplateValues, itemIconPaths, withRetired, gamePatch } from "../src/gamedata/builders";
 import { locValues, parseChunk, parseLocScript } from "../src/gamedata/luau";
 import { decodeBC3, encodePng, mipChain, textureImage } from "../src/gamedata/textures";
 import { loggedGame } from "../src/server/gameLog";
@@ -224,16 +224,16 @@ describe("building SFHelper's data from the game", () => {
     expect(enemies.names.mockerystonewomanavatar).toBeUndefined();
   });
 
-  it("reads Pact Art numbers and faction rank caps", () => {
+  it("reads Pact Art numbers, and each faction's rank caps from its titles", () => {
     const texts = [
       "LocalizeTag=/SF/Language/Pacts/StalwartName\nFusionLimit=5\nUpgrades={\nUpgradeType=AVATAR_HEALTH_MAX\nOperationType=ADD\nValue=25\nSymbolFilter=\n}",
     ];
     expect(buildPactArtValues({ "/SF/Language/Pacts/StalwartName": "Stalwart" }, texts, { stalwart: { name: "Stalwart" }, brave: { name: "Brave", virtue: "Courage" } })).toEqual({
       stalwart: [{ n: 25, unit: "", sign: true, label: "max Health" }],
     });
-    const table = ["| 0 || [[File:FactionStanding.png|20px]] '''5,000'''", "| 1 || [[File:FactionStanding.png]] 20,000"].join("\n");
-    expect(parseFactionCaps(table)).toEqual([5000, 20000]);
-    expect(parseFactionCaps("no table")).toBeNull();
+    const title = (level: number, min: number, max: number) => `{\ntitleLoc=/SF/Language/Syndicates/ChampionTitle${level}\nlevel=${level}\nrewards={}\nminXP=${min}\nmaxXP=${max}\n}`;
+    const champion = ["SyndicateName=/SF/Language/Syndicates/ChampionName", "Titles={", title(3, 30000, 50000), title(2, 10000, 30000), title(1, 5000, 10000), "}"].join("\n");
+    expect(buildFactionRanks([champion, "SyndicateName=/SF/Language/Syndicates/EmptyName"])).toEqual({ ChampionSyndicate: [5000, 5000, 20000, 20000] });
   });
 });
 
@@ -244,6 +244,7 @@ describe("weapons, Pacts and gear straight from the game files", () => {
     "/L/Loksprik": "Loksprik",
     "/L/Goody": "Goody's Edge",
     "/L/Shrike": "Ode Shrike",
+    "/L/DaggerSkill": "Short Blade",
     "/L/Hidden": "Hidden Blade",
     "/L/Bullet": "ANY",
     "/L/Summon": "Summon Wolf",
@@ -251,9 +252,11 @@ describe("weapons, Pacts and gear straight from the game files", () => {
     "/L/Elixir": "Life Elixir",
   };
 
-  it("lists every named weapon and Pact with its slot, style and damage type", () => {
+  it("lists every named weapon and Pact with its slot, style, damage type and grip", () => {
     const texts = [
-      item({ ProductCategory: "Melee", LocalizeTag: "/L/Loksprik", TypeName: "/SF/Weapons/Melee/OneHand/LockSuitDagger/LockSuitDaggerMeleeWeapon", MeleeStyle: "MS_DAGGER" }, ["/SF/Language/Game/DT_SLASH_NoIcon"]),
+      item({ ProductCategory: "Melee", LocalizeTag: "/L/Loksprik", Icon: "/I/Loksprik.png", TypeName: "/SF/Weapons/Melee/OneHand/LockSuitDagger/LockSuitDaggerMeleeWeapon", MeleeStyle: "MS_DAGGER" }, ["/SF/Language/Game/DT_SLASH_NoIcon"]),
+      item({ LocalizeTag: "/L/Loksprik", Icon: "/I/Loksprik.png", SkillTree: "/SF/Upgrades/Techniques/DaggerSkillTree" }),
+      item({ ProductCategory: "Upgrades", LocalizeTag: "/L/DaggerSkill", TypeName: "/SF/Upgrades/Techniques/DaggerSkillTree" }),
       item({ ProductCategory: "LongGuns", LocalizeTag: "/L/Goody", TypeName: "/SF/Weapons/Melee/OneHand/BitasEdge/SecondaryBitasEdgeDualSickleMeleeWeapon", MeleeStyle: "MS_AKIMBO_SHORT_SWORD" }),
       item({ ProductCategory: "Melee", LocalizeTag: "/L/Hidden", TypeName: "/SF/Weapons/Melee/Hidden", ExcludeFromCodex: "1" }),
       item({ ProductCategory: "MiscItems", LocalizeTag: "/L/Bullet", TypeName: "/SF/Weapons/Guns/SFBulletWeapon" }),
@@ -262,11 +265,21 @@ describe("weapons, Pacts and gear straight from the game files", () => {
     ];
     expect(buildArsenal(dict, texts)).toEqual({
       weapons: {
-        "/SF/Weapons/Melee/OneHand/BitasEdge/SecondaryBitasEdgeDualSickleMeleeWeapon": { name: "Goody's Edge", slot: "Sidearm", style: "MS_AKIMBO_SHORT_SWORD", damage: null },
-        "/SF/Weapons/Melee/OneHand/LockSuitDagger/LockSuitDaggerMeleeWeapon": { name: "Loksprik", slot: "Primary", style: "MS_DAGGER", damage: "SLASH" },
+        "/SF/Weapons/Melee/OneHand/BitasEdge/SecondaryBitasEdgeDualSickleMeleeWeapon": { name: "Goody's Edge", slot: "Sidearm", style: "MS_AKIMBO_SHORT_SWORD", damage: null, grip: null },
+        "/SF/Weapons/Melee/OneHand/LockSuitDagger/LockSuitDaggerMeleeWeapon": { name: "Loksprik", slot: "Primary", style: "MS_DAGGER", damage: "SLASH", grip: "Short Blade" },
       },
       pacts: { "/SF/Souls/OdeHunter/OdeHunterSoul": "Ode Shrike" },
     });
+  });
+
+  it("gives a bow the grip its base type's skill tree names", () => {
+    const bow = "/SF/Weapons/Ranged/TwoHand/SinecureBow/SinecureBowRangedMeleeWeapon";
+    const texts = [
+      item({ ProductCategory: "LongGuns", LocalizeTag: "/L/Avex", TypeName: bow, MeleeStyle: "MS_BOW" }),
+      item({ ProductCategory: "Upgrades", LocalizeTag: "/L/BowSkill", TypeName: "/SF/Upgrades/Techniques/ArcherySkillTree" }),
+    ];
+    const tree = new Map<string, string | null>([[bow, "/SF/Weapons/Ranged/RangedRareMidMeleeWeapon"], ["/SF/Weapons/Ranged/RangedRareMidMeleeWeapon", "/SF/Types/Game/SFRangedMeleeWeapon"]]);
+    expect(buildArsenal({ ...dict, "/L/Avex": "Avex", "/L/BowSkill": "Bow" }, texts, tree).weapons[bow]).toMatchObject({ name: "Avex", grip: "Bow" });
   });
 
   it("reads the patch from the game's update title", () => {
@@ -289,7 +302,7 @@ describe("weapons, Pacts and gear straight from the game files", () => {
       consumable("Tackle/Hidden", "/L/Hidden", { ShowInInventory: "0" }),
     ];
     const names = { ...dict, "/L/Desc": "A description.", "/L/Pup": "Summon Wolfpup", "/L/Whisp": "Curaidh's Whisp", "/L/Swell": "Cloudswell", "/L/Hidden": "Hidden Lure" };
-    const { gear } = await buildUpgrades(names, texts, null, null, async () => null);
+    const { gear } = await buildUpgrades(names, texts, null, async () => null);
     expect(Object.fromEntries(Object.values(gear).map((g) => [g.name, g.kind]))).toEqual({ "Bairnday Biscuit": "Companion", "Life Elixir": "Supplies" });
   });
 
@@ -312,7 +325,7 @@ describe("weapons, Pacts and gear straight from the game files", () => {
       "/SF/Language/Fish/FishingFamily3": "Bottom Feeder",
       "/SF/Language/Fish/FishingFamily4": "Morning Feeder",
     };
-    const { gear } = await buildUpgrades(names, texts, null, null, async () => null);
+    const { gear } = await buildUpgrades(names, texts, null, async () => null);
     expect(gear["/SF/Types/Items/Consumables/Tackle/FishLureUncommon"]).toMatchObject({ kind: "Fishing", habitat: ["Lake"], natures: ["Bottom Feeder", "Morning Feeder"] });
     expect(gear["/SF/Types/Items/Consumables/Syndicates/ChampionVirtueElixir"]).toMatchObject({ kind: "Supplies", virtue: "Courage" });
     expect(gear["/SF/Types/Items/Consumables/Tackle/BugLureStarterCommon"]).not.toHaveProperty("habitat");
@@ -354,16 +367,12 @@ describe("runes, Talismans and armour from the game files", () => {
       def({ ProductCategory: "Upgrades", LocalizeTag: "/L/Lunar", LocalizeDescTag: "/L/LunarDesc", Icon: icon, TypeName: type }, "SearchTags={\n/L/Magick\n}"),
       def({ LocalizeTag: "/L/Lunar", Icon: icon, EnhancementTag: "/L/LunarText" }, "BonusArtifactSlots={\nAP_DEFENSE\n}"),
     ];
-    const stats = [
-      { effect: "$1 Arcanic Damage Bonus", values: ["50%", "75%", "100%", "125%"] },
-      { effect: "Healing", values: ["20%", "25%", "30%", "35%"] },
-    ];
-    const wiki = new Map([[type, { name: "Lunarcure", id: type, icon: null, art: null, does: null, slot: null, stats }]]);
     const drawn: (string | null)[] = [];
-    const { runes } = await buildUpgrades({ ...dict, "/L/Magick": "Magick" }, texts, wiki, null, async (p) => {
+    const values = async () => ({ DAMAGE: ["50", "75", "100", "125"], HEAL: ["20", "25", "30", "35"] });
+    const { runes } = await buildUpgrades({ ...dict, "/L/Magick": "Magick" }, texts, null, async (p) => {
       drawn.push(p);
       return "img/game/rune.png";
-    });
+    }, values);
     expect(runes[type]).toMatchObject({
       name: "Lunarcure",
       text: dict["/L/LunarText"],
@@ -373,18 +382,6 @@ describe("runes, Talismans and armour from the game files", () => {
       icon: "img/game/rune.png",
     });
     expect(drawn).toEqual([icon]);
-  });
-
-  it("matches the wiki's numbers to a description's placeholders by what they measure", () => {
-    const treefell = "Increases the speed of charging Heavy Attacks by |BONUS|%, and bypasses |BONUS2| Defence for |DURATION| seconds.";
-    const stats = [
-      { effect: "Charge Speed", values: ["40%", "60%", "80%", "100%"] },
-      { effect: "Duration", values: ["5s", "6s", "7s", "8s"] },
-      { effect: "$1 Armour Penetration", values: ["10", "30", "50", "70"] },
-    ];
-    expect(runeValues(treefell, stats)).toEqual({ BONUS: ["40", "60", "80", "100"], BONUS2: ["10", "30", "50", "70"], DURATION: ["5", "6", "7", "8"] });
-    expect(runeValues("Creates a cloaking shadow for |DURATION| seconds, extended by |BONUS| seconds.", [stats[1]!])).toBeNull();
-    expect(runeValues("Throw for |STAGGER|% Stagger.", [{ effect: "Stagger Bonus", values: ["x%", "x%", "x%", "350%"] }])).toBeNull();
   });
 
   it("reads Talisman Virtues and armour stats, keeping set names it already had", () => {
@@ -399,15 +396,22 @@ describe("runes, Talismans and armour from the game files", () => {
       def({ LocalizeTag: "/L/Charm", Icon: charm }, `Upgrades={\n{\n${virtue("GRACE", 1)}\n},\n{\n${virtue("SPIRIT", 2)}\n},\n{\n${virtue("COURAGE", 1)}\n}\n}`),
       ...piece("Legs", "MockeryStoneLegs", "/L/Braes", "Rarity=RARE\nArmour={\nPhysical=5\nMagick=1\nStability=4\n}\nRequirements={\nAT_COURAGE=19\n}"),
       ...piece("Helmets", "MockeryStoneHelmet", "/L/Mask", "Armour={\nPhysical=4\nMagick=2\nStability=2\n}"),
+      ...piece("Helmets", "LocksuitHelmet", "/L/Lockmaw", "Rarity=UNCOMMON\nArmour={\nPhysical=2\nMagick=2\nStability=2\n}\nAttunements={\nPhysical={\nAT_SPIRIT=1\nAT_GRACE=2\n}\nMagick={\nAT_SPIRIT=1\nAT_GRACE=1\n}\nStability={\nAT_SPIRIT=1\nAT_GRACE=1\n}\n}\nRequirements={\nAT_SPIRIT=8\nAT_GRACE=12\n}"),
       ...piece("Legs", "BromiusLegs", "/L/Old", "Rarity=RARE\nArmour={\nPhysical=5\nMagick=1\nStability=4\n}\nRequirements={\nAT_COURAGE=19\n}"),
     ];
     expect(buildTalismans(dict, texts)).toEqual({ CardinalTotem: { name: "Cardinal Charm", Courage: 1, Spirit: 2, Grace: 1 } });
-    const previous = { "Arbearer's Braes": { slot: "Leggings" as const, set: "Arbearer", rarity: "Rare", physical: 5, magick: 1, stability: 4, requires: null }, "Helmless": { slot: "Helm" as const, set: "Underwear", rarity: "Common", physical: 0, magick: 0, stability: 0, requires: null } };
-    expect(buildArmour(dict, texts, previous)).toEqual({
-      "Arbearer's Braes": { slot: "Leggings", set: "Arbearer", rarity: "Rare", physical: 5, magick: 1, stability: 4, requires: { virtue: "Courage", value: 19 } },
-      "Ceptet's Gaiters": { slot: "Leggings", set: "Ceptet", rarity: "Rare", physical: 5, magick: 1, stability: 4, requires: { virtue: "Courage", value: 19 } },
-      "Ceptet's Headstone": { slot: "Helm", set: "Ceptet", rarity: "Common", physical: 4, magick: 2, stability: 2, requires: null },
-      "Helmless": { slot: "Helm", set: "Underwear", rarity: "Common", physical: 0, magick: 0, stability: 0, requires: null },
+    const none = { physical: {}, magick: {}, stability: {} };
+    const previous = { "Arbearer's Braes": { slot: "Leggings" as const, set: "Arbearer", rarity: "Rare", physical: 5, magick: 1, stability: 4, requires: {}, attunements: none }, "Helmless": { slot: "Helm" as const, set: "Underwear", rarity: "Common", physical: 0, magick: 0, stability: 0, requires: {}, attunements: none } };
+    expect(buildArmour({ ...dict, "/L/Lockmaw": "Shrike's Lockmaw" }, texts, previous)).toEqual({
+      "Arbearer's Braes": { slot: "Leggings", set: "Arbearer", rarity: "Rare", physical: 5, magick: 1, stability: 4, requires: { Courage: 19 }, attunements: none },
+      "Ceptet's Gaiters": { slot: "Leggings", set: "Ceptet", rarity: "Rare", physical: 5, magick: 1, stability: 4, requires: { Courage: 19 }, attunements: none },
+      "Ceptet's Headstone": { slot: "Helm", set: "Ceptet", rarity: "Common", physical: 4, magick: 2, stability: 2, requires: {}, attunements: none },
+      "Helmless": { slot: "Helm", set: "Underwear", rarity: "Common", physical: 0, magick: 0, stability: 0, requires: {}, attunements: none },
+      "Shrike's Lockmaw": {
+        slot: "Helm", set: null, rarity: "Uncommon", physical: 2, magick: 2, stability: 2,
+        requires: { Spirit: 8, Grace: 12 },
+        attunements: { physical: { Spirit: 1, Grace: 2 }, magick: { Spirit: 1, Grace: 1 }, stability: { Spirit: 1, Grace: 1 } },
+      },
     });
   });
 
@@ -483,11 +487,11 @@ describe("rune numbers from the game's scripts", () => {
     expect(await locValues(source, { ...ls!, fn: "Missing" })).toBeNull();
   });
 
-  it("prefers the game's numbers and fills gaps from the wiki", () => {
+  it("fills a description's placeholders only when the game has every number", () => {
     const text = "Deals |DAMAGE|% for |DURATION| seconds.";
-    expect(mergeRuneValues(text, { DAMAGE: ["1", "2", "3", "4"] }, { DAMAGE: ["9", "9", "9", "9"], DURATION: ["5", "6", "7", "8"] })).toEqual({ DAMAGE: ["1", "2", "3", "4"], DURATION: ["5", "6", "7", "8"] });
-    expect(mergeRuneValues(text, { DAMAGE: ["1", "2", "3", "4"] }, null)).toBeNull();
-    expect(mergeRuneValues(null, { DAMAGE: ["1"] }, null)).toBeNull();
+    expect(runeTemplateValues(text, { DAMAGE: ["1", "2", "3", "4"], DURATION: ["5", "6", "7", "8"] })).toEqual({ DAMAGE: ["1", "2", "3", "4"], DURATION: ["5", "6", "7", "8"] });
+    expect(runeTemplateValues(text, { DAMAGE: ["1", "2", "3", "4"] })).toBeNull();
+    expect(runeTemplateValues(null, { DAMAGE: ["1"] })).toBeNull();
   });
 });
 
@@ -550,106 +554,5 @@ describe("which weapons each Temper can roll on", () => {
   it("gives up rather than guess when the order doesn't line up", () => {
     const swapped = new Map([...tree].reverse());
     expect(aspectManifests(texts, swapped).size).toBe(0);
-  });
-
-  it("reads rune tags from the wiki's rune data", () => {
-    const lua = '{\n  ["The Torrent"] = {\n    InternalID= "/SF/Upgrades/Runes/Weapon/Bow/X",\n    Tags= "Cogah",\n  },\n  ["Hurlwind"] = {\n    InternalID= "/SF/Upgrades/Runes/Weapon/Bow/Y",\n  },\n}';
-    expect(parseRuneTags(lua)).toEqual(new Map([["/SF/Upgrades/Runes/Weapon/Bow/X", ["Cogah"]], ["/SF/Upgrades/Runes/Weapon/Bow/Y", []]]));
-  });
-});
-
-describe("where each rune drops", () => {
-  const lua = `return {
-\t["SpiderSubBoss"] = {
-\t\tTags = "Foes",
-\t\tSources = {
-\t\t\t{
-\t\t\t\tName = "Etheldred The Weaver",
-\t\t\t\tLink = "Etheldred The Weaver",
-\t\t\t},
-\t\t\t{
-\t\t\t\tName = "Seachnall The Widower",
-\t\t\t\tLink = "Seachnall The Widower",
-\t\t\t},
-\t\t},
-\t\tDrops =
-\t\t\t{
-\t\t\t\t{ Name = "Emberaught", Quantity = "1" },
-\t\t\t}
-\t},
-\t["HunterRednightBoss"] = {
-\t\tTags = "Foes",
-\t\tSources = {
-\t\t\t{
-\t\t\t\tName = "Gruul-Seeker Ruthos (Cogah)",
-\t\t\t\tLink = "Gruul-Seeker Ruthos",
-\t\t\t},
-\t\t},
-\t\tDrops =
-\t\t\t{
-\t\t\t\t{ Name = "The Torrent", Quantity = "1" },
-\t\t\t\t{ Name = "Hunter's Hood", Quantity = "1" },
-\t\t\t}
-\t},
-\t["KearnholdSiegeMissionRewardItemManifest"] = {
-\t\tTags = "Sieges",
-\t\tSources = {
-\t\t\t{
-\t\t\t\tName = "Fort Kearnhold Siege",
-\t\t\t\tLink = "Fort Kearnhold",
-\t\t\t},
-\t\t},
-\t\tDrops =
-\t\t\t{
-\t\t\t\t{ Name = "Emberaught", Quantity = "1" },
-\t\t\t}
-\t},
-\t["FortressODellDungeonVotiveRewardManifest"] = {
-\t\tTags = "Votives",
-\t\tSources = {
-\t\t\t{
-\t\t\t\tName = "Fortress O'Dell#Dungeon Votive",
-\t\t\t\tLink = "Fortress O'Dell#Dungeon Votive",
-\t\t\t},
-\t\t},
-\t\tDrops =
-\t\t\t{
-\t\t\t\t{ Name = "Emberaught", Quantity = "1" },
-\t\t\t}
-\t},
-}`;
-  const enemies = {
-    names: { spidersubbossavatar: "Etheldred The Weaver", spidersubbossprocavatar: "Seachnall The Widower", rangedhuntersubbossavatar: "Gruulseeker Ruthos" },
-    parents: { SpiderSubBossAvatar: "GruntAvatarBase", SpiderSubBossProcAvatar: "SpiderSubBossAvatar", RangedHunterSubBossAvatar: "RangedHunterEliteAvatar", RangedHunterEliteAvatar: "GruntAvatarBase" },
-  };
-  const texts = [
-    "LocTag=/SF/Language/Codex/SpiderSubbossAvatarName\nIcon=/SF/Interface/Graphics/StoreItems/Codex/SubBosses/SpiderSubBoss.png",
-    "LocTag=/SF/Language/Codex/SpiderSubbossProcAvatarName",
-    "LocTag=/SF/Language/Codex/RangedHunterEliteAvatarName\nIcon=/SF/Interface/Graphics/StoreItems/Codex/Ode/RangedHunterElite.png",
-    "LocTag=/SF/Language/Codex/RangedHunterSubbossAvatarName",
-  ];
-
-  it("reads the wiki's drop tables", () => {
-    const tables = parseDropTables(lua);
-    expect(tables.map((t) => t.key)).toEqual(["SpiderSubBoss", "HunterRednightBoss", "KearnholdSiegeMissionRewardItemManifest", "FortressODellDungeonVotiveRewardManifest"]);
-    expect(tables[1]).toEqual({ key: "HunterRednightBoss", tags: "Foes", sources: ["Gruul-Seeker Ruthos (Cogah)"], drops: ["The Torrent", "Hunter's Hood"] });
-  });
-
-  it("names Agari as the game does, with their codex portraits", () => {
-    const bosses = bossPortraits(texts, enemies);
-    expect(bosses.get("seachnallthewidower")).toEqual({ name: "Seachnall The Widower", icon: "/SF/Interface/Graphics/StoreItems/Codex/SubBosses/SpiderSubBoss.png" });
-    expect(bosses.get("gruulseekerruthos")).toEqual({ name: "Gruulseeker Ruthos", icon: "/SF/Interface/Graphics/StoreItems/Codex/Ode/RangedHunterElite.png" });
-
-    const drops = runeDrops(parseDropTables(lua), { "/R/Emberaught": "Emberaught", "/R/Torrent": "The Torrent", "/R/Other": "Hurlwind" }, bosses);
-    expect(drops["/R/Emberaught"]).toEqual({
-      bosses: [
-        { name: "Etheldred The Weaver", icon: "/SF/Interface/Graphics/StoreItems/Codex/SubBosses/SpiderSubBoss.png" },
-        { name: "Seachnall The Widower", icon: "/SF/Interface/Graphics/StoreItems/Codex/SubBosses/SpiderSubBoss.png" },
-      ],
-      sieges: ["Fort Kearnhold Siege"],
-      votives: ["Fortress O'Dell Dungeon Votive"],
-    });
-    expect(drops["/R/Torrent"]).toEqual({ bosses: [{ name: "Gruulseeker Ruthos", icon: "/SF/Interface/Graphics/StoreItems/Codex/Ode/RangedHunterElite.png", cogah: true }] });
-    expect(drops["/R/Other"]).toBeUndefined();
   });
 });
