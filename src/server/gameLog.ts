@@ -195,7 +195,11 @@ const PUBLIC_ADDRESS_RE = /public address \[?([0-9A-Fa-f:.]+?)\]?:\d+/;
 const HEAD_BYTES = 256;
 const CHUNK_BYTES = 1 << 20;
 
-const itemLines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
+// The game marks up some item names in its dialogs, e.g. a Totem's rank as
+// "Hare Harms \u200b<RANK_STAR_ICON><RANK_STAR_ICON><RANK_STAR_ICON>" (three stars
+// for Rank 4). Keep just the name, so it matches the inventory's item.
+export const cleanItemName = (s: string): string => s.replace(/<[A-Z0-9_]+>/g, "").replace(/[\u200b-\u200d\ufeff]/g, "").trim();
+const itemLines = (s: string) => s.split("\n").map(cleanItemName).filter(Boolean);
 const playerName = (s: string) => s.replace(/[\uE000-\uF8FF]/g, "").trim();
 
 interface Scan {

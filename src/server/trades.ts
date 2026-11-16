@@ -4,8 +4,9 @@
 
 import { readFile } from "node:fs/promises";
 import { appFile } from "./paths";
-import { logTrades, type LoggedTrade } from "./gameLog";
+import { cleanItemName, logTrades, type LoggedTrade } from "./gameLog";
 import { parseWeaponInstances } from "./weapons";
+import { parseTotems } from "./totems";
 import { writeFileAtomic } from "./files";
 
 const INSTANCE_BUCKETS = ["Melee", "LongGuns", "Pistols", "WeaponSkins", "Upgrades"];
@@ -20,9 +21,17 @@ export interface WeaponDetail {
   moonsteel: boolean;
 }
 
+// A Totem's own roll: its Virtue, grip ("Universal" or a weapon grip) and rank.
+export interface TotemDetail {
+  virtue: string | null;
+  grip: string;
+  rank: number;
+}
+
 export interface Holdings {
   instances: Record<string, string>;
   weapons?: Record<string, WeaponDetail>;
+  totems?: Record<string, TotemDetail>;
   counts: Record<string, number>;
   dracs: number | null;
   tradesRemaining: number | null;
@@ -35,6 +44,7 @@ export interface TradeItem {
   count: number;
   ids?: string[];
   weapon?: WeaponDetail;
+  totem?: TotemDetail;
 }
 
 export interface Deal {
@@ -85,6 +95,8 @@ export function parseHoldings(raw: unknown): Holdings {
   }
   const weapons: Record<string, WeaponDetail> = {};
   for (const w of parseWeaponInstances(raw)) weapons[w.id] = { craftwork: w.craftwork, tempers: w.tempers, moonsteel: w.moonsteel };
+  const totems: Record<string, TotemDetail> = {};
+  for (const t of parseTotems(raw)) totems[t.id] = { virtue: t.virtue, grip: t.grip, rank: t.rank };
   const counts: Record<string, number> = {};
   for (const bucket of COUNT_BUCKETS) {
     for (const x of Array.isArray(r[bucket]) ? (r[bucket] as unknown[]) : []) {
@@ -96,6 +108,7 @@ export function parseHoldings(raw: unknown): Holdings {
   return {
     instances,
     weapons,
+    totems,
     counts,
     dracs: num(r.RegularCredits),
     tradesRemaining: num(r.TradesRemaining),
@@ -124,9 +137,10 @@ export function tradesBetween(prev: Holdings, prevAt: string, next: Holdings, ne
 export function diffHoldings(prev: Holdings, next: Holdings): { received: TradeItem[]; given: TradeItem[] } {
   const received = new Map<string, TradeItem>();
   const given = new Map<string, TradeItem>();
-  const add = (m: Map<string, TradeItem>, key: string, count: number, id?: string, weapon?: WeaponDetail) => {
-    if (id && weapon) {
-      m.set(id, { key, count: 1, ids: [id], weapon });
+  // Weapons and Totems each get their own row, since every copy has its own roll.
+  const add = (m: Map<string, TradeItem>, key: string, count: number, id?: string, weapon?: WeaponDetail, totem?: TotemDetail) => {
+    if (id && (weapon || totem)) {
+      m.set(id, { key, count: 1, ids: [id], ...(weapon ? { weapon } : {}), ...(totem ? { totem } : {}) });
       return;
     }
     const t = m.get(key) ?? { key, count: 0 };
@@ -134,8 +148,8 @@ export function diffHoldings(prev: Holdings, next: Holdings): { received: TradeI
     if (id) (t.ids ??= []).push(id);
     m.set(key, t);
   };
-  for (const [id, key] of Object.entries(next.instances)) if (!(id in prev.instances)) add(received, key, 1, id, next.weapons?.[id]);
-  for (const [id, key] of Object.entries(prev.instances)) if (!(id in next.instances)) add(given, key, 1, id, prev.weapons?.[id]);
+  for (const [id, key] of Object.entries(next.instances)) if (!(id in prev.instances)) add(received, key, 1, id, next.weapons?.[id], next.totems?.[id]);
+  for (const [id, key] of Object.entries(prev.instances)) if (!(id in next.instances)) add(given, key, 1, id, prev.weapons?.[id], prev.totems?.[id]);
   for (const key of new Set([...Object.keys(prev.counts), ...Object.keys(next.counts)])) {
     const d = (next.counts[key] ?? 0) - (prev.counts[key] ?? 0);
     if (d > 0) add(received, key, d);
@@ -200,7 +214,15 @@ const statePath = () => appFile("trades.json");
 async function load(): Promise<State> {
   try {
     const s = JSON.parse(await readFile(statePath(), "utf8")) as Partial<State>;
-    return { last: s.last, peak: s.peak, history: Array.isArray(s.history) ? s.history : [] };
+    const history = Array.isArray(s.history) ? s.history : [];
+    // Trades saved before the game's name markup was stripped (Totem rank stars).
+    for (const t of history) {
+      for (const d of t.deals ?? []) {
+        d.offered = d.offered.map(cleanItemName);
+        d.received = d.received.map(cleanItemName);
+      }
+    }
+    return { last: s.last, peak: s.peak, history };
   } catch {
     return { history: [] };
   }
@@ -257,8 +279,11 @@ export function recordTrades(h: Holdings, at: string, readLog: () => Promise<Log
       }
       for (const t of history) {
         for (const i of t.received) {
-          const owned = !i.weapon && i.ids?.length === 1 ? h.weapons?.[i.ids[0]!] : undefined;
-          if (owned) i.weapon = owned;
+          const id = i.ids?.length === 1 ? i.ids[0]! : undefined;
+          const weapon = !i.weapon && id ? h.weapons?.[id] : undefined;
+          if (weapon) i.weapon = weapon;
+          const totem = !i.totem && id ? h.totems?.[id] : undefined;
+          if (totem) i.totem = totem;
         }
       }
       s.history = history.slice(0, MAX_HISTORY);

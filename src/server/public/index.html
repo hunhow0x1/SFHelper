@@ -413,6 +413,7 @@
       .tradecols li.tweapon { align-items: start; }
       .tradecols li.tweapon .cw { margin-left: 6px; }
       .tradecols li.tweapon .wtempers { margin-top: 6px; }
+      .tradecols li .tdetail { margin-top: 2px; color: var(--muted); font-size: 13px; }
       .tradecols .none { color: var(--faint); font-size: 14px; }
       .tradesub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; color: var(--faint); font-size: 13px; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
       .tradesub .avprice { margin-right: 5px; }
@@ -2029,6 +2030,7 @@
         if (list.length) $("pickups").innerHTML = rows || '<span class="muted">No pickups match.</span>';
       }
       function tradeItemName(key) {
+        if (key.includes("/Upgrades/Totems/")) return totemName(key);
         const tal = key.includes("/Skins/Totem/") ? TALISMANS[key.split("/").pop()] : null;
         return tal ? tal.name : shortName(key);
       }
@@ -2039,12 +2041,18 @@
       function tradeIcon(name) {
         const joinery = /^(Verite|Quicksilver|Feybalt|Gildaur)\b/.exec(name);
         const grip = CLASS_GRIP[(WEAPON_ROSTER[name] || {}).class];
-        const src = ITEM_ICONS[name] || (joinery ? `img/joineries/${joinery[1].toLowerCase()}.png` : grip ? gripIcon(grip) : null);
+        const animal = (TOTEM_DATA[name] || {}).animal;
+        const src = ITEM_ICONS[name] || (joinery ? `img/joineries/${joinery[1].toLowerCase()}.png` : grip ? gripIcon(grip) : animal ? animalIcon(animal) : null);
         return src ? `<img class="ticon" src="${src}" alt="" onerror="this.style.visibility='hidden'">` : '<span class="ticon"></span>';
       }
       function tradeItem(i) {
         const name = tradeItemName(i.key);
         const count = i.count > 1 ? `<span class="tcount">×${fmt(i.count)}</span>` : "<span></span>";
+        if (i.totem) {
+          const v = i.totem.virtue;
+          const detail = [v ? `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>` : "", escHtml(i.totem.grip), `Rank ${i.totem.rank}`].filter(Boolean).join(" · ");
+          return `<li class="tweapon">${tradeIcon(name)}<div><div>${escHtml(name)}</div><div class="tdetail">${detail}</div></div></li>`;
+        }
         if (!i.weapon) return `<li>${tradeIcon(name)}<span>${escHtml(name)}</span>${count}</li>`;
         const cw = craftworkInfo(i.weapon.craftwork);
         const chips = temperChips(i.weapon.tempers);

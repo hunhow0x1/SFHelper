@@ -49,6 +49,27 @@ describe("reading the game log as it grows", () => {
     expect(await loggedTradeOpened(log)).toBe(START + 98_100);
   });
 
+  it("keeps just the item name when the game marks up a Totem's rank", async () => {
+    const log = join(await mkdtemp(join(tmpdir(), "sfh-log-")), "EE.log");
+    const stars = "\u200b<RANK_STAR_ICON><RANK_STAR_ICON><RANK_STAR_ICON>";
+    await writeFile(
+      log,
+      [
+        HEADER.trimEnd(),
+        "100.000 Script [Info]: Dialog::Create: You are offering:",
+        "Rhapsodic Chordstone x14",
+        "and will receive from Envoy1 the following:",
+        `Hare Harms ${stars}`,
+        `Quick Drey ${stars}, leftItem=`,
+        "101.500 Script [Info]: Dialog::Create: description=The trade was successful!",
+        "",
+      ].join("\n"),
+    );
+    expect(await logTrades(log)).toEqual([
+      { at: START + 101_500, partner: "Envoy1", offered: ["Rhapsodic Chordstone x14"], received: ["Hare Harms", "Quick Drey"] },
+    ]);
+  });
+
   it("notes when the game last saved the inventory to the servers", async () => {
     const log = join(await mkdtemp(join(tmpdir(), "sfh-log-")), "EE.log");
     await writeFile(log, `${HEADER}449.662 Sys [Info]: CommitInventoryCheckpointToDB(0, 0, 0, )\n449.662 Sys [Info]: Checkpoint source: /SF/Scripts/NightFold.lua::NightfoldActivate(0)\n`);

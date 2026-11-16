@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { attachDeals, dailyTrades, detectTrade, parseHoldings, recordTrades, remainingToday, tradedIds, tradesBetween, type Trade } from "../src/server/trades";
@@ -63,6 +63,29 @@ describe("trade detection", () => {
       dracs: -220,
     });
     expect(detectTrade(before, "2026-10-24T10:00:00Z", { ...after, tradesRemaining: 18 }, "2026-10-24T10:02:00Z")).toBeNull();
+  });
+
+  it("gives each traded Totem its own row with its Virtue, grip and rank", () => {
+    const totem = (n: number, type: string, fp: object) => ({ ItemType: `/SF/Upgrades/Totems/${type}`, ItemId: oid(n), UpgradeFingerprint: JSON.stringify(fp) });
+    const kept = totem(10, "AoeRip", { pol: "AP_COURAGE", compat: "", lvl: 0 });
+    const base = inventory({ weapons: [], onyx: 0, dracs: 1000, trades: 18 });
+    const before = parseHoldings({ ...base, Upgrades: [kept, totem(11, "HealCast", { pol: "AP_SPIRIT", compat: "", lvl: 1 })] });
+    const after = parseHoldings({
+      ...base,
+      RegularCredits: 560,
+      TradesRemaining: 17,
+      Upgrades: [
+        kept,
+        totem(12, "AoeRip", { pol: "AP_COURAGE", compat: "/SF/Types/Game/Techniques/PolearmSkillTree", lvl: 3 }),
+        totem(13, "AttackSpeedCollect", { pol: "AP_GRACE", compat: "/SF/Types/Game/Techniques/PolearmSkillTree", lvl: 3 }),
+      ],
+    });
+    const t = detectTrade(before, "2026-11-16T05:17:57Z", after, "2026-11-16T05:18:47Z");
+    expect(t?.received).toEqual([
+      { key: "/SF/Upgrades/Totems/AoeRip", count: 1, ids: [oid(12).$oid], totem: { virtue: "Courage", grip: "Polearm", rank: 4 } },
+      { key: "/SF/Upgrades/Totems/AttackSpeedCollect", count: 1, ids: [oid(13).$oid], totem: { virtue: "Grace", grip: "Polearm", rank: 4 } },
+    ]);
+    expect(t?.given).toEqual([{ key: "/SF/Upgrades/Totems/HealCast", count: 1, ids: [oid(11).$oid], totem: { virtue: "Spirit", grip: "Universal", rank: 2 } }]);
   });
 
   it("ignores a switch to a different account's inventory", () => {
@@ -131,6 +154,27 @@ describe("trade history", () => {
     await recordPickups([weapon(1), weapon(2)], ctx);
     const pickups = await recordPickups([weapon(1), weapon(2), weapon(3)], ctx, tradedIds(view.history));
     expect(pickups[0]).toMatchObject({ id: oid(3).$oid, source: "traded" });
+  });
+
+  it("cleans Totem names saved from the log with their rank stars, and adds the Totem's roll once it's known", async () => {
+    const id = oid(12).$oid;
+    const stars = "\u200b<RANK_STAR_ICON><RANK_STAR_ICON><RANK_STAR_ICON>";
+    const saved = {
+      history: [{
+        at: "2026-11-16T05:18:47.663Z", after: "2026-11-16T05:17:57.949Z", count: 1, dracs: -440,
+        received: [{ key: "/SF/Upgrades/Totems/AoeRip", count: 1, ids: [id] }],
+        given: [{ key: ONYX, count: 14 }],
+        deals: [{ when: "2026-11-16T05:18:34.646Z", partner: "Envoy1", offered: ["Corrupt Onyx"], received: [`Hare Harms ${stars}`] }],
+      }],
+    };
+    await writeFile(join(process.env.SFHELPER_HOME!, "trades.json"), JSON.stringify(saved));
+    const now = parseHoldings({
+      ...inventory({ weapons: [], onyx: 0, dracs: 0, trades: 17 }),
+      Upgrades: [{ ItemType: "/SF/Upgrades/Totems/AoeRip", ItemId: oid(12), UpgradeFingerprint: JSON.stringify({ pol: "AP_COURAGE", compat: "/SF/Types/Game/Techniques/PolearmSkillTree", lvl: 3 }) }],
+    });
+    const view = await recordTrades(now, new Date().toISOString(), async () => []);
+    expect(view.history[0]!.deals![0]!.received).toEqual(["Hare Harms"]);
+    expect(view.history[0]!.received[0]!.totem).toEqual({ virtue: "Courage", grip: "Polearm", rank: 4 });
   });
 
   it("records and announces a pickup once when the page and an import diff at the same time", async () => {
