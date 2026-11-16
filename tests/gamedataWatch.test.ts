@@ -109,10 +109,12 @@ describe("updating game data after Soulframe updates", () => {
     expect(await new GameDataWatcher(t.opts()).check()).toBe("updated");
     await writeFile(join(t.out, "names.json"), "{}");
     await writeFile(join(t.out, "weapons.json"), "{}");
+    await writeFile(join(t.out, "pactarts.json"), "{}");
     t.setDir(null);
     expect(await new GameDataWatcher(t.opts()).check()).toBe("no-game");
     expect(await new GameDataWatcher(t.opts("1.0.1")).check()).toBe("cleared");
     await expect(readFile(join(t.out, "names.json"))).rejects.toThrow();
+    await expect(readFile(join(t.out, "pactarts.json"))).rejects.toThrow();
     expect(await readFile(join(t.out, "weapons.json"), "utf8")).toBe("{}");
     expect(t.calls.changed).toBe(2);
   });

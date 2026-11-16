@@ -1391,7 +1391,6 @@
       let DICT = { items: {}, factions: {}, factionTokens: {}, tokenLimits: {}, currencies: {} };
       let DICT_LC = {};
       let FACTION_RANKS = {};
-      let TOTEMS = {};
       let TEMPER_DB = {};
       let PACT_ARTS = {};
       let PACT_ART_TEXT = {};
@@ -3547,7 +3546,7 @@
           const name = totemName(t.type);
           const d = TOTEM_DATA[name] || null;
           const aligned = t.grip !== "Universal";
-          const effect = d ? totemEffectHtml(d, t.rank, aligned) : effectAtRank(TOTEMS[name], t.rank).replace(/ \(Rank \d\)$/, "");
+          const effect = d ? totemEffectHtml(d, t.rank, aligned) : "";
           groups.set(k, {
             ...t, name, count: 1, on: new Set(t.equippedOn), aligned, effect,
             animal: d ? d.animal : null,
@@ -3584,7 +3583,7 @@
       function totemEffectAt(v, rank) {
         if (rank === v.rank) return v.effect;
         const d = TOTEM_DATA[v.name];
-        return d ? totemEffectHtml(d, rank, v.aligned) : effectAtRank(TOTEMS[v.name], rank).replace(/ \(Rank \d\)$/, "");
+        return d ? totemEffectHtml(d, rank, v.aligned) : "";
       }
       function totemCardHtml(v) {
         const vc = v.virtue ? `var(--${v.virtue.toLowerCase()})` : "var(--line-2)";
@@ -3715,6 +3714,7 @@
           craftwork: x.craftwork ?? null,
           tempers: Array.isArray(x.tempers) ? x.tempers : [],
           arts: x.arts && typeof x.arts === "object" ? x.arts : null,
+          ...(typeof x.artTree === "string" ? { artTree: x.artTree } : {}),
         };
       }
       function normBuild(b) {
@@ -3744,15 +3744,6 @@
             return `<div class="totemrow"><span class="tname">${escHtml(name)}</span>${eff ? `<span class="teff">${eff}</span>` : ""}</div>`;
           })
           .join("");
-      function effectAtRank(effect, rank) {
-        if (!effect) return "";
-        if (!rank) return effect;
-        const shown = effect.replace(/\d+(?:\/\d+)+/g, (grp) => {
-          const parts = grp.split("/");
-          return parts[Math.min(rank - 1, parts.length - 1)];
-        });
-        return `${shown} (Rank ${rank})`;
-      }
       const runeSlotVirtue = (runes) => {
         if (!runes || !runes.length) return null;
         return UPGRADES.runes[runes[0]]?.slot || null;
@@ -3764,7 +3755,7 @@
         const body = (t) => {
           const name = totemName(t.type);
           const d = TOTEM_DATA[name];
-          const eff = d ? totemEffectHtml(d, t.rank, !!t.grip && t.grip !== "Universal") : effectAtRank(TOTEMS[name], t.rank);
+          const eff = d ? totemEffectHtml(d, t.rank, !!t.grip && t.grip !== "Universal") : "";
           const virt = t.virtue ? `<span class="tvirt" style="color:${VIRTUE_COLOR[t.virtue]}">${t.virtue}</span>` : "";
           return `<span class="tname">${name}${virt}</span>${eff ? `<span class="teff">${eff}</span>` : ""}`;
         };
@@ -3935,20 +3926,21 @@
       const artRank = (arts, key, max) => (arts && key in arts ? Math.min(max, (Number(arts[key]) || 0) + ART_LEVEL_BASE) : 0);
       const PIP_ANGLES = { 1: [90], 2: [118, 62], 3: [140, 90, 40] };
 
-      function artNodes(arts) {
+      // A Pact's passives are its own: the ones it has unlocked, or the ones its tree lists.
+      function artNodes(arts, tree) {
         const bySlot = {};
         for (const [key, def] of Object.entries(PACT_ARTS)) {
           const isPassive = def.slot.startsWith("passive");
-          if (isPassive && !(arts && key in arts)) continue;
+          if (isPassive && !(arts && key in arts) && !(tree && def.tree === tree)) continue;
           bySlot[def.slot] = { key, def, rank: artRank(arts, key, def.max) };
         }
         for (const slot of ["passiveA", "passiveB"])
           if (!bySlot[slot]) bySlot[slot] = { key: "", def: { name: "Passive", slot, max: 4 }, rank: 0 };
         return bySlot;
       }
-      function pactTreeHtml(arts) {
+      function pactTreeHtml(arts, tree) {
         if (!arts || !Object.keys(PACT_ARTS).length) return "";
-        const nodes = artNodes(arts);
+        const nodes = artNodes(arts, tree);
         const on = (s) => nodes[s] && nodes[s].rank > 0;
         const edges = ART_EDGES.map(([a, b, c]) => {
           const [x1, y1] = ART_POS[a], [x2, y2] = ART_POS[b];
@@ -4005,7 +3997,7 @@
         const runes = slot.runes.length ? prop("Runes", `<div class="fxlist">${runeRows(slot)}</div>`) : "";
         const totems = slot.totems.length ? prop("Totems", `<div class="fxlist">${totemRows(slot.totems, slot.runes)}</div>`) : "";
         if (slot.arts) {
-          return `<div class="gear pact">${head()}${joinery}${runes}${totems}${pactTreeHtml(slot.arts)}</div>`;
+          return `<div class="gear pact">${head()}${joinery}${runes}${totems}${pactTreeHtml(slot.arts, slot.artTree)}</div>`;
         }
         const cw = craftworkInfo(slot.craftwork);
         const cwBadge = cw
@@ -4557,7 +4549,7 @@
         }
       }
       const DATA_FILES = [
-        "names", "faction-ranks", "totems", "totemdata", "tempers", "pactarts", "itemicons",
+        "names", "faction-ranks", "totemdata", "tempers", "pactarts", "itemicons",
         "pactartvalues", "pactarttext", "talismans", "armour", "roster", "upgrades", "recipes", "avakot", "tradetax",
       ];
       async function loadDict() {
@@ -4572,7 +4564,6 @@
           for (const k in DICT.items) DICT_LC[k.toLowerCase()] = DICT.items[k];
         }
         if (d["faction-ranks"]) FACTION_RANKS = d["faction-ranks"];
-        if (d.totems) TOTEMS = d.totems;
         if (d.totemdata) TOTEM_DATA = d.totemdata;
         FOUNDER_NAMES = new Set((DICT.founders || []).map((t) => shortName(t)));
         if (d.tempers) TEMPER_DB = d.tempers;

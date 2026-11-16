@@ -393,7 +393,8 @@ export async function updateGameData(o: UpdateOptions): Promise<UpdateResult> {
   return { hash: files.hash, changed, failed, incomplete, drawn, summary };
 }
 
-const RETIRED = ["runes.json", "pacts.json", "totems.json", "img/items", "img/runes", "img/avakot"];
+// Files older versions wrote to the data folder; pactarts.json is now only the bundled copy.
+const RETIRED = ["runes.json", "pacts.json", "totems.json", "pactarts.json", "img/items", "img/runes", "img/avakot"];
 
 export async function clearGameData(outDir: string): Promise<void> {
   for (const name of [...GAME_DATA_FILES, ...RETIRED]) await rm(join(outDir, name), { force: true, recursive: true });

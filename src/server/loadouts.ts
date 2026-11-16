@@ -29,6 +29,7 @@ export interface SlotGear {
   craftwork: string | null;
   tempers: string[];
   arts?: Record<string, number> | null;
+  artTree?: string;
 }
 
 export interface ArmourSet {
@@ -115,10 +116,9 @@ export function parsePactArts(raw: unknown): Map<string, Record<string, number>>
   return out;
 }
 
-function artsFor(soulType: string, trees: Map<string, Record<string, number>>): Record<string, number> | null {
+function treeFor(soulType: string): string {
   const leaf = soulType.split("/").pop() ?? "";
-  const treeLeaf = SOUL_TREE[leaf] ?? leaf.replace(/Soul$/, "PactSkillTree");
-  return trees.get(treeLeaf) ?? null;
+  return SOUL_TREE[leaf] ?? leaf.replace(/Soul$/, "PactSkillTree");
 }
 
 const VIRTUE: Record<string, string> = { C: "Courage", S: "Spirit", G: "Grace" };
@@ -286,7 +286,12 @@ export function parseBuilds(raw: unknown): Build[] {
     return { type: info.type, runes, runeLevels, totems, joinery: decodeJoinery(info.upgradeType), craftwork: info.craftwork, tempers: info.tempers };
   };
 
-  const withArts = (slot: SlotGear): SlotGear => (slot.type ? { ...slot, arts: artsFor(slot.type, trees) } : slot);
+  // artTree names the Pact's skill tree, so its passives show even before any are unlocked.
+  const withArts = (slot: SlotGear): SlotGear => {
+    if (!slot.type) return slot;
+    const artTree = treeFor(slot.type);
+    return { ...slot, arts: trees.get(artTree) ?? null, artTree };
+  };
 
   return presets.map((p) => {
     const preset = p as Record<string, unknown>;

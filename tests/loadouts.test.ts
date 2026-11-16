@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { decodeJoinery, fableVirtues, parseBuilds, virtuePoints } from "../src/server/loadouts";
 import { matchArmourStem } from "../src/gamedata/armour";
 
@@ -71,6 +73,38 @@ describe("loadout weapons", () => {
       runeLevels: [2],
       totems: [{ type: "/SF/Upgrades/Totems/Bear/BearTotem", rank: 4, slot: 1 }],
     });
+  });
+});
+
+describe("Pact Arts", () => {
+  it("names each Pact's skill tree, so its own passives show before any are unlocked", () => {
+    const oid = (n: number) => ({ $oid: n.toString(16).padStart(24, "0") });
+    const raw = {
+      Suits: [
+        { ItemType: "/SF/Souls/OdeHunter/OdeHunterSoul", ItemId: oid(1) },
+        { ItemType: "/SF/Souls/Default/PothiaSoul", ItemId: oid(2) },
+      ],
+      SkillTrees: [{
+        ItemType: "/SF/Upgrades/Techniques/Pacts/OdeHunter/OdeHunterPactSkillTree",
+        Skills: [{ ItemType: "/SF/Upgrades/Techniques/Pacts/Fey/CourageVirtueUpgradeSkill", Level: 0 }],
+      }],
+      LoadOutPresets: { NORMAL: [{ n: "Shrike", s: { ItemId: oid(1) } }, { n: "Pothia", s: { ItemId: oid(2) } }] },
+    };
+    const [shrike, pothia] = parseBuilds(raw);
+    expect(shrike!.soul).toMatchObject({ artTree: "OdeHunterPactSkillTree", arts: { "Fey/CourageVirtueUpgradeSkill": 0 } });
+    expect(pothia!.soul).toMatchObject({ artTree: "FeyChampionPactSkillTree", arts: null });
+  });
+
+  it("gives every Pact tree in the Pact Arts data one passive of each kind", () => {
+    const arts = JSON.parse(readFileSync(join(__dirname, "../src/server/public/pactarts.json"), "utf8")) as Record<string, { slot: string; tree?: string }>;
+    const byTree = new Map<string, string[]>();
+    for (const a of Object.values(arts)) {
+      if (!a.slot.startsWith("passive")) continue;
+      expect(a.tree).toBeTruthy();
+      byTree.set(a.tree!, [...(byTree.get(a.tree!) ?? []), a.slot].sort());
+    }
+    expect(byTree.get("OdeHunterPactSkillTree")).toEqual(["passiveA", "passiveB"]);
+    for (const slots of byTree.values()) expect(slots).toEqual(["passiveA", "passiveB"]);
   });
 });
 
