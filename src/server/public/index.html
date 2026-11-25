@@ -57,6 +57,8 @@
           var(--bg);
         background-attachment: fixed;
       }
+      html.nograin body::before { display: none; }
+      .top, .updbar, main, .foot { zoom: var(--ui-zoom, 1); }
       body::before {
         content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: 0.05;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -413,6 +415,44 @@
       .tradecols li.tweapon { align-items: start; }
       .tradecols li.tweapon .cw { margin-left: 6px; }
       .tradecols li.tweapon .wtempers { margin-top: 6px; }
+      #sessions { display: grid; gap: 18px; justify-items: start; }
+      .sesscard { width: 100%; background-color: var(--well); border: 1px solid var(--line); padding: 16px 22px 18px; }
+      .sesscard.live { border-color: color-mix(in srgb, var(--accent-2) 45%, var(--line)); }
+      .sesshead { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; }
+      .sessday { font: 600 17px/1.3 var(--display); letter-spacing: 0.04em; color: var(--text); }
+      .sesstime { color: var(--muted); font-variant-numeric: tabular-nums; }
+      .sesslen { margin-left: auto; color: var(--faint); font-variant-numeric: tabular-nums; }
+      .live { color: var(--accent-2-hi); }
+      .sessmeta { color: var(--muted); font-size: 14.5px; margin-top: 4px; }
+      .sessmeta b { color: var(--text); }
+      .lootlabel { font: 600 11.5px/1.2 var(--display); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-2-hi); margin: 16px 0 8px; }
+      .lootgrid { column-width: 280px; column-gap: 36px; }
+      .lootgrid .lootgrp:first-child .lootlabel { margin-top: 12px; }
+      .lootgrid .lootlabel { break-after: avoid; }
+      .lootgrp ul { list-style: none; margin: 0; padding: 0; }
+      .lootgrp li { break-inside: avoid; padding: 3px 0; }
+      .sessruns { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+      .lootgrp li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 14.5px; line-height: 1.35; }
+      .lootgrp li .ticon { width: 30px; height: 30px; object-fit: contain; }
+      .lootgrp li .tcount { color: var(--muted); font-variant-numeric: tabular-nums; }
+      .lootgrp li .cw { margin-left: 6px; }
+      .sessruns li, .runrow { display: grid; grid-template-columns: minmax(200px, 1fr) auto auto; gap: 6px 28px; align-items: baseline; font-size: 14.5px; }
+      .sessruns li { grid-template-columns: minmax(160px, 240px) 90px 80px; justify-content: start; }
+      .sessruns .rwhen, .runrow .rwhen { color: var(--faint); font-size: 13px; font-variant-numeric: tabular-nums; }
+      .sessruns .rtime, .runrow .rtime { font-variant-numeric: tabular-nums; text-align: right; min-width: 70px; }
+      .runrow { padding: 12px 0; border-bottom: 1px solid var(--line); }
+      .runrow:last-child { border-bottom: 0; }
+      .runrow .rname { font: 600 16px/1.3 var(--display); letter-spacing: 0.04em; }
+      .runrow .rtime { font: 600 16px/1.3 var(--display); color: var(--accent-hi); }
+      .runstats { margin: 0 0 18px; }
+      .runstats:empty { display: none; }
+      .xpchips { display: flex; flex-wrap: wrap; gap: 8px; }
+      .xpchip { border: 1px solid var(--line-2); border-radius: 2px; padding: 4px 9px; font-size: 13.5px; color: var(--muted); }
+      .xpchip b { color: var(--text); font-weight: 600; }
+      @media (max-width: 640px) {
+        .runrow, .sessruns li { grid-template-columns: 1fr auto; }
+        .runrow .rwhen, .sessruns .rwhen { grid-column: 1 / -1; grid-row: 2; }
+      }
       .tradecols li .tdetail { margin-top: 2px; color: var(--muted); font-size: 13px; }
       .tradecols .none { color: var(--faint); font-size: 14px; }
       .tradesub { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; color: var(--faint); font-size: 13px; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
@@ -899,7 +939,7 @@
       .rcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
       .avprice.short { color: var(--courage); }
 
-      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat, .lgcard {
+      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat, .lgcard, .sesscard {
         --tick: color-mix(in srgb, var(--accent) 42%, transparent);
         background-image:
           linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
@@ -912,6 +952,7 @@
           left 3px bottom 3px, left 3px bottom 3px, right 3px bottom 3px, right 3px bottom 3px;
         background-repeat: no-repeat;
       }
+      html.nobrackets :is(.stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat, .lgcard, .sesscard) { background-image: none; }
       .lo.open { --tick: color-mix(in srgb, var(--accent-hi) 60%, transparent); }
 
       #panel-settings > .cols.acctrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); }
@@ -970,6 +1011,18 @@
       .tpick input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
       .tpick input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
       .tpick:hover { color: var(--text); }
+      .tmore { margin-top: 16px; }
+      .tparts { margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px 18px; }
+      .tparts[hidden] { display: none; }
+      .tparts .tpick { gap: 8px; }
+      .tparts .treset { margin-left: auto; padding: 0 6px; min-width: 0; height: 22px; line-height: 20px; font-size: 13px; background: none; border: 1px solid var(--line-2); color: var(--faint); box-shadow: none; }
+      .tparts .treset:hover { color: var(--text); border-color: var(--accent); }
+      .tparts .tpick.set > span { color: var(--text); }
+      #themeSection h3.sub { margin: 24px 0 12px; }
+      .teffects { display: grid; gap: 14px; }
+      .trange { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 14px; }
+      .trange input[type="range"] { width: 200px; min-width: 0; padding: 0; accent-color: var(--accent); background: none; border: 0; box-shadow: none; }
+      .trange b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; min-width: 44px; }
     </style>
     <script>
       const THEMES = {
@@ -1012,10 +1065,47 @@
           "--glow-1": alpha(mixHex(c.accent, c.bg, 0.4), 0.28), "--glow-2": alpha(mixHex(c.accent2, c.bg, 0.4), 0.12), "--glow-3": alpha(mixHex(lo, c.bg, 0.3), 0.14),
         };
       }
+      // Colours set one part at a time, over the ones worked out above.
+      function partTokens(p, c) {
+        const out = {};
+        if (p.muted) out["--muted"] = p.muted;
+        if (p.faint) out["--faint"] = p.faint;
+        if (p.line) Object.assign(out, { "--line": p.line, "--line-2": mixHex(p.line, c.text, 0.12) });
+        if (p.frame) out["--frame"] = p.frame;
+        if (p.accentHi) out["--accent-hi"] = p.accentHi;
+        if (p.accent2Hi) out["--accent-2-hi"] = p.accent2Hi;
+        if (p.button) Object.assign(out, { "--btn-hi": p.button, "--btn-lo": shade(p.button, 0.9, -0.15) });
+        if (p.onAccent) out["--on-accent"] = p.onAccent;
+        if (p.barBg) out["--bar-bg"] = p.barBg;
+        if (p.winbar) out["--winbar"] = p.winbar;
+        if (p.scroll) Object.assign(out, { "--scroll": p.scroll, "--scroll-hi": shade(p.scroll, 1, 0.1) });
+        return out;
+      }
+      // The three background glows at a share of their usual strength.
+      function glowTokens(c, f) {
+        const g = c
+          ? [mixHex(c.accent, c.bg, 0.4), mixHex(c.accent2, c.bg, 0.4), mixHex(shade(c.accent, 1, -0.2), c.bg, 0.3)]
+          : ["#78562c", "#466e58", "#5a321e"];
+        return { "--glow-1": alpha(g[0], Math.min(1, 0.28 * f)), "--glow-2": alpha(g[1], Math.min(1, 0.12 * f)), "--glow-3": alpha(g[2], Math.min(1, 0.14 * f)) };
+      }
+      const FONT_STACKS = { system: '"Segoe UI", system-ui, -apple-system, sans-serif' };
       function paintTheme(t) {
-        const root = document.documentElement.style;
-        for (const k of THEME_TOKENS) root.removeProperty(k);
-        if (t && t.preset !== "soulframe") for (const [k, v] of Object.entries(themeTokens(t.colors))) root.setProperty(k, v);
+        const html = document.documentElement;
+        const root = html.style;
+        for (const k of [...THEME_TOKENS, "--display", "--body", "--ui-zoom"]) root.removeProperty(k);
+        html.classList.remove("nograin", "nobrackets");
+        if (!t) return;
+        const custom = t.preset !== "soulframe";
+        if (custom) for (const [k, v] of Object.entries(themeTokens(t.colors))) root.setProperty(k, v);
+        if (custom && t.parts) for (const [k, v] of Object.entries(partTokens(t.parts, t.colors))) root.setProperty(k, v);
+        const fx = t.effects || {};
+        if (typeof fx.glow === "number" && fx.glow !== 1) for (const [k, v] of Object.entries(glowTokens(custom ? t.colors : null, fx.glow))) root.setProperty(k, v);
+        html.classList.toggle("nograin", fx.grain === false);
+        html.classList.toggle("nobrackets", fx.brackets === false);
+        const tx = t.text || {};
+        if (tx.body === "system") root.setProperty("--body", FONT_STACKS.system);
+        if (tx.headings === "plain") root.setProperty("--display", "var(--body)");
+        if (typeof tx.size === "number" && tx.size !== 1) root.setProperty("--ui-zoom", String(tx.size));
       }
       try { paintTheme(JSON.parse(localStorage.getItem("sfhelper.theme") || "null")); } catch {}
     </script>
@@ -1204,7 +1294,14 @@
           <div id="forge"><span class="muted">Import your inventory to see what you're crafting.</span></div>
         </section>
         <section id="planSection" hidden>
-          <h2>Temper Plans</h2>
+          <div class="picktop">
+            <h2>Temper Plans</h2>
+            <label class="notifytoggle" title="When you strike the last Temper a weapon's plan asks for, SFHelper removes that plan at its next inventory read">
+              <input type="checkbox" id="planAutoRemove" />
+              <span class="sw"></span>
+              Remove plans once every planned Temper is struck
+            </label>
+          </div>
           <div class="tbar"><div class="daily" id="planSummary"></div><div class="tsort">Sort by <div id="planSort"></div></div></div>
           <input id="planSearch" class="wsearch" placeholder="Search weapons or Tempers, e.g. Gathannan, Legendary, Sullying Force…" spellcheck="false" />
           <div class="tfilters" id="planFilters"></div>
@@ -1213,7 +1310,30 @@
       </div>
 
       <div class="panel" id="panel-pickups">
-        <section>
+        <div class="subtabs" id="pickupTabs" role="tablist" aria-label="Pickups">
+          <button class="fchip" role="tab" data-view="sessions"><img src="img/game/category-loot.png" alt="" onerror="this.remove()">Sessions</button>
+          <button class="fchip" role="tab" data-view="runs"><img src="img/game/dungeon-entrance.png" alt="" onerror="this.remove()">Dungeon Runs</button>
+          <button class="fchip" role="tab" data-view="weapons"><img src="img/game/category-weapons.png" alt="" onerror="this.remove()">Weapons</button>
+        </div>
+        <section data-view="sessions">
+          <h2>Play Sessions</h2>
+          <div class="histnote">
+            <span>Your session and pickup history is saved only on this computer.</span>
+            <button class="mini" data-hist="export" title="Save your play sessions, pickups and trades to a file">Export</button>
+            <button class="mini" data-hist="import" title="Add play sessions, pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
+            <span class="histmsg"></span>
+          </div>
+          <div class="daily" id="sessionSummary"></div>
+          <div id="sessions"><span class="muted">Each time you play, what you pick up shows here as a session: resources, fragments, weapons, armour, Totems and more. SFHelper needs to be open while you play.</span></div>
+        </section>
+        <section data-view="runs">
+          <h2>Dungeon Runs</h2>
+          <div class="tbar"><div class="daily" id="runSummary"></div><div class="tsort">Sort by <div id="runSort"></div></div></div>
+          <div class="tfilters" id="runFilters"></div>
+          <div class="grid runstats" id="runStats"></div>
+          <div id="runs"><span class="muted">Each dungeon you enter while SFHelper is open shows here with how long you spent inside.</span></div>
+        </section>
+        <section data-view="weapons">
           <div class="picktop">
             <h2>Picked-up Weapons</h2>
             <label class="notifytoggle" id="moonNotifyWrap" hidden title="Desktop notification with sound when you pick up, craft, or buy a Moonsteel weapon">
@@ -1224,8 +1344,8 @@
           </div>
           <div class="histnote">
             <span>Your pickup history is saved only on this computer.</span>
-            <button class="mini" data-hist="export" title="Save your pickup and trade history to a file">Export</button>
-            <button class="mini" data-hist="import" title="Add pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
+            <button class="mini" data-hist="export" title="Save your play sessions, pickups and trades to a file">Export</button>
+            <button class="mini" data-hist="import" title="Add play sessions, pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
             <span class="histmsg"></span>
           </div>
           <input id="pickupSearch" class="wsearch" placeholder="Search name, craftwork, or temper…" spellcheck="false" />
@@ -1239,8 +1359,8 @@
           <h2>Trades</h2>
           <div class="histnote">
             <span>Your trade history is saved only on this computer.</span>
-            <button class="mini" data-hist="export" title="Save your pickup and trade history to a file">Export</button>
-            <button class="mini" data-hist="import" title="Add pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
+            <button class="mini" data-hist="export" title="Save your play sessions, pickups and trades to a file">Export</button>
+            <button class="mini" data-hist="import" title="Add play sessions, pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
             <span class="histmsg"></span>
           </div>
           <input type="file" id="historyFile" accept=".json,application/json" hidden />
@@ -1323,6 +1443,24 @@
               <label class="tpick"><input type="color" data-k="accent" />Accent</label>
               <label class="tpick"><input type="color" data-k="accent2" />Highlight</label>
             </div>
+            <button class="mini tmore" id="themePartsToggle" aria-expanded="false" aria-controls="themeParts">More colours</button>
+            <div class="tpicks tparts" id="themeParts" hidden></div>
+            <h3 class="sub">Effects</h3>
+            <div class="teffects">
+              <label class="trange"><span>Background glow</span><input type="range" id="themeGlow" min="0" max="200" step="10" /><b id="themeGlowVal">100%</b></label>
+              <label class="notifytoggle settoggle">
+                <input type="checkbox" id="themeGrain" />
+                <span class="sw"></span>
+                <span class="settext"><b>Paper grain</b><small>The faint texture over the whole window</small></span>
+              </label>
+              <label class="notifytoggle settoggle">
+                <input type="checkbox" id="themeBrackets" />
+                <span class="sw"></span>
+                <span class="settext"><b>Corner brackets</b><small>The small ticks on the corners of cards and tiles</small></span>
+              </label>
+            </div>
+            <h3 class="sub">Text</h3>
+            <div class="tfilters" id="themeText"></div>
           </section>
         </div>
         <p class="support">SFHelper is free. If it helps you, you can support it on <a href="https://github.com/sponsors/hunhow0x1" target="_blank" rel="noopener">GitHub Sponsors</a> or <a href="https://ko-fi.com/hunhow0x1" target="_blank" rel="noopener">Ko-fi</a>.</p>
@@ -1373,32 +1511,38 @@
         if (savedTab) activateTab(RENAMED_TAB[savedTab] || savedTab);
       } catch {}
 
-      let upgradeView = "tempers";
-      try { upgradeView = localStorage.getItem("sfhelper.upgradesView") || upgradeView; } catch {}
-      const upgradeSections = [...document.querySelectorAll("#panel-upgrades > section[data-view]")];
-      function syncUpgradeView() {
-        const shown = upgradeSections.filter((s) => !s.hidden).map((s) => s.dataset.view);
-        const view = shown.includes(upgradeView) ? upgradeView : shown[0];
-        for (const s of upgradeSections) s.classList.toggle("offview", s.dataset.view !== view);
-        for (const b of document.querySelectorAll("#upgradeTabs .fchip")) {
-          const off = !shown.includes(b.dataset.view);
-          if (b.hidden !== off) b.hidden = off;
-          b.classList.toggle("active", b.dataset.view === view);
-          b.setAttribute("aria-selected", String(b.dataset.view === view));
-        }
+      // A row of subtab chips that shows one of a panel's sections at a time; a
+      // section that is hidden (no data yet) loses its chip.
+      function bindSubtabs(tabsId, panelId, storeKey) {
+        let view = null;
+        try { view = localStorage.getItem(storeKey); } catch {}
+        const sections = [...document.querySelectorAll(`#${panelId} > section[data-view]`)];
+        const sync = () => {
+          const shown = sections.filter((s) => !s.hidden).map((s) => s.dataset.view);
+          const current = shown.includes(view) ? view : shown[0];
+          for (const s of sections) s.classList.toggle("offview", s.dataset.view !== current);
+          for (const b of document.querySelectorAll(`#${tabsId} .fchip`)) {
+            const off = !shown.includes(b.dataset.view);
+            if (b.hidden !== off) b.hidden = off;
+            b.classList.toggle("active", b.dataset.view === current);
+            b.setAttribute("aria-selected", String(b.dataset.view === current));
+          }
+        };
+        $(tabsId).addEventListener("click", (e) => {
+          const b = e.target.closest(".fchip");
+          if (!b) return;
+          view = b.dataset.view;
+          try { localStorage.setItem(storeKey, view); } catch {}
+          sync();
+        });
+        const watch = new MutationObserver(sync);
+        for (const s of sections) watch.observe(s, { attributes: true, attributeFilter: ["hidden"] });
+        sync();
       }
-      $("upgradeTabs").addEventListener("click", (e) => {
-        const b = e.target.closest(".fchip");
-        if (!b) return;
-        upgradeView = b.dataset.view;
-        try { localStorage.setItem("sfhelper.upgradesView", upgradeView); } catch {}
-        syncUpgradeView();
-      });
-      const upgradeWatch = new MutationObserver(syncUpgradeView);
-      for (const s of upgradeSections) upgradeWatch.observe(s, { attributes: true, attributeFilter: ["hidden"] });
-      syncUpgradeView();
+      bindSubtabs("upgradeTabs", "panel-upgrades", "sfhelper.upgradesView");
+      bindSubtabs("pickupTabs", "panel-pickups", "sfhelper.pickupsView");
 
-      let DICT = { items: {}, factions: {}, factionTokens: {}, tokenLimits: {}, currencies: {} };
+      let DICT = { items: {}, factions: {}, factionTokens: {}, currencies: {} };
       let DICT_LC = {};
       let FACTION_RANKS = {};
       let TEMPER_DB = {};
@@ -2038,6 +2182,180 @@
           .join("");
         if (list.length) $("pickups").innerHTML = rows || '<span class="muted">No pickups match.</span>';
       }
+      let LAST_SESSIONS = null;
+      const SESSION_SHOWN = 20;
+      let sessionsAll = false;
+      const LOOT_GROUPS = ["Weapons", "Armour", "Pacts", "Totems", "Talismans", "Runes", "Joineries", "Fragments", "Resources", "Supplies", "Other"];
+      function lootGroup(key) {
+        if (key.startsWith("/SF/Weapons/")) return "Weapons";
+        if (/\/Skins\/(Helmets|Body|Legs)\//.test(key)) return "Armour";
+        if (key.startsWith("/SF/Souls/")) return "Pacts";
+        if (key.includes("/Upgrades/Totems/")) return "Totems";
+        if (key.includes("/Skins/Totem/")) return "Talismans";
+        if (key.includes("/Upgrades/Runes/")) return "Runes";
+        if (key.includes("/Kintsugi/")) return "Joineries";
+        if (key.includes("/Types/Recipes/")) return "Fragments";
+        if (key.includes("/PickUps/Resources/")) return "Resources";
+        if (key.includes("/Types/Items/Consumables/")) return "Supplies";
+        return "Other";
+      }
+      function lootInfo(key) {
+        const r = RECIPES[key] || OTHER_CRAFTS[key];
+        if (r) return { name: r.name, icon: r.icon || null };
+        const g = (UPGRADES.gear || {})[key];
+        if (g) return { name: g.name, icon: g.icon || null };
+        const name = tradeItemName(key);
+        return { name, icon: tradeIconSrc(name) };
+      }
+      // "18m 32s" under an hour, "1h 04m" from there.
+      function spanTime(ms) {
+        const sec = Math.max(0, Math.round(ms / 1000));
+        const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), x = sec % 60;
+        return h ? `${h}h ${String(m).padStart(2, "0")}m` : `${m}m ${String(x).padStart(2, "0")}s`;
+      }
+      const dayLabel = (ms) => {
+        const d = new Date(ms), today = new Date(), yest = new Date(today);
+        yest.setDate(today.getDate() - 1);
+        if (d.toDateString() === today.toDateString()) return "Today";
+        if (d.toDateString() === yest.toDateString()) return "Yesterday";
+        return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", ...(d.getFullYear() !== today.getFullYear() ? { year: "numeric" } : {}) });
+      };
+      // A session counts as running while the game keeps writing its log; one that
+      // stopped without a shutdown line (a crash) ends where its log stopped.
+      const sessionLive = (p, now = Date.now()) => !p.ended && now - p.end < 5 * 60000;
+      const runEnd = (r, p) => r.end ?? (sessionLive(p) ? null : p.end);
+      function sessionLoot(p) {
+        const groups = new Map(LOOT_GROUPS.map((g) => [g, new Map()]));
+        const put = (key, n, extra) => {
+          const g = groups.get(lootGroup(key));
+          const row = g.get(key) || { key, n: 0, ...lootInfo(key), ...extra };
+          row.n += n;
+          g.set(key, row);
+        };
+        for (const [key, n] of Object.entries(p.counts || {})) put(key, n);
+        const picked = new Map((LAST_PICKUPS || []).map((x) => [x.id, x]));
+        for (const it of p.items || []) {
+          const w = picked.get(it.id);
+          if (w && (w.craftwork || w.moonsteel)) put(`${it.key}#${it.id}`, 1, { key: it.key, ...lootInfo(it.key), weapon: w });
+          else put(it.key, 1);
+        }
+        return LOOT_GROUPS.map((g) => ({ name: g, rows: [...groups.get(g).values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name)) })).filter((g) => g.rows.length);
+      }
+      function sessionCard(p, now) {
+        const live = sessionLive(p, now);
+        const end = live ? Math.max(p.end, now) : p.end;
+        const groups = sessionLoot(p);
+        const items = groups.reduce((n, g) => n + g.rows.reduce((m, r) => m + r.n, 0), 0);
+        const xp = Object.values(p.xp || {}).reduce((a, b) => a + b, 0);
+        const runs = (p.runs || []).filter((r) => r.name);
+        const meta = [
+          items ? `<b>${fmt(items)}</b> item${items === 1 ? "" : "s"}` : "",
+          xp ? `<b>+${fmt(xp)}</b> XP` : "",
+          runs.length ? `<b>${runs.length}</b> dungeon run${runs.length === 1 ? "" : "s"}` : "",
+        ].filter(Boolean).join(" &nbsp;·&nbsp; ");
+        const row = (r) => {
+          const w = r.weapon;
+          const cw = w ? craftworkInfo(w.craftwork) : null;
+          const badge = cw ? ` <span class="cw cw${cw.tier}">${cw.name}</span>` : "";
+          const moon = w && w.moonsteel ? ' <span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : "";
+          return `<li>${upIcon(r.icon, "ticon")}<span>${escHtml(r.name)}${badge}${moon}</span>${r.n > 1 ? `<span class="tcount">×${fmt(r.n)}</span>` : "<span></span>"}</li>`;
+        };
+        const loot = groups.map((g) => `<div class="lootgrp"><div class="lootlabel">${g.name}</div><ul>${g.rows.map(row).join("")}</ul></div>`).join("");
+        const topXp = Object.entries(p.xp || {}).sort((a, b) => b[1] - a[1]).slice(0, 6)
+          .map(([k, n]) => `<span class="xpchip">${escHtml(shortName(k))} <b>+${fmt(n)}</b></span>`).join("");
+        const runRows = runs.map((r) => {
+          const e = runEnd(r, p);
+          return `<li><span class="rname">${escHtml(r.name)}</span><span class="rwhen">${clockTime(r.start)}</span><span class="rtime">${e === null ? '<span class="live">Inside now</span>' : spanTime(e - r.start)}</span></li>`;
+        }).join("");
+        const empty = !items && !runs.length && !xp
+          ? `<p class="muted">${live ? "Nothing saved yet. The game saves what you pick up every few minutes, and SFHelper reads it soon after." : p.reads ? "Nothing new came in during this session." : "SFHelper didn't read your inventory during this session, so what you picked up isn't known."}</p>`
+          : "";
+        return `<div class="sesscard${live ? " live" : ""}">
+          <div class="sesshead"><span class="sessday">${dayLabel(p.start)}</span><span class="sesstime">${clockTime(p.start)} – ${live ? "now" : clockTime(end)}</span><span class="sesslen">${live ? '<span class="live">Playing now</span> · ' : ""}${spanTime(end - p.start)}</span></div>
+          ${meta ? `<div class="sessmeta">${meta}</div>` : ""}
+          ${loot ? `<div class="lootgrid">${loot}</div>` : ""}
+          ${runRows ? `<div class="lootlabel">Dungeon Runs</div><ul class="sessruns">${runRows}</ul>` : ""}
+          ${topXp ? `<div class="lootlabel">XP</div><div class="xpchips">${topXp}</div>` : ""}
+          ${empty}
+        </div>`;
+      }
+      function renderSessions() {
+        const all = (LAST_SESSIONS || []).filter((p) => !p.ended || p.end - p.start >= 60000 || p.reads || (p.runs || []).length);
+        const now = Date.now();
+        const played = all.reduce((n, p) => n + ((sessionLive(p, now) ? Math.max(p.end, now) : p.end) - p.start), 0);
+        $("sessionSummary").innerHTML = all.length
+          ? `<b>${all.length}</b> session${all.length === 1 ? "" : "s"} &nbsp;·&nbsp; <b>${spanTime(played)}</b> played <span class="muted" title="Loot comes from SFHelper's inventory reads, which follow the game's saves (every few minutes), so it's counted per session rather than per pickup. Trades, crafts you collect and Avakot purchases are left out.">&nbsp;·&nbsp; what came in between the game's saves</span>`
+          : "";
+        if (!all.length) return;
+        const shown = sessionsAll ? all : all.slice(0, SESSION_SHOWN);
+        $("sessions").innerHTML = shown.map((p) => sessionCard(p, now)).join("") +
+          (all.length > shown.length ? `<button class="mini" id="sessionsMore">Show all ${all.length}</button>` : "");
+      }
+      $("sessions").addEventListener("click", (e) => {
+        if (!e.target.closest("#sessionsMore")) return;
+        sessionsAll = true;
+        renderSessions();
+      });
+
+      const RUN_SORTS = [["newest", "Newest"], ["fastest", "Fastest"], ["slowest", "Slowest"]];
+      const RUN_UI = { dungeon: "all", sort: "newest" };
+      try { Object.assign(RUN_UI, JSON.parse(localStorage.getItem("sfhelper.runs") || "{}")); } catch {}
+      const saveRunUi = () => { try { localStorage.setItem("sfhelper.runs", JSON.stringify(RUN_UI)); } catch {} };
+      function renderRuns() {
+        const runs = (LAST_SESSIONS || []).flatMap((p) => (p.runs || []).filter((r) => r.name).map((r) => ({ ...r, end: runEnd(r, p) })));
+        const done = runs.filter((r) => r.end !== null);
+        const names = [...new Set(runs.map((r) => r.name))].sort((a, b) => a.localeCompare(b));
+        if (RUN_UI.dungeon !== "all" && !names.includes(RUN_UI.dungeon)) RUN_UI.dungeon = "all";
+        if (!RUN_SORTS.some(([v]) => v === RUN_UI.sort)) RUN_UI.sort = "newest";
+        sortMenu("runSort", RUN_SORTS, RUN_UI.sort, (v) => {
+          RUN_UI.sort = v;
+          saveRunUi();
+          renderRuns();
+        });
+        const inside = done.reduce((n, r) => n + (r.end - r.start), 0);
+        $("runSummary").innerHTML = runs.length
+          ? `<b>${runs.length}</b> run${runs.length === 1 ? "" : "s"} in <b>${names.length}</b> dungeon${names.length === 1 ? "" : "s"} &nbsp;·&nbsp; <b>${spanTime(inside)}</b> inside <span class="muted" title="From entering a dungeon to leaving it or closing the game, as the game's log records it while SFHelper is open.">&nbsp;·&nbsp; timed from the game's log</span>`
+          : "";
+        const chip = (val, label, n) => `<button class="fchip${RUN_UI.dungeon === val ? " active" : ""}" data-v="${escHtml(val)}">${escHtml(label)}<span class="n">${n}</span></button>`;
+        $("runFilters").innerHTML = names.length > 1
+          ? `<span class="fl">Dungeon</span><div class="wfilter">${chip("all", "All", runs.length)}${names.map((n) => chip(n, n, runs.filter((r) => r.name === n).length)).join("")}</div>`
+          : "";
+        const pick = runs.filter((r) => RUN_UI.dungeon === "all" || r.name === RUN_UI.dungeon);
+        const timed = (list) => list.filter((r) => r.end !== null).map((r) => r.end - r.start);
+        const stats = (RUN_UI.dungeon === "all" ? names : [RUN_UI.dungeon]).map((n) => {
+          const t = timed(runs.filter((r) => r.name === n));
+          if (!t.length) return "";
+          const avg = t.reduce((a, b) => a + b, 0) / t.length;
+          return `<div class="stat"><div class="n">${spanTime(Math.min(...t))}</div><div class="l">${escHtml(n)}</div><div class="s">Fastest · average ${spanTime(avg)} · ${t.length} run${t.length === 1 ? "" : "s"}</div></div>`;
+        }).join("");
+        $("runStats").innerHTML = stats;
+        const len = (r) => (r.end === null ? Infinity : r.end - r.start);
+        const SORT = {
+          newest: (a, b) => b.start - a.start,
+          fastest: (a, b) => len(a) - len(b) || b.start - a.start,
+          slowest: (a, b) => (b.end === null) - (a.end === null) || len(b) - len(a) || b.start - a.start,
+        };
+        const rows = pick.sort(SORT[RUN_UI.sort]).map((r) => `<div class="runrow">
+            <span class="rname">${escHtml(r.name)}${/Subboss/i.test(r.level) ? ' <span class="tag" title="A level built around an Agari">Agari</span>' : ""}</span>
+            <span class="rwhen">${dayLabel(r.start)} · ${clockTime(r.start)}${r.end !== null ? ` – ${clockTime(r.end)}` : ""}</span>
+            <span class="rtime">${r.end === null ? '<span class="live">Inside now</span>' : spanTime(r.end - r.start)}</span>
+          </div>`).join("");
+        if (runs.length) $("runs").innerHTML = rows || '<span class="muted">No runs match.</span>';
+      }
+      $("runFilters").addEventListener("click", (e) => {
+        const b = e.target.closest(".fchip");
+        if (!b) return;
+        RUN_UI.dungeon = b.dataset.v;
+        saveRunUi();
+        renderRuns();
+      });
+      setInterval(() => {
+        if ((LAST_SESSIONS || []).some((p) => sessionLive(p))) {
+          renderSessions();
+          renderRuns();
+        }
+      }, 30000);
+
       function tradeItemName(key) {
         if (key.includes("/Upgrades/Totems/")) return totemName(key);
         const tal = key.includes("/Skins/Totem/") ? TALISMANS[key.split("/").pop()] : null;
@@ -2524,46 +2842,144 @@
       let THEME = null;
       let themeSaveTimer = null;
       const HEX6 = /^#[0-9a-f]{6}$/i;
+      const THEME_PARTS = [
+        ["muted", "Secondary text"], ["faint", "Faint text"], ["line", "Borders"], ["frame", "Panel frames"],
+        ["accentHi", "Bright accent"], ["accent2Hi", "Bright highlight"], ["button", "Buttons"], ["onAccent", "Button text"],
+        ["barBg", "Bar tracks"], ["winbar", "Window bar"], ["scroll", "Scrollbar"],
+      ];
+      // The page's own colours for the Soulframe theme, as the stylesheet sets them.
+      const SOULFRAME_PARTS = { muted: "#a39276", faint: "#6f6352", line: "#33291f", frame: "#483a24", accentHi: "#e8c97e", accent2Hi: "#a6dcc0", button: "#dcb86c", onAccent: "#1b140b", barBg: "#16110d", winbar: "#120e0b", scroll: "#3a2f24" };
+      const DEFAULT_FX = { glow: 1, grain: true, brackets: true };
+      const DEFAULT_TEXT = { size: 1, headings: "display", body: "default" };
+      const TEXT_SIZES = [[0.9, "Small"], [1, "Default"], [1.12, "Large"], [1.25, "Larger"]];
       const pickColors = (c) => (c && THEME_KEYS.every((k) => HEX6.test(c[k] || "")) ? Object.fromEntries(THEME_KEYS.map((k) => [k, c[k].toLowerCase()])) : null);
+      const pickParts = (p) => Object.fromEntries(THEME_PARTS.map(([k]) => [k, p && p[k]]).filter(([, v]) => HEX6.test(v || "")).map(([k, v]) => [k, v.toLowerCase()]));
+      const pickFx = (f) => ({
+        glow: f && typeof f.glow === "number" ? Math.min(2, Math.max(0, f.glow)) : 1,
+        grain: !f || f.grain !== false,
+        brackets: !f || f.brackets !== false,
+      });
+      const pickText = (t) => ({
+        size: TEXT_SIZES.some(([n]) => t && t.size === n) ? t.size : 1,
+        headings: t && t.headings === "plain" ? "plain" : "display",
+        body: t && t.body === "system" ? "system" : "default",
+      });
       const themeColors = () => (THEME ? THEME.colors : pickColors(THEMES.soulframe));
+      const themePreset = () => (THEME ? THEME.preset : "soulframe");
+      const themeFx = () => (THEME ? THEME.effects : DEFAULT_FX);
+      const themeText = () => (THEME ? THEME.text : DEFAULT_TEXT);
       function savedCustom() {
-        try { return pickColors(JSON.parse(localStorage.getItem("sfhelper.themeCustom") || "null")); } catch { return null; }
+        try {
+          const c = JSON.parse(localStorage.getItem("sfhelper.themeCustom") || "null");
+          const colors = pickColors(c);
+          return colors ? { colors, parts: pickParts(c && c.parts) } : null;
+        } catch { return null; }
+      }
+      function partDefaults() {
+        if (themePreset() === "soulframe") return SOULFRAME_PARTS;
+        const c = themeColors(), tk = themeTokens(c);
+        return {
+          muted: tk["--muted"], faint: tk["--faint"], line: tk["--line"], frame: mixHex(c.panel, c.accent, 0.26),
+          accentHi: tk["--accent-hi"], accent2Hi: tk["--accent-2-hi"], button: tk["--btn-hi"], onAccent: /^#/.test(tk["--on-accent"]) ? tk["--on-accent"] : c.text,
+          barBg: tk["--bar-bg"], winbar: tk["--winbar"], scroll: tk["--scroll"],
+        };
       }
       function renderTheme() {
-        const current = THEME ? THEME.preset : "soulframe";
+        const current = themePreset();
         const chip = (key, name, c) =>
           `<button class="fchip${current === key ? " active" : ""}" data-theme="${key}"><i class="tsw" style="--a:${c.accent};--b:${c.accent2};--c:${c.bg}"></i>${name}</button>`;
-        $("themePresets").innerHTML =
-          Object.entries(THEMES).map(([k, t]) => chip(k, t.name, t)).join("") +
-          chip("custom", "Custom", current === "custom" ? THEME.colors : savedCustom() || themeColors());
+        const custom = current === "custom" ? THEME.colors : (savedCustom() || {}).colors || themeColors();
+        $("themePresets").innerHTML = Object.entries(THEMES).map(([k, t]) => chip(k, t.name, t)).join("") + chip("custom", "Custom", custom);
         for (const input of $("themePicks").querySelectorAll("input")) if (input !== document.activeElement) input.value = themeColors()[input.dataset.k];
+        const parts = (THEME && THEME.parts) || {};
+        const defaults = partDefaults();
+        const box = $("themeParts");
+        if (!box.childElementCount) {
+          box.innerHTML = THEME_PARTS.map(([k, label]) => `<label class="tpick" data-part="${k}"><input type="color" data-part="${k}" /><span>${label}</span><button class="mini treset" data-reset="${k}" title="Back to the colour worked out from the theme" aria-label="Reset ${label}">×</button></label>`).join("");
+        }
+        for (const label of box.querySelectorAll("label[data-part]")) {
+          const k = label.dataset.part;
+          const input = label.querySelector("input");
+          if (input !== document.activeElement) input.value = parts[k] || defaults[k];
+          label.classList.toggle("set", !!parts[k]);
+          label.querySelector(".treset").hidden = !parts[k];
+        }
+        const fx = themeFx();
+        if ($("themeGlow") !== document.activeElement) $("themeGlow").value = String(Math.round(fx.glow * 100));
+        $("themeGlowVal").textContent = `${Math.round(fx.glow * 100)}%`;
+        $("themeGrain").checked = fx.grain;
+        $("themeBrackets").checked = fx.brackets;
+        const tx = themeText();
+        const tchip = (k, v, label, title) => `<button class="fchip${tx[k] === v ? " active" : ""}" data-text="${k}" data-v="${v}"${title ? ` title="${title}"` : ""}>${label}</button>`;
+        $("themeText").innerHTML =
+          `<span class="fl">Size</span><div class="wfilter">${TEXT_SIZES.map(([n, label]) => tchip("size", n, label, "Text, icons and spacing scale together")).join("")}</div>` +
+          `<span class="fl">Headings</span><div class="wfilter">${tchip("headings", "display", "Soulframe", "Cinzel, like the game's headings")}${tchip("headings", "plain", "Plain", "The same font as the text")}</div>` +
+          `<span class="fl">Text</span><div class="wfilter">${tchip("body", "default", "Soulframe", "Alegreya Sans")}${tchip("body", "system", "System", "Your computer's own interface font")}</div>`;
       }
       function setTheme(t, save = true) {
         const colors = t && pickColors(t.colors);
-        THEME = colors && t.preset !== "soulframe" ? { preset: THEMES[t.preset] ? t.preset : "custom", colors } : null;
+        const preset = colors && t.preset !== "soulframe" ? (THEMES[t.preset] ? t.preset : "custom") : "soulframe";
+        const parts = preset === "custom" ? pickParts(t.parts) : {};
+        const effects = pickFx(t && t.effects);
+        const text = pickText(t && t.text);
+        const plain = preset === "soulframe" && JSON.stringify(effects) === JSON.stringify(DEFAULT_FX) && JSON.stringify(text) === JSON.stringify(DEFAULT_TEXT);
+        THEME = plain ? null : { preset, colors: preset === "soulframe" ? pickColors(THEMES.soulframe) : colors, parts, effects, text };
         paintTheme(THEME);
         try {
           localStorage.setItem("sfhelper.theme", JSON.stringify(THEME));
-          if (THEME && THEME.preset === "custom") localStorage.setItem("sfhelper.themeCustom", JSON.stringify(THEME.colors));
+          if (THEME && THEME.preset === "custom") localStorage.setItem("sfhelper.themeCustom", JSON.stringify({ ...THEME.colors, parts: THEME.parts }));
         } catch {}
         renderTheme();
         if (!save) return;
         clearTimeout(themeSaveTimer);
         themeSaveTimer = setTimeout(() => {
-          const theme = THEME && { ...THEME, titleBar: { color: themeTokens(THEME.colors)["--winbar"], symbolColor: THEME.colors.accent } };
+          const soulframe = THEME && THEME.preset === "soulframe";
+          const bar = THEME && ((THEME.parts && THEME.parts.winbar) || (soulframe ? SOULFRAME_PARTS.winbar : themeTokens(THEME.colors)["--winbar"]));
+          const theme = THEME && { ...THEME, titleBar: { color: bar, symbolColor: soulframe ? THEMES.soulframe.accent : THEME.colors.accent } };
           fetch("/api/settings", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ theme }) }).catch(() => {});
         }, 300);
       }
+      // Every change keeps the other choices: colours, effects and text are independent.
+      const changeTheme = (patch) => setTheme({ preset: themePreset(), colors: themeColors(), parts: (THEME && THEME.parts) || {}, effects: themeFx(), text: themeText(), ...patch });
       $("themePresets").addEventListener("click", (e) => {
         const b = e.target.closest("[data-theme]");
         if (!b) return;
         const key = b.dataset.theme;
-        if (key === "custom") setTheme({ preset: "custom", colors: savedCustom() || themeColors() });
-        else setTheme({ preset: key, colors: THEMES[key] });
+        if (key === "custom") {
+          const saved = savedCustom();
+          changeTheme({ preset: "custom", colors: saved ? saved.colors : themeColors(), parts: saved ? saved.parts : {} });
+        } else changeTheme({ preset: key, colors: THEMES[key], parts: {} });
       });
       $("themePicks").addEventListener("input", (e) => {
         const k = e.target.dataset.k;
-        if (k) setTheme({ preset: "custom", colors: { ...themeColors(), [k]: e.target.value } });
+        if (k) changeTheme({ preset: "custom", colors: { ...themeColors(), [k]: e.target.value } });
+      });
+      $("themeParts").addEventListener("input", (e) => {
+        const k = e.target.dataset.part;
+        if (k) changeTheme({ preset: "custom", parts: { ...((THEME && THEME.parts) || {}), [k]: e.target.value } });
+      });
+      $("themeParts").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-reset]");
+        if (!b) return;
+        e.preventDefault();
+        const parts = { ...((THEME && THEME.parts) || {}) };
+        delete parts[b.dataset.reset];
+        changeTheme({ parts });
+      });
+      $("themePartsToggle").addEventListener("click", () => {
+        const open = $("themeParts").hidden;
+        $("themeParts").hidden = !open;
+        $("themePartsToggle").setAttribute("aria-expanded", String(open));
+        $("themePartsToggle").textContent = open ? "Fewer colours" : "More colours";
+      });
+      $("themeGlow").addEventListener("input", (e) => changeTheme({ effects: { ...themeFx(), glow: Number(e.target.value) / 100 } }));
+      $("themeGrain").addEventListener("change", (e) => changeTheme({ effects: { ...themeFx(), grain: e.target.checked } }));
+      $("themeBrackets").addEventListener("change", (e) => changeTheme({ effects: { ...themeFx(), brackets: e.target.checked } }));
+      $("themeText").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-text]");
+        if (!b) return;
+        const k = b.dataset.text;
+        changeTheme({ text: { ...themeText(), [k]: k === "size" ? Number(b.dataset.v) : b.dataset.v } });
       });
       renderTheme();
       fetch("/api/settings").then((r) => r.json()).then((s) => setTheme(s.theme, false)).catch(() => {});
@@ -2695,7 +3111,7 @@
           const training = max
             ? `<div class="row puptrain"><span class="label">${escHtml(labels.training || "Training")}</span><span class="val">${done ? `<span class="mx">${escHtml(labels.trainingComplete || "")}</span>` : `${trained} / ${max}`}</span><span class="bar"><i style="width:${Math.round(Math.min(1, trained / max) * 100)}%"></i></span></div>`
             : "";
-          const energy = pupEnergyHtml(p, labels.energy || "Energy", limits.energy || 100);
+          const energy = pupEnergyHtml(p, labels.energy || "Energy", limits.energy || 150);
           const stats = PUP_STATS.filter((s) => (P.stats || {})[s]).map((s) => {
             const lvl = Math.min(maxSkill, p.skills[s] || 0);
             const paws = Array.from({ length: maxSkill }, (_, i) => `<i${i < lvl ? ' class="on"' : ""}></i>`).join("");
@@ -3212,7 +3628,7 @@
           };
         });
       }
-      const planDone = (w) => w.planned === PLAN_SLOTS && w.have === PLAN_SLOTS;
+      const planDone = (w) => w.planned > 0 && w.have === w.planned;
       function planCard(w) {
         const L = { ...FORGE_TEXT, ...((DICT && DICT.crafting) || {}) };
         const icon = ITEM_ICONS[w.name];
@@ -3453,14 +3869,25 @@
       document.addEventListener("click", (e) => {
         if (TEMPER_PICK && !e.target.closest(".lgpick") && !e.target.closest("button.lgslot")) closeTemperPick();
       });
-      (async () => {
+      // SFHelper removes a plan by itself when a strike completes it (if that's
+      // switched on), so the plans are read again whenever the weapons change.
+      async function reloadTemperPlans() {
         try {
-          TEMPER_PLANS = (await (await fetch("/api/settings")).json()).temperPlans || {};
+          const s = await (await fetch("/api/settings")).json();
+          $("planAutoRemove").checked = s.temperPlanAutoRemove === true;
+          if (sectionChanged("temperPlans", s.temperPlans || {}) || !TEMPER_PLANS) {
+            TEMPER_PLANS = s.temperPlans || {};
+            renderPlans();
+          }
         } catch {
-          TEMPER_PLANS = {};
+          if (!TEMPER_PLANS) {
+            TEMPER_PLANS = {};
+            renderPlans();
+          }
         }
-        renderPlans();
-      })();
+      }
+      void reloadTemperPlans();
+      bindSettingToggle($("planAutoRemove"), "temperPlanAutoRemove");
 
       function renderForge() {
         const c = LAST_CRAFTING;
@@ -4262,8 +4689,7 @@
 
         const owned = data.owned || {};
         const tokenCards = Object.entries(DICT.factionTokens).map(([tag, name]) => {
-          const limit = (DICT.tokenLimits && DICT.tokenLimits[tag]) || 50;
-          const count = Math.min(owned[`/SF/Types/Items/FactionItems/${tag}RepToken`] ?? 0, limit);
+          const count = owned[`/SF/Types/Items/FactionItems/${tag}RepToken`] ?? 0;
           const icon = ITEM_ICONS[name];
           return icon
             ? `<div class="stat curstat"><img class="curicn" src="${escHtml(icon)}" alt="" onerror="this.remove()"><div class="n">${fmt(count)}</div><div class="l">${escHtml(name)}</div></div>`
@@ -4323,6 +4749,7 @@
         if (sectionChanged("weaponCopies", data.weaponCopies)) {
           LAST_WEAPON_COPIES = data.weaponCopies || null;
           renderPlans();
+          void reloadTemperPlans();
         }
         if (sectionChanged("crafting", data.crafting)) {
           LAST_CRAFTING = data.crafting || null;
@@ -4336,6 +4763,11 @@
         if (sectionChanged("pickups", data.pickups)) {
           LAST_PICKUPS = data.pickups || [];
           renderPickups();
+        }
+        if (sectionChanged("sessions", data.sessions)) {
+          LAST_SESSIONS = data.sessions || null;
+          renderSessions();
+          renderRuns();
         }
         $("discoveriesSection").hidden = !data.discoveries;
         if (sectionChanged("discoveries", data.discoveries)) {
@@ -4548,7 +4980,7 @@
           const res = await fetch("/api/history/import", { method: "POST", headers: { "content-type": "application/json" }, body: text });
           const r = await res.json();
           if (!res.ok) throw new Error(r.error || "Import failed.");
-          const added = [r.pickups && plural(r.pickups, "pickup"), r.trades && plural(r.trades, "trade"), r.agari && plural(r.agari, "Agari name")].filter(Boolean);
+          const added = [r.pickups && plural(r.pickups, "pickup"), r.trades && plural(r.trades, "trade"), r.sessions && plural(r.sessions, "play session"), r.agari && plural(r.agari, "Agari name")].filter(Boolean);
           const skipped = r.skipped ? ` Skipped ${plural(r.skipped, "unreadable entry").replace(/entrys$/, "entries")}.` : "";
           show((added.length ? `Added ${added.join(", ")}.` : "Nothing new: everything in that file is already here.") + skipped, "done");
           refresh();

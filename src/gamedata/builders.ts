@@ -23,7 +23,6 @@ export interface NameData {
   items: Record<string, string>;
   factions: Record<string, string>;
   factionTokens: Record<string, string>;
-  tokenLimits: Record<string, number>;
   currencies: Record<string, string>;
   pets: PetText;
   crafting: Record<string, string>;
@@ -154,7 +153,6 @@ function weaponAliases(stem: string): Set<string> {
   return out;
 }
 
-const TOKEN_TYPE_RE = /^\/SF\/Types\/Items\/FactionItems\/(\w+)RepToken$/;
 const ANCESTOR_RE = /^\/SF\/Types\/Npcs\/BoonNPC\/(\w+)BoonNpc$/;
 const NPC_NAME_RE = /^_npcName=(\S+)$/m;
 
@@ -176,12 +174,6 @@ export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): Na
     if (name) factions[tag] = name;
     const token = dict[`/SF/Language/Syndicates/${tag}RepTokenName`];
     if (token) factionTokens[tag] = token;
-  }
-  const tokenLimits: Record<string, number> = {};
-  for (const t of texts) {
-    const tag = TOKEN_TYPE_RE.exec(field(t, "TypeName") ?? "")?.[1];
-    const size = tag ? Number(field(t, "StackSize")) : 0;
-    if (tag && size > 0) tokenLimits[tag] = size;
   }
   const currencies: Record<string, string> = {};
   for (const [f, key] of Object.entries(CURRENCY_FIELDS)) {
@@ -249,7 +241,13 @@ export function buildNames(dict: Dict, tree: TypeTree, texts: string[] = []): Na
     const name = type?.startsWith("/SF/Upgrades/Runes/Weapon/") && field(t, "ProductCategory") === "Upgrades" ? localized(dict, field(t, "LocalizeTag")) : null;
     if (type && name && !(type in items)) items[type] = name;
   }
-  return { items, factions, factionTokens, tokenLimits, currencies, pets: buildPetText(dict, texts), crafting: buildCraftingText(dict), founders: buildFounderItems(texts) };
+  // Last, any other store record that names its type, for items whose type and
+  // text key don't share a stem (SproutFolkFondResource is "Sproutfolk Frond").
+  for (const t of texts) {
+    const leaf = /^\/SF\/Types\/(?:PickUps|Items|Recipes)\/[\w/]*?(\w+)$/.exec(field(t, "TypeName") ?? "")?.[1];
+    if (leaf) setAlias(leaf, localized(dict, field(t, "LocalizeTag")) ?? undefined);
+  }
+  return { items, factions, factionTokens, currencies, pets: buildPetText(dict, texts), crafting: buildCraftingText(dict), founders: buildFounderItems(texts) };
 }
 
 export interface EnemyData {

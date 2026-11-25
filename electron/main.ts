@@ -23,7 +23,8 @@ import { apiPausedUntil, liftPauseAfterLogin, noteApiAccepted, noteApiRefused, p
 import { AVAKOT_VENDOR, getAvakot, nextAvakotCheck, noteAvakotAttempt, parseVendorInfo, recordAvakot, stockReset, type AvakotCheck, type AvakotOffer, type AvakotStock } from "../src/server/avakot";
 import { fetchVendorInfo } from "../helper/fetchVendor";
 import { EndpointRefusedError } from "../helper/fetchInventory";
-import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, loggedInventorySave, loggedTradeOpened, logTrades, refusalDetails, type GameRefusals } from "../src/server/gameLog";
+import { gameBeingRefused, gameLoggedInAt, gameRefusals, partyAround, gameRefusedMessage, loggedBlessed, loggedCollector, loggedGame, loggedInventorySave, loggedSession, loggedTradeOpened, logTrades, refusalDetails, type GameRefusals } from "../src/server/gameLog";
+import { syncPlaySession } from "../src/server/sessions";
 import { alreadyReported, recordRefusalEnd, recordRefusalStart } from "../src/server/refusalReport";
 import { pruneRequests, readRequests } from "../src/server/requestLog";
 import { findSoulframe } from "../helper/processFinder";
@@ -53,6 +54,7 @@ const ZOOM_REPEAT_MS = 10;
 
 let server: RunningServer | null = null;
 let mainWindow: BrowserWindow | null = null;
+let started = false;
 
 let logReady: Promise<void> | null = null;
 function log(msg: string): void {
@@ -547,7 +549,7 @@ const titleBarOf = (theme: Settings["theme"]) => (theme ? { ...theme.titleBar, h
 
 function applyTheme(theme: Settings["theme"]): void {
   if (!mainWindow || mainWindow.isDestroyed()) return;
-  mainWindow.setBackgroundColor(theme?.colors.bg ?? WINDOW_BG);
+  mainWindow.setBackgroundColor(theme && theme.preset !== "soulframe" ? theme.colors.bg : WINDOW_BG);
   try {
     mainWindow.setTitleBarOverlay(titleBarOf(theme));
   } catch (e) {
@@ -591,6 +593,7 @@ async function proceed(): Promise<void> {
   onMoonsteelAcquired((p) => void notifyMoonsteel(p));
   server = await startServer(APP_PORT).catch(() => startServer(0));
   createMainWindow(server.url, (await getSettings()).theme);
+  started = true;
   onSettingsChange((s) => applyTheme(s.theme));
 
   startUpdater(log);
@@ -602,6 +605,7 @@ async function proceed(): Promise<void> {
     void checkCollector().catch(() => {});
     void checkBlessed().catch(() => {});
     void followGame().catch(() => {});
+    void loggedSession().then(syncPlaySession).catch(() => {});
   }, TIMER_CHECK_MS);
   void pruneRequests();
   void importFromMemory().finally(scheduleImport);
@@ -649,7 +653,9 @@ app.on("second-instance", () => {
   }
 });
 
+// The consent window closes before the main window opens, so only quit once the app is running.
 app.on("window-all-closed", () => {
+  if (!started) return;
   if (process.platform !== "darwin") app.quit();
 });
 

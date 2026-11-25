@@ -4813,7 +4813,7 @@
           "count": 20
         }
       ],
-      "desc": "A cruel edge once bound by executioner's chain.\n\nThis sickle delivered swift judgment ‘pon a Knightmaiden unbloomed. Goodness was her name, though condemned she was for meddling with Fey. An offering here, a prayer there, and soon she found herself at a round of Regatta against the Empress herself. Enlightenment she sought, and enlightenment she won, though her mortal frame could scarcely contain it. A fire lit her belly, spilling forth in twisted tongues. No noose could hold her writhing form, so the manqueller took to his blade.",
+      "desc": "A cruel dual edge once bound by executioner's chain.\n\nThese sickles delivered swift judgment 'pon a Knightmaiden unbloomed. Goodness was her name, though condemned she was for meddling with Fey. An offering here, a prayer there, and soon she found herself at a round of Regatta against the Empress herself. Enlightenment she sought, and enlightenment she won, though her mortal frame could scarcely contain it. A fire lit her belly, spilling forth in twisted tongues. No noose could hold her writhing form, so the manqueller took to his blades.",
       "icon": "img/game/storeitems-weapons-bitasedge.png",
       "slot": "Sidearm",
       "scaling": [
@@ -4902,7 +4902,7 @@
       }
     },
     "/SF/Types/Recipes/Weapons/Melee/Blueprints/SinecureHammerAndBoardMeleeWeaponBlueprint": {
-      "name": "Nazilk-Urytes-III",
+      "name": "Nasilk-Urytes-III",
       "station": "Blacksmith",
       "kind": "Weapons",
       "result": "/SF/Weapons/Melee/OneHand/SinecureHammerAndBoard/SinecureHammerAndBoardMeleeWeapon",

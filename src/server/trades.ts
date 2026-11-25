@@ -246,6 +246,11 @@ function queued<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
+// The inventory as SFHelper last read it, before the read being recorded now.
+export function previousHoldings(): Promise<Holdings | null> {
+  return queued(async () => (await load()).last?.holdings ?? null);
+}
+
 export function tradeHistory(): Promise<Trade[]> {
   return queued(async () => (await load()).history);
 }

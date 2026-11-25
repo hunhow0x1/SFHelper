@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { exportHistory, historyFileName, importHistory } from "../src/server/history";
 import { pickupHistory } from "../src/server/pickups";
 import { tradeHistory } from "../src/server/trades";
+import { playSessions } from "../src/server/sessions";
 import { rememberedAgari, resetRememberedAgari } from "../src/server/timers";
 
 const BOW = "/SF/Weapons/Ranged/TwoHand/OdeBow/OdeBowRangedMeleeWeapon";
@@ -33,6 +34,18 @@ const trade = (at: string, partner: string | null = "Envoy1") => ({
   deals: [{ when: at, partner, offered: ["Rhapsodic Chordstone"], received: ["Bow"] }],
 });
 
+const session = {
+  id: 1795558000000,
+  start: 1795558000000,
+  end: 1795561600000,
+  ended: true,
+  runs: [{ folder: "FallenFortress", level: "FallenFortressProcLevel", start: 1795558364000, end: 1795559476000 }],
+  counts: { "/SF/Types/PickUps/Resources/Organics/Flowers/MourningBellResource": 4 },
+  items: [{ id: "6ae67e02722e7ec1120d88b3", key: BOW }],
+  xp: { [BOW]: 2500 },
+  reads: 3,
+};
+
 async function newInstall(): Promise<string> {
   process.env.SFHELPER_HOME = await mkdtemp(join(tmpdir(), "sfh-history-"));
   resetRememberedAgari();
@@ -50,7 +63,7 @@ describe("exporting and importing history", () => {
     resetRememberedAgari();
   });
 
-  it("moves pickups, trades and Agari names to a new install", async () => {
+  it("moves pickups, trades, play sessions and Agari names to a new install", async () => {
     const old = await newInstall();
     await writeFile(
       join(old, "pickups.json"),
@@ -61,6 +74,7 @@ describe("exporting and importing history", () => {
       }),
     );
     await writeFile(join(old, "trades.json"), JSON.stringify({ last: { at: "x", holdings: {} }, history: [trade("2026-10-27T02:56:37.173Z")] }));
+    await writeFile(join(old, "sessions.json"), JSON.stringify({ sessions: [session] }));
     await rememberedAgari({ GalvinarCorruptedB: "MendicantKnightBellCleaverSubBossAgent" });
 
     const file = await exportHistory(new Date("2026-11-04T21:00:00Z"));
@@ -72,7 +86,8 @@ describe("exporting and importing history", () => {
 
     const fresh = await newInstall();
     const roundTrip = JSON.parse(JSON.stringify(file)) as unknown;
-    expect(await importHistory(roundTrip)).toEqual({ pickups: 2, trades: 1, agari: 1, skipped: 0 });
+    expect(await importHistory(roundTrip)).toEqual({ pickups: 2, trades: 1, sessions: 1, agari: 1, skipped: 0 });
+    expect(await playSessions()).toEqual([session]);
     expect((await pickupHistory()).map((p) => p.id)).toEqual(["6ae67e02722e7ec1120d88b2", "6ae67e02722e7ec1120d88b0"]);
     expect(await tradeHistory()).toEqual(file.trades);
     const saved = JSON.parse(await readFile(join(fresh, "pickups.json"), "utf8")) as { seeded: boolean; known: Record<string, true> };
@@ -81,7 +96,7 @@ describe("exporting and importing history", () => {
     resetRememberedAgari();
     expect(await rememberedAgari({})).toEqual({ GalvinarCorruptedB: "MendicantKnightBellCleaverSubBossAgent" });
 
-    expect(await importHistory(roundTrip)).toEqual({ pickups: 0, trades: 0, agari: 0, skipped: 0 });
+    expect(await importHistory(roundTrip)).toEqual({ pickups: 0, trades: 0, sessions: 0, agari: 0, skipped: 0 });
   });
 
   it("merges with what's already there, newest first", async () => {
@@ -96,7 +111,7 @@ describe("exporting and importing history", () => {
       pickups: [pickup("6ae67e02722e7ec1120d88b5", "2026-11-03T12:00:00.000Z"), pickup("6ae67e02722e7ec1120d88b6", "2026-11-04T08:00:00.000Z"), pickup("6ae67e02722e7ec1120d88b7", "2026-11-01T08:00:00.000Z")],
       trades: [trade("2026-11-03T12:00:00.000Z"), trade("2026-11-01T09:00:00.000Z", null)],
     });
-    expect(result).toEqual({ pickups: 2, trades: 1, agari: 0, skipped: 0 });
+    expect(result).toEqual({ pickups: 2, trades: 1, sessions: 0, agari: 0, skipped: 0 });
     expect((await pickupHistory()).map((p) => p.at)).toEqual(["2026-11-04T08:00:00.000Z", "2026-11-03T12:00:00.000Z", "2026-11-01T08:00:00.000Z"]);
     expect((await tradeHistory()).map((t) => t.at)).toEqual(["2026-11-03T12:00:00.000Z", "2026-11-01T09:00:00.000Z"]);
   });
@@ -125,7 +140,7 @@ describe("exporting and importing history", () => {
         DungeonX: "../SpiderSubBossAgent",
       },
     });
-    expect(result).toEqual({ pickups: 1, trades: 0, agari: 2, skipped: 5 });
+    expect(result).toEqual({ pickups: 1, trades: 0, sessions: 0, agari: 2, skipped: 5 });
     expect(await rememberedAgari({})).toEqual({ StoneHengeA: "RangedHunterBowSubBossAgent", "Dungeon-NeathPortal-C-Digsite": "Neathuns/SpiderSubBossProcAgent" });
   });
 });

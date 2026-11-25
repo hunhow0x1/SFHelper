@@ -1,6 +1,8 @@
 import { importPickups, pickupHistory, type Pickup, type PickupSource } from "./pickups";
 import { importTrades, tradeHistory, type Deal, type Trade, type TradeItem, type WeaponDetail } from "./trades";
 import { rememberedAgari } from "./timers";
+import { importSessions, playSessions, type LootItem, type PlaySession } from "./sessions";
+import type { LoggedRun } from "./gameLog";
 
 export interface HistoryFile {
   app: "SFHelper";
@@ -9,12 +11,14 @@ export interface HistoryFile {
   exportedAt: string;
   pickups: Pickup[];
   trades: Trade[];
+  sessions?: PlaySession[];
   agari: Record<string, string>;
 }
 
 export interface ImportResult {
   pickups: number;
   trades: number;
+  sessions: number;
   agari: number;
   skipped: number;
 }
@@ -129,13 +133,52 @@ function trade(v: unknown): Trade | null {
   return out;
 }
 
+const FOLDER_RE = /^\w{1,80}$/;
+
+function counts(v: unknown): Record<string, number> | null {
+  if (!isObj(v)) return null;
+  const out: Record<string, number> = {};
+  for (const [k, n] of Object.entries(v)) {
+    const c = num(n);
+    if (!KEY_RE.test(k) || c === null || c < 0) return null;
+    out[k] = c;
+  }
+  return out;
+}
+
+function run(v: unknown): LoggedRun | null {
+  if (!isObj(v) || typeof v.folder !== "string" || !FOLDER_RE.test(v.folder) || typeof v.level !== "string" || !FOLDER_RE.test(v.level)) return null;
+  const start = num(v.start);
+  const end = v.end === null ? null : num(v.end);
+  if (start === null || (v.end !== null && end === null)) return null;
+  return { folder: v.folder, level: v.level, start, end };
+}
+
+function lootItem(v: unknown): LootItem | null {
+  return isObj(v) && typeof v.id === "string" && ID_RE.test(v.id) && typeof v.key === "string" && KEY_RE.test(v.key) ? { id: v.id, key: v.key } : null;
+}
+
+function playSession(v: unknown): PlaySession | null {
+  if (!isObj(v)) return null;
+  const id = num(v.id);
+  const start = num(v.start);
+  const end = num(v.end);
+  const reads = num(v.reads);
+  const runs = every(v.runs, run);
+  const items = every(v.items, lootItem);
+  const got = counts(v.counts);
+  const xp = counts(v.xp);
+  if (id === null || start === null || end === null || reads === null || typeof v.ended !== "boolean" || !runs || !items || !got || !xp) return null;
+  return { id, start, end, ended: v.ended, runs, counts: got, items, xp, reads };
+}
+
 function agariSpots(v: unknown): Record<string, string> {
   if (!isObj(v)) return {};
   return Object.fromEntries(Object.entries(v).filter((e): e is [string, string] => SPOT_RE.test(e[0]) && typeof e[1] === "string" && AGENT_RE.test(e[1])));
 }
 
 export async function exportHistory(now = new Date()): Promise<HistoryFile> {
-  const [pickups, trades, agari] = await Promise.all([pickupHistory(), tradeHistory(), rememberedAgari({})]);
+  const [pickups, trades, sessions, agari] = await Promise.all([pickupHistory(), tradeHistory(), playSessions(), rememberedAgari({})]);
   return {
     app: "SFHelper",
     kind: "history",
@@ -143,6 +186,7 @@ export async function exportHistory(now = new Date()): Promise<HistoryFile> {
     exportedAt: now.toISOString(),
     pickups: pickups.map(({ extra: _extra, ...p }) => p),
     trades,
+    sessions,
     agari: { ...agari },
   };
 }
@@ -156,17 +200,20 @@ export async function importHistory(raw: unknown): Promise<ImportResult> {
   if (raw.version !== 1) throw new Error("That history file is from a newer SFHelper. Update SFHelper, then import it again.");
   const pickupsIn = list(raw.pickups);
   const tradesIn = list(raw.trades);
+  const sessionsIn = list(raw.sessions);
   const pickups = pickupsIn.map(pickup).filter((p): p is Pickup => !!p);
   const trades = tradesIn.map(trade).filter((t): t is Trade => !!t);
+  const sessions = sessionsIn.map(playSession).filter((p): p is PlaySession => !!p);
   const spots = agariSpots(raw.agari);
   const before = await rememberedAgari({});
   const newSpots = Object.keys(spots).filter((k) => before[k] !== spots[k]).length;
-  const [addedPickups, addedTrades] = await Promise.all([importPickups(pickups), importTrades(trades)]);
+  const [addedPickups, addedTrades, addedSessions] = await Promise.all([importPickups(pickups), importTrades(trades), importSessions(sessions)]);
   if (newSpots) await rememberedAgari(spots);
   return {
     pickups: addedPickups,
     trades: addedTrades,
+    sessions: addedSessions,
     agari: newSpots,
-    skipped: pickupsIn.length - pickups.length + tradesIn.length - trades.length,
+    skipped: pickupsIn.length - pickups.length + tradesIn.length - trades.length + sessionsIn.length - sessions.length,
   };
 }

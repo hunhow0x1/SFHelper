@@ -19,17 +19,37 @@ export interface Settings {
   forgeNotify: boolean;
   hideFounders: boolean;
   temperPlans: Record<string, (string | null)[]>;
+  temperPlanAutoRemove: boolean;
   theme: Theme | null;
 }
 
 export const TEMPER_PLAN_SLOTS = 8;
 
 export const THEME_COLORS = ["bg", "panel", "text", "accent", "accent2"] as const;
+// Colours for single parts of the window, each overriding the one worked out
+// from the five theme colours.
+export const THEME_PARTS = ["muted", "faint", "line", "frame", "accentHi", "accent2Hi", "button", "onAccent", "barBg", "winbar", "scroll"] as const;
+export const TEXT_SIZES = [0.9, 1, 1.12, 1.25] as const;
+
+export interface ThemeEffects {
+  glow: number;
+  grain: boolean;
+  brackets: boolean;
+}
+
+export interface ThemeText {
+  size: number;
+  headings: "display" | "plain";
+  body: "default" | "system";
+}
 
 export interface Theme {
   preset: string;
   colors: Record<(typeof THEME_COLORS)[number], string>;
   titleBar: { color: string; symbolColor: string };
+  parts?: Partial<Record<(typeof THEME_PARTS)[number], string>>;
+  effects?: ThemeEffects;
+  text?: ThemeText;
 }
 
 const DEFAULTS: Settings = {
@@ -45,6 +65,7 @@ const DEFAULTS: Settings = {
   forgeNotify: true,
   hideFounders: false,
   temperPlans: {},
+  temperPlanAutoRemove: false,
   theme: null,
 };
 
@@ -58,11 +79,28 @@ function theme(v: unknown): Theme | null {
   if (typeof t.preset !== "string" || !/^[a-z-]{1,24}$/.test(t.preset) || !colors || !bar) return null;
   if (!THEME_COLORS.every((k) => typeof colors[k] === "string" && HEX.test(colors[k] as string))) return null;
   if (typeof bar.color !== "string" || !HEX.test(bar.color) || typeof bar.symbolColor !== "string" || !HEX.test(bar.symbolColor)) return null;
-  return {
+  const out: Theme = {
     preset: t.preset,
     colors: Object.fromEntries(THEME_COLORS.map((k) => [k, (colors[k] as string).toLowerCase()])) as Theme["colors"],
     titleBar: { color: bar.color.toLowerCase(), symbolColor: bar.symbolColor.toLowerCase() },
   };
+  const parts = t.parts && typeof t.parts === "object" ? (t.parts as Record<string, unknown>) : {};
+  const picked = THEME_PARTS.filter((k) => typeof parts[k] === "string" && HEX.test(parts[k] as string));
+  if (picked.length) out.parts = Object.fromEntries(picked.map((k) => [k, (parts[k] as string).toLowerCase()]));
+  const fx = t.effects && typeof t.effects === "object" ? (t.effects as Record<string, unknown>) : null;
+  if (fx) {
+    const glow = typeof fx.glow === "number" && Number.isFinite(fx.glow) ? Math.round(Math.min(2, Math.max(0, fx.glow)) * 20) / 20 : 1;
+    out.effects = { glow, grain: fx.grain !== false, brackets: fx.brackets !== false };
+  }
+  const tx = t.text && typeof t.text === "object" ? (t.text as Record<string, unknown>) : null;
+  if (tx) {
+    out.text = {
+      size: TEXT_SIZES.find((n) => n === tx.size) ?? 1,
+      headings: tx.headings === "plain" ? "plain" : "display",
+      body: tx.body === "system" ? "system" : "default",
+    };
+  }
+  return out;
 }
 
 const listeners: ((s: Settings) => void)[] = [];
@@ -114,6 +152,7 @@ export async function getSettings(): Promise<Settings> {
       forgeNotify: typeof s.forgeNotify === "boolean" ? s.forgeNotify : DEFAULTS.forgeNotify,
       hideFounders: typeof s.hideFounders === "boolean" ? s.hideFounders : DEFAULTS.hideFounders,
       temperPlans: temperPlans(s.temperPlans) ?? {},
+      temperPlanAutoRemove: typeof s.temperPlanAutoRemove === "boolean" ? s.temperPlanAutoRemove : DEFAULTS.temperPlanAutoRemove,
       theme: theme(s.theme),
     };
   } catch {
@@ -134,6 +173,7 @@ export function updateSettings(patch: Record<string, unknown>): Promise<Settings
     if (typeof patch.recipeNotify === "boolean") s.recipeNotify = patch.recipeNotify;
     if (typeof patch.forgeNotify === "boolean") s.forgeNotify = patch.forgeNotify;
     if (typeof patch.hideFounders === "boolean") s.hideFounders = patch.hideFounders;
+    if (typeof patch.temperPlanAutoRemove === "boolean") s.temperPlanAutoRemove = patch.temperPlanAutoRemove;
     const avakotWatch = itemTypes(patch.avakotWatch);
     if (avakotWatch) s.avakotWatch = avakotWatch;
     const timerWatch = timerTags(patch.timerWatch);

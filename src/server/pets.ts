@@ -5,7 +5,7 @@ export type PetStat = (typeof PET_STATS)[number];
 
 export const PUP_ENERGY_PER_SECOND = 0.008888888888888889;
 export const PUP_SUMMON_SHARE = 0.8;
-export const PUP_MAX_ENERGY = 100;
+export const PUP_MAX_ENERGY = 150;
 export const PUP_REST_TAG = "WolfpupRest";
 
 export interface OwnedPet {

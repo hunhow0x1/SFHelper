@@ -60,10 +60,11 @@ describe("the Wolfpup", () => {
     const [cuan] = parsePets({ KubrowPets: [CUAN] });
     const saved = 1794347873000;
     expect(pupEnergyAt(cuan!, saved + 1896_000)).toBeCloseTo(16.85, 1);
-    expect(pupEnergyAt(cuan!, saved + 5 * 3600_000)).toBe(100);
-    expect(pupSummonableAt(cuan!)).toBe(saved + 2.5 * 3600_000);
+    expect(pupEnergyAt(cuan!, saved + 5 * 3600_000)).toBe(150);
+    expect(pupSummonableAt(cuan!)).toBe(saved + 3.75 * 3600_000);
+    expect(pupSummonableAt(cuan!, 100)).toBe(saved + 2.5 * 3600_000);
     expect(pupRestTimers([cuan!], { "/SF/Language/Quests/OrengallPupName3": "Cuan" })).toEqual([
-      { tag: "WolfpupRest", kind: "Wolfpup resting", name: "Cuan", ready: "Cuan can be summoned again", expiry: saved + 2.5 * 3600_000 },
+      { tag: "WolfpupRest", kind: "Wolfpup resting", name: "Cuan", ready: "Cuan can be summoned again", expiry: saved + 3.75 * 3600_000 },
     ]);
     const rested = parsePets({ KubrowPets: [{ ...CUAN, Details: { ...CUAN.Details, Energy: 100, NeedsRest: false } }] });
     expect(pupSummonableAt(rested[0]!)).toBeNull();
@@ -104,7 +105,7 @@ describe("the Wolfpup", () => {
       process.env.SFHELPER_HOME = await mkdtemp(join(tmpdir(), "sfh-home-"));
       await writeFile(
         join(process.env.SFHELPER_DATA_DIR, "names.json"),
-        JSON.stringify({ items: { WolfSoul: "Orengal" }, tokenLimits: { FeySyndicate: 50 }, pets: { stats: { Guard: "Guts" } } }),
+        JSON.stringify({ items: { WolfSoul: "Orengal" }, pets: { stats: { Guard: "Guts" } } }),
       );
     });
     afterAll(() => {
@@ -114,9 +115,8 @@ describe("the Wolfpup", () => {
       }
     });
 
-    it("keeps the pup text and the Enclave Favour limits in names.json", async () => {
+    it("keeps the pup text in names.json", async () => {
       const names = await getNames();
-      expect(names.tokenLimits).toEqual({ FeySyndicate: 50 });
       expect(names.pets).toEqual({ stats: { Guard: "Guts" } });
       expect(names.items.WolfSoul).toBe("Orengal");
     });

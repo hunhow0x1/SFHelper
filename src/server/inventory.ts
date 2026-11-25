@@ -11,6 +11,7 @@ import { parseUpgradeItems, type UpgradeItems } from "./upgradeItems";
 import { parseCrafting, type CraftingState } from "./recipes";
 import { parsePets, pupRestTimers, type OwnedPet } from "./pets";
 import { getNames } from "./names";
+import { parseLoot, type LootSnapshot } from "./sessions";
 import { appFile } from "./paths";
 
 const candidates = (): string[] =>
@@ -63,6 +64,7 @@ export interface InventoryView {
   weaponInstances: WeaponInstance[];
   acquisition: AcquisitionContext;
   holdings: Holdings;
+  loot: LootSnapshot;
   timers: GameTimer[];
   loreScans: Record<string, LoreScan>;
   source: string;
@@ -108,6 +110,7 @@ export async function getInventory(): Promise<InventoryView | null> {
         weaponInstances: parseWeaponInstances(raw),
         acquisition: parseAcquisitionContext(raw),
         holdings: parseHoldings(raw),
+        loot: parseLoot(raw),
         timers: [...parseTimers(raw), ...pupRestTimers(pets, petText?.names, petText?.limits?.energy)].sort((a, b) => a.expiry - b.expiry),
         loreScans: parseLoreScans(raw),
         source: path,

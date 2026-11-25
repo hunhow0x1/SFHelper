@@ -135,6 +135,24 @@ export interface LoggedBlessed {
   logAt: number;
 }
 
+// A stretch inside one of the game's procedural levels (a dungeon), from the log's
+// "STATS ENTER_LEVEL" lines: it starts when one is entered and ends at the next
+// level change or when the game shuts down.
+export interface LoggedRun {
+  folder: string;
+  level: string;
+  start: number;
+  end: number | null;
+}
+
+export interface LoggedSession {
+  start: number;
+  lastAt: number;
+  loginAt: number | null;
+  ended: boolean;
+  runs: LoggedRun[];
+}
+
 export interface LoggedMastery {
   other: number;
   items: number | null;
@@ -166,6 +184,8 @@ const AGENT_WITHIN = 5;
 const CREATED_WITHIN = 1;
 const LOCATION_RE = /SetCurrentLocation: ([\w-]+)/;
 const ENTER_LEVEL_RE = /STATS ENTER_LEVEL \/SF\/Levels\/Procs\/(\w+)(\/)?/;
+const PROC_LEVEL_RE = /STATS ENTER_LEVEL \/SF\/Levels\/Procs\/(\w+)(?:\/(\w+))?/;
+const MAX_RUNS = 200;
 const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
 const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
 const COLLECTOR_GONE = [
@@ -237,6 +257,7 @@ interface Scan {
     dungeon: string | null;
   };
   mastery: { other: number | null; items: number | null };
+  play: { lastAt: number | null; ended: boolean; runs: LoggedRun[] };
   inventory: { savedAt: number | null };
   trades: { out: LoggedTrade[]; collecting: string[] | null; confirm: Omit<LoggedTrade, "at"> | null; invitedBy: string | null; openedAt: number | null };
   events: { acquired: Map<string, number[]>; owner: Map<string, number[]>; lastOwner: { t: number; leaf: string } | null };
@@ -258,6 +279,7 @@ function newScan(path: string, head: string): Scan {
     refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [], loggingIn: false, loginBlocked: false, loginRefused: false, loginOkAt: null },
     agari: { spawned: {}, spot: null, since: 0, agent: null, agentAt: null, agentSince: 0, location: null, dungeon: null },
     mastery: { other: null, items: null },
+    play: { lastAt: null, ended: false, runs: [] },
     inventory: { savedAt: null },
     trades: { out: [], collecting: null, confirm: null, invitedBy: null, openedAt: null },
     events: { acquired: new Map(), owner: new Map(), lastOwner: null },
@@ -324,6 +346,25 @@ function feedMastery(x: Scan["mastery"], line: string): void {
   }
   const it = ITEM_XP_RE.exec(line);
   if (it && Number(it[1]) > 0) x.items = Number(it[1]);
+}
+
+function feedPlay(p: Scan["play"], line: string, start: number): void {
+  const t = TIME_RE.exec(line);
+  if (!t) return;
+  const at = start + Math.round(Number(t[1]) * 1000);
+  p.lastAt = at;
+  const enter = line.includes("STATS ENTER_LEVEL ");
+  if (!enter && !line.includes("Main Shutdown Complete")) return;
+  const last = p.runs[p.runs.length - 1];
+  const inside = last && last.end === null ? last : null;
+  const m = enter ? PROC_LEVEL_RE.exec(line) : null;
+  if (m?.[2] && inside?.folder === m[1]) return;
+  if (inside) inside.end = at;
+  if (!enter) p.ended = true;
+  else if (m?.[2]) {
+    p.runs.push({ folder: m[1]!, level: m[2], start: at, end: null });
+    if (p.runs.length > MAX_RUNS) p.runs.shift();
+  }
 }
 
 function noteRefusal(r: Scan["refusals"], t: number): void {
@@ -522,6 +563,7 @@ function feed(s: Scan, line: string): void {
   feedCollector(s, line, s.start);
   feedBlessed(s.blessed, line, s.start);
   feedParty(s.party, line, s.start);
+  feedPlay(s.play, line, s.start);
 }
 
 let scan: Scan | null = null;
@@ -674,6 +716,20 @@ export async function loggedBlessed(path?: string): Promise<LoggedBlessed | null
 export async function loggedMastery(path?: string): Promise<LoggedMastery | null> {
   const s = await currentScan(path);
   return s && s.mastery.other !== null ? { other: s.mastery.other, items: s.mastery.items } : null;
+}
+
+// The game run this log belongs to: when it started, when it last wrote a line,
+// whether it has shut down, and the dungeons entered so far.
+export async function loggedSession(path?: string): Promise<LoggedSession | null> {
+  const s = await currentScan(path);
+  if (!s || s.start === null) return null;
+  return {
+    start: s.start,
+    lastAt: s.play.lastAt ?? s.start,
+    loginAt: s.refusals.loginOkAt,
+    ended: s.play.ended,
+    runs: s.play.runs.map((r) => ({ ...r })),
+  };
 }
 
 export async function logTrades(path?: string): Promise<LoggedTrade[]> {

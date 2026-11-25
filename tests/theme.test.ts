@@ -44,3 +44,40 @@ describe("the colour theme setting", () => {
     expect((await getSettings()).theme).toBeNull();
   });
 });
+
+describe("theme parts, effects and text", () => {
+  let home: string | undefined;
+  beforeAll(async () => {
+    home = process.env.SFHELPER_HOME;
+    process.env.SFHELPER_HOME = await mkdtemp(join(tmpdir(), "sfh-theme-"));
+  });
+  afterAll(() => {
+    if (home === undefined) delete process.env.SFHELPER_HOME;
+    else process.env.SFHELPER_HOME = home;
+  });
+
+  it("keeps valid part colours, effects and text choices, and drops the rest", async () => {
+    await updateSettings({
+      theme: {
+        ...MOONLIT,
+        preset: "custom",
+        parts: { muted: "#A0B0C0", frame: "url(x)", nope: "#ffffff" },
+        effects: { glow: 3.7, grain: false, brackets: "yes" },
+        text: { size: 1.12, headings: "plain", body: "comic" },
+      },
+    });
+    const t = (await getSettings()).theme!;
+    expect(t.parts).toEqual({ muted: "#a0b0c0" });
+    expect(t.effects).toEqual({ glow: 2, grain: false, brackets: true });
+    expect(t.text).toEqual({ size: 1.12, headings: "plain", body: "default" });
+  });
+
+  it("keeps effects and text on the Soulframe colours, and an odd size falls back to the default", async () => {
+    await updateSettings({ theme: { ...MOONLIT, preset: "soulframe", effects: { glow: 0.5, grain: true, brackets: false }, text: { size: 2, headings: "display", body: "system" } } });
+    const t = (await getSettings()).theme!;
+    expect(t.preset).toBe("soulframe");
+    expect(t.parts).toBeUndefined();
+    expect(t.effects).toEqual({ glow: 0.5, grain: true, brackets: false });
+    expect(t.text).toEqual({ size: 1, headings: "display", body: "system" });
+  });
+});

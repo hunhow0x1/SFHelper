@@ -8,7 +8,6 @@ export interface NameDict {
   factions: Record<string, string>;
   factionTokens: Record<string, string>;
   currencies: Record<string, string>;
-  tokenLimits: Record<string, number>;
   pets: Record<string, unknown> | null;
   crafting: Record<string, string>;
   founders: string[];
@@ -22,7 +21,7 @@ const USER_AGENT = "SFHelper/0.0 (+https://github.com/hunhow0x1/SFHelper)";
 let memo: { at: number; data: number | null; dict: NameDict } | null = null;
 
 function emptyDict(): NameDict {
-  return { items: {}, factions: {}, factionTokens: {}, currencies: {}, tokenLimits: {}, pets: null, crafting: {}, founders: [] };
+  return { items: {}, factions: {}, factionTokens: {}, currencies: {}, pets: null, crafting: {}, founders: [] };
 }
 
 function coerce(raw: unknown): NameDict {
@@ -34,12 +33,6 @@ function coerce(raw: unknown): NameDict {
       for (const [k, v] of Object.entries(src as Record<string, unknown>)) {
         if (typeof v === "string" && v !== "") dict[group][k] = v;
       }
-    }
-  }
-  const limits = (raw as Record<string, unknown>).tokenLimits;
-  if (limits && typeof limits === "object") {
-    for (const [k, v] of Object.entries(limits as Record<string, unknown>)) {
-      if (typeof v === "number" && v > 0) dict.tokenLimits[k] = v;
     }
   }
   const pets = (raw as Record<string, unknown>).pets;
@@ -55,7 +48,6 @@ function merge(base: NameDict, over: NameDict): NameDict {
     factions: { ...base.factions, ...over.factions },
     factionTokens: { ...base.factionTokens, ...over.factionTokens },
     currencies: { ...base.currencies, ...over.currencies },
-    tokenLimits: { ...base.tokenLimits, ...over.tokenLimits },
     pets: over.pets ?? base.pets,
     crafting: { ...base.crafting, ...over.crafting },
     founders: over.founders.length ? over.founders : base.founders,

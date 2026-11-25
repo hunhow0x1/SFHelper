@@ -8,7 +8,8 @@ import { getNames } from "./names";
 import { getInventory, type InventoryView, type Standing } from "./inventory";
 import type { ProgressionEntry } from "../account/snapshot";
 import { pickupHistory, recordPickups } from "./pickups";
-import { recordTrades, tradedIds, tradeHistory } from "./trades";
+import { previousHoldings, recordTrades, tradedIds, tradeHistory } from "./trades";
+import { removeFinishedPlans } from "./temperPlans";
 import { exportHistory, historyFileName, importHistory } from "./history";
 import { getSettings, updateSettings } from "./settings";
 import { recordStanding, dailyCaps, preludes17Caps } from "./standing";
@@ -17,7 +18,8 @@ import { getUpdateStatus, requestUpdateAction } from "./updateStatus";
 import { apiPausedUntil, apiRefusedAt, noteApiAccepted, noteApiRefused, pausedMessage } from "./apiBackoff";
 import { appFile, dataDir } from "./paths";
 import { getEnemyNamer } from "./enemies";
-import { gameBeingRefused, gameRefusedMessage, loggedCollector } from "./gameLog";
+import { gameBeingRefused, gameRefusedMessage, loggedCollector, loggedSession } from "./gameLog";
+import { recordSessionLoot, sessionView, syncPlaySession } from "./sessions";
 import { getEnvoyRank } from "./envoyRank";
 import { getRoster } from "./roster";
 import { virtuePoints } from "./loadouts";
@@ -340,7 +342,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         snap.items
           .filter((it) => it.category === "soul" && typeof it.rank === "number")
           .map((it) => ({ key: it.key, xp: it.rank ?? 0 }));
-      const { trades, pickups } = await recordHistory(inventory);
+      const { trades, pickups, sessions } = await recordHistory(inventory);
       const standingNow: Record<string, number> = {};
       for (const p of progression) {
         if (p.kind === "affiliation" && typeof p.xp === "number") standingNow[p.key.replace(/^affiliation:/, "")] = p.xp;
@@ -390,6 +392,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
         crafting: inventory?.crafting ?? null,
         pets: inventory?.pets ?? null,
         pickups,
+        sessions,
         trades,
         builds,
         totems: inventory?.totems ?? null,
@@ -410,12 +413,18 @@ async function handle(req: IncomingMessage, res: ServerResponse, hosts: Set<stri
 export async function recordHistory(inventory?: InventoryView | null) {
   if (inventory === undefined) inventory = await getInventory();
   if (!inventory) {
-    const [history, pickups] = await Promise.all([tradeHistory(), pickupHistory()]);
-    return { trades: history.length ? { history, remaining: null, max: null } : null, pickups };
+    const [history, pickups, sessions] = await Promise.all([tradeHistory(), pickupHistory(), sessionView()]);
+    return { trades: history.length ? { history, remaining: null, max: null } : null, pickups, sessions };
   }
+  const before = await previousHoldings();
   const trades = await recordTrades(inventory.holdings, inventory.updatedAt);
+  if (before) await removeFinishedPlans(before.weapons, inventory.holdings.weapons);
   const pickups = await recordPickups(inventory.weaponInstances, inventory.acquisition, tradedIds(trades.history));
-  return { trades, pickups };
+  const log = await loggedSession().catch(() => null);
+  await syncPlaySession(log);
+  const traded = trades.history.some((t) => t.at === inventory.updatedAt && !t.logOnly);
+  await recordSessionLoot(inventory.loot, inventory.updatedAt, traded, log);
+  return { trades, pickups, sessions: await sessionView() };
 }
 
 export interface RunningServer {
