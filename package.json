@@ -31,7 +31,7 @@
   "devDependencies": {
     "@bokuweb/zstd-wasm": "^0.0.27",
     "@types/node": "^26.2.0",
-    "electron": "^33.0.0",
+    "electron": "^45.5.0",
     "electron-builder": "^25.1.8",
     "esbuild": "^0.24.0",
     "ooz-wasm": "^2.0.0",

@@ -1,8 +1,8 @@
 import { importPickups, pickupHistory, type Pickup, type PickupSource } from "./pickups";
-import { importTrades, tradeHistory, type Deal, type Trade, type TradeItem, type WeaponDetail } from "./trades";
+import { importTrades, tradeHistory, type Deal, type Trade, type TotemDetail, type TradeItem, type WeaponDetail } from "./trades";
 import { rememberedAgari } from "./timers";
 import { importSessions, playSessions, type LootItem, type PlaySession } from "./sessions";
-import type { LoggedRun } from "./gameLog";
+import type { LoggedRun, LoggedTotem } from "./gameLog";
 
 export interface HistoryFile {
   app: "SFHelper";
@@ -154,8 +154,32 @@ function run(v: unknown): LoggedRun | null {
   return { folder: v.folder, level: v.level, start, end };
 }
 
+const VIRTUES = ["Courage", "Spirit", "Grace"];
+const GRIP_RE = /^[A-Za-z' -]{1,40}$/;
+
+function totemDetail(v: unknown): TotemDetail | null {
+  if (!isObj(v)) return null;
+  const rank = num(v.rank);
+  const virtue = v.virtue === null ? null : typeof v.virtue === "string" && VIRTUES.includes(v.virtue) ? v.virtue : undefined;
+  if (virtue === undefined || typeof v.grip !== "string" || !GRIP_RE.test(v.grip) || rank === null || rank < 1 || rank > 10) return null;
+  return { virtue, grip: v.grip, rank };
+}
+
 function lootItem(v: unknown): LootItem | null {
-  return isObj(v) && typeof v.id === "string" && ID_RE.test(v.id) && typeof v.key === "string" && KEY_RE.test(v.key) ? { id: v.id, key: v.key } : null;
+  if (!isObj(v) || typeof v.id !== "string" || !ID_RE.test(v.id) || typeof v.key !== "string" || !KEY_RE.test(v.key)) return null;
+  if (v.totem === undefined) return { id: v.id, key: v.key };
+  const totem = totemDetail(v.totem);
+  return totem ? { id: v.id, key: v.key, totem } : null;
+}
+
+function loggedTotem(v: unknown): LoggedTotem | null {
+  if (!isObj(v) || typeof v.type !== "string" || !KEY_RE.test(v.type)) return null;
+  const at = num(v.at);
+  const lvl = v.lvl === null ? null : num(v.lvl);
+  const pol = v.pol === null ? null : typeof v.pol === "string" && TAG_RE.test(v.pol) ? v.pol : undefined;
+  const compat = v.compat === null ? null : typeof v.compat === "string" && KEY_RE.test(v.compat) ? v.compat : undefined;
+  if (at === null || (v.lvl !== null && lvl === null) || pol === undefined || compat === undefined) return null;
+  return { at, type: v.type, pol, compat, lvl };
 }
 
 function playSession(v: unknown): PlaySession | null {
@@ -169,7 +193,17 @@ function playSession(v: unknown): PlaySession | null {
   const got = counts(v.counts);
   const xp = counts(v.xp);
   if (id === null || start === null || end === null || reads === null || typeof v.ended !== "boolean" || !runs || !items || !got || !xp) return null;
-  return { id, start, end, ended: v.ended, runs, counts: got, items, xp, reads };
+  const out: PlaySession = { id, start, end, ended: v.ended, runs, counts: got, items, xp, reads };
+  const readAt = num(v.readAt);
+  const savedAt = num(v.savedAt);
+  if (readAt !== null) out.readAt = readAt;
+  if (savedAt !== null) out.savedAt = savedAt;
+  if (v.logTotems !== undefined) {
+    const logTotems = every(v.logTotems, loggedTotem);
+    if (!logTotems) return null;
+    out.logTotems = logTotems;
+  }
+  return out;
 }
 
 function agariSpots(v: unknown): Record<string, string> {

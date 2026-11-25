@@ -3,7 +3,7 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loggedSession, type LoggedSession } from "../src/server/gameLog";
-import { lootBetween, parseLoot, playSessions, recordSessionLoot, syncPlaySession, type LootSnapshot } from "../src/server/sessions";
+import { lootBetween, parseLoot, playSessions, recordSessionLoot, sessionView, syncPlaySession, type LootSnapshot } from "../src/server/sessions";
 
 const HEADER = "0.043 Sys [Diag]: Current time: Tue Nov 24 18:03:00 2026 [UTC: Tue Nov 24 22:03:00 2026]";
 const START = Date.UTC(2026, 10, 24, 22, 3, 0);
@@ -12,6 +12,9 @@ const BELL = "/SF/Types/PickUps/Resources/Organics/Flowers/MourningBellResource"
 const BLADE = "/SF/Weapons/Melee/OneHand/BromiusCleaver/BromiusCleaverMeleeWeapon";
 const BLUEPRINT = "/SF/Types/Recipes/Weapons/BromiusCleaverMeleeWeaponBlueprint";
 const ELIXIR = "/SF/Types/Items/Consumables/HealingPotion";
+const OWL = "/SF/Upgrades/Totems/BlindReveal";
+const FAWN = "/SF/Upgrades/Totems/SmiteChanceRuneCount";
+const TREE = "/SF/Types/Game/SFSkillTree";
 
 const snap = (o: Partial<LootSnapshot> = {}): LootSnapshot => ({ counts: {}, instances: {}, xp: {}, pending: {}, purchases: {}, ...o });
 const ctx = {
@@ -21,7 +24,7 @@ const ctx = {
 };
 
 describe("dungeon runs in the game log", () => {
-  it("times each stay in a dungeon, ignoring re-entries of the same one, until the game shuts down", async () => {
+  it("times each stay in a dungeon until the game shuts down, and notes the last save and the player's own Totems", async () => {
     const log = join(await mkdtemp(join(tmpdir(), "sfh-log-")), "EE.log");
     await writeFile(
       log,
@@ -31,8 +34,13 @@ describe("dungeon runs in the game log", () => {
         "43.824 Script [Info]: LoginScripts.lua: STATS ENTER_LEVEL /SF/Levels/Procs/MidrathProc",
         "364.000 Script [Info]: ProcLevelSetup.lua: STATS ENTER_LEVEL /SF/Levels/Procs/FallenFortress/FallenFortressProcLevel",
         "500.000 Script [Info]: ProcLevelSetup.lua: STATS ENTER_LEVEL /SF/Levels/Procs/FallenFortress/FallenFortressProcLevel",
+        "20.814 Anim [Info]: Using EnvoyAvatar0 as Envoy",
+        `442.654 Script [Info]: PetAnimal.lua: giving mote ${OWL} to EnvoyAvatar0 {"compat":"${TREE}","pol":"AP_SPIRIT"}`,
+        "450.000 Anim [Info]: Using EnvoyAvatar1 as Envoy",
+        `451.000 Script [Info]: PetAnimal.lua: giving mote ${FAWN} to EnvoyAvatar1 {"compat":"${TREE}","pol":"AP_GRACE"}`,
         "1476.000 Script [Info]: ProcLevelSetup.lua: STATS ENTER_LEVEL /SF/Levels/Procs/MidrathProc",
         "1600.000 Script [Info]: ProcLevelSetup.lua: STATS ENTER_LEVEL /SF/Levels/Procs/Neathuns/NeathunsProcLevel",
+        "1898.000 Sys [Info]: CommitInventoryCheckpointToDB(0, 0, 0, )",
         "1900.000 Sys [Info]: Main Shutdown Complete.",
         "",
       ].join("\n"),
@@ -46,6 +54,8 @@ describe("dungeon runs in the game log", () => {
         { folder: "FallenFortress", level: "FallenFortressProcLevel", start: START + 364_000, end: START + 1_476_000 },
         { folder: "Neathuns", level: "NeathunsProcLevel", start: START + 1_600_000, end: START + 1_900_000 },
       ],
+      savedAt: START + 1_898_000,
+      totems: [{ at: START + 442_654, type: OWL, pol: "AP_SPIRIT", compat: TREE, lvl: null }],
     });
   });
 });
@@ -69,6 +79,7 @@ describe("what came in between two inventory reads", () => {
       xp: { [BLADE]: 1200 },
       pending: { "6af1e520becb4458760fa383": BLUEPRINT },
       purchases: { "6af620efdfe32177265dd9d9": 2 },
+      totems: {},
     });
   });
 
@@ -86,6 +97,13 @@ describe("what came in between two inventory reads", () => {
       items: [{ id: "6af1e520becb4458760fa384", key: BLADE }],
       xp: { [BLADE]: 250 },
     });
+  });
+
+  it("keeps each new Totem's Virtue, grip and rank", () => {
+    const raw = { Upgrades: [{ ItemType: OWL, ItemId: { $oid: "6af1e520becb4458760fa385" }, UpgradeFingerprint: `{"compat":"${TREE}","pol":"AP_SPIRIT","lvl":1}` }] };
+    expect(lootBetween(snap(), parseLoot(raw), ctx).items).toEqual([
+      { id: "6af1e520becb4458760fa385", key: OWL, totem: { virtue: "Spirit", grip: "Universal", rank: 2 } },
+    ]);
   });
 
   it("adds no items for a read with a trade in it, only XP", () => {
@@ -106,7 +124,7 @@ describe("play sessions", () => {
     else process.env.SFHELPER_HOME = home;
   });
 
-  const session = (start: number, o: Partial<LoggedSession> = {}): LoggedSession => ({ start, lastAt: start + 60_000, loginAt: start + 40_000, ended: false, runs: [], ...o });
+  const session = (start: number, o: Partial<LoggedSession> = {}): LoggedSession => ({ start, lastAt: start + 60_000, loginAt: start + 40_000, ended: false, runs: [], savedAt: null, totems: [], ...o });
   const at = (ms: number) => new Date(ms).toISOString();
 
   it("gives each read's loot to the session it was picked up in, and a read just after login to the session before", async () => {
@@ -125,5 +143,29 @@ describe("play sessions", () => {
     const [newer, older] = await playSessions();
     expect(older).toMatchObject({ id: START, ended: true, end: START + 30 * 60_000, counts: { [STEEL]: 21 }, reads: 2 });
     expect(newer).toMatchObject({ id: START + 3_600_000, ended: false, counts: { [BELL]: 2 }, reads: 1 });
+  });
+
+  it("shows a Totem from the log until a read shows it, and flags a save no read has covered", async () => {
+    const owl = { at: START + 5 * 60_000, type: OWL, pol: "AP_SPIRIT", compat: TREE, lvl: null };
+    const first = session(START, { totems: [owl] });
+    await syncPlaySession(first);
+    await recordSessionLoot(snap(), at(START + 60_000), false, first);
+    await recordSessionLoot(snap(), at(START + 12 * 60_000), false, { ...first, savedAt: START + 3 * 60_000 });
+    const closed = { ...first, lastAt: START + 20 * 60_000, ended: true, savedAt: START + 19 * 60_000 };
+    await syncPlaySession(closed);
+
+    let [view] = await sessionView();
+    expect(view!.logTotems).toEqual([{ id: `log-${owl.at}-${OWL}`, key: OWL, totem: { virtue: "Spirit", grip: "Universal", rank: 1 } }]);
+    expect(view!.unreadSince).toBe(START + 12 * 60_000);
+
+    const second = session(START + 3_600_000);
+    await syncPlaySession(second);
+    const withOwl = snap({ instances: { "6af1e520becb4458760fa386": OWL }, totems: { "6af1e520becb4458760fa386": { virtue: "Spirit", grip: "Universal", rank: 1 } } });
+    await recordSessionLoot(withOwl, at(second.start + 60_000), false, second);
+
+    [, view] = await sessionView();
+    expect(view!.items).toEqual([{ id: "6af1e520becb4458760fa386", key: OWL, totem: { virtue: "Spirit", grip: "Universal", rank: 1 } }]);
+    expect(view!.logTotems).toEqual([]);
+    expect(view!.unreadSince).toBeNull();
   });
 });

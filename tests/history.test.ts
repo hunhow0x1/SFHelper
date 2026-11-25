@@ -41,9 +41,15 @@ const session = {
   ended: true,
   runs: [{ folder: "FallenFortress", level: "FallenFortressProcLevel", start: 1795558364000, end: 1795559476000 }],
   counts: { "/SF/Types/PickUps/Resources/Organics/Flowers/MourningBellResource": 4 },
-  items: [{ id: "6ae67e02722e7ec1120d88b3", key: BOW }],
+  items: [
+    { id: "6ae67e02722e7ec1120d88b3", key: BOW },
+    { id: "6ae67e02722e7ec1120d88b4", key: "/SF/Upgrades/Totems/BlindReveal", totem: { virtue: "Spirit", grip: "Universal", rank: 1 } },
+  ],
   xp: { [BOW]: 2500 },
   reads: 3,
+  readAt: 1795561500000,
+  savedAt: 1795561590000,
+  logTotems: [{ at: 1795559000000, type: "/SF/Upgrades/Totems/SmiteChanceRuneCount", pol: "AP_GRACE", compat: "/SF/Types/Game/SFSkillTree", lvl: null }],
 };
 
 async function newInstall(): Promise<string> {

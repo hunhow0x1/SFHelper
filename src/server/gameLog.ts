@@ -145,12 +145,24 @@ export interface LoggedRun {
   end: number | null;
 }
 
+// A Totem an animal gave the player, from the log's "PetAnimal.lua: giving mote"
+// line, with the same roll fields the inventory keeps in its fingerprint.
+export interface LoggedTotem {
+  at: number;
+  type: string;
+  pol: string | null;
+  compat: string | null;
+  lvl: number | null;
+}
+
 export interface LoggedSession {
   start: number;
   lastAt: number;
   loginAt: number | null;
   ended: boolean;
   runs: LoggedRun[];
+  savedAt: number | null;
+  totems: LoggedTotem[];
 }
 
 export interface LoggedMastery {
@@ -186,6 +198,9 @@ const LOCATION_RE = /SetCurrentLocation: ([\w-]+)/;
 const ENTER_LEVEL_RE = /STATS ENTER_LEVEL \/SF\/Levels\/Procs\/(\w+)(\/)?/;
 const PROC_LEVEL_RE = /STATS ENTER_LEVEL \/SF\/Levels\/Procs\/(\w+)(?:\/(\w+))?/;
 const MAX_RUNS = 200;
+const MAX_TOTEMS = 300;
+const PET_TOTEM_RE = /PetAnimal\.lua: giving mote (\/SF\/Upgrades\/Totems\/\w+) to (\w+)(?: (\{.*\}))?/;
+const LOCAL_ENVOY_RE = /Using (EnvoyAvatar\d+) as Envoy/;
 const OTHER_XP_RE = /Total calculated MissionProgressXP is (\d+)/;
 const ITEM_XP_RE = /Player has (\d+) \(item based\) XP/;
 const COLLECTOR_GONE = [
@@ -257,7 +272,7 @@ interface Scan {
     dungeon: string | null;
   };
   mastery: { other: number | null; items: number | null };
-  play: { lastAt: number | null; ended: boolean; runs: LoggedRun[] };
+  play: { lastAt: number | null; ended: boolean; runs: LoggedRun[]; me: string | null; totems: LoggedTotem[] };
   inventory: { savedAt: number | null };
   trades: { out: LoggedTrade[]; collecting: string[] | null; confirm: Omit<LoggedTrade, "at"> | null; invitedBy: string | null; openedAt: number | null };
   events: { acquired: Map<string, number[]>; owner: Map<string, number[]>; lastOwner: { t: number; leaf: string } | null };
@@ -279,7 +294,7 @@ function newScan(path: string, head: string): Scan {
     refusals: { count: 0, first: 0, last: 0, open: null, before: "", details: [], loggingIn: false, loginBlocked: false, loginRefused: false, loginOkAt: null },
     agari: { spawned: {}, spot: null, since: 0, agent: null, agentAt: null, agentSince: 0, location: null, dungeon: null },
     mastery: { other: null, items: null },
-    play: { lastAt: null, ended: false, runs: [] },
+    play: { lastAt: null, ended: false, runs: [], me: null, totems: [] },
     inventory: { savedAt: null },
     trades: { out: [], collecting: null, confirm: null, invitedBy: null, openedAt: null },
     events: { acquired: new Map(), owner: new Map(), lastOwner: null },
@@ -353,6 +368,30 @@ function feedPlay(p: Scan["play"], line: string, start: number): void {
   if (!t) return;
   const at = start + Math.round(Number(t[1]) * 1000);
   p.lastAt = at;
+  if (line.includes(" as Envoy")) {
+    // The first Envoy the log names is the player's own; squadmates come later.
+    p.me ??= LOCAL_ENVOY_RE.exec(line)?.[1] ?? null;
+    return;
+  }
+  if (line.includes("giving mote ")) {
+    const g = PET_TOTEM_RE.exec(line);
+    if (g && (!p.me || g[2] === p.me)) {
+      let fp: { pol?: unknown; compat?: unknown; lvl?: unknown } = {};
+      try {
+        if (g[3]) fp = JSON.parse(g[3]) as typeof fp;
+      } catch {
+      }
+      p.totems.push({
+        at,
+        type: g[1]!,
+        pol: typeof fp.pol === "string" ? fp.pol : null,
+        compat: typeof fp.compat === "string" ? fp.compat : null,
+        lvl: typeof fp.lvl === "number" ? fp.lvl : null,
+      });
+      if (p.totems.length > MAX_TOTEMS) p.totems.shift();
+    }
+    return;
+  }
   const enter = line.includes("STATS ENTER_LEVEL ");
   if (!enter && !line.includes("Main Shutdown Complete")) return;
   const last = p.runs[p.runs.length - 1];
@@ -719,7 +758,8 @@ export async function loggedMastery(path?: string): Promise<LoggedMastery | null
 }
 
 // The game run this log belongs to: when it started, when it last wrote a line,
-// whether it has shut down, and the dungeons entered so far.
+// whether it has shut down, the dungeons entered so far, when the game last
+// saved the inventory and the Totems animals gave the player.
 export async function loggedSession(path?: string): Promise<LoggedSession | null> {
   const s = await currentScan(path);
   if (!s || s.start === null) return null;
@@ -729,6 +769,8 @@ export async function loggedSession(path?: string): Promise<LoggedSession | null
     loginAt: s.refusals.loginOkAt,
     ended: s.play.ended,
     runs: s.play.runs.map((r) => ({ ...r })),
+    savedAt: s.inventory.savedAt,
+    totems: s.play.totems.map((t) => ({ ...t })),
   };
 }
 

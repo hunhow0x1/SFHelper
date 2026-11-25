@@ -74,7 +74,7 @@
       .winbar { display: none; }
       html.wco .winbar {
         display: flex; align-items: center; gap: 9px; position: fixed; z-index: 90; top: 0; left: 0; right: 0;
-        height: env(titlebar-area-height, 36px); padding: 0 14px; box-sizing: border-box; background: var(--winbar);
+        height: env(titlebar-area-height, 36px); padding: 0 14px 0 calc(env(titlebar-area-x, 0px) + 14px); box-sizing: border-box; background: var(--winbar);
         -webkit-app-region: drag; user-select: none;
       }
       html.wco .winbar::after {
@@ -430,12 +430,15 @@
       .lootgrid .lootgrp:first-child .lootlabel { margin-top: 12px; }
       .lootgrid .lootlabel { break-after: avoid; }
       .lootgrp ul { list-style: none; margin: 0; padding: 0; }
+      .lootgrp.keep { break-inside: avoid; }
       .lootgrp li { break-inside: avoid; padding: 3px 0; }
       .sessruns { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
       .lootgrp li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 14.5px; line-height: 1.35; }
       .lootgrp li .ticon { width: 30px; height: 30px; object-fit: contain; }
       .lootgrp li .tcount { color: var(--muted); font-variant-numeric: tabular-nums; }
       .lootgrp li .cw { margin-left: 6px; }
+      .lootgrp li .tdetail { margin-top: 1px; color: var(--muted); font-size: 13px; }
+      .sessnote { margin: 14px 0 0; color: var(--muted); font-size: 13.5px; }
       .sessruns li, .runrow { display: grid; grid-template-columns: minmax(200px, 1fr) auto auto; gap: 6px 28px; align-items: baseline; font-size: 14.5px; }
       .sessruns li { grid-template-columns: minmax(160px, 240px) 90px 80px; justify-content: start; }
       .sessruns .rwhen, .runrow .rwhen { color: var(--faint); font-size: 13px; font-variant-numeric: tabular-nums; }
@@ -820,10 +823,9 @@
       .lo-top .vblock { margin-bottom: 0; }
       .lo-top-pact { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px 40px; }
       .lo-top-pact > .gear.pact { margin: 0; }
-      .lo-stats > * + * { margin-top: 28px; }
+      .lo-stats > * + * { margin-top: 20px; }
       .lo-top-pact .pactarts:first-child, .lo-top-pact .gear-head + .pactarts { margin-top: 0; }
       @media (max-width: 1100px) { .lo-top { grid-template-columns: 1fr; } }
-      .vtable.atable { max-width: 680px; }
       .atable th:first-child, .atable td:first-child { text-align: left; }
       .atable .aslot { display: block; color: var(--faint); font: 600 10.5px/1.3 var(--body); letter-spacing: 0.12em; text-transform: uppercase; }
       .atable .aname { color: var(--text); font-weight: 500; }
@@ -837,10 +839,10 @@
       .areq.unmet { opacity: 0.6; }
       .areq .ok { color: var(--accent-2); }
       .areq .no { color: var(--courage); }
-      .atal { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; max-width: 680px; margin-top: 14px; padding: 10px 10px 0; border-top: 1px solid var(--line-2); font-size: 14px; }
+      .atal { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 14px; padding: 10px 10px 0; border-top: 1px solid var(--line-2); font-size: 14px; }
       .atal .aslot { color: var(--faint); font: 600 10.5px/1.3 var(--body); letter-spacing: 0.12em; text-transform: uppercase; }
       .atal .aname { color: var(--text); font-weight: 500; }
-      .gear { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--line); border-radius: 3px; padding: 20px 22px 22px; min-width: 0; }
+      .gear, .vblock, .ablock { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--line); border-radius: 3px; padding: 20px 22px 22px; min-width: 0; }
       .gear-head {
         display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px;
         padding-bottom: 14px; margin-bottom: 4px; border-bottom: 1px solid var(--line);
@@ -880,7 +882,7 @@
       .vstrip { display: flex; gap: 2px; height: 7px; border-radius: 2px; overflow: hidden; background: var(--line); }
       .vstrip i { display: block; opacity: 0.85; }
       .vlegend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 8px; font-size: 14px; color: var(--muted); }
-      .vtable { margin-top: 12px; border-collapse: collapse; font-size: 14px; min-width: 320px; max-width: 520px; width: 100%; }
+      .vtable { margin-top: 12px; border-collapse: collapse; font-size: 14px; min-width: 320px; width: 100%; }
       .vtable th { font: 600 11px/1.2 var(--body); letter-spacing: 0.12em; text-transform: uppercase; text-align: right; padding: 4px 10px; }
       .vtable td { padding: 5px 10px; border-top: 1px solid var(--line); color: var(--muted); }
       .vtable td:first-child { color: var(--text); }
@@ -939,7 +941,7 @@
       .rcard.starred { --tick: color-mix(in srgb, var(--accent-hi) 70%, transparent); border-color: color-mix(in srgb, var(--accent-hi) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--accent) 8%, transparent); }
       .avprice.short { color: var(--courage); }
 
-      .stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat, .lgcard, .sesscard {
+      .stat, .lo, #mastery .xpgroup, .gear, .vblock, .ablock, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat, .lgcard, .sesscard {
         --tick: color-mix(in srgb, var(--accent) 42%, transparent);
         background-image:
           linear-gradient(var(--tick), var(--tick)), linear-gradient(var(--tick), var(--tick)),
@@ -952,7 +954,7 @@
           left 3px bottom 3px, left 3px bottom 3px, right 3px bottom 3px, right 3px bottom 3px;
         background-repeat: no-repeat;
       }
-      html.nobrackets :is(.stat, .lo, #mastery .xpgroup, .gear, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat, .lgcard, .sesscard) { background-image: none; }
+      html.nobrackets :is(.stat, .lo, #mastery .xpgroup, .gear, .vblock, .ablock, .erank, .avcard, .avgroup, .tradecard, .rcard, .upflat, .lgcard, .sesscard) { background-image: none; }
       .lo.open { --tick: color-mix(in srgb, var(--accent-hi) 60%, transparent); }
 
       #panel-settings > .cols.acctrow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); }
@@ -2183,6 +2185,8 @@
         if (list.length) $("pickups").innerHTML = rows || '<span class="muted">No pickups match.</span>';
       }
       let LAST_SESSIONS = null;
+      // Totem rows in session cards open the same popup as traded Totems.
+      const SESSION_POP = new Map();
       const SESSION_SHOWN = 20;
       let sessionsAll = false;
       const LOOT_GROUPS = ["Weapons", "Armour", "Pacts", "Totems", "Talismans", "Runes", "Joineries", "Fragments", "Resources", "Supplies", "Other"];
@@ -2234,11 +2238,15 @@
         };
         for (const [key, n] of Object.entries(p.counts || {})) put(key, n);
         const picked = new Map((LAST_PICKUPS || []).map((x) => [x.id, x]));
+        // Every Totem rolls its Virtue and grip, so each roll gets its own row.
+        const totem = (it) => put(`${it.key}#${it.totem ? `${it.totem.virtue}#${it.totem.grip}#${it.totem.rank}` : ""}`, 1, { key: it.key, ...lootInfo(it.key), totem: it.totem || null });
         for (const it of p.items || []) {
           const w = picked.get(it.id);
-          if (w && (w.craftwork || w.moonsteel)) put(`${it.key}#${it.id}`, 1, { key: it.key, ...lootInfo(it.key), weapon: w });
+          if (lootGroup(it.key) === "Totems") totem(it);
+          else if (w && (w.craftwork || w.moonsteel)) put(`${it.key}#${it.id}`, 1, { key: it.key, ...lootInfo(it.key), weapon: w });
           else put(it.key, 1);
         }
+        for (const it of p.logTotems || []) totem(it);
         return LOOT_GROUPS.map((g) => ({ name: g, rows: [...groups.get(g).values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name)) })).filter((g) => g.rows.length);
       }
       function sessionCard(p, now) {
@@ -2254,20 +2262,31 @@
           runs.length ? `<b>${runs.length}</b> dungeon run${runs.length === 1 ? "" : "s"}` : "",
         ].filter(Boolean).join(" &nbsp;·&nbsp; ");
         const row = (r) => {
+          const n = r.n > 1 ? `<span class="tcount">×${fmt(r.n)}</span>` : "<span></span>";
+          if (lootGroup(r.key) === "Totems") {
+            const id = String(SESSION_POP.size + 1);
+            SESSION_POP.set(id, { key: r.key, totem: r.totem });
+            const roll = r.totem ? `<div class="tdetail">${totemRoll(r.totem)}</div>` : "";
+            return `<li class="poprow" data-kind="sesstotem" data-type="${id}">${upIcon(r.icon, "ticon")}<div><div>${escHtml(r.name)}</div>${roll}</div>${n}</li>`;
+          }
           const w = r.weapon;
           const cw = w ? craftworkInfo(w.craftwork) : null;
           const badge = cw ? ` <span class="cw cw${cw.tier}">${cw.name}</span>` : "";
           const moon = w && w.moonsteel ? ' <span class="moonsteel" title="Rare Moonsteel appearance">✦ Moonsteel</span>' : "";
-          return `<li>${upIcon(r.icon, "ticon")}<span>${escHtml(r.name)}${badge}${moon}</span>${r.n > 1 ? `<span class="tcount">×${fmt(r.n)}</span>` : "<span></span>"}</li>`;
+          return `<li>${upIcon(r.icon, "ticon")}<span>${escHtml(r.name)}${badge}${moon}</span>${n}</li>`;
         };
-        const loot = groups.map((g) => `<div class="lootgrp"><div class="lootlabel">${g.name}</div><ul>${g.rows.map(row).join("")}</ul></div>`).join("");
+        // Short groups stay in one column; long ones flow across columns.
+        const loot = groups.map((g) => `<div class="lootgrp${g.rows.length <= 6 ? " keep" : ""}"><div class="lootlabel">${g.name}</div><ul>${g.rows.map(row).join("")}</ul></div>`).join("");
         const topXp = Object.entries(p.xp || {}).sort((a, b) => b[1] - a[1]).slice(0, 6)
           .map(([k, n]) => `<span class="xpchip">${escHtml(shortName(k))} <b>+${fmt(n)}</b></span>`).join("");
         const runRows = runs.map((r) => {
           const e = runEnd(r, p);
           return `<li><span class="rname">${escHtml(r.name)}</span><span class="rwhen">${clockTime(r.start)}</span><span class="rtime">${e === null ? '<span class="live">Inside now</span>' : spanTime(e - r.start)}</span></li>`;
         }).join("");
-        const empty = !items && !runs.length && !xp
+        const unread = p.unreadSince
+          ? `<p class="sessnote" title="SFHelper can only read your inventory while the game runs. The game saved again before it closed, so that part comes in with the first read of your next session.">Anything the game saved after ${clockTime(p.unreadSince)}, SFHelper's last read, is added when you next play.</p>`
+          : "";
+        const empty = !items && !runs.length && !xp && !unread
           ? `<p class="muted">${live ? "Nothing saved yet. The game saves what you pick up every few minutes, and SFHelper reads it soon after." : p.reads ? "Nothing new came in during this session." : "SFHelper didn't read your inventory during this session, so what you picked up isn't known."}</p>`
           : "";
         return `<div class="sesscard${live ? " live" : ""}">
@@ -2276,7 +2295,7 @@
           ${loot ? `<div class="lootgrid">${loot}</div>` : ""}
           ${runRows ? `<div class="lootlabel">Dungeon Runs</div><ul class="sessruns">${runRows}</ul>` : ""}
           ${topXp ? `<div class="lootlabel">XP</div><div class="xpchips">${topXp}</div>` : ""}
-          ${empty}
+          ${unread}${empty}
         </div>`;
       }
       function renderSessions() {
@@ -2284,10 +2303,11 @@
         const now = Date.now();
         const played = all.reduce((n, p) => n + ((sessionLive(p, now) ? Math.max(p.end, now) : p.end) - p.start), 0);
         $("sessionSummary").innerHTML = all.length
-          ? `<b>${all.length}</b> session${all.length === 1 ? "" : "s"} &nbsp;·&nbsp; <b>${spanTime(played)}</b> played <span class="muted" title="Loot comes from SFHelper's inventory reads, which follow the game's saves (every few minutes), so it's counted per session rather than per pickup. Trades, crafts you collect and Avakot purchases are left out.">&nbsp;·&nbsp; what came in between the game's saves</span>`
+          ? `<b>${all.length}</b> session${all.length === 1 ? "" : "s"} &nbsp;·&nbsp; <b>${spanTime(played)}</b> played <span class="muted" title="Loot comes from SFHelper's inventory reads, which follow the game's saves (every few minutes), so it's counted per session rather than per pickup. Totems animals give you show at once, from the game's log. Trades, crafts you collect and Avakot purchases are left out.">&nbsp;·&nbsp; what came in between the game's saves</span>`
           : "";
         if (!all.length) return;
         const shown = sessionsAll ? all : all.slice(0, SESSION_SHOWN);
+        SESSION_POP.clear();
         $("sessions").innerHTML = shown.map((p) => sessionCard(p, now)).join("") +
           (all.length > shown.length ? `<button class="mini" id="sessionsMore">Show all ${all.length}</button>` : "");
       }
@@ -2380,15 +2400,13 @@
         TRADE_POP.set(id, i);
         return ` poprow" data-kind="trade" data-type="${id}`;
       };
+      // "Courage · Polearm · Rank 4", the Virtue in its colour.
+      const totemRoll = (t) => [t.virtue ? `<span style="color:${VIRTUE_COLOR[t.virtue] || "inherit"}">${t.virtue}</span>` : "", escHtml(t.grip), `Rank ${t.rank}`].filter(Boolean).join(" · ");
       function tradeItem(i) {
         const name = tradeItemName(i.key);
         const count = i.count > 1 ? `<span class="tcount">×${fmt(i.count)}</span>` : "<span></span>";
         const pop = tradePopAttrs(i);
-        if (i.totem) {
-          const v = i.totem.virtue;
-          const detail = [v ? `<span style="color:${VIRTUE_COLOR[v] || "inherit"}">${v}</span>` : "", escHtml(i.totem.grip), `Rank ${i.totem.rank}`].filter(Boolean).join(" · ");
-          return `<li class="tweapon${pop}">${tradeIcon(name)}<div><div>${escHtml(name)}</div><div class="tdetail">${detail}</div></div></li>`;
-        }
+        if (i.totem) return `<li class="tweapon${pop}">${tradeIcon(name)}<div><div>${escHtml(name)}</div><div class="tdetail">${totemRoll(i.totem)}</div></div></li>`;
         if (!i.weapon) return `<li${pop ? ` class="${pop.slice(1)}"` : ""}>${tradeIcon(name)}<span>${escHtml(name)}</span>${count}</li>`;
         const cw = craftworkInfo(i.weapon.craftwork);
         const chips = temperChips(i.weapon.tempers);
@@ -2401,9 +2419,7 @@
         const t = i.totem;
         const aligned = !!t && t.grip !== "Universal";
         const trigger = d ? TRIGGER_LABEL[d.enhances] || d.enhances : null;
-        const sub = t
-          ? [t.virtue ? `<span style="color:${VIRTUE_COLOR[t.virtue] || "inherit"}">${t.virtue}</span>` : "", escHtml(t.grip), `Rank ${t.rank}`, trigger ? escHtml(trigger) : ""].filter(Boolean).join(" · ")
-          : "Totem";
+        const sub = t ? [totemRoll(t), trigger ? escHtml(trigger) : ""].filter(Boolean).join(" · ") : "Totem";
         const effect = d && t ? totemEffectHtml(d, t.rank, aligned) : "";
         return `<div class="tp-head">${upIcon(tradeIconSrc(name), "ticn")}<div class="tp-name">${escHtml(name)}</div></div><div class="tp-rank">${sub}</div>` +
           (d && d.description ? `<div class="tp-quote">${escHtml(d.description)}</div>` : "") +
@@ -3317,6 +3333,7 @@
       function upgradePopHtml(kind, type) {
         if (kind === "recipe") return recipePopHtml(type);
         if (kind === "trade") return tradePopHtml(TRADE_POP.get(type));
+        if (kind === "sesstotem") return tradePopHtml(SESSION_POP.get(type));
         const u = LAST_UPGRADE_ITEMS || { runes: [], joineries: [], gear: [] };
         if (kind === "rune") {
           const d = runeInfo(type);
