@@ -1137,7 +1137,7 @@
         <button class="tab" data-tab="upgrades">Upgrades</button>
         <button class="tab" data-tab="recipes">Recipes</button>
         <button class="tab" data-tab="forge">Forge</button>
-        <button class="tab" data-tab="pickups">Pickups</button>
+        <button class="tab" data-tab="pickups">Sessions</button>
         <button class="tab" data-tab="trades">Trades</button>
         <button class="tab" data-tab="avakot">Avakot</button>
         <button class="tab" data-tab="stats">Stats</button>
@@ -1312,8 +1312,8 @@
       </div>
 
       <div class="panel" id="panel-pickups">
-        <div class="subtabs" id="pickupTabs" role="tablist" aria-label="Pickups">
-          <button class="fchip" role="tab" data-view="sessions"><img src="img/game/category-loot.png" alt="" onerror="this.remove()">Sessions</button>
+        <div class="subtabs" id="pickupTabs" role="tablist" aria-label="Sessions">
+          <button class="fchip" role="tab" data-view="sessions"><img src="img/game/category-loot.png" alt="" onerror="this.remove()">Play Sessions</button>
           <button class="fchip" role="tab" data-view="runs"><img src="img/game/dungeon-entrance.png" alt="" onerror="this.remove()">Dungeon Runs</button>
           <button class="fchip" role="tab" data-view="weapons"><img src="img/game/category-weapons.png" alt="" onerror="this.remove()">Weapons</button>
         </div>
@@ -1325,6 +1325,7 @@
             <button class="mini" data-hist="import" title="Add play sessions, pickups and trades from an exported file. Nothing already here is replaced.">Import</button>
             <span class="histmsg"></span>
           </div>
+          <input id="sessionSearch" class="wsearch" placeholder="Search loot, Totems or dungeons, e.g. Quenching Acid, Spirit, Glades…" spellcheck="false" />
           <div class="daily" id="sessionSummary"></div>
           <div id="sessions"><span class="muted">Each time you play, what you pick up shows here as a session: resources, fragments, weapons, armour, Totems and more. SFHelper needs to be open while you play.</span></div>
         </section>
@@ -2249,11 +2250,31 @@
         for (const it of p.logTotems || []) totem(it);
         return LOOT_GROUPS.map((g) => ({ name: g, rows: [...groups.get(g).values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name)) })).filter((g) => g.rows.length);
       }
-      function sessionCard(p, now) {
+      let SESSION_SEARCH = "";
+      // What a session shows for a search: loot rows by name, group, a Totem's roll
+      // or a weapon's craftwork, dungeon runs by dungeon, XP by weapon or Pact.
+      function sessionParts(p, words) {
+        const groups = sessionLoot(p);
+        const runs = (p.runs || []).filter((r) => r.name);
+        const xp = Object.entries(p.xp || {}).sort((a, b) => b[1] - a[1]);
+        if (!words.length) return { groups, runs, xp: xp.slice(0, 6) };
+        const rowWords = (g, r) => {
+          const cw = r.weapon ? craftworkInfo(r.weapon.craftwork) : null;
+          const roll = r.totem ? `${r.totem.virtue || ""} ${r.totem.grip} Rank ${r.totem.rank}` : "";
+          return [r.name, g, roll, cw && cw.name, r.weapon && r.weapon.moonsteel ? "Moonsteel" : ""];
+        };
+        return {
+          groups: groups.map((g) => ({ ...g, rows: g.rows.filter((r) => matchesWords(words, rowWords(g.name, r))) })).filter((g) => g.rows.length),
+          runs: runs.filter((r) => matchesWords(words, [r.name, /Subboss/i.test(r.level) ? "Agari" : "", "Dungeon Runs"])),
+          xp: xp.filter(([k]) => matchesWords(words, [shortName(k), "XP"])),
+        };
+      }
+      const partsFound = (x) => x.groups.length || x.runs.length || x.xp.length;
+      function sessionCard(p, now, parts) {
         const live = sessionLive(p, now);
         const end = live ? Math.max(p.end, now) : p.end;
-        const groups = sessionLoot(p);
-        const items = groups.reduce((n, g) => n + g.rows.reduce((m, r) => m + r.n, 0), 0);
+        const { groups, runs: runList, xp: xpList } = parts;
+        const items = sessionLoot(p).reduce((n, g) => n + g.rows.reduce((m, r) => m + r.n, 0), 0);
         const xp = Object.values(p.xp || {}).reduce((a, b) => a + b, 0);
         const runs = (p.runs || []).filter((r) => r.name);
         const meta = [
@@ -2277,9 +2298,8 @@
         };
         // Short groups stay in one column; long ones flow across columns.
         const loot = groups.map((g) => `<div class="lootgrp${g.rows.length <= 6 ? " keep" : ""}"><div class="lootlabel">${g.name}</div><ul>${g.rows.map(row).join("")}</ul></div>`).join("");
-        const topXp = Object.entries(p.xp || {}).sort((a, b) => b[1] - a[1]).slice(0, 6)
-          .map(([k, n]) => `<span class="xpchip">${escHtml(shortName(k))} <b>+${fmt(n)}</b></span>`).join("");
-        const runRows = runs.map((r) => {
+        const topXp = xpList.map(([k, n]) => `<span class="xpchip">${escHtml(shortName(k))} <b>+${fmt(n)}</b></span>`).join("");
+        const runRows = runList.map((r) => {
           const e = runEnd(r, p);
           return `<li><span class="rname">${escHtml(r.name)}</span><span class="rwhen">${clockTime(r.start)}</span><span class="rtime">${e === null ? '<span class="live">Inside now</span>' : spanTime(e - r.start)}</span></li>`;
         }).join("");
@@ -2302,15 +2322,28 @@
         const all = (LAST_SESSIONS || []).filter((p) => !p.ended || p.end - p.start >= 60000 || p.reads || (p.runs || []).length);
         const now = Date.now();
         const played = all.reduce((n, p) => n + ((sessionLive(p, now) ? Math.max(p.end, now) : p.end) - p.start), 0);
-        $("sessionSummary").innerHTML = all.length
-          ? `<b>${all.length}</b> session${all.length === 1 ? "" : "s"} &nbsp;·&nbsp; <b>${spanTime(played)}</b> played <span class="muted" title="Loot comes from SFHelper's inventory reads, which follow the game's saves (every few minutes), so it's counted per session rather than per pickup. Totems animals give you show at once, from the game's log. Trades, crafts you collect and Avakot purchases are left out.">&nbsp;·&nbsp; what came in between the game's saves</span>`
-          : "";
+        const words = searchWords(SESSION_SEARCH);
+        const hits = all.map((p) => ({ p, parts: sessionParts(p, words) })).filter((h) => !words.length || partsFound(h.parts));
+        const note = `<span class="muted" title="Loot comes from SFHelper's inventory reads, which follow the game's saves (every few minutes), so it's counted per session rather than per pickup. Totems animals give you show at once, from the game's log. Trades, crafts you collect and Avakot purchases are left out.">&nbsp;·&nbsp; what came in between the game's saves</span>`;
+        const found = hits.reduce((n, h) => n + h.parts.groups.reduce((m, g) => m + g.rows.reduce((k, r) => k + r.n, 0), 0), 0);
+        const runsFound = hits.reduce((n, h) => n + h.parts.runs.length, 0);
+        $("sessionSummary").innerHTML = !all.length ? ""
+          : words.length
+            ? [found ? `<b>${fmt(found)}</b> matching item${found === 1 ? "" : "s"}` : "", runsFound ? `<b>${runsFound}</b> dungeon run${runsFound === 1 ? "" : "s"}` : ""].filter(Boolean).join(" &nbsp;·&nbsp; ") +
+              `${found || runsFound ? " in " : ""}<b>${hits.length}</b> of ${all.length} session${all.length === 1 ? "" : "s"}`
+            : `<b>${all.length}</b> session${all.length === 1 ? "" : "s"} &nbsp;·&nbsp; <b>${spanTime(played)}</b> played ${note}`;
         if (!all.length) return;
-        const shown = sessionsAll ? all : all.slice(0, SESSION_SHOWN);
+        const shown = sessionsAll ? hits : hits.slice(0, SESSION_SHOWN);
         SESSION_POP.clear();
-        $("sessions").innerHTML = shown.map((p) => sessionCard(p, now)).join("") +
-          (all.length > shown.length ? `<button class="mini" id="sessionsMore">Show all ${all.length}</button>` : "");
+        $("sessions").innerHTML = !hits.length
+          ? '<span class="muted">No sessions match.</span>'
+          : shown.map((h) => sessionCard(h.p, now, h.parts)).join("") +
+            (hits.length > shown.length ? `<button class="mini" id="sessionsMore">Show all ${hits.length}</button>` : "");
       }
+      $("sessionSearch").addEventListener("input", (e) => {
+        SESSION_SEARCH = e.target.value;
+        renderSessions();
+      });
       $("sessions").addEventListener("click", (e) => {
         if (!e.target.closest("#sessionsMore")) return;
         sessionsAll = true;
